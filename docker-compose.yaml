@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2021 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+version: '3'
+
+services:
+
+  notifier:
+    container_name: 'notifier'
+    build:
+      context: docker
+    env_file:
+      - .env
+    command:
+      - './pipeline/notifier.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
+    stop_signal: SIGINT
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
