@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2021 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+trees:
+
+  mainline:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+
+build_environments:
+
+  gcc-10:
+    cc: gcc
+    cc_version: 10
+    arch_params:
+      x86_64:
+        name: 'x86'
+
+
+build_configs:
+
+  mainline:
+    tree: mainline
+    branch: 'master'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            filters:
+              - regex: { defconfig: 'x86_64_defconfig' }
+
+
+db_configs:
+
+  docker-host:
+    db_type: kernelci_api
+    url: http://172.17.0.1:8001
+
+
+labs:
+
+  shell:
+    lab_type: shell
+
+
+test_plans:
+
+  check-describe:
+    pattern: 'check-describe.jinja2'
+
+
+device_types:
+
+  python:
+    base_name: shell
+    class: shell
+    params:
+      shebang: '/usr/bin/env python3'
