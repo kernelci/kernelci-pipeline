@@ -21,6 +21,7 @@ services:
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
+      - './data:/home/kernelci/data'
 
   runner:
     <<: *base-service
