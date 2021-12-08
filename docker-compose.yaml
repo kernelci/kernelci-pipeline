@@ -30,3 +30,11 @@ services:
       - './pipeline/runner.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+
+  trigger:
+    <<: *base-service
+    container_name: 'trigger'
+    command:
+      - './pipeline/trigger.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
