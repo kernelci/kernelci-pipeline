@@ -7,7 +7,7 @@ version: '3'
 
 services:
 
-  notifier:
+  notifier: &base-service
     container_name: 'notifier'
     build:
       context: docker
@@ -21,3 +21,11 @@ services:
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
+
+  runner:
+    <<: *base-service
+    container_name: 'runner'
+    command:
+      - './pipeline/runner.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
