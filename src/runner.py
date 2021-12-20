@@ -9,6 +9,7 @@ import json
 import os
 import requests
 import sys
+import tempfile
 
 import kernelci
 import kernelci.config
@@ -23,6 +24,93 @@ def _arg_default(arg, default):
     return arg_copy
 
 
+class Runner:
+
+    def __init__(self, configs, args):
+        self._db_config = configs['db_configs'][args.db_config]
+        api_token = os.getenv('API_TOKEN')
+        self._db = kernelci.data.get_db(self._db_config, api_token)
+        self._plan_config = configs['test_plans'][args.plan]
+        self._device_config = configs['device_types']['python']
+        runtime_config = configs['labs']['shell']
+        self._runtime = kernelci.lab.get_api(runtime_config)
+        self._output = args.output
+        self._job_tmp_dirs = {}
+
+    def run(self):
+        sub_id = self._db.subscribe('node')
+        self._print("Listening for new checkout events")
+        self._print("Press Ctrl-C to stop.")
+
+        try:
+            while True:
+                sys.stdout.flush()
+                event = self._db.get_event(sub_id)
+                if event.data['op'] != 'created':
+                    continue
+
+                obj = self._db.get_node_from_event(event)
+                if obj['name'] != 'checkout':
+                    continue
+
+                self._print("Creating node")
+                node = self._create_node(obj)
+
+                tmp = tempfile.TemporaryDirectory(dir=self._output)
+                self._print("Generating job")
+                self._print(f"tmp: {tmp.name}")
+                output_file = self._generate_job(node, tmp.name)
+                self._print(f"output_file: {output_file}")
+
+                self._print("Running test")
+                process = self._runtime.submit(output_file, get_process=True)
+                self._job_tmp_dirs[process] = tmp
+
+                self._cleanup_paths()
+        except KeyboardInterrupt as e:
+            self._print("Stopping.")
+        finally:
+            self._db.unsubscribe(sub_id)
+
+    def _print(self, msg):
+        print(msg)
+        sys.stdout.flush()
+
+    def _create_node(self, obj):
+        node = {
+            'parent': obj['_id'],
+            'name': self._plan_config.name,
+            'revision': obj['revision'],
+        }
+        return self._db.submit({'node': node})[0]
+
+    def _generate_job(self, node, tmp):
+        revision = node['revision']
+        params = {
+            'name': self._plan_config.name,
+            'git_url': revision['url'],
+            'git_commit': revision['commit'],
+            'git_describe': revision['describe'],
+            'node_id': node['_id'],
+        }
+        params.update(self._plan_config.params)
+        params.update(self._device_config.params)
+        job = self._runtime.generate(
+            params, self._device_config, self._plan_config,
+            db_config=self._db_config
+        )
+        return self._runtime.save_file(job, tmp, params)
+
+    def _cleanup_paths(self):
+        job_tmp_dirs = {
+            process: tmp
+            for process, tmp in self._job_tmp_dirs.items()
+            if process.poll() is None
+        }
+        self._job_tmp_dirs = job_tmp_dirs
+        # ToDo: if stat != 0 then report error to API?
+
+
 class cmd_run(Command):
     help = "Run some arbitrary test"
     args = [Args.db_config]
@@ -32,65 +120,8 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        db = kernelci.data.get_db(db_config, api_token)
-        plan_config = configs['test_plans'][args.plan]
-        target_config = configs['device_types']['python']
-        runtime_config = configs['labs']['shell']
-        runtime = kernelci.lab.get_api(runtime_config)
-
-        sub_id = db.subscribe('node')
-        print("Listening for new checkout events")
-        print("Press Ctrl-C to stop.")
-        sys.stdout.flush()
-
-        try:
-            while True:
-                sys.stdout.flush()
-                event = db.get_event(sub_id)
-                if event.data['op'] != 'created':
-                    continue
-
-                obj = db.get_node_from_event(event)
-                if obj['name'] != 'checkout':
-                    continue
-
-                print("Creating node")
-                sys.stdout.flush()
-                node = self._create_node(db, obj, args.plan)
-
-                revision = node['revision']
-                params = {
-                    'name': plan_config.name,
-                    'git_url': revision['url'],
-                    'git_commit': revision['commit'],
-                    'git_describe': revision['describe'],
-                    'node_id': node['_id'],
-                }
-                params.update(plan_config.params)
-                params.update(target_config.params)
-                job = runtime.generate(params, target_config, plan_config,
-                                       db_config=db_config)
-                output_file = runtime.save_file(job, args.output, params)
-
-                print("Running test")
-                sys.stdout.flush()
-                res = runtime.submit(output_file)
-        except KeyboardInterrupt as e:
-            print("Stopping.")
-        finally:
-            db.unsubscribe(sub_id)
-
-        sys.stdout.flush()
-
-    def _create_node(self, db, obj, plan_name):
-        node = {
-            'parent': obj['_id'],
-            'name': plan_name,
-            'revision': obj['revision'],
-        }
-        return db.submit({'node': node})[0]
+        runner = Runner(configs, args)
+        runner.run()
 
 
 if __name__ == '__main__':
