@@ -9,6 +9,7 @@ import json
 import os
 import requests
 import sys
+import time
 
 import kernelci
 import kernelci.build
@@ -66,7 +67,7 @@ class cmd_run(Command):
         {
             'name': '--poll-period',
             'type': int,
-            'help': "Polling period in minutes, disabled by default",
+            'help': "Polling period in seconds, disabled by default",
             'default': 0,
         },
     ]
