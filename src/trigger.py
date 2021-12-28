@@ -45,7 +45,7 @@ def _run_trigger(args, build_config, db):
         'revision': {
             k: revision[k] for k in [
                 'tree', 'url', 'branch', 'commit', 'describe',
-        ]},
+            ]},
     }
     resp_obj = db.submit({'node': node})[0]
     node_id = resp_obj['_id']
