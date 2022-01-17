@@ -7,7 +7,6 @@
 
 import json
 import os
-import requests
 import sys
 import time
 
@@ -16,6 +15,19 @@ import kernelci.build
 import kernelci.config
 import kernelci.data
 from kernelci.cli import Args, Command, parse_opts
+import urllib
+import requests
+
+DEFAULT_URL = 'http://172.17.0.1:8001'
+
+
+def get_node_by_commit_id(commit_id):
+    """
+    Get node object by sending commit ID to 'nodes' endpoint
+    """
+    get_node_path = '?'.join(['nodes', 'revision.commit='+commit_id])
+    url = urllib.parse.urljoin(DEFAULT_URL, get_node_path)
+    return requests.get(url).json()
 
 
 def _run_trigger(args, build_config, db):
