@@ -34,6 +34,11 @@ def _run_trigger(args, build_config, db):
     if args.skip_pull:
         print("Not updating repo")
     else:
+        head_commit = kernelci.build.get_branch_head(build_config)
+        node_list = get_node_by_commit_id(head_commit)
+        if node_list:
+            print(f"Node exists with the latest git commit: {head_commit}")
+            return
         print(f"Updating repo: {args.kdir}")
         sys.stdout.flush()
         kernelci.build.update_repo(build_config, args.kdir)
