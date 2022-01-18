@@ -57,12 +57,8 @@ def _run_trigger(args, build_config, db):
     print(f"Sending revision node to API: {revision['commit']}")
     sys.stdout.flush()
     node = {
-        'name': "checkout",
-        'status': True,
-        'revision': {
-            k: revision[k] for k in [
-                'tree', 'url', 'branch', 'commit', 'describe',
-            ]},
+        'name': 'checkout',
+        'revision': revision,
     }
     resp_obj = db.submit({'node': node})[0]
     node_id = resp_obj['_id']
