@@ -31,28 +31,19 @@ def get_node_by_commit_id(commit_id):
 
 
 def _run_trigger(args, build_config, db):
-    if args.skip_pull:
-        print("Not updating repo")
-    else:
-        head_commit = kernelci.build.get_branch_head(build_config)
-        node_list = get_node_by_commit_id(head_commit)
-        if node_list:
-            print(f"Node exists with the latest git commit: {head_commit}")
-            return
-        print(f"Updating repo: {args.kdir}")
-        sys.stdout.flush()
-        kernelci.build.update_repo(build_config, args.kdir)
-
-    print("Gathering revision meta-data")
+    head_commit = kernelci.build.get_branch_head(build_config)
+    node_list = get_node_by_commit_id(head_commit)
+    if node_list:
+        print(f"Node exists with the latest git commit {head_commit}")
+        return
     sys.stdout.flush()
-    step = kernelci.build.RevisionData(args.kdir, args.output, reset=True)
-    res = step.run(opts={
+
+    revision = {
         'tree': build_config.tree.name,
         'url': build_config.tree.url,
         'branch': build_config.branch,
-    })
-    meta = kernelci.build.Metadata(args.output)
-    revision = meta.get('bmeta', 'revision')
+        'commit': head_commit
+    }
 
     print(f"Sending revision node to API: {revision['commit']}")
     sys.stdout.flush()
@@ -72,11 +63,6 @@ class cmd_run(Command):
         Args.kdir, Args.build_config, Args.output, Args.db_config,
     ]
     opt_args = [
-        {
-            'name': '--skip-pull',
-            'action': 'store_true',
-            'help': "Skip git pull",
-        },
         {
             'name': '--poll-period',
             'type': int,
