@@ -31,6 +31,14 @@ services:
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
 
+  tarball:
+    <<: *base-service
+    container_name: 'tarball'
+    command:
+      - './pipeline/tarball.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
+
   trigger:
     <<: *base-service
     container_name: 'trigger'
