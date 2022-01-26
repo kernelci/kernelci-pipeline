@@ -7,7 +7,6 @@
 
 import json
 import os
-import requests
 import sys
 import tempfile
 
@@ -37,6 +36,49 @@ class Runner:
         self._output = args.output
         self._job_tmp_dirs = {}
 
+    def _print(self, msg):
+        print(msg)
+        sys.stdout.flush()
+
+    def _create_node(self, checkout_node):
+        node = {
+            'parent': checkout_node['_id'],
+            'name': self._plan_config.name,
+            'artifacts': checkout_node['artifacts'],
+            'revision': checkout_node['revision'],
+        }
+        return self._db.submit({'node': node})[0]
+
+    def _generate_job(self, node, tmp):
+        self._print("Generating job")
+        revision = node['revision']
+        params = {
+            'name': self._plan_config.name,
+            'git_url': revision['url'],
+            'git_commit': revision['commit'],
+            'git_describe': revision['describe'],
+            'node_id': node['_id'],
+            'tarball_url': node['artifacts']['tarball'],
+            'workspace': tmp,
+        }
+        params.update(self._plan_config.params)
+        params.update(self._device_config.params)
+        job = self._runtime.generate(
+            params, self._device_config, self._plan_config,
+            db_config=self._db_config
+        )
+        output_file = self._runtime.save_file(job, tmp, params)
+        return output_file
+
+    def _cleanup_paths(self):
+        job_tmp_dirs = {
+            process: tmp
+            for process, tmp in self._job_tmp_dirs.items()
+            if process.poll() is None
+        }
+        self._job_tmp_dirs = job_tmp_dirs
+        # ToDo: if stat != 0 then report error to API?
+
     def run(self):
         sub_id = self._db.subscribe('node')
         self._print("Listening for new checkout events")
@@ -46,21 +88,21 @@ class Runner:
             while True:
                 sys.stdout.flush()
                 event = self._db.get_event(sub_id)
-                if event.data['op'] != 'created':
+                if event.data['op'] != 'updated':
                     continue
 
-                obj = self._db.get_node_from_event(event)
-                if obj['name'] != 'checkout':
+                checkout_node = self._db.get_node_from_event(event)
+                if checkout_node['name'] != 'checkout':
                     continue
 
-                self._print("Creating node")
-                node = self._create_node(obj)
+                if checkout_node['status'] is not True:
+                    continue
+
+                self._print("Creating test node")
+                node = self._create_node(checkout_node)
 
                 tmp = tempfile.TemporaryDirectory(dir=self._output)
-                self._print("Generating job")
-                self._print(f"tmp: {tmp.name}")
                 output_file = self._generate_job(node, tmp.name)
-                self._print(f"output_file: {output_file}")
 
                 self._print("Running test")
                 process = self._runtime.submit(output_file, get_process=True)
@@ -72,44 +114,6 @@ class Runner:
         finally:
             self._db.unsubscribe(sub_id)
 
-    def _print(self, msg):
-        print(msg)
-        sys.stdout.flush()
-
-    def _create_node(self, obj):
-        node = {
-            'parent': obj['_id'],
-            'name': self._plan_config.name,
-            'revision': obj['revision'],
-        }
-        return self._db.submit({'node': node})[0]
-
-    def _generate_job(self, node, tmp):
-        revision = node['revision']
-        params = {
-            'name': self._plan_config.name,
-            'git_url': revision['url'],
-            'git_commit': revision['commit'],
-            'git_describe': revision['describe'],
-            'node_id': node['_id'],
-        }
-        params.update(self._plan_config.params)
-        params.update(self._device_config.params)
-        job = self._runtime.generate(
-            params, self._device_config, self._plan_config,
-            db_config=self._db_config
-        )
-        return self._runtime.save_file(job, tmp, params)
-
-    def _cleanup_paths(self):
-        job_tmp_dirs = {
-            process: tmp
-            for process, tmp in self._job_tmp_dirs.items()
-            if process.poll() is None
-        }
-        self._job_tmp_dirs = job_tmp_dirs
-        # ToDo: if stat != 0 then report error to API?
-
 
 class cmd_run(Command):
     help = "Run some arbitrary test"
@@ -120,8 +124,8 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        runner = Runner(configs, args)
-        runner.run()
+        Runner(configs, args).run()
+        return True
 
 
 if __name__ == '__main__':
