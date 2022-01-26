@@ -49,7 +49,7 @@ def _run_trigger(args, build_config, db):
 class cmd_run(Command):
     help = "Submit a new revision to the API based on local git repo"
     args = [
-        Args.kdir, Args.build_config, Args.output, Args.db_config,
+        Args.build_config, Args.db_config,
     ]
     opt_args = [
         {
