@@ -18,21 +18,10 @@ from kernelci.cli import Args, Command, parse_opts
 import urllib
 import requests
 
-DEFAULT_URL = 'http://172.17.0.1:8001'
-
-
-def get_node_by_commit_id(commit_id):
-    """
-    Get node object by sending commit ID to 'nodes' endpoint
-    """
-    get_node_path = '?'.join(['nodes', 'revision.commit='+commit_id])
-    url = urllib.parse.urljoin(DEFAULT_URL, get_node_path)
-    return requests.get(url).json()
-
 
 def _run_trigger(args, build_config, db):
     head_commit = kernelci.build.get_branch_head(build_config)
-    node_list = get_node_by_commit_id(head_commit)
+    node_list = db.get_nodes_by_commit_hash(head_commit)
     if node_list:
         print(f"Node exists with the latest git commit {head_commit}")
         return
