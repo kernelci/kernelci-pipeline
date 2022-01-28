@@ -7,6 +7,7 @@
 
 import os
 import sys
+import urllib.parse
 
 import kernelci
 import kernelci.build
@@ -31,6 +32,7 @@ class Tarball:
         self._ssh_port = args.ssh_port
         self._ssh_user = args.ssh_user
         self._ssh_host = args.ssh_host
+        self._storage_url = args.storage_url
 
     def _print(self, msg):
         print(msg)
@@ -61,7 +63,7 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         self._info(cmd)
         kernelci.shell_cmd(cmd)
         self._info("Tarball created")
-        return os.path.join(self._output, tarball)
+        return tarball
 
     def _push_tarball(self, config, describe):
         self._info(f"Updating repo for {config.name}")
@@ -69,7 +71,8 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         self._info("Repo updated")
 
         # ToDo: kernelci.build.make_tarball()
-        tarball_path = self._make_tarball(config, describe)
+        tarball = self._make_tarball(config, describe)
+        tarball_path = os.path.join(self._output, tarball)
         self._info(f"Uploading {tarball_path}")
         # ToDo: self._storage.upload()
         cmd = """\
@@ -85,10 +88,14 @@ scp \
         kernelci.shell_cmd(cmd)
         self._info("Upload complete")
         os.unlink(tarball_path)
+        return tarball
 
-    def _update_node(self, node, describe, status):
+    def _update_node(self, node, describe, tarball, status):
         node['revision']['describe'] = describe
         node['status'] = status
+        node['artifacts'] = {
+            'tarball': urllib.parse.urljoin(self._storage_url, tarball),
+        }
         self._db.submit({'node': node})
 
     def run(self):
@@ -118,9 +125,9 @@ scp \
                     build_config.tree.name, self._kdir
                 )
 
-                self._push_tarball(build_config, describe)
+                tarball = self._push_tarball(build_config, describe)
 
-                self._update_node(node, describe, True)
+                self._update_node(node, describe, tarball, True)
         except KeyboardInterrupt as e:
             self._print("Stopping.")
         finally:
@@ -151,7 +158,11 @@ class cmd_run(Command):
             'help': "Storage SSH host",
             'default': '172.17.0.1',
         },
-
+        {
+            'name': '--storage-url',
+            'help': "Storage HTTP URL for downloads",
+            'default': 'http://172.17.0.1:8002/',
+        },
     ]
 
     def __call__(self, configs, args):
