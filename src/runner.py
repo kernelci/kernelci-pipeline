@@ -34,11 +34,16 @@ class Runner:
         runtime_config = configs['labs']['shell']
         self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = args.output
+        self._verbose = args.verbose
         self._job_tmp_dirs = {}
 
     def _print(self, msg):
         print(msg)
         sys.stdout.flush()
+
+    def _info(self, msg):
+        if self._verbose:
+            self._print(msg)
 
     def _create_node(self, checkout_node):
         node = {
@@ -51,6 +56,7 @@ class Runner:
 
     def _generate_job(self, node, tmp):
         self._print("Generating job")
+        self._info(f"tmp: {tmp}")
         revision = node['revision']
         params = {
             'name': self._plan_config.name,
@@ -68,6 +74,7 @@ class Runner:
             db_config=self._db_config
         )
         output_file = self._runtime.save_file(job, tmp, params)
+        self._info(f"output_file: {output_file}")
         return output_file
 
     def _cleanup_paths(self):
@@ -98,6 +105,10 @@ class Runner:
                 if checkout_node['status'] is not True:
                     continue
 
+                self._info("Tarball: {}".format(
+                    checkout_node['artifacts']['tarball']
+                ))
+
                 self._print("Creating test node")
                 node = self._create_node(checkout_node)
 
@@ -117,7 +128,7 @@ class Runner:
 
 class cmd_run(Command):
     help = "Run some arbitrary test"
-    args = [Args.db_config]
+    args = [Args.db_config, Args.verbose]
     opt_args = [
         _arg_default(Args.plan, 'check-describe'),
         _arg_default(Args.output, 'data'),
