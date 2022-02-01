@@ -14,22 +14,13 @@ GIT_COMMIT = '{{ git_commit}}'
 GIT_DESCRIBE = '{{ git_describe }}'
 
 
-def _get_makefile(base_url, commit):
-    url = f'{base_url}/plain/Makefile/?id={commit}'
-    print(url)
-    resp = requests.get(url)
-    resp.raise_for_status()
-    return resp
-
-
 def _get_makefile_rev(makefile):
     makefile_rev = {
         'VERSION': None,
         'PATCHLEVEL': None,
         'SUBLEVEL': None,
     }
-    for line_n, line_raw in enumerate(makefile.iter_lines()):
-        line = line_raw.decode()
+    for line_n, line in enumerate(makefile):
         value = list(val.strip() for val in line.split('='))
         for key in makefile_rev.keys():
             if value[0] == key:
@@ -62,16 +53,12 @@ def _check_describe(makefile, describe):
 
 
 def main(argv):
-    if not GIT_URL.startswith('https://git.kernel.org'):
-        print("Only git.kernel.org URLs are supported")
-        return False
-
-    print("Getting Makefile")
-    makefile = _get_makefile(GIT_URL, GIT_COMMIT)
+    src_path = argv[1]
 
     print("Checking git describe")
-    res = _check_describe(makefile, GIT_DESCRIBE)
-    print("Result: {}".format("PASS" if res is True else "FAIL"))
+    with open(os.path.join(src_path, 'Makefile')) as makefile:
+        res = _check_describe(makefile, GIT_DESCRIBE)
+        print("Result: {}".format("PASS" if res is True else "FAIL"))
 
     return res
 {% endblock %}

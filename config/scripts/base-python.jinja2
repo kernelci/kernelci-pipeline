@@ -6,6 +6,8 @@
 {% block script_init -%}
 import os
 import sys
+import tarfile
+import urllib.parse
 import yaml
 
 import kernelci.data
@@ -14,6 +16,8 @@ import kernelci.config
 DB_CONFIG_YAML = """
 {{ db_config_yaml }}"""
 NODE_ID = "{{ node_id }}"
+TARBALL_URL = "{{ tarball_url }}"
+WORKSPACE = "{{ workspace }}"
 {% endblock %}
 
 {% block script_exit -%}
@@ -34,8 +38,23 @@ def _get_db():
     return kernelci.data.get_db(db_config, api_token)
 
 
+def _get_source(url):
+    resp = requests.get(url, stream=True)
+    resp.raise_for_status()
+    tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
+    base, ext = tarball_name.split('.tar.')
+    with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
+        tarball.extractall(path=WORKSPACE)
+    return os.path.join(WORKSPACE, base)
+
+
 if __name__ == '__main__':
-    res = main(sys.argv)
+    print("Getting kernel source tree")
+    try:
+        src_path = _get_source(TARBALL_URL)
+        res = main(sys.argv + [src_path])
+    except:
+        res = False
 
     if NODE_ID:
         db = _get_db()
