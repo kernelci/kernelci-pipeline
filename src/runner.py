@@ -124,6 +124,7 @@ class Runner:
             self._print("Stopping.")
         finally:
             self._db.unsubscribe(sub_id)
+            self._cleanup_paths()
 
 
 class cmd_run(Command):
