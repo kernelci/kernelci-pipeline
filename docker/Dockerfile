@@ -16,5 +16,7 @@ USER kernelci
 ENV PATH=$PATH:/home/kernelci/.local/bin
 WORKDIR /home/kernelci
 
-# Install kernelci-core from api-pipeline topic branch
-RUN pip install git+https://github.com/kernelci/kernelci-core.git@api-pipeline
+# Install kernelci-core from pinned revision:
+# kernelci/data/kernelci_api: add KernelCI_API.get_nodes_by_commit_hash
+RUN pip install git+https://github.com/kernelci/kernelci-core.git@\
+6c277bec689d060e599532873631b47192a4314f
