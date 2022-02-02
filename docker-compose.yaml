@@ -56,3 +56,13 @@ services:
       - '/home/kernelci/pipeline/kcidb.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+
+  test_report:
+    <<: *base-service
+    container_name: 'test_report'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/test_report.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
