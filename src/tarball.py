@@ -50,6 +50,11 @@ class Tarball:
             if config.tree.name == tree and config.branch == branch:
                 return config
 
+    def _update_repo(self, config):
+        self._info(f"Updating repo for {config.name}")
+        kernelci.build.update_repo(config, self._kdir)
+        self._info("Repo updated")
+
     def _make_tarball(self, config, describe):
         name = '-'.join(['linux', config.tree.name, config.branch, describe])
         tarball = f"{name}.tar.gz"
@@ -66,10 +71,6 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         return tarball
 
     def _push_tarball(self, config, describe):
-        self._info(f"Updating repo for {config.name}")
-        kernelci.build.update_repo(config, self._kdir)
-        self._info("Repo updated")
-
         # ToDo: kernelci.build.make_tarball()
         tarball = self._make_tarball(config, describe)
         tarball_path = os.path.join(self._output, tarball)
@@ -121,12 +122,12 @@ scp \
                 if build_config is None:
                     continue
 
+                self._update_repo(build_config)
+
                 describe = kernelci.build.git_describe(
                     build_config.tree.name, self._kdir
                 )
-
                 tarball = self._push_tarball(build_config, describe)
-
                 self._update_node(node, describe, tarball, True)
         except KeyboardInterrupt as e:
             self._print("Stopping.")
