@@ -46,3 +46,13 @@ services:
       - './pipeline/trigger.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+
+  kcidb:
+    <<: *base-service
+    container_name: 'kcidb'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/kcidb.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
