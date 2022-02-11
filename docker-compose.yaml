@@ -38,6 +38,7 @@ services:
       - './pipeline/tarball.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+      - '--storage-url=${STORAGE_URL:-http://172.17.0.1:8002/}'
 
   trigger:
     <<: *base-service
