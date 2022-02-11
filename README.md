@@ -55,3 +55,17 @@ Stopping notifier ... done
 
 The `trigger` service was run only once as it's not currently configured to run
 periodically.
+
+
+### Setup KernelCI Pipeline on WSL
+
+To setup `kernelci-pipeline` on WSL (Windows Subsystem for Linux), we need to enable case sensitivity for the file system.
+The reason being is, Windows has case-insensitive file system by default. That prevents the creation of Linux tarball files (while running `tarball` service) with the same names but different cases i.e. one with lower case and the other with upper case. 
+e.g. include/uapi/linux/netfilter/xt_CONNMARK.h and include/uapi/linux/netfilter/xt_connmark.h
+
+To enable case sensitivity recursively inside the cloned directory, fire below command from Windows Powershell after navigating to the `kernelci-pipeline` directory on your WSL mounted drive.
+
+```
+PS C:\Users\HP> cd D:\kernelci-pipeline 
+PS D:\kernelci-pipeline> (Get-ChildItem -Recurse -Directory).FullName | ForEach-Object {fsutil.exe file setCaseSensitiveInfo $_ enable}  
+```
