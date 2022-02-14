@@ -5,6 +5,9 @@
 
 trees:
 
+  kernelci:
+    url: "https://github.com/kernelci/linux.git"
+
   mainline:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
@@ -19,19 +22,38 @@ build_environments:
         name: 'x86'
 
 
+build_variants:
+  variants: &build-variants
+    gcc-10:
+      build_environment: gcc-10
+      architectures:
+        x86_64:
+          base_defconfig: 'x86_64_defconfig'
+          filters:
+            - regex: { defconfig: 'x86_64_defconfig' }
+
+
 build_configs:
+
+  kernelci_staging-mainline:
+    tree: kernelci
+    branch: 'staging-mainline'
+    variants: *build-variants
+
+  kernelci_staging-next:
+    tree: kernelci
+    branch: 'staging-next'
+    variants: *build-variants
+
+  kernelci_staging-stable:
+    tree: kernelci
+    branch: 'staging-stable'
+    variants: *build-variants
 
   mainline:
     tree: mainline
     branch: 'master'
-    variants:
-      gcc-10:
-        build_environment: gcc-10
-        architectures:
-          x86_64:
-            base_defconfig: 'x86_64_defconfig'
-            filters:
-              - regex: { defconfig: 'x86_64_defconfig' }
+    variants: *build-variants
 
 
 db_configs:
