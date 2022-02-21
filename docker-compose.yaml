@@ -53,7 +53,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/kcidb.py'
+      - '/home/kernelci/pipeline/send_kcidb.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
 
