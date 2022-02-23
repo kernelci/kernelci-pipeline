@@ -8,7 +8,7 @@ version: '3'
 services:
 
   notifier: &base-service
-    container_name: 'notifier'
+    container_name: 'kernelci-pipeline-notifier'
     build:
       context: docker
     env_file:
@@ -25,7 +25,7 @@ services:
 
   runner:
     <<: *base-service
-    container_name: 'runner'
+    container_name: 'kernelci-pipeline-runner'
     command:
       - './pipeline/runner.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
@@ -33,7 +33,7 @@ services:
 
   tarball:
     <<: *base-service
-    container_name: 'tarball'
+    container_name: 'kernelci-pipeline-tarball'
     command:
       - './pipeline/tarball.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
@@ -41,7 +41,7 @@ services:
 
   trigger:
     <<: *base-service
-    container_name: 'trigger'
+    container_name: 'kernelci-pipeline-trigger'
     command:
       - './pipeline/trigger.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
@@ -49,7 +49,7 @@ services:
 
   kcidb:
     <<: *base-service
-    container_name: 'kcidb'
+    container_name: 'kernelci-pipeline-kcidb'
     command:
       - '/usr/bin/env'
       - 'python3'
@@ -59,7 +59,7 @@ services:
 
   test_report:
     <<: *base-service
-    container_name: 'test_report'
+    container_name: 'kernelci-pipeline-test_report'
     command:
       - '/usr/bin/env'
       - 'python3'
