@@ -35,7 +35,7 @@ class TestReport:
                 if node['status'] is None:
                     continue
 
-                root_node = node
+                root_node = self._db.get_root_node(node['_id'])
                 templateEnv = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
