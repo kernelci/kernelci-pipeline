@@ -17,12 +17,6 @@ import kernelci.lab
 from kernelci.cli import Args, Command, parse_opts
 
 
-def _arg_default(arg, default):
-    arg_copy = arg.copy()
-    arg_copy['default'] = default
-    return arg_copy
-
-
 class Runner:
 
     def __init__(self, configs, args):
@@ -131,8 +125,7 @@ class cmd_run(Command):
     help = "Run some arbitrary test"
     args = [Args.db_config, Args.verbose]
     opt_args = [
-        _arg_default(Args.plan, 'check-describe'),
-        _arg_default(Args.output, 'data'),
+        Args.plan, Args.output,
     ]
 
     def __call__(self, configs, args):
