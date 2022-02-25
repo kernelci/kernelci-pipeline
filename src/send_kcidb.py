@@ -49,6 +49,8 @@ class cmd_run(Command):
         print("Press Ctrl-C to stop.")
         sys.stdout.flush()
 
+        tz_utc = datetime.timezone(datetime.timedelta(hours=0))
+
         try:
             while True:
                 event = db.get_event(sub_id)
@@ -61,32 +63,27 @@ class cmd_run(Command):
                 sys.stdout.flush()
 
                 created_time = datetime.datetime.fromisoformat(node["created"])
-                tz_utc = datetime.timezone(datetime.timedelta(hours=0))
                 if not created_time.tzinfo:
-                    created_time = datetime.datetime.\
-                        fromtimestamp(created_time.timestamp(), tz=tz_utc)
-                start_time = created_time.isoformat()
+                    created_time = datetime.datetime.fromtimestamp(
+                        created_time.timestamp(), tz=tz_utc)
                 revision = {
-                        "builds": [],
-                        "checkouts": [
-                            {
-                                "id": f"kernelci:{node['_id']}",
-                                "origin": "kernelci",
-                                "tree_name": node["revision"]["tree"],
-                                "git_repository_url": node["revision"]["url"],
-                                "git_commit_hash": node["revision"]["commit"],
-                                "git_repository_branch":
-                                    node["revision"]["branch"],
-                                "start_time": start_time,
-                                "patchset_hash": "",
-                            },
-                        ],
-                        "tests": [],
-                        "version": {
-                            "major": 4,
-                            "minor": 0
-                        }
+                    "builds": [],
+                    "checkouts": [{
+                        "id": f"kernelci:{node['_id']}",
+                        "origin": "kernelci",
+                        "tree_name": node["revision"]["tree"],
+                        "git_repository_url": node["revision"]["url"],
+                        "git_commit_hash": node["revision"]["commit"],
+                        "git_repository_branch": node["revision"]["branch"],
+                        "start_time": created_time.isoformat(),
+                        "patchset_hash": "",
+                    }],
+                    "tests": [],
+                    "version": {
+                        "major": 4,
+                        "minor": 0
                     }
+                }
                 self.send_revision(client, revision)
 
             sys.stdout.flush()
