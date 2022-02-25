@@ -57,9 +57,8 @@ class cmd_run(Command):
                 node = db.get_node_from_event(event)
                 if node['name'] != 'checkout':
                     continue
-                print(f"Printing node for {node}")
-                sys.stdout.flush()
-                print("Submitting node to KCIDB")
+
+                print(f"Submitting node to KCIDB: {node['_id']}")
                 sys.stdout.flush()
 
                 created_time = datetime.datetime.fromisoformat(node["created"])
