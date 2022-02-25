@@ -55,8 +55,7 @@ class cmd_run(Command):
         {
             'name': '--poll-period',
             'type': int,
-            'help': "Polling period in seconds, disabled by default",
-            'default': 0,
+            'help': "Polling period in seconds, disabled when set to 0",
         },
     ]
 
@@ -65,11 +64,12 @@ class cmd_run(Command):
         db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         db = kernelci.data.get_db(db_config, api_token)
+        poll_period = int(args.poll_period)
 
         while True:
             _run_trigger(args, build_config, db)
-            if args.poll_period:
-                time.sleep(args.poll_period)
+            if poll_period:
+                time.sleep(poll_period)
             else:
                 break
 
