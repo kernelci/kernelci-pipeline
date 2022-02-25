@@ -138,7 +138,7 @@ scp \
 class cmd_run(Command):
     help = "Wait for a new revision event and push a source tarball"
     args = [
-        Args.kdir, Args.output, Args.db_config, Args.verbose,
+        Args.kdir, Args.output, Args.db_config,
         {
             'name': '--ssh-key',
             'help': "Path to the ssh key for uploading to storage",
@@ -147,23 +147,22 @@ class cmd_run(Command):
             'name': '--ssh-port',
             'help': "Storage SSH port number",
             'type': int,
-            'default': 8022,
         },
         {
             'name': '--ssh-user',
             'help': "Storage SSH user name",
-            'default': 'kernelci',
         },
         {
             'name': '--ssh-host',
             'help': "Storage SSH host",
-            'default': '172.17.0.1',
         },
         {
             'name': '--storage-url',
             'help': "Storage HTTP URL for downloads",
-            'default': 'http://172.17.0.1:8002/',
         },
+    ]
+    opt_args = [
+        Args.verbose,
     ]
 
     def __call__(self, configs, args):
