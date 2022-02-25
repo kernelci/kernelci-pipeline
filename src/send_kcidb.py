@@ -98,6 +98,8 @@ class cmd_run(Command):
 
         sys.stdout.flush()
 
+        return True
+
     def send_revision(self, client, revision):
         if self.validate_revision(revision):
             return client.submit(revision)
