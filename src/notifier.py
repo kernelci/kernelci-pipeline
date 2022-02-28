@@ -24,9 +24,9 @@ class cmd_run(Command):
         log_fmt = "{time:26s}  {commit:12s}  {status:8s}  {name}"
 
         status_map = {
-            None: "Pending",
-            True: "Pass",
-            False: "Fail",
+            "pending": "Pending",
+            "pass": "Pass",
+            "fail": "Fail",
         }
 
         db_config = configs['db_configs'][args.db_config]
