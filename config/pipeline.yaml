@@ -62,6 +62,10 @@ db_configs:
     db_type: kernelci_api
     url: http://172.17.0.1:8001
 
+  staging.kernelci.org:
+    db_type: kernelci_api
+    url: https://staging.kernelci.org:9000
+
 
 labs:
 
