@@ -115,7 +115,7 @@ scp \
                 if node['name'] != 'checkout':
                     continue
 
-                if node['status'] is not None:
+                if node['status'] != "pending":
                     continue
 
                 build_config = self._find_build_config(node)
@@ -128,7 +128,7 @@ scp \
                     build_config.tree.name, self._kdir
                 )
                 tarball = self._push_tarball(build_config, describe)
-                self._update_node(node, describe, tarball, True)
+                self._update_node(node, describe, tarball, "pass")
         except KeyboardInterrupt as e:
             self._print("Stopping.")
         finally:
