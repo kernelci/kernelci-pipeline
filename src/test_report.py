@@ -32,7 +32,7 @@ class TestReport:
                 event = self._db.get_event(sub_id)
 
                 node = self._db.get_node_from_event(event)
-                if node['status'] is None:
+                if node['status'] == 'pending':
                     continue
 
                 root_node = self._db.get_root_node(node['_id'])
