@@ -96,7 +96,7 @@ class Runner:
                 if checkout_node['name'] != 'checkout':
                     continue
 
-                if checkout_node['status'] is not True:
+                if checkout_node['status'] != "pass":
                     continue
 
                 self._info("Tarball: {}".format(
