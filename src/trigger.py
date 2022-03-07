@@ -24,7 +24,10 @@ def _run_trigger(args, build_config, db):
     node_list = db.get_nodes_by_commit_hash(head_commit)
     if node_list:
         print(f"Node exists with the latest git commit {head_commit}")
-        return
+        if args.force:
+            print("Creating new checkout node anyway")
+        else:
+            return
     sys.stdout.flush()
 
     revision = {
@@ -56,6 +59,11 @@ class cmd_run(Command):
             'name': '--poll-period',
             'type': int,
             'help': "Polling period in seconds, disabled when set to 0",
+        },
+        {
+            'name': '--force',
+            'action': 'store_true',
+            'help': "Always create a new checkout node",
         },
     ]
 
