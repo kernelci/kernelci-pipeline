@@ -100,23 +100,17 @@ scp \
         self._db.submit({'node': node})
 
     def run(self):
-        sub_id = self._db.subscribe('node')
+        sub_id = self._db.subscribe_node_channel(filters={
+            'op': 'created',
+            'name': 'checkout',
+            'status': 'pending',
+        })
         self._print("Listening for new checkout events")
         self._print("Press Ctrl-C to stop.")
 
         try:
             while True:
-                sys.stdout.flush()
-                event = self._db.get_event(sub_id)
-                if event.data['op'] != 'created':
-                    continue
-
-                node = self._db.get_node_from_event(event)
-                if node['name'] != 'checkout':
-                    continue
-
-                if node['status'] != "pending":
-                    continue
+                node = self._db.receive_node(sub_id)
 
                 build_config = self._find_build_config(node)
                 if build_config is None:

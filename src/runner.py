@@ -81,23 +81,17 @@ class Runner:
         # ToDo: if stat != 0 then report error to API?
 
     def run(self):
-        sub_id = self._db.subscribe('node')
-        self._print("Listening for new checkout events")
+        sub_id = self._db.subscribe_node_channel(filters={
+            'op': 'updated',
+            'name': 'checkout',
+            'status': 'pass',
+        })
+        self._print("Listening for completed checkout events")
         self._print("Press Ctrl-C to stop.")
 
         try:
             while True:
-                sys.stdout.flush()
-                event = self._db.get_event(sub_id)
-                if event.data['op'] != 'updated':
-                    continue
-
-                checkout_node = self._db.get_node_from_event(event)
-                if checkout_node['name'] != 'checkout':
-                    continue
-
-                if checkout_node['status'] != "pass":
-                    continue
+                checkout_node = self._db.receive_node(sub_id)
 
                 self._info("Tarball: {}".format(
                     checkout_node['artifacts']['tarball']
