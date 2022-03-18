@@ -24,6 +24,7 @@ from logger import Logger
 class Runner:
 
     def __init__(self, configs, args):
+        self._logger = Logger("config/logger.conf", "runner")
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
@@ -36,7 +37,8 @@ class Runner:
             os.makedirs(self._output)
         self._verbose = args.verbose
         self._job_tmp_dirs = {}
-        self._logger = Logger("config/logger.conf", "runner")
+        self._node_id = args.node_id
+        self._git_commit = args.git_commit
 
     def _create_node(self, checkout_node):
         node = {
@@ -76,6 +78,21 @@ class Runner:
         self._logger.log_message(logging.INFO, f"output_file: {output_file}")
         return output_file
 
+    def _schedule_test(self, checkout_node):
+        self._logger.log_message(logging.INFO, "Tarball: {}".format(
+            checkout_node['artifacts']['tarball']
+        ))
+
+        self._logger.log_message(logging.INFO, "Creating test node")
+        node = self._create_node(checkout_node)
+
+        tmp = tempfile.TemporaryDirectory(dir=self._output)
+        output_file = self._generate_job(node, tmp.name)
+
+        self._logger.log_message(logging.INFO, "Running test")
+        process = self._runtime.submit(output_file, get_process=True)
+        return process, tmp
+
     def _cleanup_paths(self):
         job_tmp_dirs = {
             process: tmp
@@ -85,7 +102,22 @@ class Runner:
         self._job_tmp_dirs = job_tmp_dirs
         # ToDo: if stat != 0 then report error to API?
 
-    def run(self):
+    def _get_node_from_commit(self, git_commit):
+        nodes = self._db.get_nodes_by_commit_hash(git_commit)
+        return nodes[0] if nodes else None
+
+    def _run_single_job(self, checkout_node):
+        try:
+            process, tmp = self._schedule_test(checkout_node)
+            self._logger.log_message(logging.INFO, "Waiting...")
+            process.wait()
+            self._logger.log_message(logging.INFO, "...done")
+        except KeyboardInterrupt as e:
+            self._logger.log_message(logging.ERROR, "Aborting.")
+        finally:
+            self._cleanup_paths()
+
+    def _run_loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
             'op': 'updated',
             'name': 'checkout',
@@ -99,21 +131,8 @@ class Runner:
         try:
             while True:
                 checkout_node = self._db.receive_node(sub_id)
-
-                self._logger.log_message(logging.INFO, "Tarball: {}".format(
-                    checkout_node['artifacts']['tarball']
-                ))
-
-                self._logger.log_message(logging.INFO, "Creating test node")
-                node = self._create_node(checkout_node)
-
-                tmp = tempfile.TemporaryDirectory(dir=self._output)
-                output_file = self._generate_job(node, tmp.name)
-
-                self._logger.log_message(logging.INFO, "Running test")
-                process = self._runtime.submit(output_file, get_process=True)
+                process, tmp = self._schedule_test(checkout_node)
                 self._job_tmp_dirs[process] = tmp
-
                 self._cleanup_paths()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
@@ -121,12 +140,30 @@ class Runner:
             self._db.unsubscribe(sub_id)
             self._cleanup_paths()
 
+    def run(self):
+        if self._node_id:
+            checkout_node = self._db.get_node(self._node_id)
+            self._run_single_job(checkout_node)
+        elif self._git_commit:
+            checkout_node = self._get_node_from_commit(self._git_commit)
+            self._run_single_job(checkout_node)
+        else:
+            self._run_loop()
+
 
 class cmd_run(Command):
     help = "Run some arbitrary test"
     args = [Args.db_config]
     opt_args = [
         Args.plan, Args.output, Args.verbose,
+        {
+            'name': '--node-id',
+            'help': "id of the checkout node rather than pub/sub",
+        },
+        {
+            'name': '--git-commit',
+            'help': "git commit rather than pub/sub event",
+        },
     ]
 
     def __call__(self, configs, args):
