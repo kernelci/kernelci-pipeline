@@ -67,6 +67,19 @@ db_configs:
     url: https://staging.kernelci.org:9000
 
 
+email_configs:
+
+  docker-host:
+    send_to: ''
+    from: ''
+    subject: ''
+
+  staging.kernelci.org:
+    send_to: ''
+    from: ''
+    subject: ''
+
+
 labs:
 
   k8s-gke-eu-west4:
