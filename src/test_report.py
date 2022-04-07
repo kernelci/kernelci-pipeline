@@ -27,35 +27,27 @@ class TestReport:
 
     def __init__(self, configs, args):
         self._db_config = configs['db_configs'][args.db_config]
-        self._email_config = configs['email_configs'][args.email_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "test_report")
 
     def create_email(self, template):
-        """Create email"""
-
         if template:
             email_msg = email.mime.text.MIMEText(template, "plain", "utf-8")
-
-            email_msg['To'] = self._email_config['send_to']
-            email_msg['From'] = self._email_config['from']
-            email_msg['Subject'] = self._email_config['subject']
+            email_msg['To'] = os.getenv('EMAIL_TO')
+            email_msg['From'] = os.getenv('EMAIL_FROM')
+            email_msg['Subject'] = os.getenv('EMAIL_SUBJECT')
 
             SERVER_USER = os.getenv('SERVER_USER')
             SERVER_PASSWORD = os.getenv('SERVER_PASSWORD')
             EMAIL_HOST = os.getenv('EMAIL_HOST')
-
             self._print('Created an email and sending soon..')
-
             email_server = smtplib.SMTP(EMAIL_HOST)
             email_server.starttls()
             email_server.login(SERVER_USER, SERVER_PASSWORD)
             email_server.send_message(email_msg)
             email_server.quit()
-
             self._print('E-mail sent!')
-
 
     def run(self):
         sub_id = self._db.subscribe('node')
