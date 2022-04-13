@@ -6,7 +6,7 @@ API](https://github.com/kernelci/kernelci-api).
 
 Please refer to the [pipeline design documentation](https://kernelci.org/docs/api/overview/#pipeline-design) for more details.
 
-To use it, first start the API.  Then start the services in this repository on the same host.
+To use it, first, start the API.  Then start the services in this repository on the same host.
 
 Follow instructions to [add a token and start the services](https://kernelci.org/docs/api/getting-started/#setting-up-a-pipeline-instance).
 
@@ -18,7 +18,7 @@ To setup `kernelci-pipeline` on WSL (Windows Subsystem for Linux), we need to en
 The reason being is, Windows has case-insensitive file system by default. That prevents the creation of Linux tarball files (while running `tarball` service) with the same names but different cases i.e. one with lower case and the other with upper case. 
 e.g. include/uapi/linux/netfilter/xt_CONNMARK.h and include/uapi/linux/netfilter/xt_connmark.h
 
-To enable case sensitivity recursively inside the cloned directory, fire below command from Windows Powershell after navigating to the `kernelci-pipeline` directory on your WSL mounted drive.
+To enable case sensitivity recursively inside the cloned directory, fire the below command from Windows Powershell after navigating to the `kernelci-pipeline` directory on your WSL mounted drive.
 
 ```
 PS C:\Users\HP> cd D:\kernelci-pipeline 
@@ -32,7 +32,7 @@ PS D:\kernelci-pipeline> (Get-ChildItem -Recurse -Directory).FullName | ForEach-
 echo "KCIDB_PROJECT_ID=<your project id>" >> .env
 ```
 
-* add topic name to the environment file:
+* add a topic name to the environment file:
 ```
 echo "KCIDB_TOPIC_NAME=<your topic name>" >> .env
 ```
@@ -51,7 +51,7 @@ NOTE: This key allows anyone to do anything with the specified Google Cloud proj
 
 Once you have gotten the Google credentials key file, copy and paste it to data/kcidb 
 
-Use below command to copy the Google credentials file to data/kcidb directory.
+Use the below command to copy the Google credentials file to data/kcidb directory.
 ```
 $ cp ~/kernelci-production-admin.json  data/kcidb/<your GOOGLE_APPLICATION_CREDENTIALS path>
 ```
@@ -71,7 +71,7 @@ echo "KCIDB_PROJECT_ID=<project_id>" >> .env
 ```
 
 #### Get KCIDB_TOPIC_NAME
-The default topic name is kcidb_new. Feel free to use a different topic name, as long as the topic exist in your Google Cloud Account.
+The default topic name is kcidb_new. Feel free to use a different topic name, as long as the topic exists in your Google Cloud Account.
 
 The value of the kcidb_topic_name should be set to the env file
 
