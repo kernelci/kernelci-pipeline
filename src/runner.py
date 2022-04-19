@@ -53,6 +53,7 @@ class Runner:
         self._info(f"tmp: {tmp}")
         revision = node['revision']
         params = {
+            'db_config_yaml': self._db_config.to_yaml(),
             'name': self._plan_config.name,
             'git_url': revision['url'],
             'git_commit': revision['commit'],
@@ -64,8 +65,7 @@ class Runner:
         params.update(self._plan_config.params)
         params.update(self._device_config.params)
         job = self._runtime.generate(
-            params, self._device_config, self._plan_config,
-            db_config=self._db_config
+            params, self._device_config, self._plan_config
         )
         output_file = self._runtime.save_file(job, tmp, params)
         self._info(f"output_file: {output_file}")
