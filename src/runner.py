@@ -62,8 +62,14 @@ class Runner:
         }
         params.update(self._plan_config.params)
         params.update(self._device_config.params)
+        config_path = self._runtime.config.config_path
+        templates_path = [
+            os.path.join(path, config_path)
+            for path in ['config', '/etc/kernelci']
+        ]
         job = self._runtime.generate(
-            params, self._device_config, self._plan_config
+            params, self._device_config, self._plan_config,
+            templates_path=templates_path
         )
         output_file = self._runtime.save_file(job, tmp, params)
         logger.log_message(logging.INFO, f"output_file: {output_file}")
