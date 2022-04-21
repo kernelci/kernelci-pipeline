@@ -117,9 +117,9 @@ class Runner:
 
 class cmd_run(Command):
     help = "Run some arbitrary test"
-    args = [Args.db_config, Args.verbose]
+    args = [Args.db_config]
     opt_args = [
-        Args.plan, Args.output,
+        Args.plan, Args.output, Args.verbose,
     ]
 
     def __call__(self, configs, args):
