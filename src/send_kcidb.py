@@ -4,7 +4,12 @@
 #
 # Copyright (C) 2022 Maryam Yusuf
 # Author: Maryam Yusuf <maryam.m.yusuf1802@gmail.com>
+#
+# Copyright (C) 2022 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+
 import datetime
+import logging
 import os
 import sys
 
@@ -14,6 +19,10 @@ from kernelci.config import load
 from kernelci.cli import Args, Command, parse_opts
 from kcidb import Client
 import kcidb
+
+from logger import Logger
+
+logger = Logger("send_kcidb")
 
 
 class cmd_run(Command):
@@ -26,27 +35,32 @@ class cmd_run(Command):
         db = kernelci.data.get_db(db_config, api_token)
 
         if not os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-            print("No GOOGLE_APPLICATION_CREDENTIALS environment variable")
+            logger.log_message(logging.ERROR,
+                               "No GOOGLE_APPLICATION_CREDENTIALS \
+environment variable")
             return False
 
         topic_name = os.getenv('KCIDB_TOPIC_NAME')
         if not topic_name:
-            print("No KCIDB_TOPIC_NAME environment variable")
+            logger.log_message(logging.ERROR, "No KCIDB_TOPIC_NAME \
+environment variable")
             return False
 
         project_id = os.getenv('KCIDB_PROJECT_ID')
         if not project_id:
-            print("No KCIDB_PROJECT_ID environment variable")
+            logger.log_message(logging.ERROR, "No KCIDB_PROJECT_ID \
+environment variable")
             return False
 
         client = Client(project_id=project_id, topic_name=topic_name)
         if client is None:
-            print("Failed to create client connection to KCIDB")
+            logger.log_message(logging.ERROR, "Failed to create client \
+connection to KCIDB")
             return False
 
         sub_id = db.subscribe('node')
-        print("Listening for events... ")
-        print("Press Ctrl-C to stop.")
+        logger.log_message(logging.INFO, "Listening for events... ")
+        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
 
         tz_utc = datetime.timezone(datetime.timedelta(hours=0))
@@ -58,7 +72,8 @@ class cmd_run(Command):
                 if node['name'] != 'checkout' or node['status'] != 'pass':
                     continue
 
-                print(f"Submitting node to KCIDB: {node['_id']}")
+                logger.log_message(logging.INFO,
+                                   f"Submitting node to KCIDB: {node['_id']}")
                 sys.stdout.flush()
 
                 created_time = datetime.datetime.fromisoformat(node["created"])
@@ -88,7 +103,7 @@ class cmd_run(Command):
             sys.stdout.flush()
 
         except KeyboardInterrupt:
-            print("Stopping.")
+            logger.log_message(logging.INFO, "Stopping.")
         finally:
             db.unsubscribe(sub_id)
 
@@ -99,7 +114,7 @@ class cmd_run(Command):
     def send_revision(self, client, revision):
         if self.validate_revision(revision):
             return client.submit(revision)
-        print(f"Aborting, invalid data")
+        logger.log_message(logging.ERROR, f"Aborting, invalid data")
         sys.stdout.flush()
 
     @staticmethod

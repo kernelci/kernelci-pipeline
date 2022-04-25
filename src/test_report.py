@@ -4,7 +4,11 @@
 #
 # Copyright (C) 2022 Jeny Sadadia
 # Author: Jeny Sadadia <jeny.sadadia@gmail.com>
+#
+# Copyright (C) 2022 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
+import logging
 import os
 import sys
 
@@ -12,6 +16,10 @@ import kernelci.config
 import kernelci.data
 from kernelci.cli import Args, Command, parse_opts
 import jinja2
+
+from logger import Logger
+
+logger = Logger("test_report")
 
 
 class TestReport:
@@ -23,8 +31,9 @@ class TestReport:
 
     def run(self):
         sub_id = self._db.subscribe('node')
-        self._print("Listening for test completion events")
-        self._print("Press Ctrl-C to stop.")
+        logger.log_message(logging.INFO,
+                           "Listening for test completion events")
+        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
             while True:
@@ -40,17 +49,16 @@ class TestReport:
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
                 template = templateEnv.get_template("test-report.jinja2")
-                self._print(template.render(total_runs=1, total_failures=0,
-                                            root=root_node, tests=[node]))
+                logger.log_message(logging.INFO,
+                                   template.render(total_runs=1,
+                                                   total_failures=0,
+                                                   root=root_node,
+                                                   tests=[node]))
 
         except KeyboardInterrupt as e:
-            self._print("Stopping.")
+            logger.log_message(logging.INFO, "Stopping.")
         finally:
             self._db.unsubscribe(sub_id)
-
-    def _print(self, msg):
-        print(msg)
-        sys.stdout.flush()
 
 
 class cmd_run(Command):

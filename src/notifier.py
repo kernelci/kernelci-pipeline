@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021 Collabora Limited
+# Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import datetime
 import json
+import logging
 import os
 import sys
 
@@ -14,6 +16,10 @@ import kernelci
 import kernelci.config
 import kernelci.data
 from kernelci.cli import Args, Command, parse_opts
+
+from logger import Logger
+
+logger = Logger("notifier")
 
 
 class cmd_run(Command):
@@ -34,19 +40,19 @@ class cmd_run(Command):
         db = kernelci.data.get_db(db_config, api_token)
 
         sub_id = db.subscribe('node')
-        print("Listening for events... ")
-        print("Press Ctrl-C to stop.")
+        logger.log_message(logging.INFO, "Listening for events... ")
+        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
 
         try:
-            print(log_fmt.format(
+            logger.log_message(logging.INFO, log_fmt.format(
                 time="Time", commit="Commit", status="Status", name="Name"
             ))
             while True:
                 event = db.get_event(sub_id)
                 dt = datetime.datetime.fromisoformat(event['time'])
                 obj = db.get_node_from_event(event)
-                print(log_fmt.format(
+                logger.log_message(logging.INFO, log_fmt.format(
                     time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                     commit=obj['revision']['commit'][:12],
                     status=status_map[obj['status']],
@@ -54,7 +60,7 @@ class cmd_run(Command):
                 ))
                 sys.stdout.flush()
         except KeyboardInterrupt as e:
-            print("Stopping.")
+            logger.log_message(logging.INFO, "Stopping.")
         finally:
             db.unsubscribe(sub_id)
 
