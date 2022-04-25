@@ -9,23 +9,23 @@ services:
 
   notifier: &base-service
     container_name: 'kernelci-pipeline-notifier'
-    build:
-      context: docker
-    env_file:
-      - .env
+    image: 'kernelci/staging-kernelci'
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
     command:
       - './pipeline/notifier.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
-    stop_signal: SIGINT
-    volumes:
+    volumes: &volumes
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data:/home/kernelci/data'
 
   runner:
-    <<: *base-service
     container_name: 'kernelci-pipeline-runner'
+    build: {context: 'docker-k8s'}
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
     command:
       - './pipeline/runner.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
@@ -48,14 +48,17 @@ services:
       - 'run'
 
   kcidb:
-    <<: *base-service
     container_name: 'kernelci-pipeline-kcidb'
+    build: {context: 'docker-kcidb'}
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
     command:
       - '/usr/bin/env'
       - 'python3'
       - '/home/kernelci/pipeline/send_kcidb.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+    volumes: *volumes
 
   test_report:
     <<: *base-service
