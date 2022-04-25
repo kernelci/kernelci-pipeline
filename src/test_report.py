@@ -6,8 +6,10 @@
 # Author: Jeny Sadadia <jeny.sadadia@gmail.com>
 #
 # Copyright (C) 2022 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 # Author: Alexandra Pereira <alexandra.pereira@collabora.com>
 
+from email.mime.multipart import MIMEMultipart
 import logging
 import email
 import email.mime.text
@@ -30,28 +32,69 @@ class TestReport:
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "test_report")
+        self._email_host = args.email_host
+        self._email_port = int(args.email_port)
+        self._email_send_from = args.email_send_from
+        self._email_subject = args.email_subject
+        self._email_send_to = args.email_send_to
+        self._email_user = os.getenv('EMAIL_USER')
+        self._email_pass = os.getenv('EMAIL_PASSWORD')
 
-    def create_email(self, template):
-        if template:
-            email_msg = email.mime.text.MIMEText(template, "plain", "utf-8")
-            email_msg['To'] = os.getenv('EMAIL_TO')
-            email_msg['From'] = os.getenv('EMAIL_FROM')
-            email_msg['Subject'] = os.getenv('EMAIL_SUBJECT')
+    def create_email(self, email_content, send_to, send_from, email_subject):
+        email_msg = MIMEMultipart()
+        email_text = email.mime.text.MIMEText(email_content, "plain", "utf-8")
+        email_text.replace_header('Content-Transfer-Encoding', 'quopri')
+        email_text.set_payload(email_content, 'utf-8')
+        email_msg.attach(email_text)
+        if isinstance(send_to, list):
+            email_msg['To'] = ','.join(send_to)
+        else:
+            email_msg['To'] = send_to
+        email_msg['From'] = send_from
+        email_msg['Subject'] = email_subject
+        self._logger.log_message(logging.INFO, email_msg)
+        return email_msg
 
-            if(os.getenv('SERVER_USER') and os.getenv('SERVER_PASSWORD')):
-                SERVER_USER = os.getenv('SERVER_USER')
-                SERVER_PASSWORD = os.getenv('SERVER_PASSWORD')
-                EMAIL_HOST = os.getenv('EMAIL_HOST')
-                self._print(email_msg)
-                email_server = smtplib.SMTP(EMAIL_HOST)
-                email_server.starttls()
-                email_server.login(SERVER_USER, SERVER_PASSWORD)
-                email_server.send_message(email_msg)
-                email_server.quit()
-                self._print('E-mail sent!')
+    def smtp_connect(self, email_user, email_password):
+        try:
+            if self._email_port == 465:
+                email_server = smtplib.SMTP_SSL(self._email_host,
+                                                self._email_port)
             else:
-                self._print('Missing e-mail credentials.')
+                email_server = smtplib.SMTP(self._email_host,
+                                            self._email_port)
+                email_server.starttls()
+            email_server.login(email_user, email_password)
+        except (smtplib.SMTPAuthenticationError,
+                smtplib.SMTPConnectError,
+                smtplib.SMTPServerDisconnected) as error:
+            self._logger.log_message(logging.ERROR,
+                                     f"Connect or auth error: {error}.")
+        except (smtplib.SMTPHeloError,
+                smtplib.SMTPDataError,
+                smtplib.SMTPNotSupportedError,
+                RuntimeError) as error:
+            self._logger.log_message(logging.ERROR,
+                                     f"STMP server error: {error}.")
+        except (smtplib.SMTPException) as error:
+            self._logger.log_message(logging.ERROR,
+                                     f"Generic error connecting: {error}.")
+        else:
+            self._logger.log_message(logging.INFO, "Server Connected.")
+            return email_server
 
+    def send_mail(self, email_msg, email_server):
+        try:
+            email_server.send_message(email_msg)
+        except (smtplib.SMTPRecipientsRefused,
+                smtplib.SMTPSenderRefused) as error:
+            self._logger.log_message(logging.ERROR,
+                                     f"Recipents or Sender refused: {error}.")
+        except (smtplib.SMTPException) as error:
+            self._logger.log_message(logging.ERROR,
+                                     f"Generic error sending email: {error}.")
+        else:
+            self._logger.log_message(logging.INFO, "Email Sent.")
 
     def run(self):
         sub_id = self._db.subscribe('node')
@@ -63,23 +106,27 @@ class TestReport:
             while True:
                 sys.stdout.flush()
                 event = self._db.get_event(sub_id)
+
                 node = self._db.get_node_from_event(event)
                 if node['status'] == 'pending':
                     continue
+
                 root_node = self._db.get_root_node(node['_id'])
-                templateEnv = jinja2.Environment(
+                template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
-                template = templateEnv.get_template("test-report.jinja2")
-                logger.log_message(logging.INFO,
-                                   template.render(total_runs=1,
-                                                   total_failures=0,
-                                                   root=root_node,
-                                                   tests=[node]))
-                email_msg = template.render(total_runs=1, total_failures=0,
-                                            root=root_node, tests=[node])
-                self.create_email(email_msg)
-
+                template = template_env.get_template("test-report.jinja2")
+                email_content = template.render(total_runs=1, total_failures=0,
+                                                root=root_node, tests=[node])
+                email_msg = self.create_email(email_content,
+                                              self._email_send_to,
+                                              self._email_send_from,
+                                              self._email_subject)
+                email_server = self.smtp_connect(self._email_user,
+                                                 self._email_pass)
+                if email_server:
+                    self.send_mail(email_msg, email_server)
+                    email_server.quit()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
         finally:
