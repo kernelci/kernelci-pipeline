@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021 Collabora Limited
+# Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import json
+import logging
 import os
 import sys
 import time
@@ -18,14 +20,20 @@ from kernelci.cli import Args, Command, parse_opts
 import urllib
 import requests
 
+from logger import Logger
+
+logger = Logger("trigger")
+
 
 def _run_trigger(args, build_config, db):
     head_commit = kernelci.build.get_branch_head(build_config)
     node_list = db.get_nodes_by_commit_hash(head_commit)
     if node_list:
-        print(f"Node exists with the latest git commit {head_commit}")
+        logger.log_message(logging.INFO, f"Node exists with \
+the latest git commit {head_commit}")
         if args.force:
-            print("Creating new checkout node anyway")
+            logger.log_message(logging.INFO, "Creating new checkout node \
+anyway")
         else:
             return
     sys.stdout.flush()
@@ -37,7 +45,8 @@ def _run_trigger(args, build_config, db):
         'commit': head_commit
     }
 
-    print(f"Sending revision node to API: {revision['commit']}")
+    logger.log_message(logging.INFO, f"Sending revision node to API: \
+{revision['commit']}")
     sys.stdout.flush()
     node = {
         'name': 'checkout',
@@ -45,7 +54,7 @@ def _run_trigger(args, build_config, db):
     }
     resp_obj = db.submit({'node': node})[0]
     node_id = resp_obj['_id']
-    print(f"Node id: {node_id}")
+    logger.log_message(logging.INFO, f"Node id: {node_id}")
     sys.stdout.flush()
 
 
