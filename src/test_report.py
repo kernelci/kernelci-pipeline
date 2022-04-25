@@ -38,16 +38,20 @@ class TestReport:
             email_msg['From'] = os.getenv('EMAIL_FROM')
             email_msg['Subject'] = os.getenv('EMAIL_SUBJECT')
 
-            SERVER_USER = os.getenv('SERVER_USER')
-            SERVER_PASSWORD = os.getenv('SERVER_PASSWORD')
-            EMAIL_HOST = os.getenv('EMAIL_HOST')
-            self._print('Created an email and sending soon..')
-            email_server = smtplib.SMTP(EMAIL_HOST)
-            email_server.starttls()
-            email_server.login(SERVER_USER, SERVER_PASSWORD)
-            email_server.send_message(email_msg)
-            email_server.quit()
-            self._print('E-mail sent!')
+            if(os.getenv('SERVER_USER') and os.getenv('SERVER_PASSWORD')):
+                SERVER_USER = os.getenv('SERVER_USER')
+                SERVER_PASSWORD = os.getenv('SERVER_PASSWORD')
+                EMAIL_HOST = os.getenv('EMAIL_HOST')
+                self._print(email_msg)
+                email_server = smtplib.SMTP(EMAIL_HOST)
+                email_server.starttls()
+                email_server.login(SERVER_USER, SERVER_PASSWORD)
+                email_server.send_message(email_msg)
+                email_server.quit()
+                self._print('E-mail sent!')
+            else:
+                self._print('Missing e-mail credentials.')
+
 
     def run(self):
         sub_id = self._db.subscribe('node')
