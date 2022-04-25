@@ -71,6 +71,7 @@ labs:
 
   shell:
     lab_type: shell
+    config_path: 'scripts'
 
 
 test_plans:
