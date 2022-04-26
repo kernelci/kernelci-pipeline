@@ -12,7 +12,7 @@ import urllib.parse
 import kernelci
 import kernelci.build
 import kernelci.config
-import kernelci.data
+import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
 
@@ -22,7 +22,7 @@ class Tarball:
         self._build_configs = configs['build_configs']
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.data.get_db(self._db_config, api_token)
+        self._db = kernelci.db.get_db(self._db_config, api_token)
         self._kdir = args.kdir
         self._output = args.output
         if not os.path.exists(self._output):
