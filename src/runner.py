@@ -12,7 +12,7 @@ import tempfile
 
 import kernelci
 import kernelci.config
-import kernelci.data
+import kernelci.db
 import kernelci.lab
 from kernelci.cli import Args, Command, parse_opts
 
@@ -22,7 +22,7 @@ class Runner:
     def __init__(self, configs, args):
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.data.get_db(self._db_config, api_token)
+        self._db = kernelci.db.get_db(self._db_config, api_token)
         self._plan_config = configs['test_plans'][args.plan]
         self._device_config = configs['device_types']['python']
         runtime_config = configs['labs']['shell']

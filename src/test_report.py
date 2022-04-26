@@ -9,7 +9,7 @@ import os
 import sys
 
 import kernelci.config
-import kernelci.data
+import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 import jinja2
 
@@ -19,7 +19,7 @@ class TestReport:
     def __init__(self, configs, args):
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.data.get_db(self._db_config, api_token)
+        self._db = kernelci.db.get_db(self._db_config, api_token)
 
     def run(self):
         sub_id = self._db.subscribe('node')

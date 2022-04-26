@@ -13,7 +13,7 @@ import time
 import kernelci
 import kernelci.build
 import kernelci.config
-import kernelci.data
+import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 import urllib
 import requests
@@ -71,7 +71,7 @@ class cmd_run(Command):
         build_config = configs['build_configs'][args.build_config]
         db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        db = kernelci.data.get_db(db_config, api_token)
+        db = kernelci.db.get_db(db_config, api_token)
         poll_period = int(args.poll_period)
 
         while True:

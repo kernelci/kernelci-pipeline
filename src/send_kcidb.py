@@ -9,7 +9,7 @@ import os
 import sys
 
 import kernelci
-import kernelci.data
+import kernelci.db
 from kernelci.config import load
 from kernelci.cli import Args, Command, parse_opts
 from kcidb import Client
@@ -23,7 +23,7 @@ class cmd_run(Command):
     def __call__(self, configs, args):
         db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        db = kernelci.data.get_db(db_config, api_token)
+        db = kernelci.db.get_db(db_config, api_token)
 
         if not os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
             print("No GOOGLE_APPLICATION_CREDENTIALS environment variable")

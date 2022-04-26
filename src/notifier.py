@@ -12,7 +12,7 @@ import sys
 
 import kernelci
 import kernelci.config
-import kernelci.data
+import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
 
@@ -31,7 +31,7 @@ class cmd_run(Command):
 
         db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        db = kernelci.data.get_db(db_config, api_token)
+        db = kernelci.db.get_db(db_config, api_token)
 
         sub_id = db.subscribe('node')
         print("Listening for events... ")
