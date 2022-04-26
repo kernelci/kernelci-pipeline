@@ -91,7 +91,7 @@ device_types:
     base_name: kubernetes
     class: kubernetes
 
-  python:
+  shell_python:
     base_name: shell
     class: shell
     params:

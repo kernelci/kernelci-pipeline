@@ -30,7 +30,7 @@ class Runner:
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._plan_config = configs['test_plans'][args.plan]
-        self._device_config = configs['device_types']['python']
+        self._device_config = configs['device_types']['shell_python']
         runtime_config = configs['labs']['shell']
         self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = args.output
