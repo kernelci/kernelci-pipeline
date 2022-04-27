@@ -28,8 +28,8 @@ class Runner:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
-        self._plan_config = configs['test_plans'][args.plan]
-        self._device_config = configs['device_types']['shell_python']
+        self._plan_configs = configs['test_plans']
+        self._device_configs = configs['device_types']
         runtime_config = configs['labs'][args.lab_config]
         self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = args.output
@@ -37,25 +37,23 @@ class Runner:
             os.makedirs(self._output)
         self._verbose = args.verbose
         self._job_tmp_dirs = {}
-        self._node_id = args.node_id
-        self._git_commit = args.git_commit
 
-    def _create_node(self, checkout_node):
+    def _create_node(self, checkout_node, plan_config):
         node = {
             'parent': checkout_node['_id'],
-            'name': self._plan_config.name,
+            'name': plan_config.name,
             'artifacts': checkout_node['artifacts'],
             'revision': checkout_node['revision'],
         }
         return self._db.submit({'node': node})[0]
 
-    def _generate_job(self, node, tmp):
+    def _generate_job(self, node, plan_config, device_config, tmp):
         self._logger.log_message(logging.INFO, "Generating job")
         self._logger.log_message(logging.INFO, f"tmp: {tmp}")
         revision = node['revision']
         params = {
             'db_config_yaml': self._db_config.to_yaml(),
-            'name': self._plan_config.name,
+            'name': plan_config.name,
             'git_url': revision['url'],
             'git_commit': revision['commit'],
             'git_describe': revision['describe'],
@@ -63,31 +61,31 @@ class Runner:
             'tarball_url': node['artifacts']['tarball'],
             'workspace': tmp,
         }
-        params.update(self._plan_config.params)
-        params.update(self._device_config.params)
+        params.update(plan_config.params)
+        params.update(device_config.params)
         config_path = self._runtime.config.config_path
         templates_path = [
             os.path.join(path, config_path)
             for path in ['config', '/etc/kernelci']
         ]
         job = self._runtime.generate(
-            params, self._device_config, self._plan_config,
+            params, device_config, plan_config,
             templates_path=templates_path
         )
         output_file = self._runtime.save_file(job, tmp, params)
         self._logger.log_message(logging.INFO, f"output_file: {output_file}")
         return output_file
 
-    def _schedule_test(self, checkout_node):
+    def _schedule_test(self, checkout_node, plan, device):
         self._logger.log_message(logging.INFO, "Tarball: {}".format(
             checkout_node['artifacts']['tarball']
         ))
 
         self._logger.log_message(logging.INFO, "Creating test node")
-        node = self._create_node(checkout_node)
+        node = self._create_node(checkout_node, plan)
 
         tmp = tempfile.TemporaryDirectory(dir=self._output)
-        output_file = self._generate_job(node, tmp.name)
+        output_file = self._generate_job(node, plan, device, tmp.name)
 
         self._logger.log_message(logging.INFO, "Running test")
         job = self._runtime.submit(output_file)
@@ -102,23 +100,7 @@ class Runner:
         self._job_tmp_dirs = job_tmp_dirs
         # ToDo: if stat != 0 then report error to API?
 
-    def _get_node_from_commit(self, git_commit):
-        nodes = self._db.get_nodes_by_commit_hash(git_commit)
-        return nodes[0] if nodes else None
-
-    def _run_single_job(self, checkout_node):
-        try:
-            job, tmp = self._schedule_test(checkout_node)
-            if self._runtime.config.lab_type == 'shell':
-                self._logger.log_message(logging.INFO, "Waiting...")
-                job.wait()
-                self._logger.log_message(logging.INFO, "...done")
-        except KeyboardInterrupt as e:
-            self._logger.log_message(logging.ERROR, "Aborting.")
-        finally:
-            self._cleanup_paths()
-
-    def _run_loop(self):
+    def loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
             'op': 'updated',
             'name': 'checkout',
@@ -129,10 +111,19 @@ class Runner:
         self._logger.log_message(logging.INFO,
                                  "Press Ctrl-C to stop.")
 
+        # ToDo: iterate over test configs
+        plan = self._plan_configs['check-describe']
+
+        # ToDo: iterate over device types for the current runtime
+        if self._runtime.config.lab_type == 'shell':
+            device = self._device_configs['shell_python']
+        else:
+            device = self._device_configs['kubernetes_python']
+
         try:
             while True:
                 checkout_node = self._db.receive_node(sub_id)
-                job, tmp = self._schedule_test(checkout_node)
+                job, tmp = self._schedule_test(checkout_node, plan, device)
                 if self._runtime.config.lab_type == 'shell':
                     self._job_tmp_dirs[job] = tmp
                 self._cleanup_paths()
@@ -141,23 +132,58 @@ class Runner:
         finally:
             self._db.unsubscribe(sub_id)
             self._cleanup_paths()
+            return True
 
-    def run(self):
-        if self._node_id:
-            checkout_node = self._db.get_node(self._node_id)
-            self._run_single_job(checkout_node)
-        elif self._git_commit:
-            checkout_node = self._get_node_from_commit(self._git_commit)
-            self._run_single_job(checkout_node)
+    def _run_single_job(self, checkout_node, plan, device):
+        try:
+            job, tmp = self._schedule_test(checkout_node, plan, device)
+            if self._runtime.config.lab_type == 'shell':
+                self._logger.log_message(logging.INFO, "Waiting...")
+                job.wait()
+                self._logger.log_message(logging.INFO, "...done")
+        except KeyboardInterrupt as e:
+            self._logger.log_message(logging.ERROR, "Aborting.")
+        finally:
+            return True
+
+    def _get_node_from_commit(self, git_commit):
+        nodes = self._db.get_nodes_by_commit_hash(git_commit)
+        return nodes[0] if nodes else None
+
+    def run(self, args):
+        if args.node_id:
+            checkout_node = self._db.get_node(args.node_id)
+        elif args.git_commit:
+            checkout_node = self._get_node_from_commit(args.git_commit)
         else:
-            self._run_loop()
+            checkout_node = None
+
+        if checkout_node is None:
+            self._logger.log_message(logging.ERROR, "Node not found")
+            return False
+
+        plan_config = self._plan_configs[args.plan]
+        device_config = self._device_configs[args.target]
+        return self._run_single_job(checkout_node, plan_config, device_config)
+
+
+class cmd_loop(Command):
+    help = "Listen to pub/sub events and run in a loop"
+    args = [Args.db_config, Args.lab_config, Args.output]
+    opt_args = [Args.verbose]
+
+    def __call__(self, configs, args):
+        return Runner(configs, args).loop()
 
 
 class cmd_run(Command):
-    help = "Run some arbitrary test"
-    args = [Args.db_config, Args.lab_config]
+    help = "Run one arbitrary test and exit"
+    args = [
+        Args.db_config, Args.lab_config, Args.output,
+        Args.plan, Args.target,
+    ]
     opt_args = [
-        Args.plan, Args.output, Args.verbose,
+        Args.verbose,
         {
             'name': '--node-id',
             'help': "id of the checkout node rather than pub/sub",
@@ -169,8 +195,11 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        Runner(configs, args).run()
-        return True
+        if not args.node_id and not args.git_commit:
+            print("Either --node-id or --git-commit is required",
+                  file=sys.stderr)
+            return False
+        return Runner(configs, args).run(args)
 
 
 if __name__ == '__main__':

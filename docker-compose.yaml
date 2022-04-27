@@ -28,7 +28,7 @@ services:
     command:
       - './pipeline/runner.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
-      - 'run'
+      - 'loop'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
