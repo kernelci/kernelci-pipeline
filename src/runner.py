@@ -34,6 +34,8 @@ class Runner:
         runtime_config = configs['labs']['shell']
         self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = args.output
+        if not os.path.exists(self._output):
+            os.makedirs(self._output)
         self._verbose = args.verbose
         self._job_tmp_dirs = {}
 
