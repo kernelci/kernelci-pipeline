@@ -16,10 +16,9 @@ services:
       - './pipeline/notifier.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
-    volumes: &volumes
+    volumes: &base-volumes
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
-      - './data:/home/kernelci/data'
 
   runner:
     container_name: 'kernelci-pipeline-runner'
@@ -45,6 +44,12 @@ services:
       - './pipeline/tarball.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/ssh:/home/kernelci/data/ssh'
+      - './data/linux:/home/kernelci/data/linux'
+      - './data/output:/home/kernelci/data/output'
 
   trigger:
     <<: *base-service
@@ -65,7 +70,7 @@ services:
       - '/home/kernelci/pipeline/send_kcidb.py'
       - '--settings=/home/kernelci/config/kernelci.conf'
       - 'run'
-    volumes: *volumes
+    volumes: *base-volumes
 
   test_report:
     <<: *base-service
