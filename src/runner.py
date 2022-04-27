@@ -90,8 +90,8 @@ class Runner:
         output_file = self._generate_job(node, tmp.name)
 
         self._logger.log_message(logging.INFO, "Running test")
-        process = self._runtime.submit(output_file, get_process=True)
-        return process, tmp
+        job = self._runtime.submit(output_file, get_process=True)
+        return job, tmp
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -108,10 +108,11 @@ class Runner:
 
     def _run_single_job(self, checkout_node):
         try:
-            process, tmp = self._schedule_test(checkout_node)
-            self._logger.log_message(logging.INFO, "Waiting...")
-            process.wait()
-            self._logger.log_message(logging.INFO, "...done")
+            job, tmp = self._schedule_test(checkout_node)
+            if self._runtime.config.lab_type == 'shell':
+                self._logger.log_message(logging.INFO, "Waiting...")
+                job.wait()
+                self._logger.log_message(logging.INFO, "...done")
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.ERROR, "Aborting.")
         finally:
@@ -131,8 +132,9 @@ class Runner:
         try:
             while True:
                 checkout_node = self._db.receive_node(sub_id)
-                process, tmp = self._schedule_test(checkout_node)
-                self._job_tmp_dirs[process] = tmp
+                job, tmp = self._schedule_test(checkout_node)
+                if self._runtime.config.lab_type == 'shell':
+                    self._job_tmp_dirs[job] = tmp
                 self._cleanup_paths()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
