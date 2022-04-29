@@ -20,6 +20,5 @@ WORKDIR /home/kernelci
 RUN pip install git+https://github.com/kernelci/kcidb.git
 
 # Install kernelci-core from pinned revision:
-# kernelci/data/kernelci_api: add KernelCI_API.get_nodes_by_commit_hash
 RUN pip install git+https://github.com/kernelci/kernelci-core.git@\
-8b9d23b5ad7bfdea9077091e1eb52985b30c68e6
+0881004ecab7faf43b2ee137422f2c50ff24b3cd
