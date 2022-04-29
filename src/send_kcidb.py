@@ -22,12 +22,14 @@ import kcidb
 
 from logger import Logger
 
-logger = Logger("send_kcidb")
-
 
 class cmd_run(Command):
     help = "Listen for events and send them to KCDIB"
     args = [Args.db_config]
+
+    def __init__(self, sub_parser, name):
+        super().__init__(sub_parser, name)
+        self._logger = Logger("config/logger.conf", "send_kcidb")
 
     def __call__(self, configs, args):
         db_config = configs['db_configs'][args.db_config]
@@ -35,32 +37,32 @@ class cmd_run(Command):
         db = kernelci.db.get_db(db_config, api_token)
 
         if not os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-            logger.log_message(logging.ERROR,
-                               "No GOOGLE_APPLICATION_CREDENTIALS \
+            self._logger.log_message(logging.ERROR,
+                                     "No GOOGLE_APPLICATION_CREDENTIALS \
 environment variable")
             return False
 
         topic_name = os.getenv('KCIDB_TOPIC_NAME')
         if not topic_name:
-            logger.log_message(logging.ERROR, "No KCIDB_TOPIC_NAME \
+            self._logger.log_message(logging.ERROR, "No KCIDB_TOPIC_NAME \
 environment variable")
             return False
 
         project_id = os.getenv('KCIDB_PROJECT_ID')
         if not project_id:
-            logger.log_message(logging.ERROR, "No KCIDB_PROJECT_ID \
+            self._logger.log_message(logging.ERROR, "No KCIDB_PROJECT_ID \
 environment variable")
             return False
 
         client = Client(project_id=project_id, topic_name=topic_name)
         if client is None:
-            logger.log_message(logging.ERROR, "Failed to create client \
+            self._logger.log_message(logging.ERROR, "Failed to create client \
 connection to KCIDB")
             return False
 
         sub_id = db.subscribe('node')
-        logger.log_message(logging.INFO, "Listening for events... ")
-        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self._logger.log_message(logging.INFO, "Listening for events... ")
+        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
 
         tz_utc = datetime.timezone(datetime.timedelta(hours=0))
@@ -72,8 +74,9 @@ connection to KCIDB")
                 if node['name'] != 'checkout' or node['status'] != 'pass':
                     continue
 
-                logger.log_message(logging.INFO,
-                                   f"Submitting node to KCIDB: {node['_id']}")
+                self._logger.log_message(logging.INFO,
+                                         f"Submitting node to KCIDB: \
+{node['_id']}")
                 sys.stdout.flush()
 
                 created_time = datetime.datetime.fromisoformat(node["created"])
@@ -103,7 +106,7 @@ connection to KCIDB")
             sys.stdout.flush()
 
         except KeyboardInterrupt:
-            logger.log_message(logging.INFO, "Stopping.")
+            self._logger.log_message(logging.INFO, "Stopping.")
         finally:
             db.unsubscribe(sub_id)
 
@@ -114,7 +117,7 @@ connection to KCIDB")
     def send_revision(self, client, revision):
         if self.validate_revision(revision):
             return client.submit(revision)
-        logger.log_message(logging.ERROR, f"Aborting, invalid data")
+        self._logger.log_message(logging.ERROR, f"Aborting, invalid data")
         sys.stdout.flush()
 
     @staticmethod

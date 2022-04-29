@@ -19,8 +19,6 @@ from kernelci.cli import Args, Command, parse_opts
 
 from logger import Logger
 
-logger = Logger("tarball")
-
 
 class Tarball:
 
@@ -39,6 +37,7 @@ class Tarball:
         self._ssh_user = args.ssh_user
         self._ssh_host = args.ssh_host
         self._storage_url = args.storage_url
+        self._logger = Logger("config/logger.conf", "tarball")
 
     def _find_build_config(self, node):
         revision = node['revision']
@@ -49,30 +48,31 @@ class Tarball:
                 return config
 
     def _update_repo(self, config):
-        logger.log_message(logging.INFO, f"Updating repo for {config.name}")
+        self._logger.log_message(logging.INFO,
+                                 f"Updating repo for {config.name}")
         kernelci.build.update_repo(config, self._kdir)
-        logger.log_message(logging.INFO, "Repo updated")
+        self._logger.log_message(logging.INFO, "Repo updated")
 
     def _make_tarball(self, config, describe):
         name = '-'.join(['linux', config.tree.name, config.branch, describe])
         tarball = f"{name}.tar.gz"
-        logger.log_message(logging.INFO, f"Making tarball {tarball}")
+        self._logger.log_message(logging.INFO, f"Making tarball {tarball}")
         output_path = os.path.relpath(self._output, self._kdir)
         cmd = """\
 set -e
 cd {kdir}
 git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
 """.format(kdir=self._kdir, name=name, output=output_path, tarball=tarball)
-        logger.log_message(logging.INFO, cmd)
+        self._logger.log_message(logging.INFO, cmd)
         kernelci.shell_cmd(cmd)
-        logger.log_message(logging.INFO, "Tarball created")
+        self._logger.log_message(logging.INFO, "Tarball created")
         return tarball
 
     def _push_tarball(self, config, describe):
         # ToDo: kernelci.build.make_tarball()
         tarball = self._make_tarball(config, describe)
         tarball_path = os.path.join(self._output, tarball)
-        logger.log_message(logging.INFO, f"Uploading {tarball_path}")
+        self._logger.log_message(logging.INFO, f"Uploading {tarball_path}")
         # ToDo: self._storage.upload()
         cmd = """\
 scp \
@@ -85,7 +85,7 @@ scp \
 """.format(key=self._ssh_key, port=self._ssh_port, user=self._ssh_user,
            host=self._ssh_host, tarball=tarball_path)
         kernelci.shell_cmd(cmd)
-        logger.log_message(logging.INFO, "Upload complete")
+        self._logger.log_message(logging.INFO, "Upload complete")
         os.unlink(tarball_path)
         return tarball
 
@@ -103,8 +103,9 @@ scp \
             'name': 'checkout',
             'status': 'pending',
         })
-        logger.log_message(logging.INFO, "Listening for new checkout events")
-        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self._logger.log_message(logging.INFO,
+                                 "Listening for new checkout events")
+        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
             while True:
@@ -122,7 +123,7 @@ scp \
                 tarball = self._push_tarball(build_config, describe)
                 self._update_node(node, describe, tarball, "pass")
         except KeyboardInterrupt as e:
-            logger.log_message(logging.INFO, "Stopping.")
+            self._logger.log_message(logging.INFO, "Stopping.")
         finally:
             self._db.unsubscribe(sub_id)
 

@@ -19,8 +19,6 @@ import jinja2
 
 from logger import Logger
 
-logger = Logger("test_report")
-
 
 class TestReport:
 
@@ -28,12 +26,13 @@ class TestReport:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
+        self._logger = Logger("config/logger.conf", "test_report")
 
     def run(self):
         sub_id = self._db.subscribe('node')
-        logger.log_message(logging.INFO,
-                           "Listening for test completion events")
-        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self._logger.log_message(logging.INFO,
+                                 "Listening for test completion events")
+        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
             while True:
@@ -49,14 +48,14 @@ class TestReport:
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
                 template = templateEnv.get_template("test-report.jinja2")
-                logger.log_message(logging.INFO,
-                                   template.render(total_runs=1,
-                                                   total_failures=0,
-                                                   root=root_node,
-                                                   tests=[node]))
+                self._logger.log_message(logging.INFO,
+                                         template.render(total_runs=1,
+                                                         total_failures=0,
+                                                         root=root_node,
+                                                         tests=[node]))
 
         except KeyboardInterrupt as e:
-            logger.log_message(logging.INFO, "Stopping.")
+            self._logger.log_message(logging.INFO, "Stopping.")
         finally:
             self._db.unsubscribe(sub_id)
 

@@ -19,12 +19,14 @@ from kernelci.cli import Args, Command, parse_opts
 
 from logger import Logger
 
-logger = Logger("notifier")
-
 
 class cmd_run(Command):
     help = "Listen for events and report them on stdout"
     args = [Args.db_config]
+
+    def __init__(self, sub_parser, name):
+        super().__init__(sub_parser, name)
+        self._logger = Logger("config/logger.conf", "notifier")
 
     def __call__(self, configs, args):
         log_fmt = "{time:26s}  {commit:12s}  {status:8s}  {name}"
@@ -40,19 +42,19 @@ class cmd_run(Command):
         db = kernelci.db.get_db(db_config, api_token)
 
         sub_id = db.subscribe('node')
-        logger.log_message(logging.INFO, "Listening for events... ")
-        logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self._logger.log_message(logging.INFO, "Listening for events... ")
+        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
 
         try:
-            logger.log_message(logging.INFO, log_fmt.format(
+            self._logger.log_message(logging.INFO, log_fmt.format(
                 time="Time", commit="Commit", status="Status", name="Name"
             ))
             while True:
                 event = db.get_event(sub_id)
                 dt = datetime.datetime.fromisoformat(event['time'])
                 obj = db.get_node_from_event(event)
-                logger.log_message(logging.INFO, log_fmt.format(
+                self._logger.log_message(logging.INFO, log_fmt.format(
                     time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                     commit=obj['revision']['commit'][:12],
                     status=status_map[obj['status']],
@@ -60,7 +62,7 @@ class cmd_run(Command):
                 ))
                 sys.stdout.flush()
         except KeyboardInterrupt as e:
-            logger.log_message(logging.INFO, "Stopping.")
+            self._logger.log_message(logging.INFO, "Stopping.")
         finally:
             db.unsubscribe(sub_id)
 
