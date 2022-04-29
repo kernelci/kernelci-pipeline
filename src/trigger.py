@@ -22,10 +22,8 @@ import requests
 
 from logger import Logger
 
-logger = Logger("trigger")
 
-
-def _run_trigger(args, build_config, db):
+def _run_trigger(args, build_config, db, logger):
     head_commit = kernelci.build.get_branch_head(build_config)
     node_list = db.get_nodes_by_commit_hash(head_commit)
     if node_list:
@@ -76,6 +74,10 @@ class cmd_run(Command):
         },
     ]
 
+    def __init__(self, sub_parser, name):
+        super().__init__(sub_parser, name)
+        self._logger = Logger("config/logger.conf", "trigger")
+
     def __call__(self, configs, args):
         build_config = configs['build_configs'][args.build_config]
         db_config = configs['db_configs'][args.db_config]
@@ -84,7 +86,7 @@ class cmd_run(Command):
         poll_period = int(args.poll_period)
 
         while True:
-            _run_trigger(args, build_config, db)
+            _run_trigger(args, build_config, db, self._logger)
             if poll_period:
                 time.sleep(poll_period)
             else:
