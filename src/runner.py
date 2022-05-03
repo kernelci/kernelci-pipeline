@@ -90,7 +90,7 @@ class Runner:
         output_file = self._generate_job(node, tmp.name)
 
         self._logger.log_message(logging.INFO, "Running test")
-        job = self._runtime.submit(output_file, get_process=True)
+        job = self._runtime.submit(output_file)
         return job, tmp
 
     def _cleanup_paths(self):
