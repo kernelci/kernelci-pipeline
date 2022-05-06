@@ -198,8 +198,11 @@ class cmd_run(Command):
         if not args.node_id and not args.git_commit:
             print("Either --node-id or --git-commit is required",
                   file=sys.stderr)
+        try:
+            return Runner(configs, args).run(args)
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
             return False
-        return Runner(configs, args).run(args)
 
 
 if __name__ == '__main__':
