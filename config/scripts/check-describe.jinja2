@@ -3,17 +3,19 @@
 
 {%- extends 'base-python.jinja2' %}
 
-{% block script_init -%}
+{%- block python_imports %}
 {{ super() }}
 import requests
+{%- endblock %}
+
+{%- block python_globals %}
+{{ super() }}
+GIT_URL = '{{ git_url }}'
+GIT_COMMIT = '{{ git_commit }}'
+GIT_DESCRIBE = '{{ git_describe }}'
 {% endblock %}
 
-{% block commands %}
-GIT_URL = '{{ git_url }}'
-GIT_COMMIT = '{{ git_commit}}'
-GIT_DESCRIBE = '{{ git_describe }}'
-
-
+{%- block python_body %}
 def _get_makefile_rev(makefile):
     makefile_rev = {
         'VERSION': None,
