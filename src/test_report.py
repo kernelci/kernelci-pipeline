@@ -34,9 +34,9 @@ class TestReport:
         self._logger = Logger("config/logger.conf", "test_report")
         self._email_host = args.email_host
         self._email_port = int(args.email_port)
-        self._email_send_from = args.email_send_from
-        self._email_subject = args.email_subject
-        self._email_send_to = args.email_send_to
+        self._email_send_from = 'bot@kernelci.org'
+        self._email_subject = 'Kernel CI Test Reports'
+        self._email_send_to = 'kernelci-results-staging@groups.io'
         self._email_user = os.getenv('EMAIL_USER')
         self._email_pass = os.getenv('EMAIL_PASSWORD')
 
