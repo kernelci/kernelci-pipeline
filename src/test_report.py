@@ -31,12 +31,13 @@ class TestReport:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
+        self._email_config = configs['email_configs'][args.email_config]
         self._logger = Logger("config/logger.conf", "test_report")
         self._email_host = args.email_host
         self._email_port = int(args.email_port)
         self._email_send_from = 'bot@kernelci.org'
         self._email_subject = 'Kernel CI Test Reports'
-        self._email_send_to = 'kernelci-results-staging@groups.io'
+        self._email_send_to = self._email_config.email_send_to
         self._email_user = os.getenv('EMAIL_USER')
         self._email_pass = os.getenv('EMAIL_PASSWORD')
 

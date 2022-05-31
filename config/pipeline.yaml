@@ -103,5 +103,3 @@ email_configs:
 
   staging:
     email_send_to: 'kernelci-results-staging@groups.io'
-    email_send_from: 'bot@kernelci.org'
-    email_subject: 'Kernel CI Test Reports'
