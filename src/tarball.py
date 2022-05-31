@@ -89,9 +89,18 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _update_node(self, node, describe, tarball, status):
+    def _create_node(self, checkout_node, status):
+        node = {
+            'parent': checkout_node['_id'],
+            'name': 'tarball',
+            'artifacts': checkout_node['artifacts'],
+            'revision': checkout_node['revision'],
+            'status': status,
+        }
+        self._db.submit({'node': node})
+
+    def _update_node(self, node, describe, tarball):
         node['revision']['describe'] = describe
-        node['status'] = status
         node['artifacts'] = {
             'tarball': urllib.parse.urljoin(self._storage_url, tarball),
         }
@@ -121,7 +130,8 @@ scp \
                     build_config.tree.name, self._kdir
                 )
                 tarball = self._push_tarball(build_config, describe)
-                self._update_node(node, describe, tarball, "pass")
+                self._update_node(node, describe, tarball)
+                self._create_node(node, "pass")
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
         finally:
