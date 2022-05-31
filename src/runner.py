@@ -38,12 +38,12 @@ class Runner:
         self._verbose = args.verbose
         self._job_tmp_dirs = {}
 
-    def _create_node(self, checkout_node, plan_config):
+    def _create_node(self, tarball_node, plan_config):
         node = {
-            'parent': checkout_node['_id'],
+            'parent': tarball_node['parent'],
             'name': plan_config.name,
-            'artifacts': checkout_node['artifacts'],
-            'revision': checkout_node['revision'],
+            'artifacts': tarball_node['artifacts'],
+            'revision': tarball_node['revision'],
         }
         return self._db.submit({'node': node})[0]
 
@@ -76,13 +76,13 @@ class Runner:
         self._logger.log_message(logging.INFO, f"output_file: {output_file}")
         return output_file
 
-    def _schedule_test(self, checkout_node, plan, device):
+    def _schedule_test(self, tarball_node, plan, device):
         self._logger.log_message(logging.INFO, "Tarball: {}".format(
-            checkout_node['artifacts']['tarball']
+            tarball_node['artifacts']['tarball']
         ))
 
         self._logger.log_message(logging.INFO, "Creating test node")
-        node = self._create_node(checkout_node, plan)
+        node = self._create_node(tarball_node, plan)
 
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = self._generate_job(node, plan, device, tmp.name)
@@ -102,8 +102,8 @@ class Runner:
 
     def loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
-            'op': 'updated',
-            'name': 'checkout',
+            'op': 'created',
+            'name': 'tarball',
             'status': 'pass',
         })
         self._logger.log_message(logging.INFO,
@@ -122,8 +122,9 @@ class Runner:
 
         try:
             while True:
-                checkout_node = self._db.receive_node(sub_id)
-                job, tmp = self._schedule_test(checkout_node, plan, device)
+                tarball_node = self._db.receive_node(sub_id)
+                job, tmp = self._schedule_test(tarball_node, plan,
+                                               device)
                 if self._runtime.config.lab_type == 'shell':
                     self._job_tmp_dirs[job] = tmp
                 self._cleanup_paths()
@@ -134,9 +135,9 @@ class Runner:
             self._cleanup_paths()
             return True
 
-    def _run_single_job(self, checkout_node, plan, device):
+    def _run_single_job(self, tarball_node, plan, device):
         try:
-            job, tmp = self._schedule_test(checkout_node, plan, device)
+            job, tmp = self._schedule_test(tarball_node, plan, device)
             if self._runtime.config.lab_type == 'shell':
                 self._logger.log_message(logging.INFO, "Waiting...")
                 job.wait()
@@ -152,19 +153,20 @@ class Runner:
 
     def run(self, args):
         if args.node_id:
-            checkout_node = self._db.get_node(args.node_id)
+            tarball_node = self._db.get_node(args.node_id)
         elif args.git_commit:
-            checkout_node = self._get_node_from_commit(args.git_commit)
+            tarball_node = self._get_node_from_commit(args.git_commit)
         else:
-            checkout_node = None
+            tarball_node = None
 
-        if checkout_node is None:
+        if tarball_node is None:
             self._logger.log_message(logging.ERROR, "Node not found")
             return False
 
         plan_config = self._plan_configs[args.plan]
         device_config = self._device_configs[args.target]
-        return self._run_single_job(checkout_node, plan_config, device_config)
+        return self._run_single_job(tarball_node, plan_config,
+                                    device_config)
 
 
 class cmd_loop(Command):
