@@ -35,6 +35,7 @@ class cmd_run(Command):
             "pending": "Pending",
             "pass": "Pass",
             "fail": "Fail",
+            "timeout": "Timeout",
         }
 
         db_config = configs['db_configs'][args.db_config]
