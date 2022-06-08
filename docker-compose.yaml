@@ -103,6 +103,16 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
 
+  set_complete:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-set_complete'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/set_complete.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
+  
   set_timeout:
     <<: *base-service
     container_name: 'kernelci-pipeline-set_timeout'
