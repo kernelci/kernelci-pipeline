@@ -97,7 +97,12 @@ class TestReport:
             self._logger.log_message(logging.INFO, "Email Sent.")
 
     def run(self):
-        sub_id = self._db.subscribe('node')
+        sub_id = self._db.subscribe_node_channel(filters={
+            'op': 'updated',
+            'name': 'checkout',
+            'status': 'complete',
+        })
+
         self._logger.log_message(logging.INFO,
                                  "Listening for test completion events")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
@@ -105,19 +110,17 @@ class TestReport:
         try:
             while True:
                 sys.stdout.flush()
-                event = self._db.get_event(sub_id)
+                root_node = self._db.receive_node(sub_id)
+                child_nodes = self._db.get_child_nodes_from_parent(
+                                    root_node['_id'])
 
-                node = self._db.get_node_from_event(event)
-                if node['status'] == 'pending':
-                    continue
-
-                root_node = self._db.get_root_node(node['_id'])
                 template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
                 template = template_env.get_template("test-report.jinja2")
                 email_content = template.render(total_runs=1, total_failures=0,
-                                                root=root_node, tests=[node])
+                                                root=root_node,
+                                                tests=child_nodes)
                 email_msg = self.create_email(email_content,
                                               self._email_send_to,
                                               self._email_send_from,
