@@ -96,6 +96,12 @@ class TestReport:
         else:
             self._logger.log_message(logging.INFO, "Email Sent.")
 
+    def get_test_analysis(self, nodes):
+        total_runs = len(nodes)
+        total_failures = sum(node['status'] == "fail" for node in nodes)
+        total_timeouts = sum(node['status'] == "timeout" for node in nodes)
+        return total_runs, total_failures, total_timeouts
+
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
             'op': 'updated',
@@ -114,11 +120,16 @@ class TestReport:
                 child_nodes = self._db.get_child_nodes_from_parent(
                                     root_node['_id'])
 
+                total_runs, total_failures, total_timeouts = \
+                    self.get_test_analysis(child_nodes)
+
                 template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
                 template = template_env.get_template("test-report.jinja2")
-                email_content = template.render(total_runs=1, total_failures=0,
+                email_content = template.render(total_runs=total_runs,
+                                                total_failures=total_failures,
+                                                total_timeouts=total_timeouts,
                                                 root=root_node,
                                                 tests=child_nodes)
                 email_msg = self.create_email(email_content,
