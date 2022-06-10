@@ -91,6 +91,42 @@ class Runner:
         job = self._runtime.submit(output_file)
         return job, tmp
 
+    def _run_single_job(self, tarball_node, plan, device):
+        try:
+            job, tmp = self._schedule_test(tarball_node, plan, device)
+            if self._runtime.config.lab_type == 'shell':
+                self._logger.log_message(logging.INFO, "Waiting...")
+                job.wait()
+                self._logger.log_message(logging.INFO, "...done")
+        except KeyboardInterrupt as e:
+            self._logger.log_message(logging.ERROR, "Aborting.")
+        finally:
+            return True
+
+    def _get_node_from_commit(self, git_commit):
+        nodes = self._db.get_nodes_by_commit_hash(git_commit)
+        return nodes[0] if nodes else None
+
+    def run(self, args):
+        if args.node_id:
+            tarball_node = self._db.get_node(args.node_id)
+        elif args.git_commit:
+            tarball_node = self._get_node_from_commit(args.git_commit)
+        else:
+            tarball_node = None
+
+        if tarball_node is None:
+            self._logger.log_message(logging.ERROR, "Node not found")
+            return False
+
+        plan_config = self._plan_configs[args.plan]
+        device_config = self._device_configs[args.target]
+        return self._run_single_job(tarball_node, plan_config,
+                                    device_config)
+
+class RunnerLoop(Runner):
+    """Runner subclass to execute in a loop"""
+
     def _cleanup_paths(self):
         job_tmp_dirs = {
             process: tmp
@@ -135,39 +171,6 @@ class Runner:
             self._cleanup_paths()
             return True
 
-    def _run_single_job(self, tarball_node, plan, device):
-        try:
-            job, tmp = self._schedule_test(tarball_node, plan, device)
-            if self._runtime.config.lab_type == 'shell':
-                self._logger.log_message(logging.INFO, "Waiting...")
-                job.wait()
-                self._logger.log_message(logging.INFO, "...done")
-        except KeyboardInterrupt as e:
-            self._logger.log_message(logging.ERROR, "Aborting.")
-        finally:
-            return True
-
-    def _get_node_from_commit(self, git_commit):
-        nodes = self._db.get_nodes_by_commit_hash(git_commit)
-        return nodes[0] if nodes else None
-
-    def run(self, args):
-        if args.node_id:
-            tarball_node = self._db.get_node(args.node_id)
-        elif args.git_commit:
-            tarball_node = self._get_node_from_commit(args.git_commit)
-        else:
-            tarball_node = None
-
-        if tarball_node is None:
-            self._logger.log_message(logging.ERROR, "Node not found")
-            return False
-
-        plan_config = self._plan_configs[args.plan]
-        device_config = self._device_configs[args.target]
-        return self._run_single_job(tarball_node, plan_config,
-                                    device_config)
-
 
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
@@ -175,7 +178,7 @@ class cmd_loop(Command):
     opt_args = [Args.verbose]
 
     def __call__(self, configs, args):
-        return Runner(configs, args).loop()
+        return RunnerLoop(configs, args).loop()
 
 
 class cmd_run(Command):
