@@ -14,7 +14,7 @@ services:
     stop_signal: 'SIGINT'
     command:
       - './pipeline/notifier.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
     volumes: &base-volumes
       - './src:/home/kernelci/pipeline'
@@ -27,7 +27,7 @@ services:
     stop_signal: 'SIGINT'
     command:
       - './pipeline/runner.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
     volumes:
       - './src:/home/kernelci/pipeline'
@@ -42,7 +42,7 @@ services:
     container_name: 'kernelci-pipeline-tarball'
     command:
       - './pipeline/tarball.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
     volumes:
       - './src:/home/kernelci/pipeline'
@@ -56,7 +56,7 @@ services:
     container_name: 'kernelci-pipeline-trigger'
     command:
       - './pipeline/trigger.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
 
   kcidb:
@@ -68,7 +68,7 @@ services:
       - '/usr/bin/env'
       - 'python3'
       - '/home/kernelci/pipeline/send_kcidb.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
     volumes: *base-volumes
 
@@ -79,5 +79,5 @@ services:
       - '/usr/bin/env'
       - 'python3'
       - '/home/kernelci/pipeline/test_report.py'
-      - '--settings=/home/kernelci/config/kernelci.conf'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
