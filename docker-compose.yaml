@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 version: '3'
 
@@ -105,5 +106,15 @@ services:
       - '/usr/bin/env'
       - 'python3'
       - '/home/kernelci/pipeline/timeout.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'run'
+
+  regression_tracker:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-regression_tracker'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/regression_tracker.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
