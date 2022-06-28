@@ -81,3 +81,13 @@ services:
       - '/home/kernelci/pipeline/test_report.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
+
+  regression_tracker:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-regression_tracker'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/regression_tracker.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
