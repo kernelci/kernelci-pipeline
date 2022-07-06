@@ -104,7 +104,7 @@ class Runner:
         sub_id = self._db.subscribe_node_channel(filters={
             'op': 'created',
             'name': 'tarball',
-            'status': 'pass',
+            'result': 'pass',
         })
         self._logger.log_message(logging.INFO,
                                  "Listening for completed checkout events")
