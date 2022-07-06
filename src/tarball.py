@@ -89,13 +89,14 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _create_tarball_node(self, checkout_node, status):
+    def _create_tarball_node(self, checkout_node, status, result):
         node = {
             'parent': checkout_node['_id'],
             'name': 'tarball',
             'artifacts': checkout_node['artifacts'],
             'revision': checkout_node['revision'],
             'status': status,
+            'result': result,
         }
         self._db.submit({'node': node})
 
@@ -131,7 +132,7 @@ scp \
                 )
                 tarball = self._push_tarball(build_config, describe)
                 self._update_checkout_node(node, describe, tarball)
-                self._create_tarball_node(node, "pass")
+                self._create_tarball_node(node, "completed", "pass")
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
         finally:
