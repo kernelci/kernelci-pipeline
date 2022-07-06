@@ -71,7 +71,7 @@ connection to KCIDB")
             while True:
                 event = db.get_event(sub_id)
                 node = db.get_node_from_event(event)
-                if node['name'] != 'checkout' or node['status'] != 'pass':
+                if node['name'] != 'checkout' or node['status'] != 'completed':
                     continue
 
                 self._logger.log_message(logging.INFO,
