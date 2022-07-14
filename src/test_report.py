@@ -52,7 +52,7 @@ class TestReport:
             email_msg['To'] = send_to
         email_msg['From'] = send_from
         email_msg['Subject'] = email_subject
-        self._logger.log_message(logging.INFO, email_msg)
+        self._logger.log_message(logging.INFO, email_content)
         return email_msg
 
     def smtp_connect(self, email_user, email_password):
