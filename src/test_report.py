@@ -80,7 +80,7 @@ class TestReport:
             self._logger.log_message(logging.ERROR,
                                      f"Generic error connecting: {error}.")
         else:
-            self._logger.log_message(logging.INFO, "Server Connected.")
+            self._logger.log_message(logging.DEBUG, "Server Connected.")
             return email_server
 
     def send_mail(self, email_msg, email_server):
