@@ -1,0 +1,71 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{%- extends 'base/python.jinja2' %}
+
+{%- block python_imports %}
+{{ super() }}
+import requests
+{%- endblock %}
+
+{%- block python_globals %}
+{{ super() }}
+REVISION = {{ revision }}
+{% endblock %}
+
+{%- block python_body %}
+def _get_makefile_version(makefile):
+    mkver = {
+        'VERSION': None,
+        'PATCHLEVEL': None,
+        'SUBLEVEL': None,
+        'EXTRAVERSION': None,
+    }
+    for line_n, line in enumerate(makefile):
+        value = list(val.strip() for val in line.split('='))
+        for key in mkver.keys():
+            if value[0] == key:
+                mkver[key] = (
+                    int(value[1]) if key != 'EXTRAVERSION' else value[1]
+                )
+                res = [val is not None for val in mkver.values()]
+                if all(res):
+                    return mkver
+        if line_n == 10:
+            return None
+    return None
+
+
+def _check_kver(makefile, kver):
+    try:
+        mkver = _get_makefile_version(makefile)
+    except Exception as e:
+        print(e)
+        mkver = None
+    finally:
+        if mkver is None:
+            return False
+
+    return (
+        kver['version'] == mkver['VERSION'] and
+        kver['patchlevel'] == mkver['PATCHLEVEL'] and (
+            not mkver['SUBLEVEL'] or
+            kver['sublevel'] == mkver['SUBLEVEL']
+        ) and (
+            not mkver['EXTRAVERSION'] or
+            kver['extra'].startswith(mkver['EXTRAVERSION'])
+        )
+    )
+
+
+def main(argv):
+    src_path = argv[1]
+
+    print("Checking kernel revision")
+    with open(os.path.join(src_path, 'Makefile')) as makefile:
+        kver = REVISION['version']
+        res = _check_kver(makefile, kver)
+        print("Result: {}".format("PASS" if res is True else "FAIL"))
+
+    return res
+{% endblock %}
