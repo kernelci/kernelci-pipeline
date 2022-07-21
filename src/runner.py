@@ -57,6 +57,7 @@ class Runner:
             'runtime': self._runtime.config.lab_type,
             'tarball_url': node['artifacts']['tarball'],
             'workspace': tmp,
+            'runtime': self._runtime.config.lab_type,
         }
         params.update(plan_config.params)
         params.update(device_config.params)
