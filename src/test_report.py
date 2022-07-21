@@ -32,8 +32,8 @@ class TestReport:
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "test_report")
-        self._email_host = args.email_host
-        self._email_port = int(args.email_port)
+        self._smtp_host = args.smtp_host
+        self._smtp_port = args.smtp_port
         self._email_send_from = 'bot@kernelci.org'
         self._email_subject = 'Kernel CI Test Reports'
         self._email_send_to = 'kernelci-results-staging@groups.io'
@@ -57,12 +57,12 @@ class TestReport:
 
     def smtp_connect(self, email_user, email_password):
         try:
-            if self._email_port == 465:
-                email_server = smtplib.SMTP_SSL(self._email_host,
-                                                self._email_port)
+            if self._smtp_port == 465:
+                email_server = smtplib.SMTP_SSL(self._smtp_host,
+                                                self._smtp_port)
             else:
-                email_server = smtplib.SMTP(self._email_host,
-                                            self._email_port)
+                email_server = smtplib.SMTP(self._smtp_host,
+                                            self._smtp_port)
                 email_server.starttls()
             email_server.login(email_user, email_password)
         except (smtplib.SMTPAuthenticationError,
@@ -135,7 +135,19 @@ class TestReport:
 
 class cmd_run(Command):
     help = "Generate test report"
-    args = [Args.db_config]
+    args = [
+        Args.db_config,
+        {
+            'name': '--smtp-host',
+            'help': "SMTP server host name",
+        },
+        {
+            'name': '--smtp-port',
+            'help': "SMTP server port number",
+            'type': int,
+            'default': 25,
+        },
+    ]
 
     def __call__(self, configs, args):
         generate_test_report = TestReport(configs, args)
