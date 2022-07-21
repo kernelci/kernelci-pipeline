@@ -89,7 +89,7 @@ class TestReport:
         except (smtplib.SMTPRecipientsRefused,
                 smtplib.SMTPSenderRefused) as error:
             self._logger.log_message(logging.ERROR,
-                                     f"Recipents or Sender refused: {error}.")
+                                     f"Recipients or Sender refused: {error}.")
         except (smtplib.SMTPException) as error:
             self._logger.log_message(logging.ERROR,
                                      f"Generic error sending email: {error}.")
