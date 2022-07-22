@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021 Collabora Limited
+# Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 trees:
@@ -81,8 +81,8 @@ labs:
 
 test_plans:
 
-  check-describe:
-    pattern: 'check-describe.jinja2'
+  kver:
+    pattern: 'kver.jinja2'
 
 
 device_types:
