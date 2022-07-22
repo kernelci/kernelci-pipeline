@@ -3,11 +3,6 @@
 
 {%- extends 'base/python.jinja2' %}
 
-{%- block python_imports %}
-{{ super() }}
-import requests
-{%- endblock %}
-
 {%- block python_globals %}
 {{ super() }}
 REVISION = {{ revision }}
