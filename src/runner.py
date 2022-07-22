@@ -36,7 +36,6 @@ class Runner:
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._verbose = args.verbose
-        self._job_tmp_dirs = {}
 
     def _create_node(self, tarball_node, plan_config):
         node = {
@@ -94,6 +93,10 @@ class Runner:
 
 class RunnerLoop(Runner):
     """Runner subclass to execute in a loop"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._job_tmp_dirs = {}
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
