@@ -6,7 +6,6 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-import json
 import logging
 import os
 import sys
