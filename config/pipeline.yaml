@@ -71,12 +71,10 @@ labs:
 
   k8s-gke-eu-west4:
     lab_type: kubernetes
-    config_path: 'kubernetes'
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
   shell:
     lab_type: shell
-    config_path: 'scripts'
 
 
 test_plans:
