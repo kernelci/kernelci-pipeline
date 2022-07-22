@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021 Collabora Limited
+# Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 version: '3'
@@ -20,15 +20,16 @@ services:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
 
-  runner:
+  runner: &runner
     container_name: 'kernelci-pipeline-runner'
-    build: {context: 'docker-k8s'}
+    image: 'kernelci/staging-kernelci'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     command:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
+      - '--lab-config=shell'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -36,6 +37,16 @@ services:
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
+
+  runner-k8s:
+    <<: *runner
+    container_name: 'kernelci-pipeline-runner-k8s'
+    image: 'kernelci/staging-k8s:kernelci'
+    command:
+      - './pipeline/runner.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'loop'
+      - '--lab-config=k8s-gke-eu-west4'
 
   tarball:
     <<: *base-service
