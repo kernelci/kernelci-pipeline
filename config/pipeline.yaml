@@ -87,12 +87,10 @@ test_plans:
 
 device_types:
 
-  kubernetes_python:
+  kubernetes:
     base_name: kubernetes
     class: kubernetes
 
-  shell_python:
+  shell:
     base_name: shell
     class: shell
-    params:
-      shebang: '/usr/bin/env python3'
