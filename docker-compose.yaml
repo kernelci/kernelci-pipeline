@@ -81,3 +81,13 @@ services:
       - '/home/kernelci/pipeline/test_report.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
+
+  trigger_completed:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-trigger_completed'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/trigger_completed.py'
+      - '--settings=/home/kernelci/config/kernelci.conf'
+      - 'run'
