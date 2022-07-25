@@ -51,7 +51,7 @@ class TestReport:
             email_msg['To'] = send_to
         email_msg['From'] = send_from
         email_msg['Subject'] = email_subject
-        self._logger.log_message(logging.INFO, email_msg)
+        self._logger.log_message(logging.INFO, email_content)
         return email_msg
 
     def smtp_connect(self, email_user, email_password):
@@ -79,7 +79,7 @@ class TestReport:
             self._logger.log_message(logging.ERROR,
                                      f"Generic error connecting: {error}.")
         else:
-            self._logger.log_message(logging.INFO, "Server Connected.")
+            self._logger.log_message(logging.DEBUG, "Server Connected.")
             return email_server
 
     def send_mail(self, email_msg, email_server):
@@ -88,7 +88,7 @@ class TestReport:
         except (smtplib.SMTPRecipientsRefused,
                 smtplib.SMTPSenderRefused) as error:
             self._logger.log_message(logging.ERROR,
-                                     f"Recipents or Sender refused: {error}.")
+                                     f"Recipients or Sender refused: {error}.")
         except (smtplib.SMTPException) as error:
             self._logger.log_message(logging.ERROR,
                                      f"Generic error sending email: {error}.")
