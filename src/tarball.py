@@ -8,6 +8,7 @@
 
 import logging
 import os
+import re
 import sys
 import urllib.parse
 
@@ -18,6 +19,13 @@ import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
 from logger import Logger
+
+KVER_RE = re.compile(
+    r'^v(?P<version>[\d]+)\.'
+    r'(?P<patchlevel>[\d]+)'
+    r'(\.(?P<sublevel>[\d]+))?'
+    r'(?P<extra>.*)?'
+)
 
 
 class Tarball:
@@ -100,12 +108,24 @@ scp \
         }
         self._db.submit({'node': node})
 
-    def _update_checkout_node(self, node, describe, tarball):
-        node['revision']['describe'] = describe
+    def _update_checkout_node(self, node, describe, version, tarball):
+        node['revision'].update({
+            'describe': describe,
+            'version': version,
+        })
         node['artifacts'] = {
             'tarball': urllib.parse.urljoin(self._storage_url, tarball),
         }
         self._db.submit({'node': node})
+
+    def _get_version_from_describe(self):
+        describe_v = kernelci.build.git_describe_verbose(self._kdir)
+        version = KVER_RE.match(describe_v).groupdict()
+        return {
+            key: value
+            for key, value in version.items()
+            if value
+        }
 
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
@@ -131,7 +151,8 @@ scp \
                     build_config.tree.name, self._kdir
                 )
                 tarball = self._push_tarball(build_config, describe)
-                self._update_checkout_node(node, describe, tarball)
+                version = self._get_version_from_describe()
+                self._update_checkout_node(node, describe, version, tarball)
                 self._create_tarball_node(node, "completed", "pass")
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
