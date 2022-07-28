@@ -87,9 +87,10 @@ class Runner:
 class RunnerLoop(Runner):
     """Runner subclass to execute in a loop"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, configs, args, **kwargs):
+        super().__init__(configs, args, **kwargs)
         self._job_tmp_dirs = {}
+        self._plan = self._plan_configs[args.plan]
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -110,9 +111,6 @@ class RunnerLoop(Runner):
         self._logger.log_message(logging.INFO,
                                  "Press Ctrl-C to stop.")
 
-        # ToDo: iterate over test configs
-        plan = self._plan_configs['kver']
-
         # ToDo: iterate over device types for the current runtime
         device_type = self._runtime.config.lab_type
         device = self._device_configs.get(device_type)
@@ -125,8 +123,9 @@ class RunnerLoop(Runner):
         try:
             while True:
                 tarball_node = self._db.receive_node(sub_id)
-                job, tmp = self._schedule_test(tarball_node, plan,
-                                               device)
+                job, tmp = self._schedule_test(
+                    tarball_node, self._plan, device
+                )
                 if self._runtime.config.lab_type == 'shell':
                     self._job_tmp_dirs[job] = tmp
                 self._cleanup_paths()
@@ -178,7 +177,7 @@ class RunnerSingleJob(Runner):
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
     args = [Args.db_config, Args.lab_config, Args.output]
-    opt_args = [Args.verbose]
+    opt_args = [Args.verbose, Args.plan]
 
     def __call__(self, configs, args):
         return RunnerLoop(configs, args).loop()
