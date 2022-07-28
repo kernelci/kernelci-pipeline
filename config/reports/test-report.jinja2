@@ -1,7 +1,7 @@
 {# -*- mode: Python -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-{{ root.revision.tree }}/{{ root.revision.branch }} {{ '(Unknown)' if root.revision.describe is none else root.revision.describe}}: {{ total_runs }} runs, {{ total_failures}} failures
+{{ root.revision.tree }}/{{ root.revision.branch }} {{ '(Unknown)' if root.revision.describe is none else root.revision.describe}}: {{ total_runs }} runs, {{ total_failures}} failures, {{ total_timeouts }} timeouts
 
 {{'%-15s %s %s'|format("test", "|", "result")}}
 {{'%s%s%s'|format("-"*16, "+", "-"*7)}}
