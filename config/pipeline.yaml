@@ -79,6 +79,10 @@ labs:
 
 test_plans:
 
+  kunit:
+    pattern: 'kunit.jinja2'
+    image: 'kernelci/staging-gcc-10:x86-kunit-kernelci'
+
   kver:
     pattern: 'kver.jinja2'
 
