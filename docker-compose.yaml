@@ -30,6 +30,7 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
       - '--lab-config=shell'
+      - '--plan=kver'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -47,6 +48,7 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
       - '--lab-config=k8s-gke-eu-west4'
+      - '--plan=kunit'
 
   tarball:
     <<: *base-service
