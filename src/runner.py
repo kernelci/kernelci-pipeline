@@ -115,10 +115,13 @@ class RunnerLoop(Runner):
         plan = self._plan_configs['kver']
 
         # ToDo: iterate over device types for the current runtime
-        if self._runtime.config.lab_type == 'shell':
-            device = self._device_configs['shell_python']
-        else:
-            device = self._device_configs['kubernetes_python']
+        device_type = self._runtime.config.lab_type
+        device = self._device_configs.get(device_type)
+        if device is None:
+            self._logger.log_message(
+                logging.ERROR, "Device type not found: {device_type}"
+            )
+            return False
 
         try:
             while True:
