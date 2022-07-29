@@ -12,6 +12,7 @@ import datetime
 import logging
 import os
 import sys
+import traceback
 
 import kernelci
 import kernelci.db
@@ -107,6 +108,8 @@ connection to KCIDB")
 
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             db.unsubscribe(sub_id)
 

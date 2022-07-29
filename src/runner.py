@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 import tempfile
+import traceback
 
 import kernelci
 import kernelci.config
@@ -132,6 +133,8 @@ class RunnerLoop(Runner):
                 self._cleanup_paths()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
             self._cleanup_paths()

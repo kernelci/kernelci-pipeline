@@ -10,6 +10,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 from time import sleep
+import traceback
 
 import kernelci
 import kernelci.config
@@ -60,6 +61,8 @@ class SetTimeout:
                 sleep(self._poll_period)
         except KeyboardInterrupt as err:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
 
 
 class cmd_run(Command):

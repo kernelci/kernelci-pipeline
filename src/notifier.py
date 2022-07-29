@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import sys
+import traceback
 
 import kernelci
 import kernelci.config
@@ -74,6 +75,8 @@ class cmd_run(Command):
                 sys.stdout.flush()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             db.unsubscribe(sub_id)
 
