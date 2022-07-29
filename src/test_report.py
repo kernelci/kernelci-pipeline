@@ -124,7 +124,7 @@ class TestReport:
         })
 
         self._logger.log_message(logging.INFO,
-                                 "Listening for test completion events")
+                                 "Listening for complete tarballs")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
