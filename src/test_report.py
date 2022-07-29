@@ -129,10 +129,13 @@ class TestReport:
 
         try:
             while True:
-                sys.stdout.flush()
-                root_node, child_nodes = self._db.receive_nodes(sub_id)
-                email_content, email_sub = self.create_test_report(root_node,
-                                                                   child_nodes)
+                root_node = self._db.receive_node(sub_id)
+                child_nodes = self._db.get_child_nodes_from_parent(
+                    root_node['_id']
+                )
+                email_content, email_sub = self.create_test_report(
+                    root_node, child_nodes
+                )
                 email_msg = self.create_email(email_content,
                                               self._email_send_to,
                                               self._email_send_from,
