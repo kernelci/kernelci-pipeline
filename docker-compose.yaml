@@ -59,6 +59,14 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
 
+  complete-hack:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-complete-hack'
+    command:
+      - './pipeline/complete_hack.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'run'
+
   kcidb:
     container_name: 'kernelci-pipeline-kcidb'
     build: {context: 'docker-kcidb'}
