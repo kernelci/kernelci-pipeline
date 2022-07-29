@@ -1,0 +1,24 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{%- extends 'base/python.jinja2' %}
+
+{%- block python_imports %}
+{{ super() }}
+import subprocess
+{%- endblock %}
+
+{%- block python_globals %}
+{{ super() }}
+REVISION = {{ revision }}
+{% endblock %}
+
+{%- block python_body %}
+def main(argv):
+    src_path = argv[1]
+
+    print("Running KUnit...")
+    cmd = f"cd {src_path} && ./tools/testing/kunit/kunit.py run --json=kunit.json --jobs=$(nproc)"
+    res = subprocess.call(cmd, shell=True)
+    return res == 0
+{% endblock %}
