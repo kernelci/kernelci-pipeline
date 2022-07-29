@@ -81,6 +81,7 @@ test_plans:
 
   kver:
     pattern: 'kver.jinja2'
+    image: 'kernelci/-staging-kernelci'
 
 
 device_types:
