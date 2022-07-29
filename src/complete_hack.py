@@ -36,6 +36,9 @@ class CompleteHack:
         if now > expires:
             self._pending_node['status'] = "complete"
             self._db.submit({'node': self._pending_node})
+            checkout_node = self._db.get_node(self._pending_node['parent'])
+            checkout_node['status'] = "complete"
+            self._db.submit({'node': checkout_node})
             self._pending_node = None
 
     def run(self):
