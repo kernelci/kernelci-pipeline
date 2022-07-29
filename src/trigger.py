@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import time
+import traceback
 
 import kernelci
 import kernelci.build
@@ -88,11 +89,16 @@ class cmd_run(Command):
         poll_period = int(args.poll_period)
 
         while True:
-            _run_trigger(args, build_config, db, self._logger)
-            if poll_period:
-                time.sleep(poll_period)
-            else:
-                break
+            try:
+                _run_trigger(args, build_config, db, self._logger)
+                if poll_period:
+                    time.sleep(poll_period)
+                else:
+                    break
+            except KeyboardInterrupt as e:
+                self._logger.log_message(logging.INFO, "Stopping.")
+            except Exception as e:
+                self._logger.log_message(logging.ERROR, traceback.format_exc())
 
         return True
 

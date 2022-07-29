@@ -16,6 +16,7 @@ import email.mime.text
 import os
 import smtplib
 import sys
+import traceback
 
 import kernelci.config
 import kernelci.db
@@ -145,6 +146,8 @@ class TestReport:
                     email_server.quit()
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
 

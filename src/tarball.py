@@ -10,6 +10,7 @@ import logging
 import os
 import re
 import sys
+import traceback
 import urllib.parse
 
 import kernelci
@@ -156,6 +157,8 @@ scp \
                 self._create_tarball_node(node, "pending", None)
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception as e:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
 
