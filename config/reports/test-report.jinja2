@@ -14,5 +14,5 @@ SHA1:     {{ root.revision.commit }}
 {{'%-15s %s %s'|format("test", "|", "result")}}
 {{'%s%s%s'|format("-"*16, "+", "-"*7)}}
 {%- for test in tests %}
-{{'%-15s %s %s'|format(test.name, "|", test.status)}}
+{{'%-15s %s %s'|format(test.name, "|", test.result)}}
 {%- endfor %}

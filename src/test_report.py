@@ -97,7 +97,7 @@ class TestReport:
 
     def get_test_analysis(self, nodes):
         total_runs = len(nodes)
-        total_failures = sum(node['status'] == "fail" for node in nodes)
+        total_failures = sum(node['result'] == "fail" for node in nodes)
         total_timeouts = sum(node['status'] == "timeout" for node in nodes)
         return total_runs, total_failures, total_timeouts
 
