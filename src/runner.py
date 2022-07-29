@@ -55,6 +55,7 @@ class Runner:
             'node_id': node['_id'],
             'revision': revision,
             'runtime': self._runtime.config.lab_type,
+            'runtime_image': plan_config.image,
             'tarball_url': node['artifacts']['tarball'],
             'workspace': tmp,
         }
