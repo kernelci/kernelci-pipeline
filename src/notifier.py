@@ -29,7 +29,9 @@ class cmd_run(Command):
         self._logger = Logger("config/logger.conf", "notifier")
 
     def __call__(self, configs, args):
-        log_fmt = "{time:26s}  {commit:12s}  {status:8s}  {result:8s} {name}"
+        log_fmt = \
+            "{time:26s}  {commit:12s}  {id:24}  " \
+            "{status:9s}  {result:8s}  {name}"
 
         status_map = {
             "pending": "Pending",
@@ -54,8 +56,8 @@ class cmd_run(Command):
 
         try:
             self._logger.log_message(logging.INFO, log_fmt.format(
-                time="Time", commit="Commit", status="Status", result="Result",
-                name="Name"
+                time="Time", commit="Commit", id="Node Id", status="Status",
+                result="Result", name="Name"
             ))
             while True:
                 event = db.get_event(sub_id)
@@ -64,6 +66,7 @@ class cmd_run(Command):
                 self._logger.log_message(logging.INFO, log_fmt.format(
                     time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                     commit=obj['revision']['commit'][:12],
+                    id=obj['_id'],
                     status=status_map[obj['status']],
                     result=result_map[obj['result']],
                     name=obj['name'],
