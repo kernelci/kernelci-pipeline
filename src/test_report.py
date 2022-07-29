@@ -110,8 +110,7 @@ class TestReport:
         subject_str = (f"{root_node['revision']['tree']}/\
 {root_node['revision']['branch']} \
 {root_node['revision']['describe']}: \
-{total_runs} runs {total_failures} fails \
-({root_node['name']})")
+{total_runs} runs {total_failures} fails")
         email_content = template.render(subject_str=subject_str,
                                         root=root_node,
                                         tests=child_nodes)
