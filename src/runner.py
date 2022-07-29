@@ -38,7 +38,7 @@ class Runner:
 
     def _create_node(self, tarball_node, plan_config):
         node = {
-            'parent': tarball_node['parent'],
+            'parent': tarball_node['_id'],
             'name': plan_config.name,
             'artifacts': tarball_node['artifacts'],
             'revision': tarball_node['revision'],
