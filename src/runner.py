@@ -107,7 +107,7 @@ class RunnerLoop(Runner):
             'result': 'pass',
         })
         self._logger.log_message(logging.INFO,
-                                 "Listening for completed checkout events")
+                                 "Listening for complete checkout events")
         self._logger.log_message(logging.INFO,
                                  "Press Ctrl-C to stop.")
 
