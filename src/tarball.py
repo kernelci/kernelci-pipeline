@@ -153,7 +153,7 @@ scp \
                 tarball = self._push_tarball(build_config, describe)
                 version = self._get_version_from_describe()
                 self._update_checkout_node(node, describe, version, tarball)
-                self._create_tarball_node(node, "complete", "pass")
+                self._create_tarball_node(node, "pending", None)
         except KeyboardInterrupt as e:
             self._logger.log_message(logging.INFO, "Stopping.")
         finally:
