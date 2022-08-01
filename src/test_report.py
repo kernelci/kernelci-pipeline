@@ -35,7 +35,6 @@ class TestReport:
         self._smtp_host = args.smtp_host
         self._smtp_port = args.smtp_port
         self._email_send_from = 'bot@kernelci.org'
-        self._email_subject = 'Kernel CI Test Reports'
         self._email_send_to = 'kernelci-results-staging@groups.io'
         self._email_user = os.getenv('EMAIL_USER')
         self._email_pass = os.getenv('EMAIL_PASSWORD')
@@ -96,32 +95,50 @@ class TestReport:
         else:
             self._logger.log_message(logging.INFO, "Email Sent.")
 
+    def get_test_analysis(self, nodes):
+        total_runs = len(nodes)
+        total_failures = sum(node['status'] == "fail" for node in nodes)
+        return total_runs, total_failures
+
+    def create_test_report(self, root_node, child_nodes):
+        total_runs, total_failures = self.get_test_analysis(child_nodes)
+
+        template_env = jinja2.Environment(
+                            loader=jinja2.FileSystemLoader("./config/reports/")
+                        )
+        template = template_env.get_template("test-report.jinja2")
+        subject_str = (f"{root_node['revision']['tree']}/\
+{root_node['revision']['branch']} \
+{root_node['revision']['describe']}: \
+{total_runs} runs {total_failures} fails")
+        email_content = template.render(subject_str=subject_str,
+                                        root=root_node,
+                                        tests=child_nodes)
+        return email_content, subject_str
+
     def run(self):
-        sub_id = self._db.subscribe('node')
+        sub_id = self._db.subscribe_node_channel(filters={
+            'name': 'tarball',
+            'status': 'complete',
+        })
+
         self._logger.log_message(logging.INFO,
-                                 "Listening for test completion events")
+                                 "Listening for complete tarballs")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
             while True:
-                sys.stdout.flush()
-                event = self._db.get_event(sub_id)
-
-                node = self._db.get_node_from_event(event)
-                if node['status'] == 'pending':
-                    continue
-
-                root_node = self._db.get_root_node(node['_id'])
-                template_env = jinja2.Environment(
-                            loader=jinja2.FileSystemLoader("./config/reports/")
-                        )
-                template = template_env.get_template("test-report.jinja2")
-                email_content = template.render(total_runs=1, total_failures=0,
-                                                root=root_node, tests=[node])
+                root_node = self._db.receive_node(sub_id)
+                child_nodes = self._db.get_child_nodes_from_parent(
+                    root_node['_id']
+                )
+                email_content, email_sub = self.create_test_report(
+                    root_node, child_nodes
+                )
                 email_msg = self.create_email(email_content,
                                               self._email_send_to,
                                               self._email_send_from,
-                                              self._email_subject)
+                                              email_sub)
                 email_server = self.smtp_connect(self._email_user,
                                                  self._email_pass)
                 if email_server:

@@ -36,7 +36,7 @@ class cmd_run(Command):
         status_map = {
             "pending": "Pending",
             "timeout": "Timeout",
-            "completed": "Completed",
+            "complete": "Complete",
         }
 
         result_map = {
