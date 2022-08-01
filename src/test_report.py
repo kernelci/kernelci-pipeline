@@ -98,8 +98,7 @@ class TestReport:
 
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
-            'op': 'updated',
-            'name': 'checkout',
+            'name': 'tarball',
             'status': 'complete',
         })
 
