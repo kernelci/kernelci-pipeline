@@ -154,7 +154,9 @@ class RunnerSingleJob(Runner):
             return True
 
     def _get_node_from_commit(self, git_commit):
-        nodes = self._db.get_nodes_by_commit_hash(git_commit)
+        nodes = self._db.get_nodes({
+            "revision.commit": git_commit,
+        })
         return nodes[0] if nodes else None
 
     def run(self, args):
