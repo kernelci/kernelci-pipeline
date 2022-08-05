@@ -129,9 +129,8 @@ class TestReport:
         try:
             while True:
                 root_node = self._db.receive_node(sub_id)
-                child_nodes = self._db.get_child_nodes_from_parent(
-                    root_node['_id']
-                )
+                child_nodes = self._db.get_nodes({"parent": root_node['_id']})
+
                 email_content, email_sub = self.create_test_report(
                     root_node, child_nodes
                 )
