@@ -25,7 +25,9 @@ from logger import Logger
 
 def _run_trigger(args, build_config, db, logger):
     head_commit = kernelci.build.get_branch_head(build_config)
-    node_list = db.get_nodes_by_commit_hash(head_commit)
+    node_list = db.get_nodes({
+        "revision.commit": head_commit,
+    })
     if node_list:
         logger.log_message(logging.INFO, f"Node exists with \
 the latest git commit {head_commit}")
