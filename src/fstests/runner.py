@@ -7,6 +7,7 @@
 
 import os
 import sys
+import subprocess
 
 import kernelci
 import kernelci.config
@@ -20,6 +21,18 @@ class FstestsRunner:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
+
+    def check_kvm_xfstest_env(self):
+        try:
+            result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
+            if result.returncode == 0:
+                print(f"KVM-xftests found.")
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"Raised exception: {e}")
+            return False
 
     def run(self):
         sub_id = self._db.subscribe_node_channel({
@@ -41,6 +54,13 @@ class FstestsRunner:
             self._db.unsubscribe(sub_id)
             return True
 
+class cmd_check(Command):
+    help = 'Check KVM-xfstests environment'
+    args = [Args.db_config]
+    opt_args = [Args.verbose]
+
+    def __call__(self, configs, args):
+        return FstestsRunner(configs, args).check_kvm_xfstest_env()
 
 class cmd_run(Command):
     help = 'KVM fstests runner'
