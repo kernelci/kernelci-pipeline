@@ -28,7 +28,6 @@ class FstestsRunner:
         })
         print('Listening for tarballs')
         print('Press Ctrl-C to stop.')
-        tarball_node = None
         try:
             while True:
                 tarball_node = self._db.receive_node(sub_id)
