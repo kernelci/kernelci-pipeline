@@ -35,6 +35,11 @@ For building the Linux kernel:
 
     sudo apt install -y bc bison cpio flex gcc kmod libssl-dev libelf-dev
 
+As we are not using Docker environment, it will be necessary to install KernelCI library in the client side
+for interacting with `KernelCI API` and having all databases features and Kernel CI core resources:
+
+    pip3 install -r fstests/requirements.txt
+
 > **Note** As a follow-up improvement, the kernel builds could be done in
 > Docker containers like any regular build produced by KernelCI.  Building
 > natively is to simplify the process for the PoC.
@@ -139,7 +144,7 @@ or after running the full `smoke` tests:
 
 Now that all these steps show that the host can run `kvm-fstests`, a service
 can be run to receive events from the KernelCI API whenever a new kernel source
-tarbll is available to test.  This will then generate a job to automatically
+tarball is available to test.  This will then generate a job to automatically
 download the tarball, extract it, build a kernel with the config required for
 fstests, run the smoke tests, parse the results and send it to the API.
 

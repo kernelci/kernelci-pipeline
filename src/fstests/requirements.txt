@@ -1,0 +1,1 @@
+kernelci @ git+https://github.com/kernelci/kernelci-core.git
