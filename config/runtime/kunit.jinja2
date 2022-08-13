@@ -5,20 +5,81 @@
 
 {%- block python_imports %}
 {{ super() }}
+import json
 import subprocess
 {%- endblock %}
 
 {%- block python_globals %}
 {{ super() }}
-REVISION = {{ revision }}
+STATUS_MAP = {
+    'PASS': 'pass',
+    'FAIL': 'fail',
+    'SKIP': None,
+}
 {% endblock %}
 
-{%- block python_body %}
-def main(argv):
-    src_path = argv[1]
+{% block python_job -%}
+class Job(BaseJob):
+    def _parse_results(self, data):
+        child_nodes = []
+        node = {
+            'name': data['name'],
+            'nodes': child_nodes,
+        }
+        for test_case in data.get('test_cases', []):
+            child_nodes.append({
+                'name': test_case['name'],
+                'result': STATUS_MAP[test_case['status']],
+            })
+        for test_group in data.get('sub_groups', []):
+            child_nodes.append(self._parse_results(test_group))
+        return node
 
-    print("Running KUnit...")
-    cmd = f"cd {src_path} && ./tools/testing/kunit/kunit.py run --json=kunit.json --jobs=$(nproc)"
-    res = subprocess.call(cmd, shell=True)
-    return res == 0
+    def _run(self, src_path):
+        kunit_json = 'kunit.json'
+
+        print("Running KUnit...")
+        cmd = f"\
+cd {src_path} && \
+./tools/testing/kunit/kunit.py run --json={kunit_json} --jobs=$(nproc)"
+        kunit_res = subprocess.run(cmd, shell=True).returncode
+
+        # ToDo: send {src_path}/.kunit/test.log as artifact
+        # ToDo: send {src_path}/kunit.json as artifact
+
+        kunit_json_path = os.path.join(src_path, kunit_json)
+        print(f"Parsing results from {kunit_json_path}")
+        with open(kunit_json_path) as results_json:
+            results_raw = json.load(results_json)
+        results = self._parse_results(results_raw)
+        results['result'] = 'fail' if kunit_res else 'pass'
+
+        results_path = os.path.join(src_path, 'results.json')
+        print(f"Saving results file {results_path}")
+        with open(os.path.join(src_path, 'results.json'), 'w') as results_file:
+            json.dump(results, results_file, indent='  ')
+
+        return results
+
+    def _submit_kunit(self, parent, child_nodes, db):
+        base_node = {
+            'kind': 'node',
+            'parent': parent['_id'],
+            'status': 'complete',
+            'revision': parent['revision'],
+        }
+        for node in child_nodes:
+            base_node.update({
+                'name': node['name'],
+                'result': node.get('result'),
+            })
+            sent_node = db.submit({'node': base_node})[0]
+            sub_child_nodes = node.get('nodes')
+            if sub_child_nodes:
+                self._submit_kunit(sent_node, sub_child_nodes, db)
+
+    def _submit(self, results, node_id, db):
+        node = super()._submit(results['result'], node_id, db)
+        self._submit_kunit(node, results['nodes'], db)
+        return node
 {% endblock %}
