@@ -108,7 +108,7 @@ connection to KCIDB")
 
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception as e:
+        except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             db.unsubscribe(sub_id)

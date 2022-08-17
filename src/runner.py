@@ -131,9 +131,9 @@ class RunnerLoop(Runner):
                 if self._runtime.config.lab_type == 'shell':
                     self._job_tmp_dirs[job] = tmp
                 self._cleanup_paths()
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception as e:
+        except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
@@ -151,7 +151,7 @@ class RunnerSingleJob(Runner):
                 self._logger.log_message(logging.INFO, "Waiting...")
                 job.wait()
                 self._logger.log_message(logging.INFO, "...done")
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.ERROR, "Aborting.")
         finally:
             return True
