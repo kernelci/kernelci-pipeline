@@ -8,59 +8,63 @@
 REVISION = {{ revision }}
 {% endblock %}
 
-{%- block python_body %}
-def _get_makefile_version(makefile):
-    mkver = {
-        'VERSION': None,
-        'PATCHLEVEL': None,
-        'SUBLEVEL': None,
-        'EXTRAVERSION': None,
-    }
-    for line_n, line in enumerate(makefile):
-        value = list(val.strip() for val in line.split('='))
-        for key in mkver.keys():
-            if value[0] == key:
-                mkver[key] = (
-                    int(value[1]) if key != 'EXTRAVERSION' else value[1]
-                )
-                res = [val is not None for val in mkver.values()]
-                if all(res):
-                    return mkver
-        if line_n == 10:
-            return None
-    return None
+{% block python_job_constr -%}
+REVISION, {{ super() }}
+{%- endblock %}
 
+{% block python_job -%}
+class Job(BaseJob):
+    def __init__(self, revision, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-def _check_kver(makefile, kver):
-    try:
-        mkver = _get_makefile_version(makefile)
-    except Exception as e:
-        print(e)
-        mkver = None
-    finally:
-        if mkver is None:
-            return False
+    def _get_makefile_version(self, makefile):
+        mkver = {
+            'VERSION': None,
+            'PATCHLEVEL': None,
+            'SUBLEVEL': None,
+            'EXTRAVERSION': None,
+        }
+        for line_n, line in enumerate(makefile):
+            value = list(val.strip() for val in line.split('='))
+            for key in mkver.keys():
+                if value[0] == key:
+                    mkver[key] = (
+                        int(value[1]) if key != 'EXTRAVERSION' else value[1]
+                    )
+                    res = [val is not None for val in mkver.values()]
+                    if all(res):
+                        return mkver
+            if line_n == 10:
+                return None
+        return None
 
-    return (
-        kver['version'] == mkver['VERSION'] and
-        kver['patchlevel'] == mkver['PATCHLEVEL'] and (
-            not mkver['SUBLEVEL'] or
-            kver['sublevel'] == mkver['SUBLEVEL']
-        ) and (
-            not mkver['EXTRAVERSION'] or
-            kver['extra'].startswith(mkver['EXTRAVERSION'])
+    def _check_kver(self, makefile, kver):
+        try:
+            mkver = self._get_makefile_version(makefile)
+        except Exception as e:
+            print(e)
+            mkver = None
+        finally:
+            if mkver is None:
+                return False
+
+        return (
+            kver['version'] == mkver['VERSION'] and
+            kver['patchlevel'] == mkver['PATCHLEVEL'] and (
+                not mkver['SUBLEVEL'] or
+                kver['sublevel'] == mkver['SUBLEVEL']
+            ) and (
+                not mkver['EXTRAVERSION'] or
+                kver['extra'].startswith(mkver['EXTRAVERSION'])
+            )
         )
-    )
 
+    def _run(self, src_path):
+        print("Checking kernel revision")
+        with open(os.path.join(src_path, 'Makefile')) as makefile:
+            kver = REVISION['version']
+            res = self._check_kver(makefile, kver)
+            print("Result: {}".format("PASS" if res is True else "FAIL"))
 
-def main(argv):
-    src_path = argv[1]
-
-    print("Checking kernel revision")
-    with open(os.path.join(src_path, 'Makefile')) as makefile:
-        kver = REVISION['version']
-        res = _check_kver(makefile, kver)
-        print("Result: {}".format("PASS" if res is True else "FAIL"))
-
-    return res
+        return res
 {% endblock %}
