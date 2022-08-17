@@ -95,9 +95,9 @@ class cmd_run(Command):
                     time.sleep(poll_period)
                 else:
                     break
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 self._logger.log_message(logging.INFO, "Stopping.")
-            except Exception as e:
+            except Exception:
                 self._logger.log_message(logging.ERROR, traceback.format_exc())
 
         return True

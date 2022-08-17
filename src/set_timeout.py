@@ -59,9 +59,9 @@ class SetTimeout:
                 for node in nodes:
                     self._set_timeout_status(node)
                 sleep(self._poll_period)
-        except KeyboardInterrupt as err:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception as e:
+        except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
 
 

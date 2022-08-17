@@ -155,9 +155,9 @@ scp \
                 version = self._get_version_from_describe()
                 self._update_checkout_node(node, describe, version, tarball)
                 self._create_tarball_node(node, "pending", None)
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception as e:
+        except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)

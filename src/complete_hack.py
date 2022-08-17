@@ -56,7 +56,7 @@ class CompleteHack:
                 else:
                     time.sleep(5)
                     self._check_pending_node()
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())

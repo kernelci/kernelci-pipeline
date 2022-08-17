@@ -144,9 +144,9 @@ class TestReport:
                 if email_server:
                     self.send_mail(email_msg, email_server)
                     email_server.quit()
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception as e:
+        except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
