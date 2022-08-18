@@ -1,0 +1,32 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+ 
+{%- extends 'base/python.jinja2' %}
+ 
+{%- block python_imports %}
+{{ super() }}
+import subprocess
+{%- endblock %}
+ 
+{%- block python_globals %}
+{{ super() }}
+REVISION = {{ revision }}
+{% endblock %}
+ 
+{%- block python_body %}
+def check_kvm_xfstest_env():
+   try:
+       result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
+       if result.returncode == 0:
+           print(f"KVM-xftests found.")
+           return True
+       else:
+           return False
+   except Exception as e:
+       print(f"Raised exception: {e}")
+       return False
+ 
+def main(argv):
+   print("Checking if KVM-xfstests is available...")
+   check_kvm_xfstest_env()
+{% endblock %}
