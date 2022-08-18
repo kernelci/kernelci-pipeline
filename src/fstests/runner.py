@@ -8,6 +8,7 @@
 import os
 import sys
 import subprocess
+import tempfile
 
 import kernelci
 import kernelci.config
@@ -21,10 +22,55 @@ class FstestsRunner:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
+        self._device_configs = configs['device_types']
+        self._plan = configs['test_plans']['fstests']
+        self._output = args.output
+        if not os.path.exists(self._output):
+            os.makedirs(self._output)
+        runtime_config = configs['labs']['shell']
+        self._runtime = kernelci.lab.get_api(runtime_config)
+
+    def _schedule_job(self, node, device_config, tmp):
+        revision = node['revision']
+        try:
+            params = {
+                'db_config_yaml': self._db_config.to_yaml(),
+                'name': self._plan.name,
+                'node_id': node['_id'],
+                'revision': revision,
+                'runtime': self._runtime.config.lab_type,
+                'tarball_url': node['artifacts']['tarball'],
+                'workspace': tmp,
+            }
+            params.update(self._plan.params)
+            params.update(device_config.params)
+            templates = ['config/runtime',
+                         '/etc/kernelci/runtime']
+            job = self._runtime.generate(
+                params, device_config, self._plan, templates_path=templates
+            )
+            output_file = self._runtime.save_file(job, tmp, params)
+            job_result = self._runtime.submit(output_file)
+        except Exception as e:
+            print(e)
+        return job_result
+
+    def _run_single_job(self, tarball_node, device):
+        try:
+            tmp = tempfile.TemporaryDirectory(dir=self._output)
+            job = self._schedule_job(tarball_node, device, tmp.name)
+            print("Waiting...")
+            job.wait()
+            print("...done")
+        except KeyboardInterrupt as e:
+            print("Aborting.")
+        finally:
+            return True
 
     def check_kvm_xfstest_env(self):
         try:
-            result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
+            result = subprocess.run(
+                "kvm-xfstests --help", check=True, shell=True)
             if result.returncode == 0:
                 print(f"KVM-xftests found.")
                 return True
@@ -45,7 +91,9 @@ class FstestsRunner:
             while True:
                 tarball_node = self._db.receive_node(sub_id)
                 print(f"Node tarball with id: {tarball_node['_id']}\
-                    from revision: {tarball_node['revision']['commit'][:12]}")
+                   from revision: {tarball_node['revision']['commit'][:12]}")
+                device = self._device_configs['shell']
+                self._run_single_job(tarball_node, device)
         except KeyboardInterrupt as e:
             print('Stopping.')
         except Exception as e:
@@ -53,6 +101,7 @@ class FstestsRunner:
         finally:
             self._db.unsubscribe(sub_id)
             return True
+
 
 class cmd_check(Command):
     help = 'Check KVM-xfstests environment'
@@ -62,9 +111,12 @@ class cmd_check(Command):
     def __call__(self, configs, args):
         return FstestsRunner(configs, args).check_kvm_xfstest_env()
 
+
 class cmd_run(Command):
     help = 'KVM fstests runner'
-    args = [Args.db_config]
+    args = [
+        Args.db_config, Args.output,
+    ]
     opt_args = [Args.verbose]
 
     def __call__(self, configs, args):
