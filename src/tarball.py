@@ -102,6 +102,7 @@ scp \
         node = {
             'parent': checkout_node['_id'],
             'name': 'tarball',
+            'path': checkout_node['path'] + ['tarball'],
             'artifacts': checkout_node['artifacts'],
             'revision': checkout_node['revision'],
             'status': status,
