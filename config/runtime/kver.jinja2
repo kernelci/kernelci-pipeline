@@ -64,7 +64,8 @@ class Job(BaseJob):
         with open(os.path.join(src_path, 'Makefile')) as makefile:
             kver = REVISION['version']
             res = self._check_kver(makefile, kver)
-            print("Result: {}".format("PASS" if res is True else "FAIL"))
+            result = 'pass' if res is True else 'fail'
+            print(f"Result: {result}")
 
-        return res
+        return result
 {% endblock %}
