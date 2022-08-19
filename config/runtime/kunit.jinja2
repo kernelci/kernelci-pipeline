@@ -67,10 +67,12 @@ cd {src_path} && \
             'parent': parent['_id'],
             'status': 'complete',
             'revision': parent['revision'],
+            'group': parent['group'],
         }
         for node in child_nodes:
             base_node.update({
                 'name': node['name'],
+                'path': parent['path'] + [node['name']],
                 'result': node.get('result'),
             })
             sent_node = db.submit({'node': base_node})[0]
