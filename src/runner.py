@@ -41,6 +41,8 @@ class Runner:
         node = {
             'parent': tarball_node['_id'],
             'name': plan_config.name,
+            'path': tarball_node['path'] + [plan_config.name],
+            'group': plan_config.name,
             'artifacts': tarball_node['artifacts'],
             'revision': tarball_node['revision'],
         }

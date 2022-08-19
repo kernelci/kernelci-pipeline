@@ -51,6 +51,7 @@ anyway")
     sys.stdout.flush()
     node = {
         'name': 'checkout',
+        'path': ['checkout'],
         'revision': revision,
     }
     resp_obj = db.submit({'node': node})[0]
