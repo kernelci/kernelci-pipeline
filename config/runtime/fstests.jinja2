@@ -1,32 +1,47 @@
 {# -*- mode: Python -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
- 
+
 {%- extends 'base/python.jinja2' %}
- 
+
 {%- block python_imports %}
 {{ super() }}
 import subprocess
 {%- endblock %}
- 
-{%- block python_globals %}
-{{ super() }}
-REVISION = {{ revision }}
-{% endblock %}
- 
-{%- block python_body %}
-def check_kvm_xfstest_env():
-   try:
-       result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
-       if result.returncode == 0:
-           print(f"KVM-xftests found.")
-           return True
-       else:
-           return False
-   except Exception as e:
-       print(f"Raised exception: {e}")
-       return False
- 
-def main(argv):
-   print("Checking if KVM-xfstests is available...")
-   check_kvm_xfstest_env()
+
+{% block python_job -%}
+class Job(BaseJob):
+    def _kernel_config(self, kdir):
+        try:
+            os.chdir(kdir)
+            result = subprocess.run("kvm-xfstests install-kconfig", check=True, shell=True)
+            if result.returncode == 0:
+                if os.path.exists('.config'):
+                    print(f"Kernel Config DONE.")
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        except Exception as e:
+            print('Kernel config error:', e)
+            return False
+
+    def _check_kvm_xfstest_env(self):
+        try:
+            result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
+            if result.returncode == 0:
+                print(f"KVM-xftests found.")
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"Raised exception: {e}")
+            return False
+
+    def _run(self, src_path):
+        print("Checking if KVM-xfstests is available...")
+        if self._check_kvm_xfstest_env():
+            self._kernel_config(src_path)
+        else:
+            return False
 {% endblock %}
