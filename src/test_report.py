@@ -8,6 +8,7 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 # Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 from email.mime.multipart import MIMEMultipart
 import logging
@@ -70,26 +71,60 @@ class TestReport:
             )
             return None
 
-    def _get_test_analysis(self, nodes):
-        total_runs = len(nodes)
-        total_failures = sum(node['status'] == "fail" for node in nodes)
-        return total_runs, total_failures
+    def _get_group_stats(self, group_nodes):
+        return {
+            'total': len(group_nodes),
+            'failures': sum(node['result'] == 'fail' for node in group_nodes)
+        }
 
-    def _create_test_report(self, root_node, child_nodes):
-        total_runs, total_failures = self._get_test_analysis(child_nodes)
+    def _get_group_data(self, root_node):
+        group = root_node['group']
+        revision = root_node['revision']
+        group_nodes = self._db.get_nodes({
+            'revision.commit': revision['commit'],
+            'revision.tree': revision['tree'],
+            'revision.branch': revision['branch'],
+            'group': group,
+        })
+        group_nodes = [
+            node for node in group_nodes if node['_id'] != root_node['_id']
+        ]
+        failures = [
+            node for node in group_nodes if node['result'] == 'fail'
+        ]
+        parent_path_len = len(root_node['path'])
+        for node in group_nodes:
+            node['path'] = '.'.join(node['path'][parent_path_len:])
+        return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
 
+    def _get_results_data(self, root_node):
+        group_nodes = self._db.get_nodes({"parent": root_node['_id']})
+        group_stats = self._get_group_stats(group_nodes)
+        groups = {
+            node['name']: self._get_group_data(node)
+            for node in group_nodes
+        }
+        return {
+            'stats': group_stats,
+            'groups': groups,
+        }
+
+    def _create_test_report(self, root_node):
+        results = self._get_results_data(root_node)
         template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
         template = template_env.get_template("test-report.jinja2")
-        subject_str = (f"{root_node['revision']['tree']}/\
-{root_node['revision']['branch']} \
-{root_node['revision']['describe']}: \
-{total_runs} runs {total_failures} fails")
-        email_content = template.render(subject_str=subject_str,
-                                        root=root_node,
-                                        tests=child_nodes)
-        return email_content, subject_str
+        revision = root_node['revision']
+        stats = results['stats']
+        groups = results['groups']
+        subject = (f"\
+{revision['tree']}/{revision['branch']} {revision['describe']}: \
+{stats['total']} runs {stats['failures']} failures")
+        content = template.render(
+            subject=subject, root=root_node, groups=groups
+        )
+        return content, subject
 
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
@@ -104,10 +139,7 @@ class TestReport:
         try:
             while True:
                 root_node = self._db.receive_node(sub_id)
-                child_nodes = self._db.get_nodes({"parent": root_node['_id']})
-                content, subject = self._create_test_report(
-                    root_node, child_nodes
-                )
+                content, subject = self._create_test_report(root_node)
                 print(content, flush=True)
                 smtp = self._smtp_connect()
                 if smtp:
