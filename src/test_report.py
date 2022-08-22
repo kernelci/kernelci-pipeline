@@ -40,7 +40,7 @@ class TestReport:
         self._email_user = os.getenv('EMAIL_USER')
         self._email_pass = os.getenv('EMAIL_PASSWORD')
 
-    def create_email(self, email_content, send_to, send_from, email_subject):
+    def _create_email(self, send_to, send_from, email_subject, email_content):
         email_msg = MIMEMultipart()
         email_text = email.mime.text.MIMEText(email_content, "plain", "utf-8")
         email_text.replace_header('Content-Transfer-Encoding', 'quopri')
@@ -55,7 +55,7 @@ class TestReport:
         self._logger.log_message(logging.INFO, email_content)
         return email_msg
 
-    def smtp_connect(self, email_user, email_password):
+    def _smtp_connect(self, email_user, email_password):
         try:
             if self._smtp_port == 465:
                 email_server = smtplib.SMTP_SSL(self._smtp_host,
@@ -83,7 +83,7 @@ class TestReport:
             self._logger.log_message(logging.DEBUG, "Server Connected.")
             return email_server
 
-    def send_mail(self, email_msg, email_server):
+    def _send_email(self, email_msg, email_server):
         try:
             email_server.send_message(email_msg)
         except (smtplib.SMTPRecipientsRefused,
@@ -96,13 +96,13 @@ class TestReport:
         else:
             self._logger.log_message(logging.INFO, "Email Sent.")
 
-    def get_test_analysis(self, nodes):
+    def _get_test_analysis(self, nodes):
         total_runs = len(nodes)
         total_failures = sum(node['status'] == "fail" for node in nodes)
         return total_runs, total_failures
 
-    def create_test_report(self, root_node, child_nodes):
-        total_runs, total_failures = self.get_test_analysis(child_nodes)
+    def _create_test_report(self, root_node, child_nodes):
+        total_runs, total_failures = self._get_test_analysis(child_nodes)
 
         template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
@@ -132,17 +132,17 @@ class TestReport:
                 root_node = self._db.receive_node(sub_id)
                 child_nodes = self._db.get_nodes({"parent": root_node['_id']})
 
-                email_content, email_sub = self.create_test_report(
+                content, subject = self._create_test_report(
                     root_node, child_nodes
                 )
-                email_msg = self.create_email(email_content,
-                                              self._email_send_to,
-                                              self._email_send_from,
-                                              email_sub)
-                email_server = self.smtp_connect(self._email_user,
-                                                 self._email_pass)
+                email_msg = self._create_email(
+                    self._email_send_to, self._email_send_from,
+                    subject, content
+                )
+                email_server = self._smtp_connect(self._email_user,
+                                                  self._email_pass)
                 if email_server:
-                    self.send_mail(email_msg, email_server)
+                    self._send_email(email_msg, email_server)
                     email_server.quit()
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
