@@ -1,9 +1,9 @@
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-{{ subject_str }}
+{{ subject }}
 
-Tests Summary
--------------
+Summary
+=======
 
 Tree:     {{ root.revision.tree }}
 Branch:   {{ root.revision.branch }}
@@ -11,8 +11,29 @@ Describe: {{ root.revision.describe }}
 URL:      {{ root.revision.url }}
 SHA1:     {{ root.revision.commit }}
 
-{{'%-15s %s %s'|format("test", "|", "result")}}
-{{'%s%s%s'|format("-"*16, "+", "-"*7)}}
-{%- for test in tests %}
-{{'%-15s %s %s'|format(test.name, "|", test.result)}}
+{{ '%-15s %s %-8s %s %-8s %s %-8s'|format(
+"Name", "|", "Result", "|", "Total", "|", "Failures") }}
+{{ '%s%s%s%s%s%s%s'|format(
+"-"*16, "+", "-"*10, "+", "-"*10, "+", "-"*9) }}
+{%- for group_name, group in groups.items() %}
+{{ '%-15s %s %-8s %s %8d %s %8d'|format(
+group_name, "|",
+group.root.result, "|",
+group.nodes|count, "|",
+group.failures|count) }}
+{%- endfor %}
+
+
+Failing tests
+=============
+
+{%- for group_name, group in groups.items() %}
+{%- if group.failures|count %}
+
+{{ group_name }}
+{{ '-'*group_name|length }}
+
+{% for failure in group.failures %}* {{ failure.path }}
+{% endfor %}
+{%- endif %}
 {%- endfor %}
