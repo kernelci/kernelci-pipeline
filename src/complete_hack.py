@@ -32,7 +32,7 @@ class CompleteHack:
     def _check_pending_node(self):
         now = datetime.utcnow()
         created = datetime.fromisoformat(self._pending_node['created'])
-        expires = created + timedelta(minutes=3)
+        expires = created + timedelta(minutes=10)
         if now > expires:
             self._pending_node['status'] = "complete"
             self._db.submit({'node': self._pending_node})
