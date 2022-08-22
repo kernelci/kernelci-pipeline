@@ -55,46 +55,20 @@ class TestReport:
         self._logger.log_message(logging.INFO, email_content)
         return email_msg
 
-    def _smtp_connect(self, email_user, email_password):
+    def _smtp_connect(self):
         try:
             if self._smtp_port == 465:
-                email_server = smtplib.SMTP_SSL(self._smtp_host,
-                                                self._smtp_port)
+                smtp = smtplib.SMTP_SSL(self._smtp_host, self._smtp_port)
             else:
-                email_server = smtplib.SMTP(self._smtp_host,
-                                            self._smtp_port)
-                email_server.starttls()
-            email_server.login(email_user, email_password)
-        except (smtplib.SMTPAuthenticationError,
-                smtplib.SMTPConnectError,
-                smtplib.SMTPServerDisconnected) as error:
-            self._logger.log_message(logging.ERROR,
-                                     f"Connect or auth error: {error}.")
-        except (smtplib.SMTPHeloError,
-                smtplib.SMTPDataError,
-                smtplib.SMTPNotSupportedError,
-                RuntimeError) as error:
-            self._logger.log_message(logging.ERROR,
-                                     f"STMP server error: {error}.")
-        except (smtplib.SMTPException) as error:
-            self._logger.log_message(logging.ERROR,
-                                     f"Generic error connecting: {error}.")
-        else:
-            self._logger.log_message(logging.DEBUG, "Server Connected.")
-            return email_server
-
-    def _send_email(self, email_msg, email_server):
-        try:
-            email_server.send_message(email_msg)
-        except (smtplib.SMTPRecipientsRefused,
-                smtplib.SMTPSenderRefused) as error:
-            self._logger.log_message(logging.ERROR,
-                                     f"Recipients or Sender refused: {error}.")
-        except (smtplib.SMTPException) as error:
-            self._logger.log_message(logging.ERROR,
-                                     f"Generic error sending email: {error}.")
-        else:
-            self._logger.log_message(logging.INFO, "Email Sent.")
+                smtp = smtplib.SMTP(self._smtp_host, self._smtp_port)
+                smtp.starttls()
+            smtp.login(self._email_user, self._email_pass)
+            return smtp
+        except Exception as e:
+            self._logger.log_message(
+                logging.ERROR, f"Failed to connect to SMTP server: {e}"
+            )
+            return None
 
     def _get_test_analysis(self, nodes):
         total_runs = len(nodes)
@@ -131,19 +105,18 @@ class TestReport:
             while True:
                 root_node = self._db.receive_node(sub_id)
                 child_nodes = self._db.get_nodes({"parent": root_node['_id']})
-
                 content, subject = self._create_test_report(
                     root_node, child_nodes
                 )
-                email_msg = self._create_email(
-                    self._email_send_to, self._email_send_from,
-                    subject, content
-                )
-                email_server = self._smtp_connect(self._email_user,
-                                                  self._email_pass)
-                if email_server:
-                    self._send_email(email_msg, email_server)
-                    email_server.quit()
+                print(content, flush=True)
+                smtp = self._smtp_connect()
+                if smtp:
+                    email_msg = self._create_email(
+                        self._email_send_to, self._email_send_from,
+                        subject, content
+                    )
+                    smtp.send_message(email_msg)
+                    smtp.quit()
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
