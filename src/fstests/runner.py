@@ -29,7 +29,18 @@ class FstestsRunner:
         runtime_config = configs['labs']['shell']
         self._runtime = kernelci.lab.get_api(runtime_config)
 
-    def _schedule_job(self, node, device_config, tmp):
+    def _create_node(self, tarball_node, plan_config):
+        node = {
+            'parent': tarball_node['_id'],
+            'name': plan_config.name,
+            'artifacts': tarball_node['artifacts'],
+            'revision': tarball_node['revision'],
+            'path': tarball_node['path'] + [plan_config.name],
+        }
+        return self._db.submit({'node': node}, True)[0]
+
+    def _schedule_job(self, tarball_node, device_config, tmp):
+        node = self._create_node(tarball_node, self._plan)
         revision = node['revision']
         try:
             params = {
@@ -67,18 +78,34 @@ class FstestsRunner:
             return True
 
     def run(self, args):
-        device = self._device_configs['shell']
-        if args.node_id:
-            tarball_node = self._db.get_node(args.node_id)
-            self._run_single_job(tarball_node, device)
-        else:
-            sub_id = self._db.subscribe_node_channel()
-            while True:
-                tarball_node = self._db.receive_node(sub_id)
-                self._run_single_job(tarball_node, device)
-                self._db.unsubscribe(sub_id)
         sub_id = None
-        return True
+        if not args.node_id:
+            sub_id = self._db.subscribe_node_channel({
+                'op': 'created',
+                'name': 'tarball',
+            })
+            print('Listening for tarballs')
+            print('Press Ctrl-C to stop.')
+        try:
+            if sub_id:
+                while True:
+                    tarball_node = self._db.receive_node(sub_id)
+                    print(f"Node tarball with id: {tarball_node['_id']}\
+                        from revision: {tarball_node['revision']['commit'][:12]}")
+                    device = self._device_configs['shell']
+                    self._run_single_job(tarball_node, device)
+            else:
+                tarball_node = self._db.get_node(args.node_id)
+                device = self._device_configs['shell']
+                self._run_single_job(tarball_node, device)
+        except KeyboardInterrupt as e:
+            print('Stopping.')
+        except Exception as e:
+            print('Error', e)
+        finally:
+            if sub_id:
+                self._db.unsubscribe(sub_id)
+            return True
 
 
 class cmd_run(Command):
