@@ -7,7 +7,6 @@
 
 import os
 import sys
-import subprocess
 import tempfile
 
 import kernelci
@@ -67,27 +66,19 @@ class FstestsRunner:
         finally:
             return True
 
-    def run(self):
-        sub_id = self._db.subscribe_node_channel({
-            'op': 'created',
-            'name': 'tarball',
-        })
-        print('Listening for tarballs')
-        print('Press Ctrl-C to stop.')
-        try:
+    def run(self, args):
+        device = self._device_configs['shell']
+        if args.node_id:
+            tarball_node = self._db.get_node(args.node_id)
+            self._run_single_job(tarball_node, device)
+        else:
+            sub_id = self._db.subscribe_node_channel()
             while True:
                 tarball_node = self._db.receive_node(sub_id)
-                print(f"Node tarball with id: {tarball_node['_id']}\
-                   from revision: {tarball_node['revision']['commit'][:12]}")
-                device = self._device_configs['shell']
                 self._run_single_job(tarball_node, device)
-        except KeyboardInterrupt as e:
-            print('Stopping.')
-        except Exception as e:
-            print('Error', e)
-        finally:
-            self._db.unsubscribe(sub_id)
-            return True
+                self._db.unsubscribe(sub_id)
+        sub_id = None
+        return True
 
 
 class cmd_run(Command):
@@ -95,10 +86,16 @@ class cmd_run(Command):
     args = [
         Args.db_config, Args.output,
     ]
-    opt_args = [Args.verbose]
+    opt_args = [
+        Args.verbose,
+        {
+            'name': '--node-id',
+            'help': "id of the checkout node rather than pub/sub",
+        },
+    ]
 
     def __call__(self, configs, args):
-        return FstestsRunner(configs, args).run()
+        return FstestsRunner(configs, args).run(args)
 
 
 if __name__ == '__main__':
