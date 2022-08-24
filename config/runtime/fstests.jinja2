@@ -24,6 +24,18 @@ class Job(BaseJob):
             print('Kernel config error:', e)
             return 'fail'
 
+    def _kernel_build(self, kdir):
+        try:
+            os.chdir(kdir)
+            result = subprocess.run("make -j$(nproc)", check=True, shell=True)
+            if result.returncode == 0:
+                print(f"Kernel Build DONE.")
+                return 'pass'
+            else:
+                return 'fail'
+        except Exception as e:
+            print('Kernel build error:', e)
+
     def _check_kvm_xfstest_env(self):
         try:
             result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
@@ -39,7 +51,8 @@ class Job(BaseJob):
     def _run(self, src_path):
         print("Checking if KVM-xfstests is available...")
         if self._check_kvm_xfstest_env():
-            return self._kernel_config(src_path)
+            if self._kernel_config(src_path) == 'pass':
+                return self._kernel_build(src_path)
         else:
             return 'fail'
 {% endblock %}
