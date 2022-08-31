@@ -31,8 +31,8 @@ class SetTimeout:
 
     def _update_pending_child(self, parent_id):
         """Set child node status to timeout when parent is timed out"""
-        child_nodes = self._db.get_nodes({"status": "pending",
-                                          "parent": parent_id})
+        child_nodes = (self._db.get_nodes({"status": "pending",
+                                          "parent": parent_id})).get('items')
         for child in child_nodes:
             child['status'] = "timeout"
             self._db.submit({'node': child})
@@ -55,7 +55,9 @@ class SetTimeout:
 
         try:
             while True:
-                nodes = self._db.get_nodes({"status": "pending"})
+                nodes = (self._db.get_nodes({
+                    "status": "pending"
+                })).get('items')
                 for node in nodes:
                     self._set_timeout_status(node)
                 sleep(self._poll_period)
