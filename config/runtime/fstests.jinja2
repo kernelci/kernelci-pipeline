@@ -36,6 +36,16 @@ class Job(BaseJob):
         except Exception as e:
             print('Kernel build error:', e)
 
+    def _run_smoke_tests(self):
+        try:
+            result = subprocess.run(["kvm-xfstests", "smoke"], check=True)
+            if result.returncode == 0:
+                print(f"Test run success.")
+                return 'pass'
+        except Exception as e:
+            print('Problem found during tests:', e)
+            return 'fail'
+
     def _check_kvm_xfstest_env(self):
         try:
             result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
@@ -52,7 +62,8 @@ class Job(BaseJob):
         print("Checking if KVM-xfstests is available...")
         if self._check_kvm_xfstest_env():
             if self._kernel_config(src_path) == 'pass':
-                return self._kernel_build(src_path)
+                if self._kernel_build(src_path) == 'pass':
+                    return self._run_smoke_tests()
         else:
             return 'fail'
 {% endblock %}
