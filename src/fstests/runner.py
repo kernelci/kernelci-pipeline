@@ -55,7 +55,8 @@ class FstestsRunner:
             params.update(self._plan.params)
             params.update(device_config.params)
             templates = ['config/runtime',
-                         '/etc/kernelci/runtime']
+                         '/etc/kernelci/runtime',
+                         'src/fstests']
             job = self._runtime.generate(
                 params, device_config, self._plan, templates_path=templates
             )
