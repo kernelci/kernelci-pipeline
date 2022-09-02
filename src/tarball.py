@@ -98,7 +98,7 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _create_tarball_node(self, checkout_node, status, result, tarball):
+    def _create_tarball_node(self, checkout_node, tarball):
         node = {
             'parent': checkout_node['_id'],
             'name': 'tarball',
@@ -107,8 +107,7 @@ scp \
                 'tarball': urllib.parse.urljoin(self._storage_url, tarball),
             },
             'revision': checkout_node['revision'],
-            'status': status,
-            'result': result,
+            'state': 'available',
         }
         self._db.submit({'node': node})
 
@@ -132,7 +131,7 @@ scp \
         sub_id = self._db.subscribe_node_channel(filters={
             'op': 'created',
             'name': 'checkout',
-            'status': 'pending',
+            'state': 'available',
         })
         self._logger.log_message(logging.INFO,
                                  "Listening for new checkout events")
@@ -154,8 +153,7 @@ scp \
                 version = self._get_version_from_describe()
                 self._update_checkout_node(checkout_node, describe, version)
                 tarball = self._push_tarball(build_config, describe)
-                self._create_tarball_node(checkout_node, status,
-                                          result, tarball)
+                self._create_tarball_node(checkout_node, tarball)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
