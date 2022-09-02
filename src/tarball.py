@@ -98,26 +98,25 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _create_tarball_node(self, checkout_node, status, result):
+    def _create_tarball_node(self, checkout_node, status, result, tarball):
         node = {
             'parent': checkout_node['_id'],
             'name': 'tarball',
             'path': checkout_node['path'] + ['tarball'],
-            'artifacts': checkout_node['artifacts'],
+            'artifacts': {
+                'tarball': urllib.parse.urljoin(self._storage_url, tarball),
+            },
             'revision': checkout_node['revision'],
             'status': status,
             'result': result,
         }
         self._db.submit({'node': node})
 
-    def _update_checkout_node(self, node, describe, version, tarball):
+    def _update_checkout_node(self, node, describe, version):
         node['revision'].update({
             'describe': describe,
             'version': version,
         })
-        node['artifacts'] = {
-            'tarball': urllib.parse.urljoin(self._storage_url, tarball),
-        }
         self._db.submit({'node': node})
 
     def _get_version_from_describe(self):
@@ -141,9 +140,9 @@ scp \
 
         try:
             while True:
-                node = self._db.receive_node(sub_id)
+                checkout_node = self._db.receive_node(sub_id)
 
-                build_config = self._find_build_config(node)
+                build_config = self._find_build_config(checkout_node)
                 if build_config is None:
                     continue
 
@@ -152,10 +151,11 @@ scp \
                 describe = kernelci.build.git_describe(
                     build_config.tree.name, self._kdir
                 )
-                tarball = self._push_tarball(build_config, describe)
                 version = self._get_version_from_describe()
-                self._update_checkout_node(node, describe, version, tarball)
-                self._create_tarball_node(node, "pending", None)
+                self._update_checkout_node(checkout_node, describe, version)
+                tarball = self._push_tarball(build_config, describe)
+                self._create_tarball_node(checkout_node, status,
+                                          result, tarball)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
