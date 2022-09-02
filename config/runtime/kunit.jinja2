@@ -11,7 +11,7 @@ import subprocess
 
 {%- block python_globals %}
 {{ super() }}
-STATUS_MAP = {
+RESULT_MAP = {
     'PASS': 'pass',
     'FAIL': 'fail',
     'SKIP': None,
@@ -29,7 +29,7 @@ class Job(BaseJob):
         for test_case in data.get('test_cases', []):
             child_nodes.append({
                 'name': test_case['name'],
-                'result': STATUS_MAP[test_case['status']],
+                'result': RESULT_MAP[test_case['status']],
             })
         for test_group in data.get('sub_groups', []):
             child_nodes.append(self._parse_results(test_group))
