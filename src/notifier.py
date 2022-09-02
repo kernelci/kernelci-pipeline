@@ -32,18 +32,19 @@ class cmd_run(Command):
     def __call__(self, configs, args):
         log_fmt = \
             "{time:26s}  {commit:12s}  {id:24}  " \
-            "{status:9s}  {result:8s}  {name}"
+            "{state:9s}  {result:8s}  {name}"
 
-        status_map = {
-            "pending": "Pending",
-            "timeout": "Timeout",
-            "complete": "Complete",
+        state_map = {
+            "running": "Running",
+            "available": "Available",
+            "closing": "Closing",
+            "done": "Done",
         }
 
         result_map = {
             "pass": "Pass",
             "fail": "Fail",
-            None: "NA",
+            None: "-",
         }
 
         db_config = configs['db_configs'][args.db_config]
@@ -57,7 +58,7 @@ class cmd_run(Command):
 
         try:
             self._logger.log_message(logging.INFO, log_fmt.format(
-                time="Time", commit="Commit", id="Node Id", status="Status",
+                time="Time", commit="Commit", id="Node Id", state="State",
                 result="Result", name="Name"
             ))
             while True:
@@ -68,7 +69,7 @@ class cmd_run(Command):
                     time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                     commit=obj['revision']['commit'][:12],
                     id=obj['_id'],
-                    status=status_map[obj['status']],
+                    state=state_map[obj['state']],
                     result=result_map[obj['result']],
                     name=obj['name'],
                 ))
