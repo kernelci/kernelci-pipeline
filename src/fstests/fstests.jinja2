@@ -41,6 +41,16 @@ class Job(BaseJob):
         except Exception as e:
             print('Kernel build error:', e)
 
+    def _get_xml_from_vm(self, kdir):
+        try:
+            result = subprocess.run([f"debugfs -R \"dump ext4/results-4k/results.xml {kdir}/results.xml\" {xfstests_bld_path}/run-fstests/disks/vdg"], check=True, shell=True)
+            if result.returncode == 0:
+                print(f"XML file in the output directory.")
+                return 'pass'
+        except Exception as e:
+            print('XML not found.', e)
+            return 'fail'
+
     def _run_smoke_tests(self):
         try:
             result = subprocess.run(["kvm-xfstests", "smoke"], check=True)
@@ -68,7 +78,7 @@ class Job(BaseJob):
         if self._check_kvm_xfstest_env():
             if self._kernel_config(src_path) == 'pass':
                 if self._kernel_build(src_path) == 'pass':
-                    return self._run_smoke_tests()
-        else:
-            return 'fail'
+                    if self._run_smoke_tests() == 'pass':
+                        return self._get_xml_from_vm(src_path)
+        return 'fail'
 {% endblock %}
