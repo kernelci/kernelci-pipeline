@@ -20,20 +20,25 @@ RESULT_MAP = {
 
 {% block python_job -%}
 class Job(BaseJob):
-    def _parse_results(self, data):
-        child_nodes = []
+    def _parse_results(self, group):
         node = {
-            'name': data['name'],
-            'nodes': child_nodes,
+            'name': group['name'],
         }
-        for test_case in data.get('test_cases', []):
+        child_nodes = []
+        for test_case in group.get('test_cases', []):
             child_nodes.append({
-                'name': test_case['name'],
-                'result': RESULT_MAP[test_case['status']],
+                'node': {
+                    'name': test_case['name'],
+                    'result': RESULT_MAP[test_case['status']],
+                },
+                'child_nodes': [],
             })
-        for test_group in data.get('sub_groups', []):
-            child_nodes.append(self._parse_results(test_group))
-        return node
+        for sub_group in group.get('sub_groups', []):
+            child_nodes.append(self._parse_results(sub_group))
+        return {
+            'node': node,
+            'child_nodes': child_nodes,
+        }
 
     def _run(self, src_path):
         kunit_json = 'kunit.json'
@@ -52,8 +57,7 @@ cd {src_path} && \
         with open(kunit_json_path) as results_json:
             results_raw = json.load(results_json)
         results = self._parse_results(results_raw)
-        results['result'] = 'fail' if kunit_res else 'pass'
-
+        results['node']['result'] = 'fail' if kunit_res else 'pass'
         results_path = os.path.join(src_path, 'results.json')
         print(f"Saving results file {results_path}")
         with open(os.path.join(src_path, 'results.json'), 'w') as results_file:
@@ -61,27 +65,10 @@ cd {src_path} && \
 
         return results
 
-    def _submit_kunit(self, parent, child_nodes, db):
-        base_node = {
-            'kind': 'node',
-            'parent': parent['_id'],
-            'status': 'complete',
-            'revision': parent['revision'],
-            'group': parent['group'],
-        }
-        for node in child_nodes:
-            base_node.update({
-                'name': node['name'],
-                'path': parent['path'] + [node['name']],
-                'result': node.get('result'),
-            })
-            sent_node = db.submit({'node': base_node})[0]
-            sub_child_nodes = node.get('nodes')
-            if sub_child_nodes:
-                self._submit_kunit(sent_node, sub_child_nodes, db)
-
     def _submit(self, results, node_id, db):
-        node = super()._submit(results['result'], node_id, db)
-        self._submit_kunit(node, results['nodes'], db)
+        # Ensure top-level name is kept the same
+        node = db.get_node(node_id)
+        results['node']['name'] = node['name']
+        db.submit_results(results, node)
         return node
 {% endblock %}
