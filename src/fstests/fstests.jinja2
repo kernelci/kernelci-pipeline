@@ -10,7 +10,9 @@ xfstests_bld_path = '{{ xfstests_bld_path }}'
 
 {%- block python_imports %}
 {{ super() }}
+import json
 import subprocess
+import xml.etree.ElementTree as ET
 {%- endblock %}
 
 {% block python_job -%}
@@ -51,6 +53,40 @@ class Job(BaseJob):
             print('XML not found.', e)
             return 'fail'
 
+    def _parse_to_json(self, node, tree, name=None):
+        if 'result' in tree:
+            node['name'] = name
+            node['result'] = tree['result']
+        else:
+            if (not name == None): node['name'] = name
+            child_nodes = []
+            for name in tree:
+                child_nodes.append(self._parse_to_json({}, tree[name], name))
+            node['child_nodes'] = child_nodes
+        return node
+
+    def _parse_results(self, kdir):
+        xml_file = ET.parse(f"{kdir}/results.xml")
+        root = xml_file.getroot()
+        tree = {}
+        for test_case in root.iter('testcase'):
+            if test_case.find('skipped') is not None:
+                result = None
+            elif test_case.find('failure') is not None:
+                result = 'fail'
+            else:
+                result = 'pass'
+            name = test_case.attrib['name'].split('/')
+            if not name[0] == 'ext4':
+                name.insert(0, 'ext4')
+            current = tree
+            for item in name:
+                if not item in current:
+                    current[item] = {}
+                current = current[item]
+            current['result'] = result
+        return self._parse_to_json({}, tree, 'fstests')
+
     def _run_smoke_tests(self):
         try:
             result = subprocess.run(["kvm-xfstests", "smoke"], check=True)
@@ -79,6 +115,8 @@ class Job(BaseJob):
             if self._kernel_config(src_path) == 'pass':
                 if self._kernel_build(src_path) == 'pass':
                     if self._run_smoke_tests() == 'pass':
-                        return self._get_xml_from_vm(src_path)
+                        if self._get_xml_from_vm(src_path) == 'pass':
+                            with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
+                                result_file.write(json.dumps(self._parse_results(src_path)))
         return 'fail'
 {% endblock %}
