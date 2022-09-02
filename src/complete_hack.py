@@ -34,10 +34,10 @@ class CompleteHack:
         created = datetime.fromisoformat(self._pending_node['created'])
         expires = created + timedelta(minutes=10)
         if now > expires:
-            self._pending_node['status'] = "complete"
+            self._pending_node['state'] = "done"
             self._db.submit({'node': self._pending_node})
             checkout_node = self._db.get_node(self._pending_node['parent'])
-            checkout_node['status'] = "complete"
+            checkout_node['state'] = "done"
             self._db.submit({'node': checkout_node})
             self._pending_node = None
 
@@ -66,7 +66,7 @@ class CompleteHack:
 
 
 class cmd_run(Command):
-    help = "Hack to set tarball nodes to complete status"
+    help = "Hack to set tarball nodes to done state"
     args = [Args.db_config]
     opt_args = [Args.verbose]
 
