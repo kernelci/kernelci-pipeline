@@ -53,20 +53,8 @@ class Job(BaseJob):
             print('XML not found.', e)
             return False
 
-    def _parse_to_json(self, node, tree, name=None):
-        if 'result' in tree:
-            node['name'] = name
-            node['result'] = tree['result']
-        else:
-            if (not name == None): node['name'] = name
-            child_nodes = []
-            for name in tree:
-                child_nodes.append(self._parse_to_json({}, tree[name], name))
-            node['child_nodes'] = child_nodes
-        return node
-
-    def _parse_results(self, kdir):
-        xml_file = ET.parse(f"{kdir}/results.xml")
+    def _parse_xml_results(self, kdir):
+        xml_file = ET.parse(kdir)
         root = xml_file.getroot()
         tree = {}
         for test_case in root.iter('testcase'):
@@ -85,7 +73,7 @@ class Job(BaseJob):
                     current[item] = {}
                 current = current[item]
             current['result'] = result
-        return self._parse_to_json({}, tree, 'fstests')
+        return tree
 
     def _run_smoke_tests(self):
         try:
@@ -96,6 +84,26 @@ class Job(BaseJob):
         except Exception as e:
             print('Problem found during tests:', e)
             return False
+
+    def _convert_results_for_api(self, tree, name):
+        if 'result' in tree:
+            return {
+                'name': name,
+                'result': tree['result'],
+            }
+        else:
+            child_nodes = []
+            for child_name in tree:
+                child_nodes.append(self._convert_results_for_api(tree[child_name], child_name))
+            return {
+                'name': name,
+                'child_nodes': child_nodes,
+            }
+
+    def _parse_results(self, kdir):
+        tree_data = self._parse_xml_results(os.path.join(kdir, 'results.xml'))
+        api_data = self._convert_results_for_api(tree_data, 'fstests')
+        return api_data
 
     def _check_kvm_xfstest_env(self):
         try:
