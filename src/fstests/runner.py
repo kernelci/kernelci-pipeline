@@ -24,6 +24,7 @@ class FstestsRunner:
         self._device_configs = configs['device_types']
         self._plan = configs['test_plans']['fstests']
         self._output = args.output
+        self._xfstests_bld_path = args.xfstests_bld_path
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         runtime_config = configs['labs']['shell']
@@ -51,6 +52,7 @@ class FstestsRunner:
                 'runtime': self._runtime.config.lab_type,
                 'tarball_url': node['artifacts']['tarball'],
                 'workspace': tmp,
+                'xfstests_bld_path' : self._xfstests_bld_path
             }
             params.update(self._plan.params)
             params.update(device_config.params)
@@ -113,6 +115,10 @@ class cmd_run(Command):
     help = 'KVM fstests runner'
     args = [
         Args.db_config, Args.output,
+        {
+            'name': '--xfstests-bld-path',
+            'help': "xfstests build directory"
+        },
     ]
     opt_args = [
         Args.verbose,

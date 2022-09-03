@@ -3,6 +3,11 @@
 
 {%- extends 'base/python.jinja2' %}
 
+{%- block python_globals %}
+{{ super() }}
+xfstests_bld_path = '{{ xfstests_bld_path }}'
+{% endblock %}
+
 {%- block python_imports %}
 {{ super() }}
 import subprocess
