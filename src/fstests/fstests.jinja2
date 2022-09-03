@@ -23,13 +23,13 @@ class Job(BaseJob):
             result = subprocess.run("kvm-xfstests install-kconfig", check=True, shell=True)
             if result.returncode == 0:
                 print(f"Kernel config done.")
-                return 'pass'
+                return True
             else:
                 print((f"Missing kernel .config file."))
-                return 'fail'
+                return False
         except Exception as e:
             print('Kernel config error:', e)
-            return 'fail'
+            return False
 
     def _kernel_build(self, kdir):
         try:
@@ -37,9 +37,9 @@ class Job(BaseJob):
             result = subprocess.run("make -j$(nproc)", check=True, shell=True)
             if result.returncode == 0:
                 print(f"Kernel Build DONE.")
-                return 'pass'
+                return True
             else:
-                return 'fail'
+                return False
         except Exception as e:
             print('Kernel build error:', e)
 
@@ -48,10 +48,10 @@ class Job(BaseJob):
             result = subprocess.run([f"debugfs -R \"dump ext4/results-4k/results.xml {kdir}/results.xml\" {xfstests_bld_path}/run-fstests/disks/vdg"], check=True, shell=True)
             if result.returncode == 0:
                 print(f"XML file in the output directory.")
-                return 'pass'
+                return True
         except Exception as e:
             print('XML not found.', e)
-            return 'fail'
+            return False
 
     def _parse_to_json(self, node, tree, name=None):
         if 'result' in tree:
@@ -92,10 +92,10 @@ class Job(BaseJob):
             result = subprocess.run(["kvm-xfstests", "smoke"], check=True)
             if result.returncode == 0:
                 print(f"Test run success.")
-                return 'pass'
+                return True
         except Exception as e:
             print('Problem found during tests:', e)
-            return 'fail'
+            return False
 
     def _check_kvm_xfstest_env(self):
         try:
@@ -110,13 +110,15 @@ class Job(BaseJob):
             return False
 
     def _run(self, src_path):
-        print("Checking if KVM-xfstests is available...")
-        if self._check_kvm_xfstest_env():
-            if self._kernel_config(src_path) == 'pass':
-                if self._kernel_build(src_path) == 'pass':
-                    if self._run_smoke_tests() == 'pass':
-                        if self._get_xml_from_vm(src_path) == 'pass':
-                            with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
-                                result_file.write(json.dumps(self._parse_results(src_path)))
-        return 'fail'
+        if not self._kernel_config(src_path):
+            return 'fail'
+        if not self._kernel_build(src_path):
+            return 'fail'
+        if not self._run_smoke_tests():
+            return 'fail'
+        if not self._get_xml_from_vm(src_path):
+            return 'fail'
+        with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
+            result_file.write(json.dumps(self._parse_results(src_path)))
+        return 'pass'
 {% endblock %}
