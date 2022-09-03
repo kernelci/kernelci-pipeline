@@ -126,7 +126,11 @@ class Job(BaseJob):
             return 'fail'
         if not self._get_xml_from_vm(src_path):
             return 'fail'
-        with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
-            result_file.write(json.dumps(self._parse_results(src_path)))
+        try:
+            with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
+                result_file.write(json.dumps(self._parse_results(src_path)))
+        except Exception as e:
+            print(f"Exception raised while parsing results: {e}")
+            return 'fail'
         return 'pass'
 {% endblock %}
