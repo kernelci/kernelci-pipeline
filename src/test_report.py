@@ -94,7 +94,7 @@ class TestReport:
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
             'name': 'tarball',
-            'status': 'complete',
+            'state': 'done',
         })
 
         self._logger.log_message(logging.INFO,
