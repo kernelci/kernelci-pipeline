@@ -52,6 +52,7 @@ anyway")
     node = {
         'name': 'checkout',
         'revision': revision,
+        'state': 'available',
     }
     resp_obj = db.submit({'node': node})[0]
     node_id = resp_obj['_id']
