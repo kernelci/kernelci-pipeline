@@ -98,18 +98,23 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _create_tarball_node(self, checkout_node, tarball):
-        node = {
+    def _create_tarball_node(self, checkout_node):
+        tarball_node = {
             'parent': checkout_node['_id'],
             'name': 'tarball',
             'path': checkout_node['path'] + ['tarball'],
+            'revision': checkout_node['revision'],
+        }
+        return self._db.submit({'node': tarball_node})[0]
+
+    def _make_tarball_node_available(self, tarball_node, tarball):
+        tarball_node.update({
+            'state': 'available',
             'artifacts': {
                 'tarball': urllib.parse.urljoin(self._storage_url, tarball),
             },
-            'revision': checkout_node['revision'],
-            'state': 'available',
-        }
-        self._db.submit({'node': node})
+        })
+        return self._db.submit({'node': tarball_node})
 
     def _update_checkout_node(self, node, describe, version):
         node['revision'].update({
@@ -145,15 +150,15 @@ scp \
                 if build_config is None:
                     continue
 
+                tarball_node = self._create_tarball_node(checkout_node)
                 self._update_repo(build_config)
-
                 describe = kernelci.build.git_describe(
                     build_config.tree.name, self._kdir
                 )
                 version = self._get_version_from_describe()
                 self._update_checkout_node(checkout_node, describe, version)
                 tarball = self._push_tarball(build_config, describe)
-                self._create_tarball_node(checkout_node, tarball)
+                self._make_tarball_node_available(tarball_node, tarball)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
