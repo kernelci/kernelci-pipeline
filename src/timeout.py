@@ -20,44 +20,45 @@ from kernelci.cli import Args, Command, parse_opts
 from logger import Logger
 
 
-class SetTimeout:
+class Timeout:
 
     def __init__(self, configs, args):
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
-        self._logger = Logger("config/logger.conf", "set_timeout")
+        self._logger = Logger("config/logger.conf", "timeout")
         self._poll_period = args.poll_period
 
-    def _update_pending_child(self, parent_id):
-        """Set child node status to timeout when parent is timed out"""
-        child_nodes = self._db.get_nodes({"status": "pending",
-                                          "parent": parent_id})
+    def _update_child_nodes(self, parent_id):
+        """Set child node state to done when parent is timed out"""
+        child_nodes = self._db.get_nodes({'parent': parent_id})
         for child in child_nodes:
-            child['status'] = "timeout"
-            self._db.submit({'node': child})
-            self._update_pending_child(child["_id"])
+            if child['state'] != 'done':
+                child['state'] = 'done'
+                self._db.submit({'node': child})
+                self._update_child_nodes(child['_id'])
 
-    def _set_timeout_status(self, node):
-        """Set Node status to timeout if maximum wait time is over"""
-        current_time = datetime.utcnow()
-        max_wait_time = datetime.fromisoformat(node['created']) + \
-            timedelta(hours=node['max_wait_time'])
-        if current_time > max_wait_time:
-            node['status'] = "timeout"
-            self._db.submit({'node': node})
-            self._update_pending_child(node["_id"])
+    def _update_timed_out_node(self, node):
+        """Set Node state to done if maximum wait time is over"""
+        if node['state'] != 'done':
+            current_time = datetime.utcnow()
+            expires = datetime.fromisoformat(node['created']) + \
+                timedelta(hours=node['timeout'])
+            if current_time > expires:
+                node['state'] = 'done'
+                self._db.submit({'node': node})
+                self._update_child_nodes(node['_id'])
 
     def run(self):
         self._logger.log_message(logging.INFO,
-                                 "Checking pending nodes...")
+                                 "Checking timed-out nodes...")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
             while True:
-                nodes = self._db.get_nodes({"status": "pending"})
+                nodes = self._db.get_nodes()
                 for node in nodes:
-                    self._set_timeout_status(node)
+                    self._update_timed_out_node(node)
                 sleep(self._poll_period)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
@@ -66,7 +67,7 @@ class SetTimeout:
 
 
 class cmd_run(Command):
-    help = "Set node status to timeout if maximum wait time is over"
+    help = "Set node state to done if maximum wait time is over"
     args = [
         Args.db_config,
         {
@@ -78,12 +79,12 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        set_timeout = SetTimeout(configs, args)
-        set_timeout.run()
+        timeout = Timeout(configs, args)
+        timeout.run()
 
 
 if __name__ == '__main__':
-    opts = parse_opts('set_timeout', globals())
+    opts = parse_opts('timeout', globals())
     configs = kernelci.config.load('config/pipeline.yaml')
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
