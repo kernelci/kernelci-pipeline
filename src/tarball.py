@@ -116,12 +116,12 @@ scp \
         })
         return self._db.submit({'node': tarball_node})
 
-    def _update_checkout_node(self, node, describe, version):
+    def _add_checkout_version(self, node, describe, version):
         node['revision'].update({
             'describe': describe,
             'version': version,
         })
-        self._db.submit({'node': node})
+        return self._db.submit({'node': node})
 
     def _get_version_from_describe(self):
         describe_v = kernelci.build.git_describe_verbose(self._kdir)
@@ -156,7 +156,7 @@ scp \
                     build_config.tree.name, self._kdir
                 )
                 version = self._get_version_from_describe()
-                self._update_checkout_node(checkout_node, describe, version)
+                self._add_checkout_version(checkout_node, describe, version)
                 tarball = self._push_tarball(build_config, describe)
                 self._make_tarball_node_available(tarball_node, tarball)
         except KeyboardInterrupt:
