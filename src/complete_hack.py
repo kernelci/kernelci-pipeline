@@ -36,17 +36,14 @@ class CompleteHack:
         if now > expires:
             self._pending_node['state'] = "done"
             self._db.submit({'node': self._pending_node})
-            checkout_node = self._db.get_node(self._pending_node['parent'])
-            checkout_node['state'] = "done"
-            self._db.submit({'node': checkout_node})
             self._pending_node = None
 
     def run(self):
         sub_id = self._db.subscribe_node_channel({
-            'op': 'created',
-            'name': 'tarball',
+            'name': 'checkout',
+            'state': 'available',
         })
-        self._logger.log_message(logging.INFO, "Listening for new tarballs")
+        self._logger.log_message(logging.INFO, "Listening for new checkouts")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
@@ -66,7 +63,7 @@ class CompleteHack:
 
 
 class cmd_run(Command):
-    help = "Hack to set tarball nodes to done state"
+    help = "Hack to set checkout nodes to done state"
     args = [Args.db_config]
     opt_args = [Args.verbose]
 
