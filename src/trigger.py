@@ -30,34 +30,35 @@ def _run_trigger(args, build_config, db, logger):
         "revision.commit": head_commit,
     })
     if node_list:
-        logger.log_message(logging.INFO, f"Node exists with \
-the latest git commit {head_commit}")
         if args.force:
-            logger.log_message(logging.INFO, "Creating new checkout node \
-anyway")
+            logger.log_message(
+                logging.INFO,
+                f"Creating new node with existing commit {head_commit}"
+            )
         else:
+            logger.log_message(
+                logging.INFO,
+                f"Node alread exists with commit {head_commit}"
+            )
             return
-    sys.stdout.flush()
+    else:
+        logger.log_message(
+            logging.INFO,
+            f"Found new revision for {build_config.name}: {head_commit}"
+        )
 
     revision = {
         'tree': build_config.tree.name,
         'url': build_config.tree.url,
         'branch': build_config.branch,
-        'commit': head_commit
+        'commit': head_commit,
     }
-
-    logger.log_message(logging.INFO, f"Sending revision node to API: \
-{revision['commit']}")
-    sys.stdout.flush()
     node = {
         'name': 'checkout',
         'path': ['checkout'],
         'revision': revision,
     }
-    resp_obj = db.submit({'node': node})[0]
-    node_id = resp_obj['_id']
-    logger.log_message(logging.INFO, f"Node id: {node_id}")
-    sys.stdout.flush()
+    db.submit({'node': node})[0]
 
 
 class cmd_run(Command):
