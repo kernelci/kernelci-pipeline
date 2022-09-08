@@ -128,12 +128,11 @@ class TestReport:
 
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
-            'name': 'tarball',
-            'status': 'complete',
+            'name': 'checkout',
+            'state': 'done',
         })
 
-        self._logger.log_message(logging.INFO,
-                                 "Listening for complete tarballs")
+        self._logger.log_message(logging.INFO, "Listening for complete jobs")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
