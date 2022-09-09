@@ -32,7 +32,7 @@ class CompleteHack:
     def _check_pending_node(self):
         now = datetime.utcnow()
         created = datetime.fromisoformat(self._pending_node['created'])
-        expires = created + timedelta(minutes=10)
+        expires = created + timedelta(minutes=30)
         print(f"Expires: {expires.strftime('%Y-%M-%d %H:%M:%S')}")
         if now > expires:
             print(f"Done: {self._pending_node['_id']}")
