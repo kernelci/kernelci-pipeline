@@ -122,6 +122,11 @@ class Job(BaseJob):
             print(f"Raised exception: {e}")
             return False
 
+    def _submit(self, results, node_id, db):
+        node = db.get_node(node_id)
+        db.submit_results(results, node)
+        return node
+
     def _run(self, src_path):
         fail_results = {
             'node': {
