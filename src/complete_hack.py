@@ -33,7 +33,9 @@ class CompleteHack:
         now = datetime.utcnow()
         created = datetime.fromisoformat(self._pending_node['created'])
         expires = created + timedelta(minutes=10)
+        print(f"Expires: {expires.strftime('%Y-%M-%d %H:%M:%S')}")
         if now > expires:
+            print(f"Done: {self._pending_node['_id']}")
             self._pending_node['state'] = "done"
             self._db.submit({'node': self._pending_node})
             self._pending_node = None
@@ -50,6 +52,9 @@ class CompleteHack:
             while True:
                 if not self._pending_node:
                     self._pending_node = self._db.receive_node(sub_id)
+                    self._logger.log_message(
+                        logging.INFO, f"Pending: {self._pending_node['_id']}"
+                    )
                 else:
                     time.sleep(5)
                     self._check_pending_node()
