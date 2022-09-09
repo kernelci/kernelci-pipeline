@@ -123,19 +123,30 @@ class Job(BaseJob):
             return False
 
     def _run(self, src_path):
+        fail_results = {
+            'node': {
+                'name': 'fstests',
+                'result': 'fail',
+                'state': 'done',
+            },
+            'child_nodes':[],
+        }
         if not self._kernel_config(src_path):
-            return 'fail'
+            return fail_results
         if not self._kernel_build(src_path):
-            return 'fail'
+            return fail_results
         if not self._run_smoke_tests():
-            return 'fail'
+            return fail_results
         if not self._get_xml_from_vm(src_path):
-            return 'fail'
+            return fail_results
         try:
+            results = self._parse_results(src_path)
+            results['node']['result'] = 'pass'
+            results['node']['state'] = 'done'
             with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
-                result_file.write(json.dumps(self._parse_results(src_path)))
+                result_file.write(json.dumps(results))
         except Exception as e:
             print(f"Exception raised while parsing results: {e}")
-            return 'fail'
-        return 'pass'
+            return fail_results
+        return results
 {% endblock %}
