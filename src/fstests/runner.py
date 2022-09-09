@@ -83,11 +83,11 @@ class FstestsRunner:
     def run(self, args):
         sub_id = None
         if not args.node_id:
-            sub_id = self._db.subscribe_node_channel({
-                'op': 'created',
-                'name': 'tarball',
+            sub_id = self._db.subscribe_node_channel(filters={
+                'name': 'checkout',
+                'state': 'available',
             })
-            print('Listening for tarballs')
+            print('Listening for checkouts')
             print('Press Ctrl-C to stop.')
         try:
             if sub_id:
