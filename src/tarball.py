@@ -98,22 +98,6 @@ scp \
         os.unlink(tarball_path)
         return tarball
 
-    def _make_checkout_node_available(self, checkout_node, tarball):
-        checkout_node.update({
-            'state': 'available',
-            'artifacts': {
-                'tarball': urllib.parse.urljoin(self._storage_url, tarball),
-            },
-        })
-        return self._db.submit({'node': checkout_node})
-
-    def _add_checkout_version(self, node, describe, version):
-        node['revision'].update({
-            'describe': describe,
-            'version': version,
-        })
-        return self._db.submit({'node': node})
-
     def _get_version_from_describe(self):
         describe_v = kernelci.build.git_describe_verbose(self._kdir)
         version = KVER_RE.match(describe_v).groupdict()
@@ -122,6 +106,20 @@ scp \
             for key, value in version.items()
             if value
         }
+
+    def _send_node(self, checkout_node, describe, version, tarball):
+        node = checkout_node.copy()
+        node['revision'].update({
+            'describe': describe,
+            'version': version,
+        })
+        node.update({
+            'state': 'available',
+            'artifacts': {
+                'tarball': urllib.parse.urljoin(self._storage_url, tarball),
+            },
+        })
+        return self._db.submit({'node': node})
 
     def run(self):
         sub_id = self._db.subscribe_node_channel(filters={
@@ -146,9 +144,8 @@ scp \
                     build_config.tree.name, self._kdir
                 )
                 version = self._get_version_from_describe()
-                self._add_checkout_version(checkout_node, describe, version)
                 tarball = self._push_tarball(build_config, describe)
-                self._make_checkout_node_available(checkout_node, tarball)
+                self._send_node(checkout_node, describe, version, tarball)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
