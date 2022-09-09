@@ -88,15 +88,20 @@ class Job(BaseJob):
     def _convert_results_for_api(self, tree, name):
         if 'result' in tree:
             return {
-                'name': name,
-                'result': tree['result'],
+                'node': {
+                    'name': name,
+                    'result': tree['result'],
+                },
+                'child_nodes':[]
             }
         else:
             child_nodes = []
             for child_name in tree:
                 child_nodes.append(self._convert_results_for_api(tree[child_name], child_name))
             return {
-                'name': name,
+                'node':{
+                    'name': name,
+                },
                 'child_nodes': child_nodes,
             }
 
