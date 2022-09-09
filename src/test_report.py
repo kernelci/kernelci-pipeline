@@ -125,7 +125,24 @@ class TestReport:
         )
         return content, subject
 
-    def run(self):
+    def _send_email(self, content, subject):
+        smtp = self._smtp_connect()
+        if smtp:
+            email_msg = self._create_email(
+                self._email_send_to, self._email_send_from,
+                subject, content
+            )
+            smtp.send_message(email_msg)
+            smtp.quit()
+
+    def _make_report(self, root_node, dump=True, send=False):
+        content, subject = self._create_test_report(root_node)
+        if dump:
+            print(content, flush=True)
+        if send:
+            self._send_email(content, subject)
+
+    def run_loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
             'name': 'checkout',
             'state': 'done',
@@ -137,22 +154,17 @@ class TestReport:
         try:
             while True:
                 root_node = self._db.receive_node(sub_id)
-                content, subject = self._create_test_report(root_node)
-                print(content, flush=True)
-                smtp = self._smtp_connect()
-                if smtp:
-                    email_msg = self._create_email(
-                        self._email_send_to, self._email_send_from,
-                        subject, content
-                    )
-                    smtp.send_message(email_msg)
-                    smtp.quit()
+                self._make_report(root_node, dump=True, send=True)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
         finally:
             self._db.unsubscribe(sub_id)
+
+    def run_from_id(self, node_id, dump, send):
+        root_node = self._db.get_node(node_id)
+        self._make_report(root_node, dump, send)
 
 
 class cmd_run(Command):
@@ -173,7 +185,33 @@ class cmd_run(Command):
 
     def __call__(self, configs, args):
         generate_test_report = TestReport(configs, args)
-        generate_test_report.run()
+        generate_test_report.run_loop()
+
+
+class cmd_single(Command):
+    help = "Generate single test report for a given checkout node id"
+    args = cmd_run.args + [
+        {
+            'name': '--node-id',
+            'help': "id of the checkout node rather than pub/sub",
+        }
+    ]
+    opt_args = [
+        {
+            'name': '--dump',
+            'action': 'store_true',
+            'help': "Dump the report on stdout",
+        },
+        {
+            'name': '--send',
+            'action': 'store_true',
+            'help': "Send the email over SMTP",
+        },
+    ]
+
+    def __call__(self, configs, args):
+        generate_test_report = TestReport(configs, args)
+        generate_test_report.run_from_id(args.node_id, args.dump, args.send)
 
 
 if __name__ == '__main__':
