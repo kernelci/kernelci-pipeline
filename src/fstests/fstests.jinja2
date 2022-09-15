@@ -11,12 +11,19 @@ xfstests_bld_path = '{{ xfstests_bld_path }}'
 {%- block python_imports %}
 {{ super() }}
 import json
+import os
+import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 {%- endblock %}
 
 {% block python_job -%}
 class Job(BaseJob):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if os.path.exists(self._workspace):
+            shutil.rmtree(self._workspace)
+
     def _kernel_config(self, kdir):
         try:
             os.chdir(kdir)
