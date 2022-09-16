@@ -113,8 +113,10 @@ class cmd_run(Command):
                     break
             except KeyboardInterrupt:
                 self._logger.log_message(logging.INFO, "Stopping.")
+                break
             except Exception:
                 self._logger.log_message(logging.ERROR, traceback.format_exc())
+                return False
 
         return True
 
