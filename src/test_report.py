@@ -70,10 +70,13 @@ class TestReport:
             )
             return None
 
-    def _get_group_stats(self, group_nodes):
+    def _get_group_stats(self, parent_id):
         return {
-            'total': len(group_nodes),
-            'failures': sum(node['result'] == 'fail' for node in group_nodes)
+            'total': self._db.count_nodes({"parent": parent_id}),
+            'failures': self._db.count_nodes({
+                "parent": parent_id,
+                "result": "fail"
+            })
         }
 
     def _get_group_data(self, root_node):
@@ -98,11 +101,11 @@ class TestReport:
 
     def _get_results_data(self, root_node):
         group_nodes = self._db.get_nodes({"parent": root_node['_id']})
-        group_stats = self._get_group_stats(group_nodes)
         groups = {
             node['name']: self._get_group_data(node)
             for node in group_nodes
         }
+        group_stats = self._get_group_stats(root_node['_id'])
         return {
             'stats': group_stats,
             'groups': groups,
