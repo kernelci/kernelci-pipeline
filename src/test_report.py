@@ -133,22 +133,24 @@ class TestReport:
         )
         return content, subject
 
-    def _send_email(self, content, subject):
+    def _send_email(self, email_msg):
         smtp = self._smtp_connect()
         if smtp:
-            email_msg = self._create_email(
+            smtp.send_message(email_msg)
+            smtp.quit()
+    
+    def _get_report(self, root_node):
+        return self._create_test_report(root_node)
+
+    def _dump_report(self, content):
+        print(content, flush=True)
+
+    def _send_report(self, subject, content):
+        email_msg = self._create_email(
                 self._email_send_to, self._email_send_from,
                 subject, content
             )
-            smtp.send_message(email_msg)
-            smtp.quit()
-
-    def _make_report(self, root_node, dump=True, send=False):
-        content, subject = self._create_test_report(root_node)
-        if dump:
-            print(content, flush=True)
-        if send:
-            self._send_email(content, subject)
+        self._send_email(email_msg)
 
     def run_loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
@@ -162,7 +164,9 @@ class TestReport:
         try:
             while True:
                 root_node = self._db.receive_node(sub_id)
-                self._make_report(root_node, dump=True, send=True)
+                content, subject = self._get_report(root_node)
+                self._dump_report(content)
+                self._send_report(subject, content)
         except KeyboardInterrupt:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
@@ -172,7 +176,11 @@ class TestReport:
 
     def run_from_id(self, node_id, dump, send):
         root_node = self._db.get_node(node_id)
-        self._make_report(root_node, dump, send)
+        content, subject = self._get_report(root_node)
+        if dump:
+            self._dump_report(content)
+        if send:
+            self._send_report(subject, content)
 
 
 class cmd_run(Command):
