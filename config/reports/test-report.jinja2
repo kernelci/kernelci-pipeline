@@ -19,7 +19,7 @@ SHA1:     {{ root.revision.commit }}
 {{ '%-15s %s %-8s %s %8d %s %8d'|format(
 group_name, "|",
 group.root.result, "|",
-group.nodes|count, "|",
+group.nodes, "|",
 group.failures|count) }}
 {%- endfor %}
 
