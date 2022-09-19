@@ -82,20 +82,25 @@ class TestReport:
     def _get_group_data(self, root_node):
         group = root_node['group']
         revision = root_node['revision']
-        group_nodes = self._db.get_nodes({
+        # Get count of group nodes and exclude the root node from it
+        group_nodes = self._db.count_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
             'group': group,
+        })-1
+        failures = self._db.get_nodes({
+            'revision.commit': revision['commit'],
+            'revision.tree': revision['tree'],
+            'revision.branch': revision['branch'],
+            'group': group,
+            'result': 'fail',
         })
-        group_nodes = [
-            node for node in group_nodes if node['_id'] != root_node['_id']
-        ]
         failures = [
-            node for node in group_nodes if node['result'] == 'fail'
+            node for node in failures if node['_id'] != root_node['_id']
         ]
         parent_path_len = len(root_node['path'])
-        for node in group_nodes:
+        for node in failures:
             node['path'] = '.'.join(node['path'][parent_path_len:])
         return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
 
