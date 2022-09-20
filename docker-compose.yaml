@@ -103,12 +103,12 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
 
-  set_timeout:
+  timeout:
     <<: *base-service
-    container_name: 'kernelci-pipeline-set_timeout'
+    container_name: 'kernelci-pipeline-timeout'
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/set_timeout.py'
+      - '/home/kernelci/pipeline/timeout.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
