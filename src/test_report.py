@@ -10,12 +10,8 @@
 # Author: Alexandra Pereira <alexandra.pereira@collabora.com>
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-from email.mime.multipart import MIMEMultipart
 import logging
-import email
-import email.mime.text
 import os
-import smtplib
 import sys
 import traceback
 
@@ -24,6 +20,7 @@ import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 import jinja2
 
+from kernelci_pipeline.email_sender import EmailSender
 from logger import Logger
 
 
@@ -34,41 +31,28 @@ class TestReport:
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "test_report")
-        self._smtp_host = args.smtp_host
-        self._smtp_port = args.smtp_port
-        self._email_send_from = 'bot@kernelci.org'
-        self._email_send_to = 'kernelci-results-staging@groups.io'
-        self._email_user = os.getenv('EMAIL_USER')
-        self._email_pass = os.getenv('EMAIL_PASSWORD')
+        self._email_sender = EmailSender(
+            args.smtp_host, args.smtp_port,
+            email_send_from='bot@kernelci.org',
+            email_send_to='kernelci-results-staging@groups.io',
+        )
 
-    def _create_email(self, send_to, send_from, email_subject, email_content):
-        email_msg = MIMEMultipart()
-        email_text = email.mime.text.MIMEText(email_content, "plain", "utf-8")
-        email_text.replace_header('Content-Transfer-Encoding', 'quopri')
-        email_text.set_payload(email_content, 'utf-8')
-        email_msg.attach(email_text)
-        if isinstance(send_to, list):
-            email_msg['To'] = ','.join(send_to)
-        else:
-            email_msg['To'] = send_to
-        email_msg['From'] = send_from
-        email_msg['Subject'] = email_subject
-        return email_msg
-
-    def _smtp_connect(self):
-        try:
-            if self._smtp_port == 465:
-                smtp = smtplib.SMTP_SSL(self._smtp_host, self._smtp_port)
-            else:
-                smtp = smtplib.SMTP(self._smtp_host, self._smtp_port)
-                smtp.starttls()
-            smtp.login(self._email_user, self._email_pass)
-            return smtp
-        except Exception as e:
-            self._logger.log_message(
-                logging.ERROR, f"Failed to connect to SMTP server: {e}"
-            )
-            return None
+    def _create_test_report(self, root_node):
+        results = self._get_results_data(root_node)
+        template_env = jinja2.Environment(
+                            loader=jinja2.FileSystemLoader("./config/reports/")
+                        )
+        template = template_env.get_template("test-report.jinja2")
+        revision = root_node['revision']
+        stats = results['stats']
+        groups = results['groups']
+        subject = (f"\
+{revision['tree']}/{revision['branch']} {revision['describe']}: \
+{stats['total']} runs {stats['failures']} failures")
+        content = template.render(
+            subject=subject, root=root_node, groups=groups
+        )
+        return content, subject
 
     def _get_group_stats(self, parent_id):
         return {
@@ -116,29 +100,6 @@ class TestReport:
             'groups': groups,
         }
 
-    def _create_test_report(self, root_node):
-        results = self._get_results_data(root_node)
-        template_env = jinja2.Environment(
-                            loader=jinja2.FileSystemLoader("./config/reports/")
-                        )
-        template = template_env.get_template("test-report.jinja2")
-        revision = root_node['revision']
-        stats = results['stats']
-        groups = results['groups']
-        subject = (f"\
-{revision['tree']}/{revision['branch']} {revision['describe']}: \
-{stats['total']} runs {stats['failures']} failures")
-        content = template.render(
-            subject=subject, root=root_node, groups=groups
-        )
-        return content, subject
-
-    def _send_email(self, email_msg):
-        smtp = self._smtp_connect()
-        if smtp:
-            smtp.send_message(email_msg)
-            smtp.quit()
-    
     def _get_report(self, root_node):
         return self._create_test_report(root_node)
 
@@ -146,11 +107,12 @@ class TestReport:
         print(content, flush=True)
 
     def _send_report(self, subject, content):
-        email_msg = self._create_email(
-                self._email_send_to, self._email_send_from,
-                subject, content
-            )
-        self._send_email(email_msg)
+        try:
+            self._email_sender.create_and_send_email(
+                    subject, content
+                )
+        except Exception as err:
+            self._logger.log_message(logging.ERROR, err)
 
     def run_loop(self):
         sub_id = self._db.subscribe_node_channel(filters={
