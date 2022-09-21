@@ -6,6 +6,7 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
+from datetime import datetime, timedelta
 import logging
 import os
 import re
@@ -118,6 +119,7 @@ scp \
             'artifacts': {
                 'tarball': urllib.parse.urljoin(self._storage_url, tarball),
             },
+            'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
         return self._db.submit({'node': node})
 
