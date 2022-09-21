@@ -29,6 +29,28 @@ class Timeout:
         self._logger = Logger("config/logger.conf", "timeout")
         self._poll_period = args.poll_period
 
+    def _update_available_node(self, node, current_time):
+        """Set node state to 'done' if holdoff is expired and all child nodes
+        are completed.
+        Set node state to `closing` if holdoff is expired and at least one of
+        the child nodes is incomplete"""
+        holdoff_time = datetime.fromisoformat(node['holdoff'])
+        if current_time > holdoff_time:
+            total_child_nodes = self._db.count_nodes({
+                'parent': node['_id'],
+            })
+
+            completed_child_nodes = self._db.count_nodes({
+                'parent': node['_id'],
+                'state': 'done'
+            })
+
+            if total_child_nodes > completed_child_nodes:
+                node['state'] = 'closing'
+            else:
+                node['state'] = 'done'
+            self._db.submit({'node': node})
+
     def _update_child_nodes(self, parent_id):
         """Set child node state to done when parent is timed out"""
         child_nodes = self._db.get_nodes({'parent': parent_id})
@@ -48,6 +70,8 @@ class Timeout:
                 node['state'] = 'done'
                 self._db.submit({'node': node})
                 self._update_child_nodes(node['_id'])
+            elif node['state'] == 'available':
+                self._update_available_node(node, current_time)
 
     def run(self):
         self._logger.log_message(logging.INFO,
