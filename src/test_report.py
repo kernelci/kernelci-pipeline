@@ -37,22 +37,8 @@ class TestReport:
             email_send_to='kernelci-results-staging@groups.io',
         )
 
-    def _create_test_report(self, root_node):
-        results = self._get_results_data(root_node)
-        template_env = jinja2.Environment(
-                            loader=jinja2.FileSystemLoader("./config/reports/")
-                        )
-        template = template_env.get_template("test-report.jinja2")
-        revision = root_node['revision']
-        stats = results['stats']
-        groups = results['groups']
-        subject = (f"\
-{revision['tree']}/{revision['branch']} {revision['describe']}: \
-{stats['total']} runs {stats['failures']} failures")
-        content = template.render(
-            subject=subject, root=root_node, groups=groups
-        )
-        return content, subject
+    def _dump_report(self, content):
+        print(content, flush=True)
 
     def _get_group_stats(self, parent_id):
         return {
@@ -101,10 +87,21 @@ class TestReport:
         }
 
     def _get_report(self, root_node):
-        return self._create_test_report(root_node)
-
-    def _dump_report(self, content):
-        print(content, flush=True)
+        results = self._get_results_data(root_node)
+        template_env = jinja2.Environment(
+                            loader=jinja2.FileSystemLoader("./config/reports/")
+                        )
+        template = template_env.get_template("test-report.jinja2")
+        revision = root_node['revision']
+        stats = results['stats']
+        groups = results['groups']
+        subject = (f"\
+{revision['tree']}/{revision['branch']} {revision['describe']}: \
+{stats['total']} runs {stats['failures']} failures")
+        content = template.render(
+            subject=subject, root=root_node, groups=groups
+        )
+        return content, subject
 
     def _send_report(self, subject, content):
         try:
@@ -114,13 +111,14 @@ class TestReport:
         except Exception as err:
             self._logger.log_message(logging.ERROR, err)
 
-    def run_loop(self):
+    def loop(self):
+        """Method to execute in a loop"""
         sub_id = self._db.subscribe_node_channel(filters={
             'name': 'checkout',
             'state': 'done',
         })
 
-        self._logger.log_message(logging.INFO, "Listening for complete jobs")
+        self._logger.log_message(logging.INFO, "Listening for completed nodes")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
 
         try:
@@ -136,7 +134,8 @@ class TestReport:
         finally:
             self._db.unsubscribe(sub_id)
 
-    def run_from_id(self, node_id, dump, send):
+    def run(self, node_id, dump, send):
+        """Method to execute for a single node"""
         root_node = self._db.get_node(node_id)
         content, subject = self._get_report(root_node)
         if dump:
@@ -145,7 +144,7 @@ class TestReport:
             self._send_report(subject, content)
 
 
-class cmd_run(Command):
+class cmd_loop(Command):
     help = "Generate test report"
     args = [
         Args.db_config,
@@ -162,13 +161,13 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        generate_test_report = TestReport(configs, args)
-        generate_test_report.run_loop()
+        test_report = TestReport(configs, args)
+        test_report.loop()
 
 
-class cmd_single(Command):
+class cmd_run(Command):
     help = "Generate single test report for a given checkout node id"
-    args = cmd_run.args + [
+    args = cmd_loop.args + [
         {
             'name': '--node-id',
             'help': "id of the checkout node rather than pub/sub",
@@ -188,8 +187,8 @@ class cmd_single(Command):
     ]
 
     def __call__(self, configs, args):
-        generate_test_report = TestReport(configs, args)
-        generate_test_report.run_from_id(args.node_id, args.dump, args.send)
+        test_report = TestReport(configs, args)
+        test_report.run(args.node_id, args.dump, args.send)
 
 
 if __name__ == '__main__':
