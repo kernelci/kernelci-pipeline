@@ -93,7 +93,7 @@ services:
       - 'python3'
       - '/home/kernelci/pipeline/test_report.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
-      - 'run'
+      - 'loop'
 
   timeout:
     <<: *base-service
