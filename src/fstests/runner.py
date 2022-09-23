@@ -60,7 +60,7 @@ class FstestsRunner:
                          '/etc/kernelci/runtime',
                          'src/fstests']
             job = self._runtime.generate(
-                params, device_config, self._plan, templates_path=templates
+                params, device_config, self._plan, templates_paths=templates
             )
             output_file = self._runtime.save_file(job, tmp, params)
             job_result = self._runtime.submit(output_file)
