@@ -70,8 +70,7 @@ class Timeout:
         """Set Node state to done if maximum wait time is over"""
         if node['state'] != 'done':
             current_time = datetime.utcnow()
-            expires = datetime.fromisoformat(node['created']) + \
-                timedelta(hours=node['timeout'])
+            expires = datetime.fromisoformat(node['timeout'])
             if current_time > expires:
                 self._logger.log_message(logging.INFO,
                                          f"Node timed-out {node['_id']}")
