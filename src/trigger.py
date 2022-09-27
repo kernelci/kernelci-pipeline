@@ -56,7 +56,7 @@ class cmd_run(Command):
 
     def _run_trigger(self, build_config, force):
         head_commit = kernelci.build.get_branch_head(build_config)
-        node_list = self._db.get_nodes({
+        node_list = self._db.count_nodes({
             "revision.commit": head_commit,
         })
 
