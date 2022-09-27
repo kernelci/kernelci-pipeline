@@ -86,7 +86,7 @@ class cmd_run(Command):
             'path': ['checkout'],
             'revision': revision,
         }
-        self._db.submit({'node': node})[0]
+        self._db.submit({'node': node})
 
     def _iterate_build_configs(self, force):
         for name, config in self._build_configs.items():
