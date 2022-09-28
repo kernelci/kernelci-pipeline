@@ -40,7 +40,7 @@ class FstestsRunner:
         }
         return self._db.submit({'node': node}, True)[0]
 
-    def _schedule_job(self, tarball_node, device_config, tmp):
+    def _schedule_job(self, tarball_node, device_config, tmp, args):
         node = self._create_node(tarball_node, self._plan)
         revision = node['revision']
         try:
@@ -50,6 +50,7 @@ class FstestsRunner:
                 'node_id': node['_id'],
                 'revision': revision,
                 'runtime': self._runtime.config.lab_type,
+                'src_dir': args.src_dir,
                 'tarball_url': node['artifacts']['tarball'],
                 'workspace': tmp,
                 'xfstests_bld_path' : self._xfstests_bld_path
@@ -68,10 +69,10 @@ class FstestsRunner:
             print(e)
         return job_result
 
-    def _run_single_job(self, tarball_node, device):
+    def _run_single_job(self, tarball_node, device, args):
         try:
             tmp = tempfile.TemporaryDirectory(dir=self._output)
-            job = self._schedule_job(tarball_node, device, tmp.name)
+            job = self._schedule_job(tarball_node, device, tmp.name, args)
             print("Waiting...")
             job.wait()
             print("...done")
@@ -100,7 +101,7 @@ class FstestsRunner:
             else:
                 tarball_node = self._db.get_node(args.node_id)
                 device = self._device_configs['shell']
-                self._run_single_job(tarball_node, device)
+                self._run_single_job(tarball_node, device, args)
         except KeyboardInterrupt as e:
             print('Stopping.')
         except Exception as e:
@@ -125,6 +126,10 @@ class cmd_run(Command):
         {
             'name': '--node-id',
             'help': "id of the checkout node rather than pub/sub",
+        },
+        {
+            'name': '--src-dir',
+            'help': "local directory containing the decompressed kernel code to use",
         },
     ]
 
