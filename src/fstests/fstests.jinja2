@@ -24,31 +24,38 @@ class Job(BaseJob):
         if os.path.exists(self._workspace):
             shutil.rmtree(self._workspace)
 
+    def _generate_node_result(self, name, result=None, state=None):
+        new_node = {
+                    'node': {
+                        'name': name,
+                    },
+                    'child_nodes':[],
+                }
+        if result:
+            new_node['node']['result']=result
+        if state:
+            new_node['node']['state']=state
+        return new_node
+
     def _kernel_config(self, kdir):
         try:
             os.chdir(kdir)
             result = subprocess.run("kvm-xfstests install-kconfig", check=True, shell=True)
             if result.returncode == 0:
-                print(f"Kernel config done.")
-                return True
-            else:
-                print((f"Missing kernel .config file."))
-                return False
+                return True, self._generate_node_result('config', 'pass')
+            return False, self._generate_node_result('config', 'fail')
         except Exception as e:
-            print('Kernel config error:', e)
-            return False
+            return False, self._generate_node_result('config', 'fail')
 
     def _kernel_build(self, kdir):
         try:
             os.chdir(kdir)
             result = subprocess.run("make -j$(nproc)", check=True, shell=True)
             if result.returncode == 0:
-                print(f"Kernel Build DONE.")
-                return True
-            else:
-                return False
+                return True, self._generate_node_result('build', 'pass')
+            return False, self._generate_node_result('build', 'fail')
         except Exception as e:
-            print('Kernel build error:', e)
+            return False, self._generate_node_result('build', 'fail')
 
     def _get_xml_from_vm(self, kdir):
         try:
@@ -135,30 +142,23 @@ class Job(BaseJob):
         return node
 
     def _run(self, src_path):
-        fail_results = {
-            'node': {
-                'name': 'fstests',
-                'result': 'fail',
-                'state': 'done',
-            },
-            'child_nodes':[],
-        }
-        if not self._kernel_config(src_path):
-            return fail_results
-        if not self._kernel_build(src_path):
-            return fail_results
-        if not self._run_smoke_tests():
-            return fail_results
-        if not self._get_xml_from_vm(src_path):
-            return fail_results
+        results = self._generate_node_result('fstests', 'fail', 'done')
+        config_status, result_node = self._kernel_config(src_path)
+        results['child_nodes'].append(result_node)
+        if not config_status:
+            return results
+        build_status, result_node = self._kernel_build(src_path)
+        results['child_nodes'].append(result_node)
+        if not build_status or not self._run_smoke_tests() or not self._get_xml_from_vm(src_path):
+            return results
         try:
-            results = self._parse_results(src_path)
+            parsed_results = self._parse_results(src_path)
+            results['child_nodes'].extend(parsed_results['child_nodes'])
             results['node']['result'] = 'pass'
-            results['node']['state'] = 'done'
             with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
                 result_file.write(json.dumps(results))
         except Exception as e:
             print(f"Exception raised while parsing results: {e}")
-            return fail_results
+            return results
         return results
 {% endblock %}
