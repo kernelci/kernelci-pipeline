@@ -36,6 +36,8 @@ class Timeout:
         the child nodes is incomplete"""
         holdoff_time = datetime.fromisoformat(node['holdoff'])
         if current_time > holdoff_time:
+            self._logger.log_message(logging.INFO,
+                                     f"Holdoff reached for {node['_id']}")
             total_child_nodes = self._db.count_nodes({
                 'parent': node['_id'],
             })
@@ -46,8 +48,12 @@ class Timeout:
             })
 
             if total_child_nodes > completed_child_nodes:
+                self._logger.log_message(logging.INFO,
+                                         f"Closing the node {node['_id']}")
                 node['state'] = 'closing'
             else:
+                self._logger.log_message(logging.INFO,
+                                         f"Completing the node {node['_id']}")
                 node['state'] = 'done'
             self._db.submit({'node': node})
 
@@ -67,6 +73,8 @@ class Timeout:
             expires = datetime.fromisoformat(node['created']) + \
                 timedelta(hours=node['timeout'])
             if current_time > expires:
+                self._logger.log_message(logging.INFO,
+                                         f"Node timed-out {node['_id']}")
                 node['state'] = 'done'
                 self._db.submit({'node': node})
                 self._update_child_nodes(node['_id'])
