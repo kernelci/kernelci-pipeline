@@ -22,8 +22,10 @@ class FstestsRunner:
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
         self._device_configs = configs['device_types']
-        self._plan = configs['test_plans']['fstests']
+        self._node_id = args.node_id
         self._output = args.output
+        self._src_dir = args.src_dir
+        self._plan = configs['test_plans']['fstests']
         self._xfstests_bld_path = args.xfstests_bld_path
         if not os.path.exists(self._output):
             os.makedirs(self._output)
@@ -40,7 +42,7 @@ class FstestsRunner:
         }
         return self._db.submit({'node': node}, True)[0]
 
-    def _schedule_job(self, tarball_node, device_config, tmp, args):
+    def _schedule_job(self, tarball_node, device_config, tmp):
         node = self._create_node(tarball_node, self._plan)
         revision = node['revision']
         try:
@@ -50,7 +52,7 @@ class FstestsRunner:
                 'node_id': node['_id'],
                 'revision': revision,
                 'runtime': self._runtime.config.lab_type,
-                'src_dir': args.src_dir,
+                'src_dir': self._src_dir,
                 'tarball_url': node['artifacts']['tarball'],
                 'workspace': tmp,
                 'xfstests_bld_path' : self._xfstests_bld_path
@@ -69,10 +71,10 @@ class FstestsRunner:
             print(e)
         return job_result
 
-    def _run_single_job(self, tarball_node, device, args):
+    def _run_single_job(self, tarball_node, device):
         try:
             tmp = tempfile.TemporaryDirectory(dir=self._output)
-            job = self._schedule_job(tarball_node, device, tmp.name, args)
+            job = self._schedule_job(tarball_node, device, tmp.name)
             print("Waiting...")
             job.wait()
             print("...done")
@@ -81,9 +83,9 @@ class FstestsRunner:
         finally:
             return True
 
-    def run(self, args):
+    def run(self):
         sub_id = None
-        if not args.node_id:
+        if not self._node_id:
             sub_id = self._db.subscribe_node_channel(filters={
                 'name': 'checkout',
                 'state': 'available',
@@ -99,9 +101,9 @@ class FstestsRunner:
                     device = self._device_configs['shell']
                     self._run_single_job(tarball_node, device)
             else:
-                tarball_node = self._db.get_node(args.node_id)
+                tarball_node = self._db.get_node(self._node_id)
                 device = self._device_configs['shell']
-                self._run_single_job(tarball_node, device, args)
+                self._run_single_job(tarball_node, device)
         except KeyboardInterrupt as e:
             print('Stopping.')
         except Exception as e:
@@ -134,7 +136,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return FstestsRunner(configs, args).run(args)
+        return FstestsRunner(configs, args).run()
 
 
 if __name__ == '__main__':
