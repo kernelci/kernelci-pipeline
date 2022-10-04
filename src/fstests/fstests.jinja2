@@ -5,7 +5,15 @@
 
 {%- block python_globals %}
 {{ super() }}
-xfstests_bld_path = '{{ xfstests_bld_path }}'
+XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
+# TBD: For production, set the appropriate njobs number by default
+NJOBS             = '{{njobs if njobs is not none else 1}}'
+TESTCASE          = '{{testcase if testcase is not none else "smoke"}}'
+SKIP_BUILD        = '{{True if skip_build is not none else NONE}}'
+GCE               = '{{True if gce is not none else NONE}}'
+GCE_PROJECT       = '{{gce_project if gce_project is not none else NONE}}'
+GCE_ZONE          = '{{gce_zone if gce_zone is not none else NONE}}'
+GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else NONE}}'
 {% endblock %}
 
 {%- block python_imports %}
@@ -15,53 +23,66 @@ import os
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
+import re
+import traceback
+import time
+from abc import ABC, abstractmethod
 {%- endblock %}
 
 {% block python_job -%}
-class Job(BaseJob):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if os.path.exists(self._workspace):
-            shutil.rmtree(self._workspace)
 
-    def _kernel_config(self, kdir):
+class Xfstests(ABC):
+    """Base class (abstract) to handle the setup, running and collection of
+    results for xfstests.
+    """
+
+    def kernel_config(self, kdir):
+        """Uses the kvm-xfstests script to configure a kernel for xfstests. The
+        kernel source must be already decompressed in KDIR.
+
+        Args:
+            kdir (str): base directory of the kernel source
+
+        Returns:
+            bool: True for success, False otherwise
+        """
         try:
             os.chdir(kdir)
-            result = subprocess.run("kvm-xfstests install-kconfig", check=True, shell=True)
-            if result.returncode == 0:
-                print(f"Kernel config done.")
-                return True
-            else:
-                print((f"Missing kernel .config file."))
-                return False
+            result = subprocess.run('kvm-xfstests install-kconfig',
+                                    check=True, shell=True)
+            print(f"Kernel config done.")
+            return True
         except Exception as e:
-            print('Kernel config error:', e)
+            print("Kernel config error:", e)
             return False
 
-    def _kernel_build(self, kdir):
+    def kernel_build(self, kdir, njobs=1):
+        """Builds an already configured Linux kernel.
+
+        Args:
+            kdir (str): base directory of the kernel source
+            njobs (int, optional): number of parallel build jobs
+        """
         try:
             os.chdir(kdir)
-            result = subprocess.run("make -j$(nproc)", check=True, shell=True)
-            if result.returncode == 0:
-                print(f"Kernel Build DONE.")
-                return True
-            else:
-                return False
+            result = subprocess.run(f'make -j{njobs}', check=True, shell=True)
+            print(f"Kernel Build DONE.")
+            return True
         except Exception as e:
-            print('Kernel build error:', e)
-
-    def _get_xml_from_vm(self, kdir):
-        try:
-            result = subprocess.run([f"debugfs -R \"dump ext4/results-4k/results.xml {kdir}/results.xml\" {xfstests_bld_path}/run-fstests/disks/vdg"], check=True, shell=True)
-            if result.returncode == 0:
-                print(f"XML file in the output directory.")
-                return True
-        except Exception as e:
-            print('XML not found.', e)
+            print("Kernel build error:", e)
             return False
 
-    def _parse_xml_results(self, kdir):
-        xml_file = ET.parse(kdir)
+    def _parse_xml_results(self, f):
+        """Parses the xfstests XML-formatted test results into an in-memory
+        tree.
+
+        Args:
+            f (str): path of the XML file to parse
+
+        Returns:
+            A dict containing the result tree, None if something failed.
+        """
+        xml_file = ET.parse(f)
         root = xml_file.getroot()
         tree = {}
         for test_case in root.iter('testcase'):
@@ -81,16 +102,6 @@ class Job(BaseJob):
                 current = current[item]
             current['result'] = result
         return tree
-
-    def _run_smoke_tests(self):
-        try:
-            result = subprocess.run(["kvm-xfstests", "smoke"], check=True)
-            if result.returncode == 0:
-                print(f"Test run success.")
-                return True
-        except Exception as e:
-            print('Problem found during tests:', e)
-            return False
 
     def _convert_results_for_api(self, tree, name):
         if 'result' in tree:
@@ -112,27 +123,171 @@ class Job(BaseJob):
                 'child_nodes': child_nodes,
             }
 
-    def _parse_results(self, kdir):
-        tree_data = self._parse_xml_results(os.path.join(kdir, 'results.xml'))
+    def parse_results(self, path):
+        """Parses and processes the test result files in PATH.
+
+        Args:
+            path (str): Directory to look for XML-formatted result files
+
+        Returns:
+            A dict containing the test results formatted according to the
+            KernelCI-API.
+        """
+        tree_data = self._parse_xml_results(os.path.join(path, 'results.xml'))
         api_data = self._convert_results_for_api(tree_data, 'fstests')
         return api_data
 
-    def _check_kvm_xfstest_env(self):
+    @abstractmethod
+    def run(self, kdir, testcase=''):
+        """Runs the specified xfstests testcase using the kernel built in KDIR.
+
+        Args:
+            kdir (str): directory containing a built Linux kernel
+            testcase (str): xfstest suite to run
+
+        Returns:
+            bool: True for success, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def get_xml_results(self, path):
+        """Extracts the XML-formatted test results and stores them in PATH.
+
+        Args:
+            path (str): Directory where to copy the XML results file.
+
+        Returns:
+                bool: True for success, False otherwise
+        """
+        pass
+
+
+class KvmXfstests(Xfstests):
+    def run(self, kdir, testcase=''):
+        cmd = ['kvm-xfstests']
+        if testcase:
+            cmd.append(testcase)
         try:
-            result = subprocess.run("kvm-xfstests --help", check=True, shell=True)
-            if result.returncode == 0:
-                print(f"KVM-xftests found.")
-                return True
-            else:
-                return False
+            os.chdir(kdir)
+        except FileNotFoundError:
+            print(f"Kernel directory not found: {kdir}")
+            return False
+        try:
+            result = subprocess.run(cmd, check=True)
+            print(f"Test run success.")
+            return True
         except Exception as e:
-            print(f"Raised exception: {e}")
+            print("Problem found during tests:", e)
             return False
 
-    def _submit(self, results, node_id, db):
-        node = db.get_node(node_id)
-        db.submit_results(results, node)
-        return node
+    def get_xml_results(self, path):
+        try:
+            result = subprocess.run([f'debugfs -R "dump ext4/results-4k/results.xml {path}/results.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'], check=True, shell=True)
+            print(f"XML file extracted in {path}.")
+            return True
+        except Exception as e:
+            print("XML not found.", e)
+            return False
+
+
+class GceXfstests(Xfstests):
+    def __init__(self):
+        self.vm_id = ''
+        self.results_tarball = ''
+        self.gce_env = os.environ.copy()
+        if GCE_PROJECT:
+            self.gce_env['GCE_PROJECT'] = GCE_PROJECT
+        if GCE_ZONE:
+            self.gce_env['GCE_ZONE'] = GCE_ZONE
+        if GS_BUCKET:
+            self.gce_env['GS_BUCKET'] = GS_BUCKET
+
+    def _wait_for_completion(self, vm_id):
+        """Checks the existence of a test result tarball for VM_ID in the Google
+        Storage bucket specified in the GS_BUCKET parameter. This method
+        blocks until the result is generated or until a
+        KeyboardInterrupt is received.  """
+        poll_period = 10        # seconds
+        m = re.search("-(\d{14})", vm_id)
+        tstamp = m.group(1)
+        try:
+            while True:
+                result = subprocess.run(
+                    ['gsutil', 'ls',
+                     f"gs://{self.gce_env['GS_BUCKET']}/results/results.*-{tstamp}.*"],
+                    capture_output=True,
+                    encoding='utf-8')
+                if result.returncode == 0:
+                    return result.stdout
+                time.sleep(poll_period)
+        except KeyboardInterrupt:
+            return None
+
+    def run(self, kdir, testcase=''):
+        # Currently uses gce-xfstests to run a single VM
+        # TBD: Either use gce-xfstests LTM or use gcloud directly and
+        # manage the concurrent VMs ourselves
+        cmd = ['gce-xfstests']
+        if testcase:
+            cmd.append(testcase)
+        try:
+            os.chdir(kdir)
+        except FileNotFoundError:
+            print(f"Kernel directory not found: {kdir}")
+            return False
+        try:
+            result = subprocess.run(cmd, check=True,
+                                    env=self.gce_env,
+                                    capture_output=True, encoding='utf-8')
+            m = re.search("Launching ([a-zA-Z0-9\-]+) ", result.stdout)
+            if not m:
+                print("Error creating the VM or retrieving the ID.",
+                      f"output: {result.stdout}")
+                return False
+            self.vm_id = m.group(1)
+            print(f"Test started in VM {self.vm_id}. Waiting for it to finish")
+            self.results_tarball = self._wait_for_completion(self.vm_id)
+            return True if self.results_tarball else False
+        except FileNotFoundError:
+            print("Can't find the gce-xfstests script, check $PATH")
+            return False
+        except subprocess.CalledProcessError as e:
+            print("Error running gce-xfstests:", e.stdout)
+            return False
+        except Exception:
+            traceback.print_exc()
+            return False
+
+    def get_xml_results(self, path):
+        try:
+            result = subprocess.run(
+                ['gce-xfstests', 'get-results', '--unpack',
+                 os.path.basename(self.results_tarball)],
+                check=True, env=self.gce_env,
+                capture_output=True, encoding='utf-8')
+            m = re.match("Unpacked results at (.+)$", result.stdout)
+            result_file = os.path.join(m.group(1), 'ext4', 'results-4k', 'results.xml')
+            shutil.copy(result_file, path)
+            print(f"XML file extracted in {path}.")
+        except subprocess.CalledProcessError as e:
+            print("Error running gce-xfstests get-results:", e.stdout)
+            return False
+        except Exception:
+            traceback.print_exc()
+            return False
+        return True
+
+
+class Job(BaseJob):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if os.path.exists(self._workspace):
+            shutil.rmtree(self._workspace)
+
+    # TBD: Implement
+    def _check_parameters(self):
+        return True
 
     def _run(self, src_path):
         fail_results = {
@@ -143,16 +298,29 @@ class Job(BaseJob):
             },
             'child_nodes':[],
         }
-        if not self._kernel_config(src_path):
+        if not self._check_parameters():
+             return fail_results
+
+        if GCE:
+            test = GceXfstests()
+        else:
+            test = KvmXfstests()
+
+        # Config and build kernel
+        if not SKIP_BUILD:
+            if not test.kernel_config(src_path):
+                return fail_results
+            if not test.kernel_build(src_path, NJOBS):
+                return fail_results
+        if not test.run(src_path, TESTCASE):
             return fail_results
-        if not self._kernel_build(src_path):
-            return fail_results
-        if not self._run_smoke_tests():
-            return fail_results
-        if not self._get_xml_from_vm(src_path):
+
+        # TBD: Currently retrieves only one XML file (for 4k tests).
+        # extend it to get the results for all the test types
+        if not test.get_xml_results(src_path):
             return fail_results
         try:
-            results = self._parse_results(src_path)
+            results = test.parse_results(src_path)
             results['node']['result'] = 'pass'
             results['node']['state'] = 'done'
             with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
@@ -161,4 +329,10 @@ class Job(BaseJob):
             print(f"Exception raised while parsing results: {e}")
             return fail_results
         return results
+
+    def _submit(self, results, node_id, db):
+        node = db.get_node(node_id)
+        db.submit_results(results, node)
+        print(f"Result node submitted: {node_id}")
+        return node
 {% endblock %}
