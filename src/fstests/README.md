@@ -163,11 +163,31 @@ sudo cp -R config /etc/kernelci
 
 After that you will need to set the configuration file proper, for now, we just need to set 3 variables for `fstests runner` :
 
-Before running, it's necessary to set up the configuration file for the Kernel CI environment. The file can be found at `<config file path>`. For more information on how the config file works, you can refer to [documentation](https://kernelci.org/docs/core/settings/). For the moment, we just need to set up 3 variables for the `fstests runner` section:
+Before running, it's necessary to set up the configuration file for the
+Kernel CI environment. The file can be found at `<config file
+path>`. For more information on how the config file works, you can refer
+to [documentation](https://kernelci.org/docs/core/settings/). To run the
+tests locally using Qemu+KVM (kvm-kfstests), we need to set up 3
+variables for the `fstests runner` section:
 
 - `output`: Path to a directory that could be used as during runtime as tmp.
 - `xfstests_bld_path`: Path to the directory where `xfstests` was built.
 - `db_config`:  Database location. You should be able to use a pre-set token to access this DB. 
+
+To run the tests on a GCE VM instance we also need to configure these
+parameters:
+
+- `gce_project`: GCE project that will host the VMs
+- `gs_bucket`: Google Storage bucket that will be used to store the tests artifacts
+- `gce_zone`: GCE zone where the VMs will be created
+
+Note that all these things (the GCE account, project and GS bucket) must
+be created and configured beforehand, and the host used to launch the
+tests must be authenticated in Google Cloud. See [the gce-xfstests
+documentation](https://github.com/tytso/xfstests-bld/blob/master/Documentation/gce-xfstests.md)
+for details on how to do that.
+
+To run the tests locally (KVM):
 
 ```bash
 python3 src/fstests/runner.py --settings src/fstests/fstests.kernelci.conf run
@@ -179,6 +199,20 @@ You also have the option to run fstests for a given `checkout` using its `node-i
 python3 src/fstests/runner.py --settings src/fstests/fstests.kernelci.conf run --node-id checkout-node-id
 ```
 
+To run the tests on a GCE instance, add the `--gce` flag.
+By default, the tests run will be the `smoke` collection (quick tests
+and only on a 4k filesystem configuration). You can run the full
+collection by specifying `--testcase full`.
+
 With all set you are ready to just call `fstests/runner.py` and start listening for events.
 
 `fstests/runner.py` is expecting `checkout` events with state `available`. Once you trigger a checkout using Kernel CI API, `runner.py` will take the checkout and procceed with the steps described above to build the kernel, run the tests in VM, collect the results, parse them and send them to the API.
+
+Other command-line options that could be interesting during development
+are:
+
+- `--src-dir`: to use an existing local directory that already contains
+  the kernel source instead of downloading a new tarball.
+- `--skip-build`: when used together with `--src-dir`, skips the
+  configuration and compilation of the kernel. Useful in case you're
+  working with a local kernel code that's already configured and built.
