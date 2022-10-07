@@ -70,11 +70,13 @@ class Job(BaseJob):
     def _parse_xml_results(self, kdir):
         xml_file = ET.parse(kdir)
         root = xml_file.getroot()
+        allSucess = True
         tree = {}
         for test_case in root.iter('testcase'):
             if test_case.find('skipped') is not None:
                 result = None
             elif test_case.find('failure') is not None:
+                allSucess = False
                 result = 'fail'
             else:
                 result = 'pass'
@@ -87,7 +89,7 @@ class Job(BaseJob):
                     current[item] = {}
                 current = current[item]
             current['result'] = result
-        return tree
+        return tree, allSucess
 
     def _run_smoke_tests(self):
         try:
@@ -120,9 +122,9 @@ class Job(BaseJob):
             }
 
     def _parse_results(self, kdir):
-        tree_data = self._parse_xml_results(os.path.join(kdir, 'results.xml'))
+        tree_data, allSucess = self._parse_xml_results(os.path.join(kdir, 'results.xml'))
         api_data = self._convert_results_for_api(tree_data, 'fstests')
-        return api_data
+        return api_data, allSucess
 
     def _check_kvm_xfstest_env(self):
         try:
@@ -152,9 +154,10 @@ class Job(BaseJob):
         if not build_status or not self._run_smoke_tests() or not self._get_xml_from_vm(src_path):
             return results
         try:
-            parsed_results = self._parse_results(src_path)
+            parsed_results, allSucess = self._parse_results(src_path)
             results['child_nodes'].extend(parsed_results['child_nodes'])
-            results['node']['result'] = 'pass'
+            if allSucess:
+                results['node']['result'] = 'pass'
             with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
                 result_file.write(json.dumps(results))
         except Exception as e:
