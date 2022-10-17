@@ -36,6 +36,8 @@ class FstestsRunner:
         self._src_dir = args.src_dir
         self._output = args.output
         self._testcase = args.testcase
+        self._testcfg = args.testcfg
+        self._testgroup = args.testgroup
         self._xfstests_bld_path = args.xfstests_bld_path
         if not os.path.exists(self._output):
             os.makedirs(self._output)
@@ -70,6 +72,8 @@ class FstestsRunner:
                 'src_dir': self._src_dir,
                 'tarball_url': node['artifacts']['tarball'],
                 'testcase': self._testcase,
+                'testcfg': self._testcfg,
+                'testgroup': self._testgroup,
                 'workspace': tmp,
                 'xfstests_bld_path' : self._xfstests_bld_path
             }
@@ -160,7 +164,15 @@ class cmd_run(Command):
         },
         {
             'name': '--testcase',
-            'help': "xfstests testcase to run. If not defined it'll run a smoke test"
+            'help': "xfstests testcase to run. It can be a single config or a comma separated list"
+        },
+        {
+            'name': '--testcfg',
+            'help': "xfstests test configuration. It can be a single config or a comma separated list"
+        },
+        {
+            'name': '--testgroup',
+            'help': "xfstests test group to run"
         },
     ]
 

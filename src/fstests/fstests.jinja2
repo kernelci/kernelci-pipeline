@@ -8,7 +8,9 @@
 XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
 # TBD: For production, set the appropriate njobs number by default
 NJOBS             = '{{njobs if njobs is not none else 1}}'
-TESTCASE          = '{{testcase if testcase is not none else "smoke"}}'
+TESTCASE          = '{{testcase if testcase is not none else ""}}'
+TESTCFG           = '{{testcfg if testcfg is not none else ""}}'
+TESTGROUP         = '{{testgroup if testgroup is not none else ""}}'
 SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
 GCE               = '{{True if gce is not none else ""}}'
 GCE_PROJECT       = '{{gce_project if gce_project is not none else ""}}'
@@ -142,12 +144,16 @@ class Xfstests(ABC):
         return api_data
 
     @abstractmethod
-    def run(self, kdir, testcase=''):
+    def run(self, kdir, testcase='', group=False, testcfg=''):
         """Runs the specified xfstests testcase using the kernel built in KDIR.
 
         Args:
             kdir (str): directory containing a built Linux kernel
-            testcase (str): xfstest suite to run
+            testcase (str): xfstests to run (single test or
+                comma-separated list)
+            group (bool): true if the testcase argument refers to a test group
+            testcfg (str): xfstests config to run (single config or
+                comma-separated list)
 
         Returns:
             bool: True for success, False otherwise
@@ -168,9 +174,13 @@ class Xfstests(ABC):
 
 
 class KvmXfstests(Xfstests):
-    def run(self, kdir, testcase=''):
+    def run(self, kdir, testcase='', group=False, testcfg=''):
         cmd = ['kvm-xfstests']
-        if testcase:
+        if testcfg:
+            cmd.extend(['-c', testcfg])
+        if group:
+            cmd.extend(['-g', testcase])
+        else:
             cmd.append(testcase)
         try:
             os.chdir(kdir)
@@ -233,12 +243,16 @@ class GceXfstests(Xfstests):
         except KeyboardInterrupt:
             return None
 
-    def run(self, kdir, testcase=''):
+    def run(self, kdir, testcase='', group=False, testcfg=''):
         # Currently uses gce-xfstests to run a single VM
         # TBD: Either use gce-xfstests LTM or use gcloud directly and
         # manage the concurrent VMs ourselves
         cmd = ['gce-xfstests']
-        if testcase:
+        if testcfg:
+            cmd.extend(['-c', testcfg])
+        if group:
+            cmd.extend(['-g', testcase])
+        else:
             cmd.append(testcase)
         try:
             os.chdir(kdir)
@@ -296,6 +310,12 @@ class Job(BaseJob):
 
     # TBD: Implement
     def _check_parameters(self):
+        if TESTCASE and TESTGROUP:
+            print("Error, can't specify both the testcase and the testgroup.")
+            return False
+        if not TESTCASE and not TESTGROUP:
+            print("Error, no testcase or testgroup specified.")
+            return False
         return True
 
     def _run(self, src_path):
@@ -321,7 +341,11 @@ class Job(BaseJob):
             if not all([test.kernel_config(src_path),
                         test.kernel_build(src_path, NJOBS)]):
                 return fail_results
-        if not test.run(src_path, TESTCASE):
+        if TESTGROUP:
+            test_ok = test.run(src_path, TESTGROUP, True, TESTCFG)
+        else:
+            test_ok = test.run(src_path, TESTCASE, False, TESTCFG)
+        if not test_ok:
             return fail_results
 
         # TBD: Currently retrieves only one XML file (for 4k tests).
