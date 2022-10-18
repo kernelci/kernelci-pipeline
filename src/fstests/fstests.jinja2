@@ -5,17 +5,18 @@
 
 {%- block python_globals %}
 {{ super() }}
-XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
-# TBD: For production, set the appropriate njobs number by default
-NJOBS             = '{{njobs if njobs is not none else 1}}'
-TESTCASE          = '{{testcase if testcase is not none else ""}}'
-TESTCFG           = '{{testcfg if testcfg is not none else ""}}'
-TESTGROUP         = '{{testgroup if testgroup is not none else ""}}'
-SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
 GCE               = '{{True if gce is not none else ""}}'
 GCE_PROJECT       = '{{gce_project if gce_project is not none else ""}}'
 GCE_ZONE          = '{{gce_zone if gce_zone is not none else ""}}'
 GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else ""}}'
+# TBD: For production, set the appropriate njobs number by default
+NJOBS             = '{{njobs if njobs is not none else 1}}'
+OUTPUT            = '{{output if output is not none else ""}}'
+SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
+TESTCASE          = '{{testcase if testcase is not none else ""}}'
+TESTCFG           = '{{testcfg if testcfg is not none else ""}}'
+TESTGROUP         = '{{testgroup if testgroup is not none else ""}}'
+XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
 {% endblock %}
 
 {%- block python_imports %}
@@ -28,6 +29,7 @@ import xml.etree.ElementTree as ET
 import re
 import traceback
 import time
+import glob
 from abc import ABC, abstractmethod
 {%- endblock %}
 
@@ -39,6 +41,12 @@ class Xfstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
     results for xfstests.
     """
+
+    # xfstests fs configs
+    configs = ['4k',           '1k',       'ext3',        'encrypt',
+               'nojournal',    'ext3conv', 'adv',         'dioread_nolock',
+               'data_journal', 'bigalloc', 'bigalloc_1k',
+    ]
 
     def kernel_config(self, kdir):
         """Uses the kvm-xfstests script to configure a kernel for xfstests. The
@@ -78,19 +86,32 @@ class Xfstests(ABC):
             print("Kernel build error:", e)
             return False
 
-    def _parse_xml_results(self, f):
+    def _parse_xml_test_results(self, f, tree):
         """Parses the xfstests XML-formatted test results into an in-memory
-        tree.
+        tree (dict).
 
         Args:
             f (str): path of the XML file to parse
+            tree (dict): dict to save the data to. It may be populated
+                already.
 
         Returns:
-            A dict containing the result tree, None if something failed.
+            A dict containing the result tree.
         """
         xml_file = ET.parse(f)
         root = xml_file.getroot()
-        tree = {}
+
+        # Parse the test config: filesystem type and config, create the
+        # initial tree nodes for them if they don't exist yet
+        testcfg = root.find('properties/property[@name="TESTCFG"]').attrib['value']
+        fs, cfg = testcfg.split('/')
+        if fs in tree:
+            if cfg not in tree[fs]:
+                tree[fs][cfg] = {}
+        else:
+            tree[fs] = {cfg: {}}
+
+        # Parse the test results
         for test_case in root.iter('testcase'):
             if test_case.find('skipped') is not None:
                 result = 'skip'
@@ -98,30 +119,43 @@ class Xfstests(ABC):
                 result = 'fail'
             else:
                 result = 'pass'
-            name = test_case.attrib['name'].split('/')
-            if not name[0] == 'ext4':
-                name.insert(0, 'ext4')
-            current = tree
-            for item in name:
-                if not item in current:
-                    current[item] = {}
-                current = current[item]
-            current['result'] = result
+            suite, test = test_case.attrib['name'].split('/')
+            if not suite in tree[fs][cfg]:
+                tree[fs][cfg][suite] = {}
+            tree[fs][cfg][suite][test] = {
+                'result'   : result,
+                # Save the path of the original XML results file as test
+                # artifacts
+                'artifacts': {'log': f},
+            }
         return tree
 
     def _convert_results_for_api(self, tree, name):
+        """Takes a tree containing the xfstests results and formats it as
+        KernelCI-API nodes.
+
+        Args:
+            tree (dict): xfstests results
+            name (str): name of the result root node
+
+        Returns:
+            A dict containing the KernelCI API nodes ready to be
+            submitted.
+        """
         if 'result' in tree:
             return {
                 'node': {
                     'name': name,
                     'result': tree['result'],
+                    'artifacts': tree.get('artifacts'),
                 },
                 'child_nodes':[]
             }
         else:
             child_nodes = []
             for child_name in tree:
-                child_nodes.append(self._convert_results_for_api(tree[child_name], child_name))
+                child_nodes.append(
+                    self._convert_results_for_api(tree[child_name], child_name))
             return {
                 'node':{
                     'name': name,
@@ -139,8 +173,13 @@ class Xfstests(ABC):
             A dict containing the test results formatted according to the
             KernelCI-API.
         """
-        tree_data = self._parse_xml_results(os.path.join(path, 'results.xml'))
-        api_data = self._convert_results_for_api(tree_data, 'fstests')
+        # Parse the test results
+        test_results = {}
+        for xmlfile in glob.glob(os.path.join(path, 'results-*.xml')):
+            test_results = self._parse_xml_test_results(xmlfile, test_results)
+
+        # Turn them into KernelCI-API data
+        api_data = self._convert_results_for_api(test_results, 'fstests')
         return api_data
 
     @abstractmethod
@@ -174,6 +213,17 @@ class Xfstests(ABC):
 
 
 class KvmXfstests(Xfstests):
+    def _results_cleanup(self):
+        """Removes all the results.xml files from the results virtual disk
+           (vdg).
+        """
+        for c in KvmXfstests.configs:
+            subprocess.run((f'debugfs -wR "rm ext4/results-{c}/results.xml" '
+                            f'{XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
+                           shell=True,
+                           check=True,
+                           capture_output=True)
+
     def run(self, kdir, testcase='', group=False, testcfg=''):
         cmd = ['kvm-xfstests']
         if testcfg:
@@ -188,6 +238,7 @@ class KvmXfstests(Xfstests):
             print(f"Kernel directory not found: {kdir}")
             return False
         try:
+            self._results_cleanup()
             result = subprocess.run(cmd, check=True)
             print(f"Test run success.")
             return True
@@ -197,11 +248,17 @@ class KvmXfstests(Xfstests):
 
     def get_xml_results(self, path):
         try:
-            result = subprocess.run([f'debugfs -R "dump ext4/results-4k/results.xml {path}/results.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'], check=True, shell=True)
-            print(f"XML file extracted in {path}.")
+            for c in KvmXfstests.configs:
+                result = subprocess.run(
+                    (f'debugfs -R "dump ext4/results-{c}/results.xml '
+                     f'{path}/results-{c}.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
+                    shell=True,
+                    check=True,
+                    capture_output=True)
             return True
         except Exception as e:
-            print("XML not found.", e)
+            # TBD: proper error handling
+            traceback.print_exc()
             return False
 
 
@@ -290,15 +347,21 @@ class GceXfstests(Xfstests):
                 check=True, env=self.gce_env,
                 capture_output=True, encoding='utf-8')
             m = re.match("Unpacked results at (.+)$", result.stdout)
-            result_file = os.path.join(m.group(1), 'ext4', 'results-4k', 'results.xml')
-            shutil.copy(result_file, path)
-            print(f"XML file extracted in {path}.")
         except subprocess.CalledProcessError as e:
             print("Error running gce-xfstests get-results:", e.stdout)
             return False
         except Exception:
             print("Error parsing gce-xfstests get-results output:", e.stdout)
             return False
+        for c in GceXfstests.configs:
+            result_file = os.path.join(m.group(1), 'ext4',
+                                       f'results-{c}', 'results.xml')
+            # Will most likely throw a few FileNotFoundError's
+            try:
+                shutil.copy(result_file, os.path.join(path, f'results-{c}.xml'))
+            except FileNotFoundError:
+                continue
+        print(f"XML files extracted to {path}")
         return True
 
 
@@ -348,18 +411,23 @@ class Job(BaseJob):
         if not test_ok:
             return fail_results
 
-        # TBD: Currently retrieves only one XML file (for 4k tests).
-        # extend it to get the results for all the test types
-        if not test.get_xml_results(src_path):
+        # TBD: If no output dir is specified, use the kernel src dir to
+        # store the test artifacts. Find a better default solution
+        if OUTPUT:
+            output = OUTPUT
+        else:
+            output = src_path
+        if not test.get_xml_results(output):
             return fail_results
         try:
-            results = test.parse_results(src_path)
+            results = test.parse_results(output)
+            # TBD: What does 'pass' mean in the root node?
             results['node']['result'] = 'pass'
             results['node']['state'] = 'done'
-            with open(os.path.join(src_path, 'results.json'), 'w') as result_file:
+            with open(os.path.join(output, 'results.json'), 'w') as result_file:
                 result_file.write(json.dumps(results))
         except Exception as e:
-            print(f"Exception raised while parsing results: {e}")
+            traceback.print_exc()
             return fail_results
         return results
 

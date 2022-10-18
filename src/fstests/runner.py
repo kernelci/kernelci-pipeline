@@ -8,8 +8,8 @@
 import os
 import sys
 import tempfile
-import json
-import requests
+import datetime
+import traceback
 
 import kernelci
 import kernelci.config
@@ -53,17 +53,10 @@ class FstestsRunner:
             'revision': tarball_node['revision'],
             'path': tarball_node['path'] + [plan_config.name],
         }
-        try:
-            return self._db.submit({'node': node}, True)[0], \
-                "Node created successfully"
-        except requests.exceptions.HTTPError as err:
-            err_msg = json.loads(err.response.content).get("detail", [])
-            return None, err_msg
+        return self._db.submit({'node': node}, True)[0]
 
     def _schedule_job(self, tarball_node, device_config, tmp):
-        node, msg = self._create_node(tarball_node, self._plan)
-        if not node:
-            return None, msg
+        node = self._create_node(tarball_node, self._plan)
         revision = node['revision']
         try:
             params = {
@@ -83,7 +76,7 @@ class FstestsRunner:
                 'testcase': self._testcase,
                 'testcfg': self._testcfg,
                 'testgroup': self._testgroup,
-                'workspace': tmp,
+                'output': tmp,
                 'xfstests_bld_path' : self._xfstests_bld_path
             }
             params.update(self._plan.params)
@@ -93,21 +86,23 @@ class FstestsRunner:
             output_file = self._runtime.save_file(job, tmp, params)
             job_result = self._runtime.submit(output_file)
         except Exception as e:
-            print(e)
-        return job_result, "Job scheduled successfully"
+            # TBD: proper error handling
+            traceback.print_exc()
+        return job_result
 
     def _run_single_job(self, tarball_node, device):
+        tstamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S-')
         try:
-            tmp = tempfile.TemporaryDirectory(dir=self._output)
-            job, msg = self._schedule_job(tarball_node, device, tmp.name)
-            if not job:
-                print(f"Failed to schedule job for {self._plan.name}. \
-Error: {msg}")
+            tmp = tempfile.mkdtemp(prefix=tstamp, dir=self._output)
+            job = self._schedule_job(tarball_node, device, tmp)
             print("Waiting...")
             job.wait()
             print("...done")
         except KeyboardInterrupt as e:
             print("Aborting.")
+        except Exception as e:
+            # TBD: proper error handling
+            traceback.print_exc()
         finally:
             return True
 
@@ -124,7 +119,8 @@ Error: {msg}")
         except KeyboardInterrupt as e:
             print('Stopping.')
         except Exception as e:
-            print('Error', e)
+            # TBD: proper error handling
+            traceback.print_exc()
         finally:
             self._db.unsubscribe(sub_id)
 
