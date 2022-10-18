@@ -66,7 +66,7 @@ class Job(BaseJob):
         tree = {}
         for test_case in root.iter('testcase'):
             if test_case.find('skipped') is not None:
-                result = None
+                result = 'skip'
             elif test_case.find('failure') is not None:
                 result = 'fail'
             else:
