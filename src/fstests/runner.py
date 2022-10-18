@@ -8,6 +8,8 @@
 import os
 import sys
 import tempfile
+import datetime
+import traceback
 
 import kernelci
 import kernelci.config
@@ -74,7 +76,7 @@ class FstestsRunner:
                 'testcase': self._testcase,
                 'testcfg': self._testcfg,
                 'testgroup': self._testgroup,
-                'workspace': tmp,
+                'output': tmp,
                 'xfstests_bld_path' : self._xfstests_bld_path
             }
             params.update(self._plan.params)
@@ -84,18 +86,23 @@ class FstestsRunner:
             output_file = self._runtime.save_file(job, tmp, params)
             job_result = self._runtime.submit(output_file)
         except Exception as e:
-            print(e)
+            # TBD: proper error handling
+            traceback.print_exc()
         return job_result
 
     def _run_single_job(self, tarball_node, device):
+        tstamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S-')
         try:
-            tmp = tempfile.TemporaryDirectory(dir=self._output)
-            job = self._schedule_job(tarball_node, device, tmp.name)
+            tmp = tempfile.mkdtemp(prefix=tstamp, dir=self._output)
+            job = self._schedule_job(tarball_node, device, tmp)
             print("Waiting...")
             job.wait()
             print("...done")
         except KeyboardInterrupt as e:
             print("Aborting.")
+        except Exception as e:
+            # TBD: proper error handling
+            traceback.print_exc()
         finally:
             return True
 
@@ -112,7 +119,8 @@ class FstestsRunner:
         except KeyboardInterrupt as e:
             print('Stopping.')
         except Exception as e:
-            print('Error', e)
+            # TBD: proper error handling
+            traceback.print_exc()
         finally:
             self._db.unsubscribe(sub_id)
 
