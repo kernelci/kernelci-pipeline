@@ -29,6 +29,23 @@ class Timeout:
         self._logger = Logger("config/logger.conf", "timeout")
         self._poll_period = args.poll_period
 
+    def _set_node_result(self, node):
+        """Set node result of timed out nodes
+        If the node is in 'running' state, set the node result to 'incomplete'.
+        When the timed out node is not in 'running' state, set the node result
+        to 'fail' if one of the child nodes failed. Otherwise, set the result
+        to 'pass'.
+        """
+        if node['state'] == 'running':
+            node['result'] = 'incomplete'
+            return node
+        failed_child_nodes = self._db.count_nodes({
+            'parent': node['_id'],
+            'result': 'fail'
+        })
+        node['result'] = 'fail' if failed_child_nodes else 'pass'
+        return node
+
     def _update_available_node(self, node, current_time):
         """Set node state to 'done' if holdoff is expired and all child nodes
         are completed.
@@ -54,6 +71,7 @@ class Timeout:
             else:
                 self._logger.log_message(logging.INFO,
                                          f"Completing the node {node['_id']}")
+                node = self._set_node_result(node)
                 node['state'] = 'done'
             self._db.submit({'node': node})
 
@@ -62,6 +80,7 @@ class Timeout:
         child_nodes = self._db.get_nodes({'parent': parent_id})
         for child in child_nodes:
             if child['state'] != 'done':
+                child = self._set_node_result(child)
                 child['state'] = 'done'
                 self._db.submit({'node': child})
                 self._update_child_nodes(child['_id'])
@@ -75,9 +94,10 @@ class Timeout:
             if current_time > expires:
                 self._logger.log_message(logging.INFO,
                                          f"Node timed-out {node['_id']}")
+                self._update_child_nodes(node['_id'])
+                node = self._set_node_result(node)
                 node['state'] = 'done'
                 self._db.submit({'node': node})
-                self._update_child_nodes(node['_id'])
             elif node['state'] == 'available':
                 self._update_available_node(node, current_time)
 
