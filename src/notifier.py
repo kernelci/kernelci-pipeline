@@ -44,6 +44,8 @@ class cmd_run(Command):
         result_map = {
             "pass": "Pass",
             "fail": "Fail",
+            "skip": "Skipped",
+            "incomplete": "Incomplete",
             None: "-",
         }
 
