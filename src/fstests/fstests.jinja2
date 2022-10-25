@@ -216,10 +216,9 @@ class Xfstests(ABC):
 
 
 class KvmXfstests(Xfstests):
-    def _results_cleanup(self):
-        """Removes all the results.xml files from the results virtual disk
-           (vdg).
-        """
+    def __del__(self):
+        """Clean up temporary resources."""
+        # Remove all the results.xml files from the results virtual disk (vdg)
         for c in KvmXfstests.configs:
             subprocess.run((f'debugfs -wR "rm ext4/results-{c}/results.xml" '
                             f'{XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
@@ -241,7 +240,7 @@ class KvmXfstests(Xfstests):
             print(f"Kernel directory not found: {kdir}")
             return False
         try:
-            self._results_cleanup()
+            #self._results_cleanup()
             result = subprocess.run(cmd, check=True)
             print(f"Test run success.")
             return True
