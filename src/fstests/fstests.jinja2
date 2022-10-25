@@ -31,6 +31,9 @@ import traceback
 import time
 import glob
 from abc import ABC, abstractmethod
+import datetime
+import random
+import string
 {%- endblock %}
 
 {% block python_job -%}
@@ -264,34 +267,62 @@ class KvmXfstests(Xfstests):
 
 class GceXfstests(Xfstests):
     def __init__(self):
-        self.vm_id = ''
         self.results_tarball = ''
-        # Check and load the GCE-specific parameters. These are defined
-        # as envvars for gce-xfstests
-        gce_params = {
-            'GCE_PROJECT': GCE_PROJECT,
-            'GCE_ZONE'   : GCE_ZONE,
-            'GS_BUCKET'  : GS_BUCKET,
-        }
+        self.kernelimg = ''
         self.gce_env = os.environ.copy()
-        for param, value in gce_params.items():
-            if value:
-                self.gce_env[param] = value
-            if param not in self.gce_env:
-                raise RuntimeError(f"{param.lower()} option or {param} envvar not defined")
+        self.unpacked_results = ''
+        if GCE_PROJECT:
+            self.gce_env['GCE_PROJECT'] = GCE_PROJECT
+        if GCE_ZONE:
+            self.gce_env['GCE_ZONE'] = GCE_ZONE
+        if GS_BUCKET:
+            self.gce_env['GS_BUCKET'] = GS_BUCKET
+        # Generate a (hopefully) unique name for the VM ID and results file
+        self.uniqstr = '{}-{}'.format(
+            datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
+            ''.join(random.choice(string.ascii_lowercase) for i in range(8)))
 
-    def _wait_for_completion(self, vm_id):
+    def __del__(self):
+        """Clean up local and remote temporary resources."""
+        # Delete resources stored in the GS bucket: kernel image and logs
+        if self.kernelimg:
+            subprocess.run(['gsutil', 'rm', self.kernelimg],
+                           check=True,
+                           env=self.gce_env,
+                           capture_output=True,
+                           encoding='utf-8')
+        if self.results_tarball:
+            subprocess.run(['gsutil', 'rm', self.results_tarball],
+                           check=True,
+                           env=self.gce_env,
+                           capture_output=True,
+                           encoding='utf-8')
+
+        # Delete local temporary files: unpacked results and results tarball.
+        # The tarball should be named something like
+        #     /tmp/results.<timestamp>-<unique-string>.<kernel_version>.tar.xz
+        # The directory containing the unpacked results will be:
+        #     /tmp/results-<timestamp>-<unique-string>
+        if self.unpacked_results:
+            shutil.rmtree(self.unpacked_results)
+            packed_results = self.unpacked_results.replace('-', '.', 1)
+            for f in glob.glob(f'{packed_results}.*'):
+                os.remove(f)
+
+    def _wait_for_completion(self):
         """Checks the existence of a test result tarball for VM_ID in the Google
         Storage bucket specified in the GS_BUCKET parameter. This method
         blocks until the result is generated or until a
-        KeyboardInterrupt is received.  """
-        m = re.search("-(\d{14})", vm_id)
-        tstamp = m.group(1)
+        KeyboardInterrupt is received.
+
+        Returns:
+            (str) The path of the results tarball as a GS link.
+        """
         try:
             while True:
                 result = subprocess.run(
                     ['gsutil', 'ls',
-                     f"gs://{self.gce_env['GS_BUCKET']}/results/results.*-{tstamp}.*"],
+                     f"gs://{self.gce_env['GS_BUCKET']}/results/results.{self.uniqstr}*"],
                     capture_output=True,
                     encoding='utf-8')
                 if result.returncode == 0:
@@ -300,11 +331,45 @@ class GceXfstests(Xfstests):
         except KeyboardInterrupt:
             return None
 
+    def _upload_kernel(self, src_path):
+        """Uploads the kernel binary found in the <src_path> kernel source tree
+        to the GS bucket (self.gce_env['GS_BUCKET']) with a unique file
+        name.
+
+        Args:
+            src_path (str): path of the kernel code tree that contains
+                the kernel image.
+
+        Returns:
+            The location of the uploaded file as a GS link (str) or None
+            in case of failure.
+        """
+        try:
+            os.chdir(src_path)
+        except FileNotFoundError:
+            print(f"Kernel directory not found: {src_path}")
+            return None
+        cmd = ['gce-xfstests', 'upload-kernel']
+        filename = f'kernels/bzImage-{self.uniqstr}'
+        cmd.append(filename)
+        subprocess.run(cmd, check=True,
+                       env=self.gce_env,
+                       capture_output=True,
+                       encoding='utf-8')
+        return f'gs://{self.gce_env["GS_BUCKET"]}/{filename}'
+
     def run(self, kdir, testcase='', group=False, testcfg=''):
-        # Currently uses gce-xfstests to run a single VM
         # TBD: Either use gce-xfstests LTM or use gcloud directly and
         # manage the concurrent VMs ourselves
+        self.kernelimg = self._upload_kernel(kdir)
+        if not self.kernelimg:
+            print((f"Error uploading the kernel image ({kdir}) "
+                   f"to the GS bucket {self.gce_env['GS_BUCKET']}"))
+            return False
         cmd = ['gce-xfstests']
+        cmd.extend(['--kernel', self.kernelimg])
+        vm_id = f'xfstests-{self.uniqstr}'
+        cmd.extend(['--instance-name', vm_id])
         if testcfg:
             cmd.extend(['-c', testcfg])
         if group:
@@ -312,22 +377,11 @@ class GceXfstests(Xfstests):
         else:
             cmd.append(testcase)
         try:
-            os.chdir(kdir)
-        except FileNotFoundError:
-            print(f"Kernel directory not found: {kdir}")
-            return False
-        try:
             result = subprocess.run(cmd, check=True,
                                     env=self.gce_env,
                                     capture_output=True, encoding='utf-8')
-            m = re.search("Launching ([a-zA-Z0-9\-]+) ", result.stdout)
-            if not m:
-                print("Error creating the VM or retrieving the ID.",
-                      f"output: {result.stdout}")
-                return False
-            self.vm_id = m.group(1)
-            print(f"Test started in VM {self.vm_id}. Waiting for it to finish")
-            self.results_tarball = self._wait_for_completion(self.vm_id)
+            print(f"Test started in VM {vm_id}. Waiting for it to finish")
+            self.results_tarball = self._wait_for_completion()
             return True if self.results_tarball else False
         except FileNotFoundError:
             print("Can't find the gce-xfstests script, check $PATH")
@@ -340,6 +394,10 @@ class GceXfstests(Xfstests):
             return False
 
     def get_xml_results(self, path):
+        # Get the results from the GS bucket (defined in the GS_BUCKET
+        # env var) using `gce-xfstests get-results --unpack`.
+        # That will download the results tarball to a temp dir and
+        # decompress it.
         try:
             result = subprocess.run(
                 ['gce-xfstests', 'get-results', '--unpack',
@@ -347,14 +405,16 @@ class GceXfstests(Xfstests):
                 check=True, env=self.gce_env,
                 capture_output=True, encoding='utf-8')
             m = re.match("Unpacked results at (.+)$", result.stdout)
+            self.unpacked_results = m.group(1)
         except subprocess.CalledProcessError as e:
             print("Error running gce-xfstests get-results:", e.stdout)
             return False
         except Exception:
             print("Error parsing gce-xfstests get-results output:", e.stdout)
             return False
+        # Copy the XML result files for all test configs to <path>
         for c in GceXfstests.configs:
-            result_file = os.path.join(m.group(1), 'ext4',
+            result_file = os.path.join(self.unpacked_results, 'ext4',
                                        f'results-{c}', 'results.xml')
             # Will most likely throw a few FileNotFoundError's
             try:
@@ -368,8 +428,15 @@ class GceXfstests(Xfstests):
 class Job(BaseJob):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if os.path.exists(self._workspace):
-            shutil.rmtree(self._workspace)
+        # Use a unique workspace dir for each run
+        uniqstr = '{}-{}'.format(
+            datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
+            ''.join(random.choice(string.ascii_lowercase) for i in range(8)))
+        self._workspace = os.path.join(self._workspace, uniqstr)
+
+    def __del__(self):
+        # Delete the workspace directory
+        shutil.rmtree(self._workspace, ignore_errors=True)
 
     # TBD: Implement
     def _check_parameters(self):
