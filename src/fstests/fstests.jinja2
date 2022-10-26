@@ -9,11 +9,11 @@ XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
 # TBD: For production, set the appropriate njobs number by default
 NJOBS             = '{{njobs if njobs is not none else 1}}'
 TESTCASE          = '{{testcase if testcase is not none else "smoke"}}'
-SKIP_BUILD        = '{{True if skip_build is not none else NONE}}'
-GCE               = '{{True if gce is not none else NONE}}'
-GCE_PROJECT       = '{{gce_project if gce_project is not none else NONE}}'
-GCE_ZONE          = '{{gce_zone if gce_zone is not none else NONE}}'
-GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else NONE}}'
+SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
+GCE               = '{{True if gce is not none else ""}}'
+GCE_PROJECT       = '{{gce_project if gce_project is not none else ""}}'
+GCE_ZONE          = '{{gce_zone if gce_zone is not none else ""}}'
+GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else ""}}'
 {% endblock %}
 
 {%- block python_imports %}
@@ -30,6 +30,8 @@ from abc import ABC, abstractmethod
 {%- endblock %}
 
 {% block python_job -%}
+
+POLL_PERIOD = 10        # seconds
 
 class Xfstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
@@ -48,8 +50,7 @@ class Xfstests(ABC):
         """
         try:
             os.chdir(kdir)
-            result = subprocess.run('kvm-xfstests install-kconfig',
-                                    check=True, shell=True)
+            result = subprocess.run(['kvm-xfstests', 'install-kconfig'], check=True)
             print(f"Kernel config done.")
             return True
         except Exception as e:
@@ -62,11 +63,14 @@ class Xfstests(ABC):
         Args:
             kdir (str): base directory of the kernel source
             njobs (int, optional): number of parallel build jobs
+
+        Returns:
+            True if the build process finished successfully, False otherwise.
         """
         try:
             os.chdir(kdir)
-            result = subprocess.run(f'make -j{njobs}', check=True, shell=True)
-            print(f"Kernel Build DONE.")
+            result = subprocess.run(['make', '-j', njobs], check=True)
+            print("Kernel Build DONE.")
             return True
         except Exception as e:
             print("Kernel build error:", e)
@@ -195,20 +199,25 @@ class GceXfstests(Xfstests):
     def __init__(self):
         self.vm_id = ''
         self.results_tarball = ''
+        # Check and load the GCE-specific parameters. These are defined
+        # as envvars for gce-xfstests
+        gce_params = {
+            'GCE_PROJECT': GCE_PROJECT,
+            'GCE_ZONE'   : GCE_ZONE,
+            'GS_BUCKET'  : GS_BUCKET,
+        }
         self.gce_env = os.environ.copy()
-        if GCE_PROJECT:
-            self.gce_env['GCE_PROJECT'] = GCE_PROJECT
-        if GCE_ZONE:
-            self.gce_env['GCE_ZONE'] = GCE_ZONE
-        if GS_BUCKET:
-            self.gce_env['GS_BUCKET'] = GS_BUCKET
+        for param, value in gce_params.items():
+            if value:
+                self.gce_env[param] = value
+            if param not in self.gce_env:
+                raise RuntimeError(f"{param.lower()} option or {param} envvar not defined")
 
     def _wait_for_completion(self, vm_id):
         """Checks the existence of a test result tarball for VM_ID in the Google
         Storage bucket specified in the GS_BUCKET parameter. This method
         blocks until the result is generated or until a
         KeyboardInterrupt is received.  """
-        poll_period = 10        # seconds
         m = re.search("-(\d{14})", vm_id)
         tstamp = m.group(1)
         try:
@@ -220,7 +229,7 @@ class GceXfstests(Xfstests):
                     encoding='utf-8')
                 if result.returncode == 0:
                     return result.stdout
-                time.sleep(poll_period)
+                time.sleep(POLL_PERIOD)
         except KeyboardInterrupt:
             return None
 
@@ -274,7 +283,7 @@ class GceXfstests(Xfstests):
             print("Error running gce-xfstests get-results:", e.stdout)
             return False
         except Exception:
-            traceback.print_exc()
+            print("Error parsing gce-xfstests get-results output:", e.stdout)
             return False
         return True
 
@@ -301,16 +310,16 @@ class Job(BaseJob):
         if not self._check_parameters():
              return fail_results
 
-        if GCE:
-            test = GceXfstests()
-        else:
-            test = KvmXfstests()
+        try:
+            test = GceXfstests() if GCE else KvmXfstests()
+        except RuntimeError as e:
+            self._logger.log_message(logging.ERROR, f"Error starting xfstests: {e}")
+            return fail_results
 
         # Config and build kernel
         if not SKIP_BUILD:
-            if not test.kernel_config(src_path):
-                return fail_results
-            if not test.kernel_build(src_path, NJOBS):
+            if not all([test.kernel_config(src_path),
+                        test.kernel_build(src_path, NJOBS)]):
                 return fail_results
         if not test.run(src_path, TESTCASE):
             return fail_results
