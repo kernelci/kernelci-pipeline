@@ -12,6 +12,8 @@ import os
 import re
 import sys
 import urllib.parse
+import json
+import requests
 
 import kernelci
 import kernelci.build
@@ -102,7 +104,7 @@ scp \
             if value
         }
 
-    def _send_node(self, checkout_node, describe, version, tarball):
+    def _update_node(self, checkout_node, describe, version, tarball):
         node = checkout_node.copy()
         node['revision'].update({
             'describe': describe,
@@ -115,7 +117,11 @@ scp \
             },
             'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
-        return self._db.submit({'node': node})
+        try:
+            self._db.submit({'node': node})
+        except requests.exceptions.HTTPError as err:
+            err_msg = json.loads(err.response.content).get("detail", [])
+            self.log.error(err_msg)
 
     def _setup(self, args):
         return self._db.subscribe_node_channel(filters={
@@ -145,7 +151,7 @@ scp \
             )
             version = self._get_version_from_describe()
             tarball = self._push_tarball(build_config, describe)
-            self._send_node(checkout_node, describe, version, tarball)
+            self._update_node(checkout_node, describe, version, tarball)
 
         return True
 
