@@ -367,6 +367,11 @@ class GceXfstests(Xfstests):
             encoding='utf-8')
         # Discard output header
         lines = result.stdout.splitlines()[6:]
+        # The quotas output of 'gcloud compute regions describe <region>'
+        # looks like this for each metric:
+        # - limit: <float>
+        #   metric: <string>
+        #   usage: <float>
         limit = 0
         metric = ''
         for l in lines:
