@@ -34,23 +34,19 @@ from abc import ABC, abstractmethod
 import datetime
 import random
 import string
+import math
+import threading
 {%- endblock %}
 
 {% block python_job -%}
 
-POLL_PERIOD = 10        # seconds
+POLL_PERIOD      = 10                   # seconds
+DEFAULT_MACHTYPE = 'e2-standard-2'
 
 class Xfstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
     results for xfstests.
     """
-
-    # xfstests fs configs
-    configs = ['4k',           '1k',       'ext3',        'encrypt',
-               'nojournal',    'ext3conv', 'adv',         'dioread_nolock',
-               'data_journal', 'bigalloc', 'bigalloc_1k',
-    ]
-
     def kernel_config(self, kdir):
         """Uses the kvm-xfstests script to configure a kernel for xfstests. The
         kernel source must be already decompressed in KDIR.
@@ -216,11 +212,26 @@ class Xfstests(ABC):
 
 
 class KvmXfstests(Xfstests):
+    # xfstests fs configs (key = config name, value = results path)
+    configs = {'4k'            : 'ext4/results-4k',
+               '1k'            : 'ext4/results-1k',
+               'ext3'          : 'ext4/results-ext3',
+               'encrypt'       : 'ext4/results-encrypt',
+               'nojournal'     : 'ext4/results-nojournal',
+               'ext3conv'      : 'ext4/results-ext3conv',
+               'adv'           : 'ext4/results-adv',
+               'dioread_nolock': 'ext4/results-dioread_nolock',
+               'data_journal'  : 'ext4/results-data_journal',
+               'bigalloc'      : 'ext4/results-bigalloc',
+               'bigalloc_1k'   : 'ext4/results-bigalloc_1k',
+    }
+
     def __del__(self):
         """Clean up temporary resources."""
         # Remove all the results.xml files from the results virtual disk (vdg)
-        for c in KvmXfstests.configs:
-            subprocess.run((f'debugfs -wR "rm ext4/results-{c}/results.xml" '
+        for path in self.configs.values():
+            xml_path = os.path.join(path, 'results.xml')
+            subprocess.run((f'debugfs -wR "rm {xml_path}" '
                             f'{XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
                            shell=True,
                            check=True,
@@ -240,7 +251,6 @@ class KvmXfstests(Xfstests):
             print(f"Kernel directory not found: {kdir}")
             return False
         try:
-            #self._results_cleanup()
             result = subprocess.run(cmd, check=True)
             print(f"Test run success.")
             return True
@@ -250,10 +260,11 @@ class KvmXfstests(Xfstests):
 
     def get_xml_results(self, path):
         try:
-            for c in KvmXfstests.configs:
+            for k, v in self.configs.items():
+                xml_path = os.path.join(v, 'results.xml')
                 result = subprocess.run(
-                    (f'debugfs -R "dump ext4/results-{c}/results.xml '
-                     f'{path}/results-{c}.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
+                    (f'debugfs -R "dump {xml_path} '
+                     f'{path}/results-{k}.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
                     shell=True,
                     check=True,
                     capture_output=True)
@@ -265,11 +276,36 @@ class KvmXfstests(Xfstests):
 
 
 class GceXfstests(Xfstests):
+    # xfstests fs configs (key = config name, value = results path)
+    configs = {'4k'            : 'ext4/results-4k',
+               '1k'            : 'ext4/results-1k',
+               'ext3'          : 'ext3/results-default',
+               'encrypt'       : 'ext4/results-encrypt',
+               'nojournal'     : 'ext4/results-nojournal',
+               'ext3conv'      : 'ext4/results-ext3conv',
+               'adv'           : 'ext4/results-adv',
+               'dioread_nolock': 'ext4/results-dioread_nolock',
+               'data_journal'  : 'ext4/results-data_journal',
+               'bigalloc'      : 'ext4/results-bigalloc',
+               'bigalloc_1k'   : 'ext4/results-bigalloc_1k',
+    }
+
     def __init__(self):
-        self.results_tarball = ''
+        # List of dicts. Each list element represents a shard (a
+        # distinct VM instance). The dict keys are:
+        #  - 'id': a unique numeric suffix for each shard in a group, starting from 0
+        #  - 'configs': list of fs configs to run in the shard
+        #  - 'results_tarball': GS bucket path of the results tarball
+        #  - 'unpacked_results': local path where the results are unpacked
+        #  - 'thread': thread that polls the VM
+        self.shards = []
         self.kernelimg = ''
+        # NOTE: this script will most likely be launched as a subprocess
+        # (see kernelci-core/kernelci/lab/shell.py), so these variables
+        # should be __exported__ in order to be visible here.
         self.gce_env = os.environ.copy()
-        self.unpacked_results = ''
+        if 'GCE_MACHTYPE' not in self.gce_env:
+            self.gce_env['GCE_MACHTYPE'] = DEFAULT_MACHTYPE
         if GCE_PROJECT:
             self.gce_env['GCE_PROJECT'] = GCE_PROJECT
         if GCE_ZONE:
@@ -283,30 +319,89 @@ class GceXfstests(Xfstests):
 
     def __del__(self):
         """Clean up local and remote temporary resources."""
-        # Delete resources stored in the GS bucket: kernel image and logs
+        # Delete kernel image stored in the GS bucket
         if self.kernelimg:
             subprocess.run(['gsutil', 'rm', self.kernelimg],
                            check=True,
                            env=self.gce_env,
                            capture_output=True,
                            encoding='utf-8')
-        if self.results_tarball:
-            subprocess.run(['gsutil', 'rm', self.results_tarball],
-                           check=True,
-                           env=self.gce_env,
-                           capture_output=True,
-                           encoding='utf-8')
+        for shard in self.shards:
+            # Delete shard logs in the GS bucket
+            if 'results_tarball' in shard:
+                subprocess.run(['gsutil', 'rm', shard['results_tarball']],
+                               check=True,
+                               env=self.gce_env,
+                               capture_output=True,
+                               encoding='utf-8')
+            # Delete local temporary files: unpacked results and results tarball.
+            # The tarball should be named something like
+            #     /tmp/results.<timestamp>-<unique-string>.<kernel_version>.tar.xz
+            # The directory containing the unpacked results will be:
+            #     /tmp/results-<timestamp>-<unique-string>
+            if 'unpacked_results' in shard:
+                shutil.rmtree(shard['unpacked_results'])
+                packed_results = shard['unpacked_results'].replace('-', '.', 1)
+                for f in glob.glob(f'{packed_results}.*'):
+                    os.remove(f)
 
-        # Delete local temporary files: unpacked results and results tarball.
-        # The tarball should be named something like
-        #     /tmp/results.<timestamp>-<unique-string>.<kernel_version>.tar.xz
-        # The directory containing the unpacked results will be:
-        #     /tmp/results-<timestamp>-<unique-string>
-        if self.unpacked_results:
-            shutil.rmtree(self.unpacked_results)
-            packed_results = self.unpacked_results.replace('-', '.', 1)
-            for f in glob.glob(f'{packed_results}.*'):
-                os.remove(f)
+    def _get_quotas(self):
+        """Gets the quotas for the GCE region that contains
+        self.gce_enc['GCE_ZONE'].
+
+        Returns:
+            A dict with keys = resource name, and values = quota,
+            None if failure
+        """
+        quotas = {}
+        # Get the region from the GCE_ZONE: the zone could be named as a
+        # region with an additional suffix
+        region = re.match('(\w+-\w+)', self.gce_env['GCE_ZONE']).group()
+        if not region:
+            print(f"Error: can't get GCE region from zone: {self.gce_env['GCE_ZONE']}")
+            return None
+        result = subprocess.run(
+            ['gcloud', 'compute', 'regions', 'describe', region],
+            check=True,
+            capture_output=True,
+            encoding='utf-8')
+        # Discard output header
+        lines = result.stdout.splitlines()[6:]
+        limit = 0
+        metric = ''
+        for l in lines:
+            m = re.match('\W+(\w+): (.*)', l)
+            if m:
+                if m.group(1) == 'limit':
+                   limit = float(m.group(2))
+                elif m.group(1) == 'metric':
+                   metric = m.group(2)
+                elif m.group(1) == 'usage':
+                   quotas[metric] = limit - float(m.group(2))
+        return quotas
+
+    def _get_machtype_cpus(self, machtype):
+        """Retrieves the number of CPUs for a specific GCE machine type.
+
+        Args:
+            machtype (str): the machine type to query
+
+        Returns:
+            The number of CPUs of the specified machine type (int)
+            None if failure
+        """
+        result = subprocess.run(['gcloud', 'compute', 'machine-types',
+                                 'describe', machtype],
+                                check=True,
+                                env=self.gce_env,
+                                capture_output=True,
+                                encoding='utf-8')
+        m = re.search("guestCpus: (\d+)", result.stdout)
+        if not m:
+            print((f"Error getting the number of CPUs for machine {machtype}: "
+                   f"{result.stdout}"))
+            return None
+        return int(m.group(1))
 
     def _wait_for_completion(self):
         """Checks the existence of a test result tarball for VM_ID in the Google
@@ -317,18 +412,34 @@ class GceXfstests(Xfstests):
         Returns:
             (str) The path of the results tarball as a GS link.
         """
-        try:
-            while True:
-                result = subprocess.run(
-                    ['gsutil', 'ls',
-                     f"gs://{self.gce_env['GS_BUCKET']}/results/results.{self.uniqstr}*"],
-                    capture_output=True,
-                    encoding='utf-8')
-                if result.returncode == 0:
-                    return result.stdout
-                time.sleep(POLL_PERIOD)
-        except KeyboardInterrupt:
-            return None
+        def poll_shard(shard):
+            pattern = f'gs://{self.gce_env["GS_BUCKET"]}/results/results.{self.uniqstr}-{shard["id"]}*'
+            print(f"wait for result: {pattern}")
+            try:
+                while True:
+                    result = subprocess.run(
+                        ['gsutil', 'ls', pattern],
+                        capture_output=True,
+                        encoding='utf-8')
+                    if result.returncode == 0:
+                        shard['results_tarball'] = result.stdout
+                        return
+                    time.sleep(POLL_PERIOD)
+            except KeyboardInterrupt:
+                return
+
+        # Poll all threads in parallel
+        for shard in self.shards:
+            if not 'configs' in shard:
+                break
+            shard['thread'] = threading.Thread(target=poll_shard, args=(shard,))
+            shard['thread'].start()
+        # Wait for all threads to finish
+        for shard in self.shards:
+            if not 'thread' in shard:
+                break
+            shard['thread'].join()
+        return True
 
     def _upload_kernel(self, src_path):
         """Uploads the kernel binary found in the <src_path> kernel source tree
@@ -358,69 +469,118 @@ class GceXfstests(Xfstests):
         return f'gs://{self.gce_env["GS_BUCKET"]}/{filename}'
 
     def run(self, kdir, testcase='', group=False, testcfg=''):
-        # TBD: Either use gce-xfstests LTM or use gcloud directly and
-        # manage the concurrent VMs ourselves
+        # Calculate the number of parallel shards depending on the
+        # region quotas
+        quotas = self._get_quotas()
+        if not quotas:
+            print("Error retrieving GCE quotas")
+            return False
+        max_shards = int(min(quotas['CPUS'],
+                             quotas['IN_USE_ADDRESSES'],
+                             quotas['SSD_TOTAL_GB']))
+
+        # Shard requirements: Every shard needs 2 vCPUs and SSD space of
+        # GCE_MIN_SCR_SIZE (100GB), see
+        # https://github.com/tytso/xfstests-bld/blob/34e81de235cf380d30082779aef5e6f50b9b9548/test-appliance/files/usr/local/lib/gce-server/util/gcp/gcp.go#L124
+        # and
+        # https://github.com/tytso/xfstests-bld/blob/34e81de235cf380d30082779aef5e6f50b9b9548/run-fstests/config.gce#L36
+        cpus = self._get_machtype_cpus(self.gce_env['GCE_MACHTYPE'])
+        max_shards = int(min(quotas['IN_USE_ADDRESSES'],
+                             quotas['CPUS'] / cpus,
+                             quotas['SSD_TOTAL_GB'] / 100))
+        for n in range(0, max_shards):
+            self.shards.append({'id': n})
+        if max_shards < 1:
+            print("GCE quota exceeded, can't start a VM")
+            return False
+
+        # Distribute the test configs into shards. If no test configs
+        # are specified, consider all available configs
+        if not testcfg:
+            cfgs = self.configs.keys()
+        else:
+            cfgs = re.split(r',\s*', testcfg)
+        cfgs_per_shard = math.ceil(len(cfgs) / max_shards)
+        shard_idx = 0
+        for c in cfgs:
+            if 'configs' in self.shards[shard_idx]:
+                self.shards[shard_idx]['configs'].append(c)
+            else:
+                self.shards[shard_idx]['configs'] = [c]
+            shard_idx = (shard_idx + 1) % max_shards
+
         self.kernelimg = self._upload_kernel(kdir)
         if not self.kernelimg:
             print((f"Error uploading the kernel image ({kdir}) "
                    f"to the GS bucket {self.gce_env['GS_BUCKET']}"))
             return False
-        cmd = ['gce-xfstests']
-        cmd.extend(['--kernel', self.kernelimg])
-        vm_id = f'xfstests-{self.uniqstr}'
-        cmd.extend(['--instance-name', vm_id])
-        if testcfg:
-            cmd.extend(['-c', testcfg])
-        if group:
-            cmd.extend(['-g', testcase])
-        else:
-            cmd.append(testcase)
-        try:
-            result = subprocess.run(cmd, check=True,
-                                    env=self.gce_env,
-                                    capture_output=True, encoding='utf-8')
-            print(f"Test started in VM {vm_id}. Waiting for it to finish")
-            self.results_tarball = self._wait_for_completion()
-            return True if self.results_tarball else False
-        except FileNotFoundError:
-            print("Can't find the gce-xfstests script, check $PATH")
-            return False
-        except subprocess.CalledProcessError as e:
-            print("Error running gce-xfstests:", e.stdout)
-            return False
-        except Exception:
-            traceback.print_exc()
-            return False
+
+        for shard in self.shards:
+            if not 'configs' in shard:
+                break
+            cmd = ['gce-xfstests']
+            cmd.extend(['--kernel', self.kernelimg])
+            vm_id = f'xfstests-{self.uniqstr}-{shard["id"]}'
+            cmd.extend(['--instance-name', vm_id])
+            cmd.extend(['-c', ','.join(shard['configs'])])
+            if group:
+                cmd.extend(['-g', testcase])
+            else:
+                cmd.append(testcase)
+            try:
+                result = subprocess.run(cmd, check=True,
+                                        env=self.gce_env,
+                                        capture_output=True, encoding='utf-8')
+                print(f"Test started in VM {vm_id}. Waiting for it to finish")
+            except FileNotFoundError:
+                print("Can't find the gce-xfstests script, check $PATH")
+                return False
+            except subprocess.CalledProcessError as e:
+                print("Error running gce-xfstests:", e.stdout)
+                return False
+            except Exception:
+                traceback.print_exc()
+                return False
+        return self._wait_for_completion()
+
 
     def get_xml_results(self, path):
         # Get the results from the GS bucket (defined in the GS_BUCKET
         # env var) using `gce-xfstests get-results --unpack`.
         # That will download the results tarball to a temp dir and
         # decompress it.
-        try:
-            result = subprocess.run(
-                ['gce-xfstests', 'get-results', '--unpack',
-                 os.path.basename(self.results_tarball)],
-                check=True, env=self.gce_env,
-                capture_output=True, encoding='utf-8')
-            m = re.match("Unpacked results at (.+)$", result.stdout)
-            self.unpacked_results = m.group(1)
-        except subprocess.CalledProcessError as e:
-            print("Error running gce-xfstests get-results:", e.stdout)
-            return False
-        except Exception:
-            print("Error parsing gce-xfstests get-results output:", e.stdout)
-            return False
-        # Copy the XML result files for all test configs to <path>
-        for c in GceXfstests.configs:
-            result_file = os.path.join(self.unpacked_results, 'ext4',
-                                       f'results-{c}', 'results.xml')
-            # Will most likely throw a few FileNotFoundError's
+        for shard in self.shards:
+            if 'results_tarball' not in shard:
+                break
             try:
-                shutil.copy(result_file, os.path.join(path, f'results-{c}.xml'))
-            except FileNotFoundError:
-                continue
-        print(f"XML files extracted to {path}")
+                result = subprocess.run(
+                    ['gce-xfstests', 'get-results', '--unpack',
+                     os.path.basename(shard['results_tarball'])],
+                    check=True, env=self.gce_env,
+                    capture_output=True, encoding='utf-8')
+                m = re.match("Unpacked results at (.+)$", result.stdout)
+                if not m:
+                    print(f"Error unpacking results: {result.stdout}")
+                    return False
+                shard['unpacked_results'] = m.group(1)
+            except subprocess.CalledProcessError as e:
+                print("Error running gce-xfstests get-results:", e.stdout)
+                return False
+            except Exception:
+                traceback.print_exc()
+                return False
+
+            # Copy the XML result files for all test configs to <path>
+            for c in shard['configs']:
+                result_file = os.path.join(shard['unpacked_results'],
+                                           self.configs[c],
+                                           'results.xml')
+                try:
+                    shutil.copy(result_file, os.path.join(path, f'results-{c}.xml'))
+                except FileNotFoundError:
+                    print(f"File not found: {result_file}")
+                    return False
+            print(f"XML files extracted to {path}")
         return True
 
 
@@ -437,7 +597,6 @@ class Job(BaseJob):
         # Delete the workspace directory
         shutil.rmtree(self._workspace, ignore_errors=True)
 
-    # TBD: Implement
     def _check_parameters(self):
         if TESTCASE and TESTGROUP:
             print("Error, can't specify both the testcase and the testgroup.")
