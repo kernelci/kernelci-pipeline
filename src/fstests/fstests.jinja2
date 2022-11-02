@@ -420,30 +420,31 @@ class GceXfstests(Xfstests):
         def poll_shard(shard):
             pattern = f'gs://{self.gce_env["GS_BUCKET"]}/results/results.{self.uniqstr}-{shard["id"]}*'
             print(f"wait for result: {pattern}")
-            try:
-                while True:
-                    result = subprocess.run(
-                        ['gsutil', 'ls', pattern],
-                        capture_output=True,
-                        encoding='utf-8')
-                    if result.returncode == 0:
-                        shard['results_tarball'] = result.stdout
-                        return
-                    time.sleep(POLL_PERIOD)
-            except KeyboardInterrupt:
-                return
+            while True:
+                result = subprocess.run(
+                    ['gsutil', 'ls', pattern],
+                    capture_output=True,
+                    encoding='utf-8')
+                if result.returncode == 0:
+                    shard['results_tarball'] = result.stdout
+                    return
+                time.sleep(POLL_PERIOD)
 
         # Poll all threads in parallel
         for shard in self.shards:
             if not 'configs' in shard:
                 break
-            shard['thread'] = threading.Thread(target=poll_shard, args=(shard,))
+            shard['thread'] = threading.Thread(target=poll_shard,
+                                               args=(shard,), daemon=True)
             shard['thread'].start()
         # Wait for all threads to finish
-        for shard in self.shards:
-            if not 'thread' in shard:
-                break
-            shard['thread'].join()
+        try:
+            for shard in self.shards:
+                if not 'thread' in shard:
+                    break
+                shard['thread'].join()
+        except KeyboardInterrupt:
+            return False
         return True
 
     def _upload_kernel(self, src_path):
