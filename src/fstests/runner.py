@@ -31,6 +31,7 @@ class FstestsRunner:
         self._gce_project = args.gce_project
         self._gce_zone = args.gce_zone
         self._gs_bucket = args.gs_bucket
+        self._max_shards = args.max_shards
         self._njobs = args.j
         self._node_id = args.node_id
         self._plan = configs['test_plans']['fstests']
@@ -65,6 +66,7 @@ class FstestsRunner:
                 'gce_project': self._gce_project,
                 'gce_zone': self._gce_zone,
                 'gs_bucket': self._gs_bucket,
+                'max_shards': self._max_shards,
                 'name': self._plan.name,
                 'njobs': self._njobs,
                 'node_id': node['_id'],
@@ -164,6 +166,10 @@ class cmd_run(Command):
             'name': '--gce',
             'help': "run the tests in a GCE VM instance. If not defined, use KVM locally",
             'action': 'store_true',
+        },
+        {
+            'name': '--max-shards',
+            'help': "maximum number of shards to use for GCE. If not defined it'll use the maximum available",
         },
         {
             'name': '--skip-build',
