@@ -78,14 +78,21 @@ class Trigger(Service):
             'poll_period': int(args.poll_period),
             'force': args.force,
             'build_configs_list': args.build_configs.split() or [],
+            'startup_delay': int(args.startup_delay or 0),
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list = (
+        poll_period, force, build_configs_list, startup_delay = (
             ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list'
+                'poll_period', 'force', 'build_configs_list', 'startup_delay'
             )
         )
+
+        if startup_delay:
+            self._logger.log_message(
+                logging.INFO, f"Delay: {startup_delay}s"
+            )
+            time.sleep(startup_delay)
 
         while True:
             self._iterate_build_configs(force, build_configs_list)
@@ -121,6 +128,11 @@ class cmd_run(Command):
         {
             'name': '--build-configs',
             'help': "List of build configurations to monitor",
+        },
+        {
+            'name': '--startup-delay',
+            'type': int,
+            'help': "Delay loop at startup by a number of seconds",
         },
     ]
 
