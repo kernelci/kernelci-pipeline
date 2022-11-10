@@ -9,6 +9,7 @@ GCE               = '{{True if gce is not none else ""}}'
 GCE_PROJECT       = '{{gce_project if gce_project is not none else ""}}'
 GCE_ZONE          = '{{gce_zone if gce_zone is not none else ""}}'
 GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else ""}}'
+KERNEL            = '{{kernel if kernel is not none else ""}}'
 MAX_SHARDS        = '{{max_shards if max_shards is not none else NONE}}'
 # TBD: For production, set the appropriate njobs number by default
 NJOBS             = '{{njobs if njobs is not none else 1}}'
@@ -238,7 +239,7 @@ class KvmXfstests(Xfstests):
                            check=True,
                            capture_output=True)
 
-    def run(self, kdir, testcase='', group=False, testcfg=''):
+    def run(self, kernel_path, testcase='', group=False, testcfg=''):
         cmd = ['kvm-xfstests']
         if testcfg:
             cmd.extend(['-c', testcfg])
@@ -246,11 +247,14 @@ class KvmXfstests(Xfstests):
             cmd.extend(['-g', testcase])
         else:
             cmd.append(testcase)
-        try:
-            os.chdir(kdir)
-        except FileNotFoundError:
-            print(f"Kernel directory not found: {kdir}")
-            return False
+        if os.path.isfile(kernel_path):
+            cmd.extend(['--kernel', kernel_path])
+        else:
+            try:
+                os.chdir(kernel_path)
+            except FileNotFoundError:
+                print(f"Kernel directory not found: {kernel_path}")
+                return False
         try:
             result = subprocess.run(cmd, check=True)
             print(f"Test run success.")
@@ -449,25 +453,27 @@ class GceXfstests(Xfstests):
             return False
         return True
 
-    def _upload_kernel(self, src_path):
-        """Uploads the kernel binary found in the <src_path> kernel source tree
-        to the GS bucket (self.gce_env['GS_BUCKET']) with a unique file
-        name.
+    def _upload_kernel(self, kernel_path):
+        """Uploads a kernel binary image to the GS bucket
+        (self.gce_env['GS_BUCKET']) with a unique file name.
 
         Args:
-            src_path (str): path of the kernel code tree that contains
-                the kernel image.
+            kernel_path (str): path to the kernel, either as an image or
+            as a decompressed source tree with a built kernel in it.
 
         Returns:
             The location of the uploaded file as a GS link (str) or None
             in case of failure.
         """
-        try:
-            os.chdir(src_path)
-        except FileNotFoundError:
-            print(f"Kernel directory not found: {src_path}")
-            return None
         cmd = ['gce-xfstests', 'upload-kernel']
+        if os.path.isfile(kernel_path):
+            cmd.extend(['--kernel', kernel_path])
+        else:
+            try:
+                os.chdir(kernel_path)
+            except FileNotFoundError:
+                print(f"Kernel directory not found: {kernel_path}")
+                return None
         filename = f'kernels/bzImage-{self.uniqstr}'
         cmd.append(filename)
         subprocess.run(cmd, check=True,
@@ -476,7 +482,7 @@ class GceXfstests(Xfstests):
                        encoding='utf-8')
         return f'gs://{self.gce_env["GS_BUCKET"]}/{filename}'
 
-    def run(self, kdir, testcase='', group=False, testcfg=''):
+    def run(self, kernel_path, testcase='', group=False, testcfg=''):
         # Calculate the number of parallel shards depending on the
         # region quotas
         quotas = self._get_quotas()
@@ -519,9 +525,9 @@ class GceXfstests(Xfstests):
                 self.shards[shard_idx]['configs'] = [c]
             shard_idx = (shard_idx + 1) % num_shards
 
-        self.kernelimg = self._upload_kernel(kdir)
+        self.kernelimg = self._upload_kernel(kernel_path)
         if not self.kernelimg:
-            print((f"Error uploading the kernel image ({kdir}) "
+            print((f"Error uploading the kernel image ({kernel_path}) "
                    f"to the GS bucket {self.gce_env['GS_BUCKET']}"))
             return False
 
@@ -602,12 +608,16 @@ class Job(BaseJob):
             datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
             ''.join(random.choice(string.ascii_lowercase) for i in range(8)))
         self._workspace = os.path.join(self._workspace, uniqstr)
+        os.makedirs(self._workspace)
 
     def __del__(self):
         # Delete the workspace directory
         shutil.rmtree(self._workspace, ignore_errors=True)
 
     def _check_parameters(self):
+        if not OUTPUT:
+            print("output parameter not specified")
+            return False
         if TESTCASE and TESTGROUP:
             print("Error, can't specify both the testcase and the testgroup.")
             return False
@@ -616,7 +626,7 @@ class Job(BaseJob):
             return False
         return True
 
-    def _run(self, src_path):
+    def _run(self, kernel_path):
         fail_results = {
             'node': {
                 'name': 'fstests',
@@ -637,31 +647,25 @@ class Job(BaseJob):
             test = KvmXfstests()
 
         # Config and build kernel
-        if not SKIP_BUILD:
-            if not all([test.kernel_config(src_path),
-                        test.kernel_build(src_path, NJOBS)]):
+        if not KERNEL or SKIP_BUILD:
+            if not all([test.kernel_config(kernel_path),
+                        test.kernel_build(kernel_path, NJOBS)]):
                 return fail_results
         if TESTGROUP:
-            test_ok = test.run(src_path, TESTGROUP, True, TESTCFG)
+            test_ok = test.run(kernel_path, TESTGROUP, True, TESTCFG)
         else:
-            test_ok = test.run(src_path, TESTCASE, False, TESTCFG)
+            test_ok = test.run(kernel_path, TESTCASE, False, TESTCFG)
         if not test_ok:
             return fail_results
 
-        # TBD: If no output dir is specified, use the kernel src dir to
-        # store the test artifacts. Find a better default solution
-        if OUTPUT:
-            output = OUTPUT
-        else:
-            output = src_path
-        if not test.get_xml_results(output):
+        if not test.get_xml_results(OUTPUT):
             return fail_results
         try:
-            results = test.parse_results(output)
+            results = test.parse_results(OUTPUT)
             # TBD: What does 'pass' mean in the root node?
             results['node']['result'] = 'pass'
             results['node']['state'] = 'done'
-            with open(os.path.join(output, 'results.json'), 'w') as result_file:
+            with open(os.path.join(OUTPUT, 'results.json'), 'w') as result_file:
                 result_file.write(json.dumps(results))
         except Exception as e:
             traceback.print_exc()
