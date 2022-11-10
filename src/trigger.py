@@ -68,22 +68,27 @@ class Trigger(Service):
         }
         self._db.submit({'node': node})
 
-    def _iterate_build_configs(self, force):
+    def _iterate_build_configs(self, force, build_configs_list):
         for name, config in self._build_configs.items():
-            self._run_trigger(config, force)
+            if not build_configs_list or name in build_configs_list:
+                self._run_trigger(config, force)
 
     def _setup(self, args):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
+            'build_configs_list': args.build_configs.split() or [],
         }
 
     def _run(self, ctx):
-        poll_period, force = (
-            ctx[key] for key in ('poll_period', 'force')
+        poll_period, force, build_configs_list = (
+            ctx[key] for key in (
+                'poll_period', 'force', 'build_configs_list'
+            )
         )
+
         while True:
-            self._iterate_build_configs(force)
+            self._iterate_build_configs(force, build_configs_list)
             if poll_period:
                 self._logger.log_message(
                     logging.INFO,
@@ -93,6 +98,7 @@ class Trigger(Service):
             else:
                 self._logger.log_message(logging.INFO, "Not polling.")
                 break
+
         return True
 
 
@@ -111,6 +117,10 @@ class cmd_run(Command):
             'name': '--force',
             'action': 'store_true',
             'help': "Always create a new checkout node",
+        },
+        {
+            'name': '--build-configs',
+            'help': "List of build configurations to monitor",
         },
     ]
 
