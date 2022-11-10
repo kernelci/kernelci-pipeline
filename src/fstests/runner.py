@@ -31,6 +31,7 @@ class FstestsRunner:
         self._gce_project = args.gce_project
         self._gce_zone = args.gce_zone
         self._gs_bucket = args.gs_bucket
+        self._kernel = args.kernel
         self._max_shards = args.max_shards
         self._njobs = args.j
         self._node_id = args.node_id
@@ -66,6 +67,7 @@ class FstestsRunner:
                 'gce_project': self._gce_project,
                 'gce_zone': self._gce_zone,
                 'gs_bucket': self._gs_bucket,
+                'kernel': self._kernel,
                 'max_shards': self._max_shards,
                 'name': self._plan.name,
                 'njobs': self._njobs,
@@ -166,6 +168,10 @@ class cmd_run(Command):
             'name': '--gce',
             'help': "run the tests in a GCE VM instance. If not defined, use KVM locally",
             'action': 'store_true',
+        },
+        {
+            'name': '--kernel',
+            'help': "path of the pre-built kernel image to use for the tests"
         },
         {
             'name': '--max-shards',
