@@ -21,16 +21,13 @@ from kernelci.cli import Args, Command, parse_opts
 import jinja2
 
 from kernelci_pipeline.email_sender import EmailSender
-from logger import Logger
+from base import Service
 
 
-class TestReport:
+class TestReport(Service):
 
     def __init__(self, configs, args):
-        self._logger = Logger("config/logger.conf", "test_report")
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
+        super().__init__(configs, args, 'test_report')
         self._email_sender = EmailSender(
             args.smtp_host, args.smtp_port,
             email_send_from='bot@kernelci.org',
@@ -112,47 +109,50 @@ Failed to create source tarball for {root_node['name']}")
         return content, subject
 
     def _send_report(self, subject, content):
-        try:
-            self._email_sender.create_and_send_email(
-                    subject, content
-                )
-        except Exception as err:
-            self._logger.log_message(logging.ERROR, err)
+        self._email_sender.create_and_send_email(subject, content)
 
-    def loop(self):
-        """Method to execute in a loop"""
-        sub_id = self._db.subscribe_node_channel(filters={
+
+class TestReportLoop(TestReport):
+    """Command to send reports upon receiving events in a loop"""
+
+    def _setup(self, args):
+        return self._db.subscribe_node_channel(filters={
             'name': 'checkout',
             'state': 'done',
         })
 
-        self._logger.log_message(logging.INFO, "Listening for completed nodes")
-        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
-        status = True
-
-        try:
-            while True:
-                root_node = self._db.receive_node(sub_id)
-                content, subject = self._get_report(root_node)
-                self._dump_report(content)
-                self._send_report(subject, content)
-        except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
-            status = False
-        finally:
+    def _stop(self, sub_id):
+        if sub_id:
             self._db.unsubscribe(sub_id)
 
-        return status
+    def _run(self, sub_id):
+        self.log.info("Listening for completed nodes")
+        self.log.info("Press Ctrl-C to stop.")
 
-    def run(self, node_id, dump, send):
-        """Method to execute for a single node"""
-        root_node = self._db.get_node(node_id)
-        content, subject = self._get_report(root_node)
-        if dump:
+        while True:
+            root_node = self._db.receive_node(sub_id)
+            content, subject = self._get_report(root_node)
             self._dump_report(content)
-        if send:
+            self._send_report(subject, content)
+
+        return True
+
+
+class TestReportSingle(TestReport):
+    """Command to send a report for a single root node"""
+
+    def _setup(self, args):
+        return {
+            'root_node': self._db.get_node(args.node_id),
+            'dump': args.dump,
+            'send': args.send,
+        }
+
+    def _run(self, ctx):
+        content, subject = self._get_report(ctx['root_node'])
+        if ctx['dump']:
+            self._dump_report(content)
+        if ctx['send']:
             self._send_report(subject, content)
         return True
 
@@ -174,7 +174,7 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        return TestReport(configs, args).loop()
+        return TestReportLoop(configs, args).run()
 
 
 class cmd_run(Command):
@@ -199,8 +199,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        test_report = TestReport(configs, args)
-        return test_report.run(args.node_id, args.dump, args.send)
+        return TestReportSingle(configs, args).run()
 
 
 if __name__ == '__main__':
