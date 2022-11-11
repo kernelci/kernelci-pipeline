@@ -124,6 +124,8 @@ class RunnerLoop(Runner):
             )
             return False
 
+        status = True
+
         try:
             while True:
                 checkout_node = self._db.receive_node(sub_id)
@@ -137,10 +139,12 @@ class RunnerLoop(Runner):
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
+            status = False
         finally:
             self._db.unsubscribe(sub_id)
             self._cleanup_paths()
-            return True
+
+        return status
 
 
 class RunnerSingleJob(Runner):
@@ -157,8 +161,8 @@ class RunnerSingleJob(Runner):
             self._logger.log_message(logging.ERROR, "Aborting.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
-        finally:
-            return True
+            return False
+        return True
 
     def _get_node_from_commit(self, git_commit):
         nodes = self._db.get_nodes({
