@@ -53,31 +53,30 @@ class Tarball(Service):
                 return config
 
     def _update_repo(self, config):
-        self._logger.log_message(logging.INFO,
-                                 f"Updating repo for {config.name}")
+        self.log.info(f"Updating repo for {config.name}")
         kernelci.build.update_repo(config, self._kdir)
-        self._logger.log_message(logging.INFO, "Repo updated")
+        self.log.info("Repo updated")
 
     def _make_tarball(self, config, describe):
         name = '-'.join(['linux', config.tree.name, config.branch, describe])
         tarball = f"{name}.tar.gz"
-        self._logger.log_message(logging.INFO, f"Making tarball {tarball}")
+        self.log.info(f"Making tarball {tarball}")
         output_path = os.path.relpath(self._output, self._kdir)
         cmd = """\
 set -e
 cd {kdir}
 git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
 """.format(kdir=self._kdir, name=name, output=output_path, tarball=tarball)
-        self._logger.log_message(logging.INFO, cmd)
+        self.log.info(cmd)
         kernelci.shell_cmd(cmd)
-        self._logger.log_message(logging.INFO, "Tarball created")
+        self.log.info("Tarball created")
         return tarball
 
     def _push_tarball(self, config, describe):
         # ToDo: kernelci.build.make_tarball()
         tarball = self._make_tarball(config, describe)
         tarball_path = os.path.join(self._output, tarball)
-        self._logger.log_message(logging.INFO, f"Uploading {tarball_path}")
+        self.log.info(f"Uploading {tarball_path}")
         # ToDo: self._storage.upload()
         cmd = """\
 scp \
@@ -90,7 +89,7 @@ scp \
 """.format(key=self._ssh_key, port=self._ssh_port, user=self._ssh_user,
            host=self._ssh_host, tarball=tarball_path)
         kernelci.shell_cmd(cmd)
-        self._logger.log_message(logging.INFO, "Upload complete")
+        self.log.info("Upload complete")
         os.unlink(tarball_path)
         return tarball
 
@@ -130,9 +129,8 @@ scp \
             self._db.unsubscribe(sub_id)
 
     def _run(self, sub_id):
-        self._logger.log_message(logging.INFO,
-                                 "Listening for new trigger events")
-        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self.log.info("Listening for new trigger events")
+        self.log.info("Press Ctrl-C to stop.")
 
         while True:
             checkout_node = self._db.receive_node(sub_id)
