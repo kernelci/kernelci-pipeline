@@ -26,86 +26,46 @@ class Timeout(Service):
         super().__init__(configs, args, 'timeout')
         self._poll_period = args.poll_period
 
-    def _set_node_result(self, node):
-        """Set node result of timed out nodes
-        If the node is in 'running' state, set the node result to 'incomplete'.
-        When the timed out node is not in 'running' state, set the node result
-        to 'fail' if one of the child nodes failed. Otherwise, set the result
-        to 'pass'.
-        """
-        if node['state'] == 'running':
-            node['result'] = 'incomplete'
-            return node
-        failed_child_nodes = self._db.count_nodes({
-            'parent': node['_id'],
-            'result': 'fail'
-        })
-        node['result'] = 'fail' if failed_child_nodes else 'pass'
-        return node
+    def _get_pending_nodes(self, filters=None):
+        nodes = {}
+        node_filters = filters.copy() if filters else {}
+        for state in ['running', 'available', 'closing']:
+            node_filters['state'] = state
+            for node in self._db.get_nodes(node_filters):
+                nodes[node['_id']] = node
+        return nodes
 
-    def _update_available_node(self, node, current_time):
-        """Set node state to 'done' if holdoff is expired and all child nodes
-        are completed.
-        Set node state to `closing` if holdoff is expired and at least one of
-        the child nodes is incomplete"""
-        holdoff_time = datetime.fromisoformat(node['holdoff'])
-        if current_time > holdoff_time:
-            self._logger.log_message(logging.INFO,
-                                     f"Holdoff reached for {node['_id']}")
-            total_child_nodes = self._db.count_nodes({
-                'parent': node['_id'],
-            })
+    def _node_timeout(self, pending_nodes, node):
+        node_id = node['_id']
+        child_nodes = self._get_pending_nodes({'parent': node_id})
+        for child_id, child in child_nodes.items():
+            if child_id not in pending_nodes:
+                self._node_timeout(pending_nodes, child)
+        self.log.info(f"TIMEOUT {node_id}")
+        done_node = node.copy()
+        done_node['state'] = 'done'
+        self._db.submit({'node': done_node})
 
-            completed_child_nodes = self._db.count_nodes({
-                'parent': node['_id'],
-                'state': 'done'
-            })
-
-            if total_child_nodes > completed_child_nodes:
-                self._logger.log_message(logging.INFO,
-                                         f"Closing the node {node['_id']}")
-                node['state'] = 'closing'
+    def _check_nodes(self, pending_nodes):
+        now = datetime.utcnow()
+        sleep = timedelta(seconds=self._poll_period)
+        for node_id, node in pending_nodes.items():
+            timeout = datetime.fromisoformat(node['timeout'])
+            if now > timeout:
+                self._node_timeout(pending_nodes, node)
             else:
-                self._logger.log_message(logging.INFO,
-                                         f"Completing the node {node['_id']}")
-                node = self._set_node_result(node)
-                node['state'] = 'done'
-            self._db.submit({'node': node})
-
-    def _update_child_nodes(self, parent_id):
-        """Set child node state to done when parent is timed out"""
-        child_nodes = self._db.get_nodes({'parent': parent_id})
-        for child in child_nodes:
-            if child['state'] != 'done':
-                child = self._set_node_result(child)
-                child['state'] = 'done'
-                self._db.submit({'node': child})
-                self._update_child_nodes(child['_id'])
-
-    def _update_timed_out_node(self, node):
-        """Set Node state to done if maximum wait time is over"""
-        if node['state'] != 'done':
-            current_time = datetime.utcnow()
-            expires = datetime.fromisoformat(node['timeout'])
-            if current_time > expires:
-                self._logger.log_message(logging.INFO,
-                                         f"Node timed-out {node['_id']}")
-                self._update_child_nodes(node['_id'])
-                node = self._set_node_result(node)
-                node['state'] = 'done'
-                self._db.submit({'node': node})
-            elif node['state'] == 'available':
-                self._update_available_node(node, current_time)
+                self.log.debug(f"{node_id} left: {timeout - now}")
+                sleep = min(sleep, timeout - now)
+        return sleep.total_seconds()
 
     def _run(self, ctx):
         self.log.info("Looking for timed-out nodes...")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            nodes = self._db.get_nodes()
-            for node in nodes:
-                self._update_timed_out_node(node)
-            sleep(self._poll_period)
+            pending_nodes = self._get_pending_nodes()
+            sleep_time = self._check_nodes(pending_nodes)
+            sleep(sleep_time)
 
         return True
 
@@ -118,7 +78,7 @@ class cmd_run(Command):
             'name': '--poll-period',
             'type': int,
             'help': "Polling period in seconds",
-            'default': 25,
+            'default': 60,
         },
     ]
 
