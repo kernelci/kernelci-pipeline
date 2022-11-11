@@ -51,9 +51,9 @@ class Notifier(Service):
             None: "-",
         }
 
-        self._logger.log_message(logging.INFO, "Listening for events... ")
-        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
-        self._logger.log_message(logging.INFO, log_fmt.format(
+        self.log.info("Listening for events... ")
+        self.log.info("Press Ctrl-C to stop.")
+        self.log.info(log_fmt.format(
             time="Time", commit="Commit", id="Node Id", state="State",
             result="Result", name="Name"
         ))
@@ -63,7 +63,7 @@ class Notifier(Service):
             event = self._db.get_event(sub_id)
             dt = datetime.datetime.fromisoformat(event['time'])
             obj = self._db.get_node_from_event(event)
-            self._logger.log_message(logging.INFO, log_fmt.format(
+            self.log.info(log_fmt.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
                 id=obj['_id'],
