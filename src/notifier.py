@@ -9,27 +9,29 @@
 import datetime
 import json
 import logging
-import os
 import sys
-import traceback
 
 import kernelci
 import kernelci.config
-import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from logger import Logger
+from base import Service
 
 
-class Notifier:
+class Notifier(Service):
 
     def __init__(self, configs, args):
-        self._logger = Logger("config/logger.conf", "notifier")
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
+        super().__init__(configs, args, 'notifier')
 
-    def run(self):
+    def _setup(self, args):
+        return self._db.subscribe('node')
+
+    def _stop(self, sub_id):
+        if sub_id:
+            self._db.unsubscribe(sub_id)
+        sys.stdout.flush()
+
+    def _run(self, sub_id):
         log_fmt = \
             "{time:26s}  {commit:12s}  {id:24}  " \
             "{state:9s}  {result:8s}  {name}"
@@ -49,40 +51,29 @@ class Notifier:
             None: "-",
         }
 
-        sub_id = self._db.subscribe('node')
         self._logger.log_message(logging.INFO, "Listening for events... ")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self._logger.log_message(logging.INFO, log_fmt.format(
+            time="Time", commit="Commit", id="Node Id", state="State",
+            result="Result", name="Name"
+        ))
         sys.stdout.flush()
-        status = True
 
-        try:
+        while True:
+            event = self._db.get_event(sub_id)
+            dt = datetime.datetime.fromisoformat(event['time'])
+            obj = self._db.get_node_from_event(event)
             self._logger.log_message(logging.INFO, log_fmt.format(
-                time="Time", commit="Commit", id="Node Id", state="State",
-                result="Result", name="Name"
+                time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                commit=obj['revision']['commit'][:12],
+                id=obj['_id'],
+                state=state_map[obj['state']],
+                result=result_map[obj['result']],
+                name=obj['name'],
             ))
-            while True:
-                event = self._db.get_event(sub_id)
-                dt = datetime.datetime.fromisoformat(event['time'])
-                obj = self._db.get_node_from_event(event)
-                self._logger.log_message(logging.INFO, log_fmt.format(
-                    time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                    commit=obj['revision']['commit'][:12],
-                    id=obj['_id'],
-                    state=state_map[obj['state']],
-                    result=result_map[obj['result']],
-                    name=obj['name'],
-                ))
-                sys.stdout.flush()
-        except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
-            status = False
-        finally:
-            self._db.unsubscribe(sub_id)
+            sys.stdout.flush()
 
-        sys.stdout.flush()
-        return status
+        return True
 
 
 class cmd_run(Command):
@@ -90,7 +81,7 @@ class cmd_run(Command):
     args = [Args.db_config]
 
     def __call__(self, configs, args):
-        return Notifier(configs, args).run()
+        return Notifier(configs, args).run(args)
 
 
 if __name__ == '__main__':
