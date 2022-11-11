@@ -29,10 +29,7 @@ class Trigger(Service):
         self._build_configs = configs['build_configs']
 
     def _log_revision(self, message, build_config, head_commit):
-        self._logger.log_message(
-            logging.INFO,
-            f"{message:32s} {build_config.name:32s} {head_commit}"
-        )
+        self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
     def _run_trigger(self, build_config, force):
         head_commit = kernelci.build.get_branch_head(build_config)
@@ -89,21 +86,16 @@ class Trigger(Service):
         )
 
         if startup_delay:
-            self._logger.log_message(
-                logging.INFO, f"Delay: {startup_delay}s"
-            )
+            self.log.info(f"Delay: {startup_delay}s")
             time.sleep(startup_delay)
 
         while True:
             self._iterate_build_configs(force, build_configs_list)
             if poll_period:
-                self._logger.log_message(
-                    logging.INFO,
-                    f"Sleeping for {poll_period}s"
-                )
+                self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
             else:
-                self._logger.log_message(logging.INFO, "Not polling.")
+                self.log.info("Not polling.")
                 break
 
         return True
