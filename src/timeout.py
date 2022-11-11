@@ -17,16 +17,13 @@ import kernelci.config
 import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from logger import Logger
+from base import Service
 
 
-class Timeout:
+class Timeout(Service):
 
     def __init__(self, configs, args):
-        self._logger = Logger("config/logger.conf", "timeout")
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
+        super().__init__(configs, args, 'timeout')
         self._poll_period = args.poll_period
 
     def _set_node_result(self, node):
@@ -100,25 +97,17 @@ class Timeout:
             elif node['state'] == 'available':
                 self._update_available_node(node, current_time)
 
-    def run(self):
-        self._logger.log_message(logging.INFO,
-                                 "Checking timed-out nodes...")
-        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
-        status = True
+    def _run(self, ctx):
+        self.log.info("Looking for timed-out nodes...")
+        self.log.info("Press Ctrl-C to stop.")
 
-        try:
-            while True:
-                nodes = self._db.get_nodes()
-                for node in nodes:
-                    self._update_timed_out_node(node)
-                sleep(self._poll_period)
-        except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
-            status = False
+        while True:
+            nodes = self._db.get_nodes()
+            for node in nodes:
+                self._update_timed_out_node(node)
+            sleep(self._poll_period)
 
-        return status
+        return True
 
 
 class cmd_run(Command):
