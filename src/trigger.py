@@ -24,29 +24,16 @@ import requests
 from logger import Logger
 
 
-class cmd_run(Command):
-    help = "Submit a new revision to the API based on local git repo"
-    args = [
-        Args.db_config,
-    ]
-    opt_args = [
-        {
-            'name': '--poll-period',
-            'type': int,
-            'help': "Polling period in seconds, disabled when set to 0",
-        },
-        {
-            'name': '--force',
-            'action': 'store_true',
-            'help': "Always create a new checkout node",
-        },
-    ]
+class Trigger():
 
-    def __init__(self, sub_parser, name):
-        super().__init__(sub_parser, name)
+    def __init__(self, configs, args):
         self._logger = Logger("config/logger.conf", "trigger")
-        self._build_configs = None
-        self._db = None
+        self._build_configs = configs['build_configs']
+        db_config = configs['db_configs'][args.db_config]
+        api_token = os.getenv('API_TOKEN')
+        self._db = kernelci.db.get_db(db_config, api_token)
+        self._poll_period = int(args.poll_period)
+        self._force = args.force
 
     def _log_revision(self, message, build_config, head_commit):
         self._logger.log_message(
@@ -92,33 +79,48 @@ class cmd_run(Command):
         for name, config in self._build_configs.items():
             self._run_trigger(config, force)
 
-    def __call__(self, configs, args):
-        self._build_configs = configs['build_configs']
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
-        poll_period = int(args.poll_period)
-
-        while True:
-            try:
-                self._iterate_build_configs(args.force)
-                if poll_period:
+    def run(self):
+        try:
+            while True:
+                self._iterate_build_configs(self._force)
+                if self._poll_period:
                     self._logger.log_message(
                         logging.INFO,
-                        f"Sleeping for {poll_period}s"
+                        f"Sleeping for {self._poll_period}s"
                     )
-                    time.sleep(poll_period)
+                    time.sleep(self._poll_period)
                 else:
                     self._logger.log_message(logging.INFO, "Not polling.")
                     break
-            except KeyboardInterrupt:
-                self._logger.log_message(logging.INFO, "Stopping.")
-                break
-            except Exception:
-                self._logger.log_message(logging.ERROR, traceback.format_exc())
-                return False
+        except KeyboardInterrupt:
+            self._logger.log_message(logging.INFO, "Stopping.")
+        except Exception:
+            self._logger.log_message(logging.ERROR, traceback.format_exc())
+            return False
 
         return True
+
+
+class cmd_run(Command):
+    help = "Submit a new revision to the API based on local git repo"
+    args = [
+        Args.db_config,
+    ]
+    opt_args = [
+        {
+            'name': '--poll-period',
+            'type': int,
+            'help': "Polling period in seconds, disabled when set to 0",
+        },
+        {
+            'name': '--force',
+            'action': 'store_true',
+            'help': "Always create a new checkout node",
+        },
+    ]
+
+    def __call__(self, configs, args):
+        return Trigger(configs, args).run()
 
 
 if __name__ == '__main__':
