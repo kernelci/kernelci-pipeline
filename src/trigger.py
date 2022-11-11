@@ -8,10 +8,8 @@
 
 import json
 import logging
-import os
 import sys
 import time
-import traceback
 
 import kernelci
 import kernelci.build
@@ -21,17 +19,14 @@ from kernelci.cli import Args, Command, parse_opts
 import urllib
 import requests
 
-from logger import Logger
+from base import Service
 
 
-class Trigger():
+class Trigger(Service):
 
     def __init__(self, configs, args):
-        self._logger = Logger("config/logger.conf", "trigger")
+        super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
         self._poll_period = int(args.poll_period)
         self._force = args.force
 
@@ -79,24 +74,18 @@ class Trigger():
         for name, config in self._build_configs.items():
             self._run_trigger(config, force)
 
-    def run(self):
-        try:
-            while True:
-                self._iterate_build_configs(self._force)
-                if self._poll_period:
-                    self._logger.log_message(
-                        logging.INFO,
-                        f"Sleeping for {self._poll_period}s"
-                    )
-                    time.sleep(self._poll_period)
-                else:
-                    self._logger.log_message(logging.INFO, "Not polling.")
-                    break
-        except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
-            return False
+    def _run(self, ctx):
+        while True:
+            self._iterate_build_configs(self._force)
+            if self._poll_period:
+                self._logger.log_message(
+                    logging.INFO,
+                    f"Sleeping for {self._poll_period}s"
+                )
+                time.sleep(self._poll_period)
+            else:
+                self._logger.log_message(logging.INFO, "Not polling.")
+                break
 
         return True
 
@@ -120,7 +109,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return Trigger(configs, args).run()
+        return Trigger(configs, args).run(args)
 
 
 if __name__ == '__main__':
