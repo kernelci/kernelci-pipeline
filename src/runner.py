@@ -45,8 +45,8 @@ class Runner(Service):
         return self._db.submit({'node': node})[0]
 
     def _generate_job(self, node, plan_config, device_config, tmp):
-        self._logger.log_message(logging.INFO, "Generating job")
-        self._logger.log_message(logging.INFO, f"tmp: {tmp}")
+        self.log.info("Generating job")
+        self.log.info(f"tmp: {tmp}")
         revision = node['revision']
         params = {
             'db_config_yaml': self._db_config_yaml,
@@ -65,21 +65,21 @@ class Runner(Service):
             params, device_config, plan_config, templates_paths=templates
         )
         output_file = self._runtime.save_file(job, tmp, params)
-        self._logger.log_message(logging.INFO, f"output_file: {output_file}")
+        self.log.info(f"output_file: {output_file}")
         return output_file
 
     def _schedule_test(self, checkout_node, plan, device):
-        self._logger.log_message(logging.INFO, "Tarball: {}".format(
+        self.log.info("Tarball: {}".format(
             checkout_node['artifacts']['tarball']
         ))
 
-        self._logger.log_message(logging.INFO, "Creating test node")
+        self.log.info("Creating test node")
         node = self._create_node(checkout_node, plan)
 
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = self._generate_job(node, plan, device, tmp.name)
 
-        self._logger.log_message(logging.INFO, "Running test")
+        self.log.info("Running test")
         job = self._runtime.submit(output_file)
         return job, tmp
 
@@ -113,18 +113,14 @@ class RunnerLoop(Runner):
         self._cleanup_paths()
 
     def _run(self, sub_id):
-        self._logger.log_message(logging.INFO,
-                                 "Listening for complete checkout events")
-        self._logger.log_message(logging.INFO,
-                                 "Press Ctrl-C to stop.")
+        self.log.info("Listening for complete checkout events")
+        self.log.info("Press Ctrl-C to stop.")
 
         # ToDo: iterate over device types for the current runtime
         device_type = self._runtime.config.lab_type
         device = self._device_configs.get(device_type)
         if device is None:
-            self._logger.log_message(
-                logging.ERROR, "Device type not found: {device_type}"
-            )
+            self.log.error("Device type not found: {device_type}")
             return False
 
         while True:
@@ -168,9 +164,9 @@ class RunnerSingleJob(Runner):
         node, plan, device = (ctx[key] for key in ('node', 'plan', 'device'))
         job, tmp = self._schedule_test(node, plan, device)
         if self._runtime.config.lab_type == 'shell':
-            self._logger.log_message(logging.INFO, "Waiting...")
+            self.log.info("Waiting...")
             job.wait()
-            self._logger.log_message(logging.INFO, "...done")
+            self.log.info("...done")
         return True
 
 
