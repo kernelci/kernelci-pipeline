@@ -9,6 +9,7 @@
 
 import logging
 import logging.config
+import traceback
 
 
 class Logger:
@@ -27,3 +28,21 @@ class Logger:
     def log_message(self, log_level, msg):
         """Creates a log record with provided log level and message"""
         self._logger.log(log_level, msg)
+
+    def debug(self, msg):
+        self.log_message(logging.DEBUG, msg)
+
+    def info(self, msg):
+        self.log_message(logging.INFO, msg)
+
+    def warning(self, msg):
+        self.log_message(logging.WARNING, msg)
+
+    def error(self, msg):
+        self.log_message(logging.ERROR, msg)
+
+    def critical(self, msg):
+        self.log_message(logging.CRITICAL, msg)
+
+    def traceback(self):
+        self.error(traceback.format_exc())
