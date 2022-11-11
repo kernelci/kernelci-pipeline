@@ -27,10 +27,10 @@ from logger import Logger
 class TestReport:
 
     def __init__(self, configs, args):
-        self._db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "test_report")
+        db_config = configs['db_configs'][args.db_config]
+        api_token = os.getenv('API_TOKEN')
+        self._db = kernelci.db.get_db(db_config, api_token)
         self._email_sender = EmailSender(
             args.smtp_host, args.smtp_port,
             email_send_from='bot@kernelci.org',
@@ -128,6 +128,7 @@ Failed to create source tarball for {root_node['name']}")
 
         self._logger.log_message(logging.INFO, "Listening for completed nodes")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        status = True
 
         try:
             while True:
@@ -139,8 +140,11 @@ Failed to create source tarball for {root_node['name']}")
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
+            status = False
         finally:
             self._db.unsubscribe(sub_id)
+
+        return status
 
     def run(self, node_id, dump, send):
         """Method to execute for a single node"""
@@ -150,6 +154,7 @@ Failed to create source tarball for {root_node['name']}")
             self._dump_report(content)
         if send:
             self._send_report(subject, content)
+        return True
 
 
 class cmd_loop(Command):
@@ -169,8 +174,7 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        test_report = TestReport(configs, args)
-        test_report.loop()
+        return TestReport(configs, args).loop()
 
 
 class cmd_run(Command):
@@ -196,7 +200,7 @@ class cmd_run(Command):
 
     def __call__(self, configs, args):
         test_report = TestReport(configs, args)
-        test_report.run(args.node_id, args.dump, args.send)
+        return test_report.run(args.node_id, args.dump, args.send)
 
 
 if __name__ == '__main__':
