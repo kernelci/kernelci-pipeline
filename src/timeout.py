@@ -23,10 +23,10 @@ from logger import Logger
 class Timeout:
 
     def __init__(self, configs, args):
-        self._db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(self._db_config, api_token)
         self._logger = Logger("config/logger.conf", "timeout")
+        db_config = configs['db_configs'][args.db_config]
+        api_token = os.getenv('API_TOKEN')
+        self._db = kernelci.db.get_db(db_config, api_token)
         self._poll_period = args.poll_period
 
     def _set_node_result(self, node):
@@ -104,6 +104,7 @@ class Timeout:
         self._logger.log_message(logging.INFO,
                                  "Checking timed-out nodes...")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        status = True
 
         try:
             while True:
@@ -115,6 +116,9 @@ class Timeout:
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
+            status = False
+
+        return status
 
 
 class cmd_run(Command):
@@ -130,8 +134,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        timeout = Timeout(configs, args)
-        timeout.run()
+        return Timeout(configs, args).run()
 
 
 if __name__ == '__main__':
