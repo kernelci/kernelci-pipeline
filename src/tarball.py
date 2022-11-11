@@ -11,16 +11,14 @@ import logging
 import os
 import re
 import sys
-import traceback
 import urllib.parse
 
 import kernelci
 import kernelci.build
 import kernelci.config
-import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from logger import Logger
+from base import Service
 
 KVER_RE = re.compile(
     r'^v(?P<version>[\d]+)\.'
@@ -30,14 +28,11 @@ KVER_RE = re.compile(
 )
 
 
-class Tarball:
+class Tarball(Service):
 
     def __init__(self, configs, args):
-        self._logger = Logger("config/logger.conf", "tarball")
+        super().__init__(configs, args, 'tarball')
         self._build_configs = configs['build_configs']
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(db_config, api_token)
         self._kdir = args.kdir
         self._output = args.output
         if not os.path.exists(self._output):
@@ -123,41 +118,38 @@ scp \
         })
         return self._db.submit({'node': node})
 
-    def run(self):
-        sub_id = self._db.subscribe_node_channel(filters={
+    def _setup(self, args):
+        return self._db.subscribe_node_channel(filters={
             'op': 'created',
             'name': 'checkout',
             'state': 'running',
         })
+
+    def _stop(self, sub_id):
+        if sub_id:
+            self._db.unsubscribe(sub_id)
+
+    def _run(self, sub_id):
         self._logger.log_message(logging.INFO,
                                  "Listening for new trigger events")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
-        status = True
 
-        try:
-            while True:
-                checkout_node = self._db.receive_node(sub_id)
+        while True:
+            checkout_node = self._db.receive_node(sub_id)
 
-                build_config = self._find_build_config(checkout_node)
-                if build_config is None:
-                    continue
+            build_config = self._find_build_config(checkout_node)
+            if build_config is None:
+                continue
 
-                self._update_repo(build_config)
-                describe = kernelci.build.git_describe(
-                    build_config.tree.name, self._kdir
-                )
-                version = self._get_version_from_describe()
-                tarball = self._push_tarball(build_config, describe)
-                self._send_node(checkout_node, describe, version, tarball)
-        except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
-            status = False
-        finally:
-            self._db.unsubscribe(sub_id)
+            self._update_repo(build_config)
+            describe = kernelci.build.git_describe(
+                build_config.tree.name, self._kdir
+            )
+            version = self._get_version_from_describe()
+            tarball = self._push_tarball(build_config, describe)
+            self._send_node(checkout_node, describe, version, tarball)
 
-        return status
+        return True
 
 
 class cmd_run(Command):
@@ -191,7 +183,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return Tarball(configs, args).run()
+        return Tarball(configs, args).run(args)
 
 
 if __name__ == '__main__':
