@@ -33,10 +33,11 @@ KVER_RE = re.compile(
 class Tarball:
 
     def __init__(self, configs, args):
+        self._logger = Logger("config/logger.conf", "tarball")
         self._build_configs = configs['build_configs']
-        self._db_config = configs['db_configs'][args.db_config]
+        db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(self._db_config, api_token)
+        self._db = kernelci.db.get_db(db_config, api_token)
         self._kdir = args.kdir
         self._output = args.output
         if not os.path.exists(self._output):
@@ -47,7 +48,6 @@ class Tarball:
         self._ssh_user = args.ssh_user
         self._ssh_host = args.ssh_host
         self._storage_url = args.storage_url
-        self._logger = Logger("config/logger.conf", "tarball")
 
     def _find_build_config(self, node):
         revision = node['revision']
@@ -132,6 +132,7 @@ scp \
         self._logger.log_message(logging.INFO,
                                  "Listening for new trigger events")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        status = True
 
         try:
             while True:
@@ -152,8 +153,11 @@ scp \
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
+            status = False
         finally:
             self._db.unsubscribe(sub_id)
+
+        return status
 
 
 class cmd_run(Command):
@@ -187,8 +191,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        Tarball(configs, args).run()
-        return True
+        return Tarball(configs, args).run()
 
 
 if __name__ == '__main__':
