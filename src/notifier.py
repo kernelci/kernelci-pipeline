@@ -21,15 +21,15 @@ from kernelci.cli import Args, Command, parse_opts
 from logger import Logger
 
 
-class cmd_run(Command):
-    help = "Listen for events and report them on stdout"
-    args = [Args.db_config]
+class Notifier:
 
-    def __init__(self, sub_parser, name):
-        super().__init__(sub_parser, name)
+    def __init__(self, configs, args):
         self._logger = Logger("config/logger.conf", "notifier")
+        db_config = configs['db_configs'][args.db_config]
+        api_token = os.getenv('API_TOKEN')
+        self._db = kernelci.db.get_db(db_config, api_token)
 
-    def __call__(self, configs, args):
+    def run(self):
         log_fmt = \
             "{time:26s}  {commit:12s}  {id:24}  " \
             "{state:9s}  {result:8s}  {name}"
@@ -49,14 +49,11 @@ class cmd_run(Command):
             None: "-",
         }
 
-        db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        db = kernelci.db.get_db(db_config, api_token)
-
-        sub_id = db.subscribe('node')
+        sub_id = self._db.subscribe('node')
         self._logger.log_message(logging.INFO, "Listening for events... ")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
+        status = True
 
         try:
             self._logger.log_message(logging.INFO, log_fmt.format(
@@ -64,9 +61,9 @@ class cmd_run(Command):
                 result="Result", name="Name"
             ))
             while True:
-                event = db.get_event(sub_id)
+                event = self._db.get_event(sub_id)
                 dt = datetime.datetime.fromisoformat(event['time'])
-                obj = db.get_node_from_event(event)
+                obj = self._db.get_node_from_event(event)
                 self._logger.log_message(logging.INFO, log_fmt.format(
                     time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                     commit=obj['revision']['commit'][:12],
@@ -80,10 +77,20 @@ class cmd_run(Command):
             self._logger.log_message(logging.INFO, "Stopping.")
         except Exception:
             self._logger.log_message(logging.ERROR, traceback.format_exc())
+            status = False
         finally:
-            db.unsubscribe(sub_id)
+            self._db.unsubscribe(sub_id)
 
         sys.stdout.flush()
+        return status
+
+
+class cmd_run(Command):
+    help = "Listen for events and report them on stdout"
+    args = [Args.db_config]
+
+    def __call__(self, configs, args):
+        return Notifier(configs, args).run()
 
 
 if __name__ == '__main__':
