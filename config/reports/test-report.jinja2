@@ -11,6 +11,7 @@ Describe: {{ root.revision.describe }}
 URL:      {{ root.revision.url }}
 SHA1:     {{ root.revision.commit }}
 
+{%- if groups.items() %}
 {{ '%-15s %s %-8s %s %-8s %s %-8s'|format(
 "Name", "|", "Result", "|", "Total", "|", "Failures") }}
 {{ '%s%s%s%s%s%s%s'|format(
@@ -37,3 +38,4 @@ Failing tests
 {% endfor %}
 {%- endif %}
 {%- endfor %}
+{%- endif %}
