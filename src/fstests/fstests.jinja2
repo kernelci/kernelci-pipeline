@@ -242,11 +242,11 @@ class KvmXfstests(Xfstests):
     def run(self, kernel_path, testcase='', group=False, testcfg=''):
         cmd = ['kvm-xfstests']
         if testcfg:
-            cmd.extend(['-c', testcfg])
+            cmd.extend(['-c', testcfg.replace(' ', '')])
         if group:
-            cmd.extend(['-g', testcase])
+            cmd.extend(['-g', testcase.replace(' ', '')])
         else:
-            cmd.append(testcase)
+            cmd.append(testcase.replace(' ', ''))
         if os.path.isfile(kernel_path):
             cmd.extend(['--kernel', kernel_path])
         else:
@@ -515,7 +515,7 @@ class GceXfstests(Xfstests):
         if not testcfg:
             cfgs = self.configs.keys()
         else:
-            cfgs = re.split(r',\s*', testcfg)
+            cfgs = re.split(r',', testcfg.replace(' ', ''))
         cfgs_per_shard = math.ceil(len(cfgs) / num_shards)
         shard_idx = 0
         for c in cfgs:
@@ -540,9 +540,9 @@ class GceXfstests(Xfstests):
             cmd.extend(['--instance-name', vm_id])
             cmd.extend(['-c', ','.join(shard['configs'])])
             if group:
-                cmd.extend(['-g', testcase])
+                cmd.extend(['-g', testcase.replace(' ', '')])
             else:
-                cmd.append(testcase)
+                cmd.append(testcase.replace(' ', ''))
             try:
                 result = subprocess.run(cmd, check=True,
                                         env=self.gce_env,
