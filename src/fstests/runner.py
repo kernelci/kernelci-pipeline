@@ -37,6 +37,10 @@ class FstestsRunner:
         self._node_id = args.node_id
         self._plan = configs['test_plans']['fstests']
         self._skip_build = args.skip_build
+        self._ssh_host = args.ssh_host
+        self._ssh_key = args.ssh_key
+        self._ssh_port = args.ssh_port
+        self._ssh_user = args.ssh_user
         self._src_dir = args.src_dir
         self._output = args.output
         self._testcase = args.testcase
@@ -75,6 +79,10 @@ class FstestsRunner:
                 'revision': revision,
                 'runtime': self._runtime.config.lab_type,
                 'skip_build': self._skip_build,
+                'ssh_host': self._ssh_host,
+                'ssh_key': self._ssh_key,
+                'ssh_port': self._ssh_port,
+                'ssh_user': self._ssh_user,
                 'src_dir': self._src_dir,
                 'tarball_url': node['artifacts']['tarball'],
                 'testcase': self._testcase,
@@ -181,6 +189,23 @@ class cmd_run(Command):
             'name': '--skip-build',
             'help': "don't configure or build the kernel.",
             'action': 'store_true',
+        },
+        {
+            'name': '--ssh-host',
+            'help': "Storage SSH host",
+        },
+        {
+            'name': '--ssh-key',
+            'help': "Path to the ssh key for uploading to storage",
+        },
+        {
+            'name': '--ssh-port',
+            'help': "Storage SSH port number",
+            'type': int,
+        },
+        {
+            'name': '--ssh-user',
+            'help': "Storage SSH user name",
         },
         {
             'name': '--testcase',

@@ -15,6 +15,10 @@ MAX_SHARDS        = '{{max_shards if max_shards is not none else NONE}}'
 NJOBS             = '{{njobs if njobs is not none else 1}}'
 OUTPUT            = '{{output if output is not none else ""}}'
 SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
+SSH_HOST          = '{{ssh_host if ssh_host is not none else ""}}'
+SSH_KEY           = '{{ssh_key if ssh_key is not none else ""}}'
+SSH_PORT          = '{{ssh_port if ssh_port is not none else ""}}'
+SSH_USER          = '{{ssh_user if ssh_user is not none else ""}}'
 TESTCASE          = '{{testcase if testcase is not none else ""}}'
 TESTCFG           = '{{testcfg if testcfg is not none else ""}}'
 TESTGROUP         = '{{testgroup if testgroup is not none else ""}}'
@@ -49,6 +53,10 @@ class Xfstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
     results for xfstests.
     """
+    def __del__(self):
+        if OUTPUT:
+            shutil.rmtree(OUTPUT)
+
     def kernel_config(self, kdir):
         """Uses the kvm-xfstests script to configure a kernel for xfstests. The
         kernel source must be already decompressed in KDIR.
@@ -127,7 +135,8 @@ class Xfstests(ABC):
                 'result'   : result,
                 # Save the path of the original XML results file as test
                 # artifacts
-                'artifacts': {'log': f},
+                'artifacts': {'log': os.path.join(
+                    self.artifacts_dir, os.path.basename(f))},
             }
         return tree
 
@@ -163,6 +172,35 @@ class Xfstests(ABC):
                 },
                 'child_nodes': child_nodes,
             }
+
+    def upload_artifacts(self, path):
+        """Uploads the artifact and log files stored in <path> to KernelCI
+        storage.
+
+        Args:
+            path (str): local directory that contains the test artifacts
+            and log files.
+
+        NOTES:
+            - this currently uses scp to upload the files.
+            - it uses the SSH_HOST, SSH_KEY, SSH_PORT and SSH_USER
+              options for the scp command
+            - it will raise an exception if the scp command fails
+        """
+        path = os.path.normpath(path)
+        dest_basepath = f'{SSH_USER}@{SSH_HOST}:~/data'
+        r = subprocess.run(['scp',
+                            '-i', SSH_KEY,
+                            '-P', SSH_PORT,
+                            '-o', 'StrictHostKeyChecking=no',
+                            '-o', 'UserKnownHostsFile=/dev/null',
+                            '-r',
+                            path,
+                            dest_basepath],
+                           check=True,
+                           capture_output=True)
+        self.artifacts_dir = os.path.join(dest_basepath,
+                                          os.path.basename(path))
 
     def parse_results(self, path):
         """Parses and processes the test result files in PATH.
@@ -230,6 +268,7 @@ class KvmXfstests(Xfstests):
 
     def __del__(self):
         """Clean up temporary resources."""
+        super().__del__()
         # Remove all the results.xml files from the results virtual disk (vdg)
         for path in self.configs.values():
             xml_path = os.path.join(path, 'results.xml')
@@ -267,10 +306,9 @@ class KvmXfstests(Xfstests):
         try:
             for k, v in self.configs.items():
                 xml_path = os.path.join(v, 'results.xml')
-                result = subprocess.run(
-                    (f'debugfs -R "dump {xml_path} '
-                     f'{path}/results-{k}.xml" {XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'),
-                    shell=True,
+                result = subprocess.run([
+                    'debugfs', '-R', f'dump {xml_path} {path}/results-{k}.xml',
+                    f'{XFSTESTS_BLD_PATH}/run-fstests/disks/vdg'],
                     check=True,
                     capture_output=True)
             return True
@@ -325,6 +363,7 @@ class GceXfstests(Xfstests):
 
     def __del__(self):
         """Clean up local and remote temporary resources."""
+        super().__del__()
         # Delete kernel image stored in the GS bucket
         if self.kernelimg:
             subprocess.run(['gsutil', 'rm', self.kernelimg],
@@ -615,6 +654,18 @@ class Job(BaseJob):
         shutil.rmtree(self._workspace, ignore_errors=True)
 
     def _check_parameters(self):
+        if not SSH_HOST:
+            print("ssh_host parameter not specified")
+            return False
+        if not SSH_KEY :
+            print("ssh_key parameter not specified")
+            return False
+        if not SSH_PORT:
+            print("ssh_port parameter not specified")
+            return False
+        if not SSH_USER:
+            print("ssh_user parameter not specified")
+            return False
         if not OUTPUT:
             print("output parameter not specified")
             return False
@@ -661,6 +712,7 @@ class Job(BaseJob):
         if not test.get_xml_results(OUTPUT):
             return fail_results
         try:
+            test.upload_artifacts(OUTPUT)
             results = test.parse_results(OUTPUT)
             # TBD: What does 'pass' mean in the root node?
             results['node']['result'] = 'pass'
