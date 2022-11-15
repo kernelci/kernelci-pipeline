@@ -83,7 +83,10 @@ services:
       - '/home/kernelci/pipeline/send_kcidb.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
-    volumes: *base-volumes
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/kcidb:/home/kernelci/data/kcidb'
 
   test_report:
     <<: *base-service
