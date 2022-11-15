@@ -61,7 +61,10 @@ environment variable")
 connection to KCIDB")
             return False
 
-        sub_id = db.subscribe('node')
+        sub_id = db.subscribe_node_channel(filters={
+            'name': 'checkout',
+            'state': 'done',
+        })
         self._logger.log_message(logging.INFO, "Listening for events... ")
         self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
         sys.stdout.flush()
@@ -70,14 +73,9 @@ connection to KCIDB")
 
         try:
             while True:
-                event = db.get_event(sub_id)
-                node = db.get_node_from_event(event)
-                if node['name'] != 'checkout' or node['status'] != 'complete':
-                    continue
-
-                self._logger.log_message(logging.INFO,
-                                         f"Submitting node to KCIDB: \
-{node['_id']}")
+                node = db.receive_node(sub_id)
+                self._logger.log_message(logging.INFO, f"Submitting node to \
+KCIDB: {node['_id']}")
                 sys.stdout.flush()
 
                 created_time = datetime.datetime.fromisoformat(node["created"])
