@@ -27,8 +27,6 @@ class Trigger(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
-        self._poll_period = int(args.poll_period)
-        self._force = args.force
 
     def _log_revision(self, message, build_config, head_commit):
         self._logger.log_message(
@@ -74,19 +72,29 @@ class Trigger(Service):
         for name, config in self._build_configs.items():
             self._run_trigger(config, force)
 
+    def _setup(self, args):
+        ctx = Service.Context()
+        ctx.data.update({
+            'poll_period': int(args.poll_period),
+            'force': args.force,
+        })
+        return ctx
+
     def _run(self, ctx):
+        poll_period, force = (
+            ctx.data[key] for key in ('poll_period', 'force')
+        )
         while True:
-            self._iterate_build_configs(self._force)
-            if self._poll_period:
+            self._iterate_build_configs(force)
+            if poll_period:
                 self._logger.log_message(
                     logging.INFO,
-                    f"Sleeping for {self._poll_period}s"
+                    f"Sleeping for {poll_period}s"
                 )
-                time.sleep(self._poll_period)
+                time.sleep(poll_period)
             else:
                 self._logger.log_message(logging.INFO, "Not polling.")
                 break
-
         return True
 
 
