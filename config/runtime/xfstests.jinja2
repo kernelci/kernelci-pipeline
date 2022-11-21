@@ -1,28 +1,21 @@
 {# -*- mode: Python -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-{%- extends 'base/python.jinja2' %}
+{%- extends 'base/xfstests.jinja2' %}
 
 {%- block python_globals %}
 {{ super() }}
-GCE               = '{{True if gce is not none else ""}}'
-GCE_PROJECT       = '{{gce_project if gce_project is not none else ""}}'
-GCE_ZONE          = '{{gce_zone if gce_zone is not none else ""}}'
-GS_BUCKET         = '{{gs_bucket if gs_bucket is not none else ""}}'
-KERNEL            = '{{kernel if kernel is not none else ""}}'
-MAX_SHARDS        = '{{max_shards if max_shards is not none else NONE}}'
-# TBD: For production, set the appropriate njobs number by default
-NJOBS             = '{{njobs if njobs is not none else 1}}'
+GCE               = '{{gce|default("")}}'
+MAX_SHARDS        = '{{max_shards|default("")}}'
+NJOBS             = '{{njobs|default("1")}}'
 OUTPUT            = '{{output if output is not none else ""}}'
-SKIP_BUILD        = '{{True if skip_build is not none else ""}}'
 SSH_HOST          = '{{ssh_host if ssh_host is not none else ""}}'
 SSH_KEY           = '{{ssh_key if ssh_key is not none else ""}}'
 SSH_PORT          = '{{ssh_port if ssh_port is not none else ""}}'
 SSH_USER          = '{{ssh_user if ssh_user is not none else ""}}'
-TESTCASE          = '{{testcase if testcase is not none else ""}}'
-TESTCFG           = '{{testcfg if testcfg is not none else ""}}'
-TESTGROUP         = '{{testgroup if testgroup is not none else ""}}'
-XFSTESTS_BLD_PATH = '{{xfstests_bld_path}}'
+TESTCASE          = '{{testcase|default("")}}'
+TESTCFG           = '{{testcfg|default("")}}'
+TESTGROUP         = '{{testgroup|default("")}}'
 {% endblock %}
 
 {%- block python_imports %}
@@ -42,21 +35,17 @@ import random
 import string
 import math
 import threading
+import tempfile
 {%- endblock %}
 
 {% block python_job -%}
 
-POLL_PERIOD      = 10                   # seconds
-DEFAULT_MACHTYPE = 'e2-standard-2'
+POLL_PERIOD      = 10   # seconds
 
 class Xfstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
     results for xfstests.
     """
-    def __del__(self):
-        if OUTPUT:
-            shutil.rmtree(OUTPUT)
-
     def kernel_config(self, kdir):
         """Uses the kvm-xfstests script to configure a kernel for xfstests. The
         kernel source must be already decompressed in KDIR.
@@ -89,7 +78,7 @@ class Xfstests(ABC):
         try:
             os.chdir(kdir)
             result = subprocess.run(['make', '-j', njobs], check=True)
-            print("Kernel Build DONE.")
+            print("Kernel build done.")
             return True
         except Exception as e:
             print("Kernel build error:", e)
@@ -268,7 +257,6 @@ class KvmXfstests(Xfstests):
 
     def __del__(self):
         """Clean up temporary resources."""
-        super().__del__()
         # Remove all the results.xml files from the results virtual disk (vdg)
         for path in self.configs.values():
             xml_path = os.path.join(path, 'results.xml')
@@ -349,7 +337,7 @@ class GceXfstests(Xfstests):
         # should be __exported__ in order to be visible here.
         self.gce_env = os.environ.copy()
         if 'GCE_MACHTYPE' not in self.gce_env:
-            self.gce_env['GCE_MACHTYPE'] = DEFAULT_MACHTYPE
+            self.gce_env['GCE_MACHTYPE'] = GCE_DEFAULT_MACHTYPE
         if GCE_PROJECT:
             self.gce_env['GCE_PROJECT'] = GCE_PROJECT
         if GCE_ZONE:
@@ -363,7 +351,6 @@ class GceXfstests(Xfstests):
 
     def __del__(self):
         """Clean up local and remote temporary resources."""
-        super().__del__()
         # Delete kernel image stored in the GS bucket
         if self.kernelimg:
             subprocess.run(['gsutil', 'rm', self.kernelimg],
@@ -405,11 +392,15 @@ class GceXfstests(Xfstests):
         if not region:
             print(f"Error: can't get GCE region from zone: {self.gce_env['GCE_ZONE']}")
             return None
-        result = subprocess.run(
-            ['gcloud', 'compute', 'regions', 'describe', region],
-            check=True,
-            capture_output=True,
-            encoding='utf-8')
+        try:
+            result = subprocess.run(
+                ['gcloud', 'compute', 'regions', 'describe', region],
+                check=True,
+                capture_output=True,
+                encoding='utf-8')
+        except Exception as e:
+            print(f"Error getting project quotas for region {region}: {str(e)}")
+            return None
         # Discard output header
         lines = result.stdout.splitlines()[6:]
         # The quotas output of 'gcloud compute regions describe <region>'
@@ -440,12 +431,16 @@ class GceXfstests(Xfstests):
             The number of CPUs of the specified machine type (int)
             None if failure
         """
-        result = subprocess.run(['gcloud', 'compute', 'machine-types',
-                                 'describe', machtype],
-                                check=True,
-                                env=self.gce_env,
-                                capture_output=True,
-                                encoding='utf-8')
+        try:
+            result = subprocess.run(['gcloud', 'compute', 'machine-types',
+                                     'describe', machtype],
+                                    check=True,
+                                    env=self.gce_env,
+                                    capture_output=True,
+                                    encoding='utf-8')
+        except Exception as e:
+            print(f"Error getting the number of CPUs for machine type {machtype}: {str(e)}")
+            return None
         m = re.search("guestCpus: (\d+)", result.stdout)
         if not m:
             print((f"Error getting the number of CPUs for machine {machtype}: "
@@ -515,10 +510,14 @@ class GceXfstests(Xfstests):
                 return None
         filename = f'kernels/bzImage-{self.uniqstr}'
         cmd.append(filename)
-        subprocess.run(cmd, check=True,
-                       env=self.gce_env,
-                       capture_output=True,
-                       encoding='utf-8')
+        try:
+            subprocess.run(cmd, check=True,
+                           env=self.gce_env,
+                           capture_output=True,
+                           encoding='utf-8')
+        except Exception as e:
+            print((f"Error uploading the kernel image: {str(e)}"))
+            return None
         return f'gs://{self.gce_env["GS_BUCKET"]}/{filename}'
 
     def run(self, kernel_path, testcase='', group=False, testcfg=''):
@@ -538,6 +537,8 @@ class GceXfstests(Xfstests):
         # and
         # https://github.com/tytso/xfstests-bld/blob/34e81de235cf380d30082779aef5e6f50b9b9548/run-fstests/config.gce#L36
         cpus = self._get_machtype_cpus(self.gce_env['GCE_MACHTYPE'])
+        if not cpus:
+            return False
         num_shards = int(min(quotas['IN_USE_ADDRESSES'],
                              quotas['CPUS'] / cpus,
                              quotas['SSD_TOTAL_GB'] / 100))
@@ -643,15 +644,10 @@ class Job(BaseJob):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Use a unique workspace dir for each run
-        uniqstr = '{}-{}'.format(
-            datetime.datetime.now().strftime('%Y%m%d%H%M%S'),
-            ''.join(random.choice(string.ascii_lowercase) for i in range(8)))
-        self._workspace = os.path.join(self._workspace, uniqstr)
-        os.makedirs(self._workspace)
-
-    def __del__(self):
-        # Delete the workspace directory
-        shutil.rmtree(self._workspace, ignore_errors=True)
+        # NOTE: self._workspace_dir is only used to track the object
+        # lifetime properly
+        self._workspace_dir = tempfile.TemporaryDirectory(dir=self._workspace)
+        self._workspace = self._workspace_dir.name
 
     def _check_parameters(self):
         if not SSH_HOST:
@@ -680,7 +676,6 @@ class Job(BaseJob):
     def _run(self, kernel_path):
         fail_results = {
             'node': {
-                'name': 'fstests',
                 'result': 'fail',
                 'state': 'done',
             },
@@ -689,7 +684,7 @@ class Job(BaseJob):
         if not self._check_parameters():
              return fail_results
 
-        if GCE:
+        if GCE and GCE == 'True':
             max_shards = None
             if MAX_SHARDS:
                 max_shards = int(MAX_SHARDS)
@@ -698,10 +693,10 @@ class Job(BaseJob):
             test = KvmXfstests()
 
         # Config and build kernel
-        if not KERNEL or SKIP_BUILD:
-            if not all([test.kernel_config(kernel_path),
-                        test.kernel_build(kernel_path, NJOBS)]):
-                return fail_results
+        # TBD: Skip if using a prebuilt kernel
+        if not all([test.kernel_config(kernel_path),
+                    test.kernel_build(kernel_path, NJOBS)]):
+            return fail_results
         if TESTGROUP:
             test_ok = test.run(kernel_path, TESTGROUP, True, TESTCFG)
         else:
@@ -726,6 +721,7 @@ class Job(BaseJob):
 
     def _submit(self, results, node_id, db):
         node = db.get_node(node_id)
+        results['node']['name'] = node['name']
         db.submit_results(results, node)
         print(f"Result node submitted: {node_id}")
         return node

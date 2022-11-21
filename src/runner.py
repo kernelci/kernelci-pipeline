@@ -12,6 +12,8 @@ import sys
 import tempfile
 import json
 import requests
+import datetime
+import traceback
 
 import kernelci
 import kernelci.config
@@ -31,6 +33,10 @@ class Runner(Service):
         runtime_config = configs['labs'][args.lab_config]
         self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = args.output
+        self._ssh_host = args.ssh_host
+        self._ssh_key = args.ssh_key
+        self._ssh_port = args.ssh_port
+        self._ssh_user = args.ssh_user
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._verbose = args.verbose
@@ -59,10 +65,15 @@ class Runner(Service):
             'db_config_yaml': self._db_config_yaml,
             'name': plan_config.name,
             'node_id': node['_id'],
+            'output': tmp,
             'revision': revision,
             'runtime': self._runtime.config.lab_type,
             'runtime_image': plan_config.image,
-            'tarball_url': node['artifacts']['tarball'],
+            'ssh_host': self._ssh_host,
+            'ssh_key': self._ssh_key,
+            'ssh_port': self._ssh_port,
+            'ssh_user': self._ssh_user,
+            'kernel_url': node['artifacts']['tarball'],
             'workspace': tmp,
         }
         params.update(plan_config.params)
@@ -85,7 +96,8 @@ class Runner(Service):
         if not node:
             return None, msg
 
-        tmp = tempfile.TemporaryDirectory(dir=self._output)
+        tstamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S-')
+        tmp = tempfile.TemporaryDirectory(prefix=tstamp, dir=self._output)
         output_file = self._generate_job(node, plan, device, tmp.name)
 
         self.log.info("Running test")
@@ -191,7 +203,28 @@ class RunnerSingleJob(Runner):
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
     args = [Args.db_config, Args.lab_config, Args.output]
-    opt_args = [Args.verbose, Args.plan]
+    opt_args = [
+        Args.verbose,
+        Args.plan,
+        Args.target,
+        {
+            'name': '--ssh-host',
+            'help': "Storage SSH host",
+        },
+        {
+            'name': '--ssh-key',
+            'help': "Path to the ssh key for uploading to storage",
+        },
+        {
+            'name': '--ssh-port',
+            'help': "Storage SSH port number",
+            'type': int,
+        },
+        {
+            'name': '--ssh-user',
+            'help': "Storage SSH user name",
+        },
+    ]
 
     def __call__(self, configs, args):
         return RunnerLoop(configs, args).run()
@@ -212,6 +245,23 @@ class cmd_run(Command):
         {
             'name': '--git-commit',
             'help': "git commit rather than pub/sub event",
+        },
+        {
+            'name': '--ssh-host',
+            'help': "Storage SSH host",
+        },
+        {
+            'name': '--ssh-key',
+            'help': "Path to the ssh key for uploading to storage",
+        },
+        {
+            'name': '--ssh-port',
+            'help': "Storage SSH port number",
+            'type': int,
+        },
+        {
+            'name': '--ssh-user',
+            'help': "Storage SSH user name",
         },
     ]
 

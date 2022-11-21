@@ -79,8 +79,25 @@ labs:
 
 test_plans:
 
-  fstests:
-    pattern: 'fstests.jinja2'
+  xfstests-base: &xfstests-base
+    pattern: 'xfstests.jinja2'
+    params: &xfstests-base-params
+      njobs: 3
+      gce: True
+
+  xfstests-minimal:
+    <<: *xfstests-base
+    params:
+      <<: *xfstests-base-params
+      testcfg: '1k,4k'
+      testcase: 'generic/001,generic/002'
+
+  xfstests-smoke:
+    <<: *xfstests-base
+    params:
+      <<: *xfstests-base-params
+      testcfg: '4k'
+      testgroup: 'quick'
 
   kunit:
     pattern: 'kunit.jinja2'
