@@ -6,6 +6,7 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
+from datetime import datetime, timedelta
 import json
 import logging
 import sys
@@ -58,10 +59,12 @@ class Trigger(Service):
             'branch': build_config.branch,
             'commit': head_commit,
         }
+        timeout = datetime.utcnow() + timedelta(hours=1)
         node = {
             'name': 'checkout',
             'path': ['checkout'],
             'revision': revision,
+            'timeout': timeout.isoformat(),
         }
         self._db.submit({'node': node})
 
