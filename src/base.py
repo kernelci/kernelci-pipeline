@@ -7,7 +7,6 @@
 
 import logging
 import os
-import traceback
 
 import kernelci
 import kernelci.db
@@ -24,6 +23,10 @@ class Service:
         self._db_config = configs['db_configs'][args.db_config]
         api_token = os.getenv('API_TOKEN')
         self._db = kernelci.db.get_db(self._db_config, api_token)
+
+    @property
+    def log(self):
+        return self._logger
 
     def _setup(self, args):
         """Set up the service
@@ -64,9 +67,9 @@ class Service:
             context = self._setup(args)
             status = self._run(context)
         except KeyboardInterrupt:
-            self._logger.log_message(logging.INFO, "Stopping.")
+            self.log.info("Stopping.")
         except Exception:
-            self._logger.log_message(logging.ERROR, traceback.format_exc())
+            self.log.traceback()
             status = False
         finally:
             self._stop(context)
