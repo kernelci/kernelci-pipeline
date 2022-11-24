@@ -89,6 +89,16 @@ services:
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
 
+  regression_tracker:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-regression_tracker'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/regression_tracker.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'run'
+
   test_report:
     <<: *base-service
     container_name: 'kernelci-pipeline-test_report'
@@ -108,13 +118,4 @@ services:
       - '/home/kernelci/pipeline/timeout.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
-
-  regression_tracker:
-    <<: *base-service
-    container_name: 'kernelci-pipeline-regression_tracker'
-    command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/regression_tracker.py'
-      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
-      - 'run'
+      - '--mode=timeout'

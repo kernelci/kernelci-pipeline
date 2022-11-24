@@ -20,10 +20,10 @@ from kernelci.cli import Args, Command, parse_opts
 from base import Service
 
 
-class Timeout(Service):
+class TimeoutService(Service):
 
-    def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout')
+    def __init__(self, configs, args, name):
+        super().__init__(configs, args, name)
         self._poll_period = args.poll_period
 
     def _get_pending_nodes(self, filters=None):
@@ -35,20 +35,29 @@ class Timeout(Service):
                 nodes[node['_id']] = node
         return nodes
 
-    def _get_child_nodes_recursive(self, node):
+    def _get_child_nodes_recursive(self, node, state_filter=None):
         recursive = {}
         child_nodes = self._get_pending_nodes({'parent': node['_id']})
         for child_id, child in child_nodes.items():
-            recursive.update(self._get_child_nodes_recursive(child))
-        recursive.update(child_nodes)
+            if state_filter is None or child['state'] == state_filter:
+                recursive.update(self._get_child_nodes_recursive(
+                    child, state_filter
+                ))
         return recursive
 
-    def _submit_timeout_nodes(self, timeout_nodes):
-        for node_id, node in timeout_nodes.items():
+    def _submit_lapsed_nodes(self, lapsed_nodes, state, log=None):
+        for node_id, node in lapsed_nodes.items():
             node_update = node.copy()
-            node_update['state'] = 'done'
-            self.log.debug(f"{node_id} TIMEOUT")
+            node_update['state'] = state
+            if log:
+                self.log.debug(f"{node_id} {log}")
             self._db.submit({'node': node_update})
+
+
+class Timeout(TimeoutService):
+
+    def __init__(self, configs, args):
+        super().__init__(configs, args, 'timeout')
 
     def _check_pending_nodes(self, pending_nodes):
         now = datetime.utcnow()
@@ -60,13 +69,13 @@ class Timeout(Service):
                 timeout_nodes[node_id] = node
                 timeout_nodes.update(self._get_child_nodes_recursive(node))
             else:
-                self.log.debug(f"{node_id} left: {timeout - now}")
+                self.log.debug(f"{node_id} timeout left: {timeout - now}")
                 sleep = min(sleep, timeout - now)
-        self._submit_timeout_nodes(timeout_nodes)
+        self._submit_lapsed_nodes(timeout_nodes, 'done', 'TIMEOUT')
         return sleep.total_seconds()
 
     def _run(self, ctx):
-        self.log.info("Looking for timed-out nodes...")
+        self.log.info("Looking for nodes with lapsed timeout...")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
@@ -75,6 +84,11 @@ class Timeout(Service):
             sleep(sleep_time)
 
         return True
+
+
+MODES = {
+    'timeout': Timeout,
+}
 
 
 class cmd_run(Command):
@@ -87,10 +101,14 @@ class cmd_run(Command):
             'help': "Polling period in seconds",
             'default': 60,
         },
+        {
+            'name': '--mode',
+            'choices': MODES.keys(),
+        },
     ]
 
     def __call__(self, configs, args):
-        return Timeout(configs, args).run()
+        return MODES[args.mode](configs, args).run()
 
 
 if __name__ == '__main__':
