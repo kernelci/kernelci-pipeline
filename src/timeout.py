@@ -35,27 +35,34 @@ class Timeout(Service):
                 nodes[node['_id']] = node
         return nodes
 
-    def _node_timeout(self, pending_nodes, node):
-        node_id = node['_id']
-        child_nodes = self._get_pending_nodes({'parent': node_id})
+    def _get_child_nodes_recursive(self, node):
+        recursive = {}
+        child_nodes = self._get_pending_nodes({'parent': node['_id']})
         for child_id, child in child_nodes.items():
-            if child_id not in pending_nodes:
-                self._node_timeout(pending_nodes, child)
-        self.log.info(f"TIMEOUT {node_id}")
-        done_node = node.copy()
-        done_node['state'] = 'done'
-        self._db.submit({'node': done_node})
+            recursive.update(self._get_child_nodes_recursive(child))
+        recursive.update(child_nodes)
+        return recursive
 
-    def _check_nodes(self, pending_nodes):
+    def _submit_timeout_nodes(self, timeout_nodes):
+        for node_id, node in timeout_nodes.items():
+            node_update = node.copy()
+            node_update['state'] = 'done'
+            self.log.debug(f"{node_id} TIMEOUT")
+            self._db.submit({'node': node_update})
+
+    def _check_pending_nodes(self, pending_nodes):
         now = datetime.utcnow()
         sleep = timedelta(seconds=self._poll_period)
+        timeout_nodes = {}
         for node_id, node in pending_nodes.items():
             timeout = datetime.fromisoformat(node['timeout'])
             if now > timeout:
-                self._node_timeout(pending_nodes, node)
+                timeout_nodes[node_id] = node
+                timeout_nodes.update(self._get_child_nodes_recursive(node))
             else:
                 self.log.debug(f"{node_id} left: {timeout - now}")
                 sleep = min(sleep, timeout - now)
+        self._submit_timeout_nodes(timeout_nodes)
         return sleep.total_seconds()
 
     def _run(self, ctx):
@@ -64,7 +71,7 @@ class Timeout(Service):
 
         while True:
             pending_nodes = self._get_pending_nodes()
-            sleep_time = self._check_nodes(pending_nodes)
+            sleep_time = self._check_pending_nodes(pending_nodes)
             sleep(sleep_time)
 
         return True
