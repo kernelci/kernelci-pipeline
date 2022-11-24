@@ -73,16 +73,14 @@ class Trigger(Service):
             self._run_trigger(config, force)
 
     def _setup(self, args):
-        ctx = Service.Context()
-        ctx.data.update({
+        return {
             'poll_period': int(args.poll_period),
             'force': args.force,
-        })
-        return ctx
+        }
 
     def _run(self, ctx):
         poll_period, force = (
-            ctx.data[key] for key in ('poll_period', 'force')
+            ctx[key] for key in ('poll_period', 'force')
         )
         while True:
             self._iterate_build_configs(force)
