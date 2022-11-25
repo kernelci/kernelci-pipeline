@@ -74,7 +74,7 @@ class Trigger(Service):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
-            'build_configs_list': args.build_configs.split() or [],
+            'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
         }
 
