@@ -113,7 +113,7 @@ scp \
             'artifacts': {
                 'tarball': urllib.parse.urljoin(self._storage_url, tarball),
             },
-            'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
+            'holdoff': str(datetime.utcnow() + timedelta(minutes=1))
         })
         return self._db.submit({'node': node})
 
