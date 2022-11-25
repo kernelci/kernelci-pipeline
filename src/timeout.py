@@ -22,6 +22,8 @@ from base import Service
 
 class TimeoutService(Service):
 
+    PENDING_STATES = ['running', 'available', 'closing']
+
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._poll_period = args.poll_period
@@ -29,11 +31,19 @@ class TimeoutService(Service):
     def _get_pending_nodes(self, filters=None):
         nodes = {}
         node_filters = filters.copy() if filters else {}
-        for state in ['running', 'available', 'closing']:
+        for state in self.PENDING_STATES:
             node_filters['state'] = state
             for node in self._db.get_nodes(node_filters):
                 nodes[node['_id']] = node
         return nodes
+
+    def _count_running_child_nodes(self, parent_id):
+        nodes_count = 0
+        for state in self.PENDING_STATES:
+            nodes_count += self._db.count_nodes({
+                'parent': parent_id, 'state': state
+            })
+        return nodes_count
 
     def _get_child_nodes_recursive(self, node, state_filter=None):
         recursive = {}
@@ -86,8 +96,56 @@ class Timeout(TimeoutService):
         return True
 
 
+class Holdoff(TimeoutService):
+
+    def __init__(self, configs, args):
+        super().__init__(configs, args, 'timeout-holdoff')
+
+    def _get_available_nodes(self):
+        nodes = self._db.get_nodes({'state': 'available'})
+        return {node['_id']: node for node in nodes}
+
+    def _check_available_nodes(self, available_nodes):
+        now = datetime.utcnow()
+        sleep = timedelta(seconds=self._poll_period)
+        timeout_nodes = {}
+        closing_nodes = {}
+        for node_id, node in available_nodes.items():
+            holdoff = datetime.fromisoformat(node['holdoff'])
+            if now > holdoff:
+                running = self._count_running_child_nodes(node_id)
+                if running:
+                    closing_nodes.update(
+                        self._get_child_nodes_recursive(node, 'available')
+                    )
+                    closing_nodes[node_id] = node
+                else:
+                    timeout_nodes.update(
+                        self._get_child_nodes_recursive(node)
+                    )
+                    timeout_nodes[node_id] = node
+            else:
+                self.log.debug(f"{node_id} holdoff left: {holdoff - now}")
+                sleep = min(sleep, holdoff - now)
+        self._submit_lapsed_nodes(closing_nodes, 'closing', 'HOLDOFF')
+        self._submit_lapsed_nodes(timeout_nodes, 'done', 'DONE')
+        return sleep.total_seconds()
+
+    def _run(self, ctx):
+        self.log.info("Looking for nodes with lapsed holdoff...")
+        self.log.info("Press Ctrl-C to stop.")
+
+        while True:
+            available_nodes = self._get_available_nodes()
+            sleep_time = self._check_available_nodes(available_nodes)
+            sleep(sleep_time)
+
+        return True
+
+
 MODES = {
     'timeout': Timeout,
+    'holdoff': Holdoff,
 }
 
 
