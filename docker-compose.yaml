@@ -120,6 +120,17 @@ services:
       - 'run'
       - '--mode=timeout'
 
+  timeout-closing:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-closing'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/timeout.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'run'
+      - '--mode=closing'
+
   timeout-holdoff:
     <<: *base-service
     container_name: 'kernelci-pipeline-holdoff'
