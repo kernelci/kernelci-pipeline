@@ -119,3 +119,14 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
       - '--mode=timeout'
+
+  timeout-holdoff:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-holdoff'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/timeout.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'run'
+      - '--mode=holdoff'
