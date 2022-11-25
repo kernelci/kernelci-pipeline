@@ -143,9 +143,40 @@ class Holdoff(TimeoutService):
         return True
 
 
+class Closing(TimeoutService):
+
+    def __init__(self, configs, args):
+        super().__init__(configs, args, 'timeout-closing')
+
+    def _get_closing_nodes(self):
+        nodes = self._db.get_nodes({'state': 'closing'})
+        return {node['_id']: node for node in nodes}
+
+    def _check_closing_nodes(self, closing_nodes):
+        done_nodes = {}
+        for node_id, node in closing_nodes.items():
+            running = self._count_running_child_nodes(node_id)
+            self.log.debug(f"{node_id} RUNNING: {running}")
+            if not running:
+                done_nodes[node_id] = node
+        self._submit_lapsed_nodes(done_nodes, 'done', 'DONE')
+
+    def _run(self, ctx):
+        self.log.info("Looking for nodes that are done closing...")
+        self.log.info("Press Ctrl-C to stop.")
+
+        while True:
+            closing_nodes = self._get_closing_nodes()
+            self._check_closing_nodes(closing_nodes)
+            sleep(self._poll_period)
+
+        return True
+
+
 MODES = {
     'timeout': Timeout,
     'holdoff': Holdoff,
+    'closing': Closing,
 }
 
 
