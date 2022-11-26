@@ -32,7 +32,7 @@ class TestReport(Service):
             args.smtp_host, args.smtp_port,
             email_send_from='bot@kernelci.org',
             email_send_to='kernelci-results-staging@groups.io',
-        )
+        ) if args.smtp_host and args.smtp_port else None
 
     def _dump_report(self, content):
         print(content, flush=True)
@@ -109,7 +109,10 @@ Failed to create source tarball for {root_node['name']}")
         return content, subject
 
     def _send_report(self, subject, content):
-        self._email_sender.create_and_send_email(subject, content)
+        if self._email_sender:
+            self._email_sender.create_and_send_email(subject, content)
+        else:
+            self.log.info("No SMTP settings provided, not sending email")
 
 
 class TestReportLoop(TestReport):
@@ -161,9 +164,11 @@ class cmd_loop(Command):
     help = "Generate test report"
     args = [
         Args.db_config,
+    ]
+    opt_args = [
         {
             'name': '--smtp-host',
-            'help': "SMTP server host name",
+            'help': "SMTP server host name.  If omitted, emails won't be sent",
         },
         {
             'name': '--smtp-port',
