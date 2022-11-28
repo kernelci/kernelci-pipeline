@@ -5,8 +5,6 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-import logging
-import os
 import sys
 
 import kernelci
@@ -14,20 +12,27 @@ import kernelci.config
 import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from logger import Logger
+from base import Service
 
 
-class RegressionTracker:
+class RegressionTracker(Service):
 
     def __init__(self, configs, args):
-        self._db_config = configs['db_configs'][args.db_config]
-        api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(self._db_config, api_token)
-        self._logger = Logger("config/logger.conf", "regression_tracker")
+        super().__init__(configs, args, 'regression_tracker')
         self._regression_fields = [
             'artifacts', 'group', 'name', 'path', 'revision', 'result',
             'state',
         ]
+
+    def _setup(self, args):
+        return self._db.subscribe_node_channel(filters={
+            'state': 'done',
+            'result': 'fail',
+        })
+
+    def _stop(self, sub_id):
+        if sub_id:
+            self._db.unsubscribe(sub_id)
 
     def _create_regression(self, failed_node, last_successful_node):
         """Method to create a regression"""
@@ -38,52 +43,42 @@ class RegressionTracker:
         regression['regression_data'] = [last_successful_node, failed_node]
         self._db.submit({'regression': regression})
 
-    def run(self):
+    def _run(self, sub_id):
         """Method to run regression tracking"""
-        sub_id = self._db.subscribe_node_channel(filters={
-            'state': 'done',
-            'result': 'fail',
-        })
-        self._logger.log_message(logging.INFO, "Tracking regressions... ")
-        self._logger.log_message(logging.INFO, "Press Ctrl-C to stop.")
+        self.log.info("Tracking regressions... ")
+        self.log.info("Press Ctrl-C to stop.")
         sys.stdout.flush()
 
-        try:
-            while True:
-                node = self._db.receive_node(sub_id)
-                if not node['group']:
-                    continue
+        while True:
+            node = self._db.receive_node(sub_id)
+            if not node['group']:
+                continue
 
-                previous_nodes = self._db.get_nodes({
-                    'name': node['name'],
-                    'group': node['group'],
-                    'revision.tree': node['revision']['tree'],
-                    'revision.branch': node['revision']['branch'],
-                    'revision.url': node['revision']['url'],
-                    'created__lt': node['created'],
-                })
+            previous_nodes = self._db.get_nodes({
+                'name': node['name'],
+                'group': node['group'],
+                'revision.tree': node['revision']['tree'],
+                'revision.branch': node['revision']['branch'],
+                'revision.url': node['revision']['url'],
+                'created__lt': node['created'],
+            })
 
-                if not previous_nodes:
-                    continue
+            if not previous_nodes:
+                continue
 
-                previous_nodes = sorted(
-                    previous_nodes,
-                    key=lambda node: node['created'],
-                    reverse=True
-                )
+            previous_nodes = sorted(
+                previous_nodes,
+                key=lambda node: node['created'],
+                reverse=True
+            )
 
-                if previous_nodes[0]['result'] == 'pass':
-                    self._logger.log_message(logging.INFO, f"Detected \
-regression for node id: {node['_id']}")
-                    self._create_regression(node, previous_nodes[0])
+            if previous_nodes[0]['result'] == 'pass':
+                self.log.info(f"Detected regression for node id: \
+{node['_id']}")
+                self._create_regression(node, previous_nodes[0])
 
-                sys.stdout.flush()
-        except KeyboardInterrupt as err:
-            self._logger.log_message(logging.INFO, "Stopping.")
-        finally:
-            self._db.unsubscribe(sub_id)
-
-        sys.stdout.flush()
+            sys.stdout.flush()
+        return True
 
 
 class cmd_run(Command):
@@ -91,8 +86,7 @@ class cmd_run(Command):
     args = [Args.db_config]
 
     def __call__(self, configs, args):
-        regression_tracker = RegressionTracker(configs, args)
-        regression_tracker.run()
+        return RegressionTracker(configs, args).run(args)
 
 
 if __name__ == '__main__':
