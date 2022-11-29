@@ -19,6 +19,7 @@ import kernelci
 import kernelci.build
 import kernelci.config
 from kernelci.cli import Args, Command, parse_opts
+import kernelci.storage
 
 from base import Service
 
@@ -40,11 +41,10 @@ class Tarball(Service):
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._verbose = args.verbose
-        self._ssh_key = args.ssh_key
-        self._ssh_port = args.ssh_port
-        self._ssh_user = args.ssh_user
-        self._ssh_host = args.ssh_host
-        self._storage_url = args.storage_url
+        self._storage_config = configs['storage_configs'][args.storage_config]
+        self._storage = kernelci.storage.get_storage(
+            self._storage_config, args.storage_cred
+        )
 
     def _find_build_config(self, node):
         revision = node['revision']
@@ -75,25 +75,13 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         return tarball
 
     def _push_tarball(self, config, describe):
-        # ToDo: kernelci.build.make_tarball()
-        tarball = self._make_tarball(config, describe)
-        tarball_path = os.path.join(self._output, tarball)
+        tarball_name = self._make_tarball(config, describe)
+        tarball_path = os.path.join(self._output, tarball_name)
         self.log.info(f"Uploading {tarball_path}")
-        # ToDo: self._storage.upload()
-        cmd = """\
-scp \
-  -i {key} \
-  -P {port} \
-  -o StrictHostKeyChecking=no \
-  -o UserKnownHostsFile=/dev/null \
-  {tarball} \
-  {user}@{host}:~/data/
-""".format(key=self._ssh_key, port=self._ssh_port, user=self._ssh_user,
-           host=self._ssh_host, tarball=tarball_path)
-        kernelci.shell_cmd(cmd)
-        self.log.info("Upload complete")
+        tarball_url = self._storage.upload_single((tarball_path, tarball_name))
+        self.log.info(f"Upload complete: {tarball_url}")
         os.unlink(tarball_path)
-        return tarball
+        return tarball_url
 
     def _get_version_from_describe(self):
         describe_v = kernelci.build.git_describe_verbose(self._kdir)
@@ -104,7 +92,7 @@ scp \
             if value
         }
 
-    def _update_node(self, checkout_node, describe, version, tarball):
+    def _update_node(self, checkout_node, describe, version, tarball_url):
         node = checkout_node.copy()
         node['revision'].update({
             'describe': describe,
@@ -113,7 +101,7 @@ scp \
         node.update({
             'state': 'available',
             'artifacts': {
-                'tarball': urllib.parse.urljoin(self._storage_url, tarball),
+                'tarball': tarball_url,
             },
             'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
@@ -150,8 +138,8 @@ scp \
                 build_config.tree.name, self._kdir
             )
             version = self._get_version_from_describe()
-            tarball = self._push_tarball(build_config, describe)
-            self._update_node(checkout_node, describe, version, tarball)
+            tarball_url = self._push_tarball(build_config, describe)
+            self._update_node(checkout_node, describe, version, tarball_url)
 
         return True
 
@@ -159,31 +147,10 @@ scp \
 class cmd_run(Command):
     help = "Wait for a new revision event and push a source tarball"
     args = [
-        Args.kdir, Args.output, Args.api_config,
-        {
-            'name': '--ssh-key',
-            'help': "Path to the ssh key for uploading to storage",
-        },
-        {
-            'name': '--ssh-port',
-            'help': "Storage SSH port number",
-            'type': int,
-        },
-        {
-            'name': '--ssh-user',
-            'help': "Storage SSH user name",
-        },
-        {
-            'name': '--ssh-host',
-            'help': "Storage SSH host",
-        },
-        {
-            'name': '--storage-url',
-            'help': "Storage HTTP URL for downloads",
-        },
+        Args.kdir, Args.output, Args.api_config, Args.storage_config,
     ]
     opt_args = [
-        Args.verbose,
+        Args.verbose, Args.storage_cred,
     ]
 
     def __call__(self, configs, args):
