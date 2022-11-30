@@ -65,6 +65,21 @@ api_configs:
     url: https://staging.kernelci.org:9000
 
 
+storage_configs:
+
+  docker-host:
+    storage_type: ssh
+    host: 172.17.0.1
+    port: 8022
+    base_url: http://172.17.0.1:8002/
+
+  staging.kernelci.org:
+    storage_type: ssh
+    host: staging.kernelci.org
+    port: 9022
+    base_url: http://staging.kernelci.org:9080/
+
+
 runtimes:
 
   k8s-gke-eu-west4:
