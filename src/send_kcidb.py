@@ -37,6 +37,7 @@ class KCIDBBridge(Service):
                 'name': 'checkout',
                 'state': 'done',
             }),
+            'origin': args.origin,
         }
 
     def _stop(self, context):
@@ -69,8 +70,8 @@ class KCIDBBridge(Service):
                 'builds': [],
                 'checkouts': [
                     {
-                        'id': f"kernelci:{node['_id']}",
-                        'origin': 'kernelci',
+                        'id': f"{context['origin']}:{node['_id']}",
+                        'origin': context['origin'],
                         'tree_name': node['revision']['tree'],
                         'git_repository_url': node['revision']['url'],
                         'git_commit_hash': node['revision']['commit'],
@@ -103,6 +104,10 @@ class cmd_run(Command):
         {
             'name': '--kcidb-project-id',
             'help': "KCIDB project ID",
+        },
+        {
+            'name': '--origin',
+            'help': "CI system identifier",
         },
     ]
 
