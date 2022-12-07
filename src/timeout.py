@@ -11,6 +11,8 @@ import sys
 from datetime import datetime, timedelta
 from time import sleep
 import traceback
+import json
+import requests
 
 import kernelci
 import kernelci.config
@@ -61,7 +63,11 @@ class TimeoutService(Service):
             node_update['state'] = state
             if log:
                 self.log.debug(f"{node_id} {log}")
-            self._db.submit({'node': node_update})
+            try:
+                self._db.submit({'node': node_update})
+            except requests.exceptions.HTTPError as err:
+                err_msg = json.loads(err.response.content).get("detail", [])
+                self.log.error(err_msg)
 
 
 class Timeout(TimeoutService):
