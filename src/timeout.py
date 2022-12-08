@@ -95,7 +95,9 @@ class Timeout(TimeoutService):
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            pending_nodes = self._get_pending_nodes()
+            pending_nodes = self._get_pending_nodes({
+                'timeout__lt': datetime.isoformat(datetime.utcnow())
+            })
             sleep_time = self._check_pending_nodes(pending_nodes)
             sleep(sleep_time)
 
