@@ -76,19 +76,11 @@ class Timeout(TimeoutService):
         super().__init__(configs, args, 'timeout')
 
     def _check_pending_nodes(self, pending_nodes):
-        now = datetime.utcnow()
-        sleep = timedelta(seconds=self._poll_period)
         timeout_nodes = {}
         for node_id, node in pending_nodes.items():
-            timeout = datetime.fromisoformat(node['timeout'])
-            if now > timeout:
-                timeout_nodes[node_id] = node
-                timeout_nodes.update(self._get_child_nodes_recursive(node))
-            else:
-                self.log.debug(f"{node_id} timeout left: {timeout - now}")
-                sleep = min(sleep, timeout - now)
+            timeout_nodes[node_id] = node
+            timeout_nodes.update(self._get_child_nodes_recursive(node))
         self._submit_lapsed_nodes(timeout_nodes, 'done', 'TIMEOUT')
-        return sleep.total_seconds()
 
     def _run(self, ctx):
         self.log.info("Looking for nodes with lapsed timeout...")
@@ -98,8 +90,8 @@ class Timeout(TimeoutService):
             pending_nodes = self._get_pending_nodes({
                 'timeout__lt': datetime.isoformat(datetime.utcnow())
             })
-            sleep_time = self._check_pending_nodes(pending_nodes)
-            sleep(sleep_time)
+            self._check_pending_nodes(pending_nodes)
+            sleep(self._poll_period)
 
         return True
 
