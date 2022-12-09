@@ -96,7 +96,10 @@ class Holdoff(TimeoutService):
         super().__init__(configs, args, 'timeout-holdoff')
 
     def _get_available_nodes(self):
-        nodes = self._db.get_nodes({'state': 'available'})
+        nodes = self._db.get_nodes({
+            'state': 'available',
+            'holdoff__lt': datetime.isoformat(datetime.utcnow()),
+        })
         return {node['_id']: node for node in nodes}
 
     def _check_available_nodes(self, available_nodes):
