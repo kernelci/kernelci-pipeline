@@ -103,30 +103,22 @@ class Holdoff(TimeoutService):
         return {node['_id']: node for node in nodes}
 
     def _check_available_nodes(self, available_nodes):
-        now = datetime.utcnow()
-        sleep = timedelta(seconds=self._poll_period)
         timeout_nodes = {}
         closing_nodes = {}
         for node_id, node in available_nodes.items():
-            holdoff = datetime.fromisoformat(node['holdoff'])
-            if now > holdoff:
-                running = self._count_running_child_nodes(node_id)
-                if running:
-                    closing_nodes.update(
-                        self._get_child_nodes_recursive(node, 'available')
-                    )
-                    closing_nodes[node_id] = node
-                else:
-                    timeout_nodes.update(
-                        self._get_child_nodes_recursive(node)
-                    )
-                    timeout_nodes[node_id] = node
+            running = self._count_running_child_nodes(node_id)
+            if running:
+                closing_nodes.update(
+                    self._get_child_nodes_recursive(node, 'available')
+                )
+                closing_nodes[node_id] = node
             else:
-                self.log.debug(f"{node_id} holdoff left: {holdoff - now}")
-                sleep = min(sleep, holdoff - now)
+                timeout_nodes.update(
+                    self._get_child_nodes_recursive(node)
+                )
+                timeout_nodes[node_id] = node
         self._submit_lapsed_nodes(closing_nodes, 'closing', 'HOLDOFF')
         self._submit_lapsed_nodes(timeout_nodes, 'done', 'DONE')
-        return sleep.total_seconds()
 
     def _run(self, ctx):
         self.log.info("Looking for nodes with lapsed holdoff...")
@@ -134,8 +126,8 @@ class Holdoff(TimeoutService):
 
         while True:
             available_nodes = self._get_available_nodes()
-            sleep_time = self._check_available_nodes(available_nodes)
-            sleep(sleep_time)
+            self._check_available_nodes(available_nodes)
+            sleep(self._poll_period)
 
         return True
 
