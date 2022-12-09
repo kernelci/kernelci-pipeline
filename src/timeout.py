@@ -26,7 +26,11 @@ class TimeoutService(Service):
 
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
-        self._poll_period = args.poll_period
+
+    def _setup(self, args):
+        return {
+            'poll_period': args.poll_period,
+        }
 
     def _get_pending_nodes(self, filters=None):
         nodes = {}
@@ -85,7 +89,7 @@ class Timeout(TimeoutService):
                 'timeout__lt': datetime.isoformat(datetime.utcnow())
             })
             self._check_pending_nodes(pending_nodes)
-            sleep(self._poll_period)
+            sleep(ctx['poll_period'])
 
         return True
 
@@ -127,7 +131,7 @@ class Holdoff(TimeoutService):
         while True:
             available_nodes = self._get_available_nodes()
             self._check_available_nodes(available_nodes)
-            sleep(self._poll_period)
+            sleep(ctx['poll_period'])
 
         return True
 
@@ -157,7 +161,7 @@ class Closing(TimeoutService):
         while True:
             closing_nodes = self._get_closing_nodes()
             self._check_closing_nodes(closing_nodes)
-            sleep(self._poll_period)
+            sleep(ctx['poll_period'])
 
         return True
 
@@ -186,7 +190,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return MODES[args.mode](configs, args).run()
+        return MODES[args.mode](configs, args).run(args)
 
 
 if __name__ == '__main__':
