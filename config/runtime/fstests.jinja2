@@ -1,7 +1,7 @@
 {# -*- mode: Python -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-{%- extends 'base/xfstests.jinja2' %}
+{%- extends 'base/fstests.jinja2' %}
 
 {%- block python_globals %}
 {{ super() }}
@@ -40,14 +40,17 @@ import tempfile
 
 {% block python_job -%}
 
+# Last tested with xfstests-bld commit:
+# 920c0e32622e85615810d3da0fae27cf7ea0f69e (Nov 28, 2022)
+
 POLL_PERIOD      = 10   # seconds
 
-class Xfstests(ABC):
+class Fstests(ABC):
     """Base class (abstract) to handle the setup, running and collection of
-    results for xfstests.
+    results for fstests.
     """
     def kernel_config(self, kdir):
-        """Uses the kvm-xfstests script to configure a kernel for xfstests. The
+        """Uses the kvm-xfstests script to configure a kernel for fstests. The
         kernel source must be already decompressed in KDIR.
 
         Args:
@@ -85,7 +88,7 @@ class Xfstests(ABC):
             return False
 
     def _parse_xml_test_results(self, f, tree):
-        """Parses the xfstests XML-formatted test results into an in-memory
+        """Parses the fstests XML-formatted test results into an in-memory
         tree (dict).
 
         Args:
@@ -130,11 +133,11 @@ class Xfstests(ABC):
         return tree
 
     def _convert_results_for_api(self, tree, name):
-        """Takes a tree containing the xfstests results and formats it as
+        """Takes a tree containing the fstests results and formats it as
         KernelCI-API nodes.
 
         Args:
-            tree (dict): xfstests results
+            tree (dict): fstests results
             name (str): name of the result root node
 
         Returns:
@@ -212,14 +215,14 @@ class Xfstests(ABC):
 
     @abstractmethod
     def run(self, kdir, testcase='', group=False, testcfg=''):
-        """Runs the specified xfstests testcase using the kernel built in KDIR.
+        """Runs the specified fstests testcase using the kernel built in KDIR.
 
         Args:
             kdir (str): directory containing a built Linux kernel
-            testcase (str): xfstests to run (single test or
+            testcase (str): fstests to run (single test or
                 comma-separated list)
             group (bool): true if the testcase argument refers to a test group
-            testcfg (str): xfstests config to run (single config or
+            testcfg (str): fstests config to run (single config or
                 comma-separated list)
 
         Returns:
@@ -240,8 +243,8 @@ class Xfstests(ABC):
         pass
 
 
-class KvmXfstests(Xfstests):
-    # xfstests fs configs (key = config name, value = results path)
+class KvmFstests(Fstests):
+    # fstests fs configs (key = config name, value = results path)
     configs = {'4k'            : 'ext4/results-4k',
                '1k'            : 'ext4/results-1k',
                'ext3'          : 'ext4/results-ext3',
@@ -306,8 +309,8 @@ class KvmXfstests(Xfstests):
             return False
 
 
-class GceXfstests(Xfstests):
-    # xfstests fs configs (key = config name, value = results path)
+class GceFstests(Fstests):
+    # fstests fs configs (key = config name, value = results path)
     configs = {'4k'            : 'ext4/results-4k',
                '1k'            : 'ext4/results-1k',
                'ext3'          : 'ext3/results-default',
@@ -688,9 +691,9 @@ class Job(BaseJob):
             max_shards = None
             if MAX_SHARDS:
                 max_shards = int(MAX_SHARDS)
-            test = GceXfstests(max_shards)
+            test = GceFstests(max_shards)
         else:
-            test = KvmXfstests()
+            test = KvmFstests()
 
         # Config and build kernel
         # TBD: Skip if using a prebuilt kernel

@@ -79,42 +79,42 @@ labs:
 
 test_plans:
 
-  xfstests-base: &xfstests-base
-    pattern: 'xfstests.jinja2'
-    params: &xfstests-base-params
+  fstests-base: &fstests-base
+    pattern: 'fstests.jinja2'
+    params: &fstests-base-params
       njobs: 4
 
-  xfstests-base-gce: &xfstests-base-gce
-    <<: *xfstests-base
-    params: &xfstests-base-params-gce
-      <<: *xfstests-base-params
+  fstests-base-gce: &fstests-base-gce
+    <<: *fstests-base
+    params: &fstests-base-params-gce
+      <<: *fstests-base-params
       gce: True
 
-  xfstests-minimal-kvm:
-    <<: *xfstests-base
+  fstests-minimal-kvm:
+    <<: *fstests-base
     params:
-      <<: *xfstests-base-params
+      <<: *fstests-base-params
       testcfg: '1k,4k'
       testcase: 'generic/001,generic/002'
 
-  xfstests-minimal-gce:
-    <<: *xfstests-base-gce
+  fstests-minimal-gce:
+    <<: *fstests-base-gce
     params:
-      <<: *xfstests-base-params-gce
+      <<: *fstests-base-params-gce
       testcfg: '1k,4k'
       testcase: 'generic/001,generic/002'
 
-  xfstests-smoke-kvm:
-    <<: *xfstests-base
+  fstests-smoke-kvm:
+    <<: *fstests-base
     params:
-      <<: *xfstests-base-params
+      <<: *fstests-base-params
       testcfg: '4k'
       testgroup: 'quick'
 
-  xfstests-smoke-gce:
-    <<: *xfstests-base-gce
+  fstests-smoke-gce:
+    <<: *fstests-base-gce
     params:
-      <<: *xfstests-base-params-gce
+      <<: *fstests-base-params-gce
       testcfg: '4k'
       testgroup: 'quick'
 
