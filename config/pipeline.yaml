@@ -82,20 +82,39 @@ test_plans:
   xfstests-base: &xfstests-base
     pattern: 'xfstests.jinja2'
     params: &xfstests-base-params
-      njobs: 3
+      njobs: 4
+
+  xfstests-base-gce: &xfstests-base-gce
+    <<: *xfstests-base
+    params: &xfstests-base-params-gce
+      <<: *xfstests-base-params
       gce: True
 
-  xfstests-minimal:
+  xfstests-minimal-kvm:
     <<: *xfstests-base
     params:
       <<: *xfstests-base-params
       testcfg: '1k,4k'
       testcase: 'generic/001,generic/002'
 
-  xfstests-smoke:
+  xfstests-minimal-gce:
+    <<: *xfstests-base-gce
+    params:
+      <<: *xfstests-base-params-gce
+      testcfg: '1k,4k'
+      testcase: 'generic/001,generic/002'
+
+  xfstests-smoke-kvm:
     <<: *xfstests-base
     params:
       <<: *xfstests-base-params
+      testcfg: '4k'
+      testgroup: 'quick'
+
+  xfstests-smoke-gce:
+    <<: *xfstests-base-gce
+    params:
+      <<: *xfstests-base-params-gce
       testcfg: '4k'
       testgroup: 'quick'
 
