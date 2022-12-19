@@ -24,10 +24,12 @@ from base import Service
 
 class TimeoutService(Service):
 
-    PENDING_STATES = ['running', 'available', 'closing']
-
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
+        self._pending_states = [
+            state.value for state in self._db.node_states
+            if state != state.DONE
+        ]
 
     def _setup(self, args):
         return {
@@ -37,7 +39,7 @@ class TimeoutService(Service):
     def _get_pending_nodes(self, filters=None):
         nodes = {}
         node_filters = filters.copy() if filters else {}
-        for state in self.PENDING_STATES:
+        for state in self._pending_states:
             node_filters['state'] = state
             for node in self._db.get_nodes(node_filters):
                 nodes[node['_id']] = node
@@ -45,7 +47,7 @@ class TimeoutService(Service):
 
     def _count_running_child_nodes(self, parent_id):
         nodes_count = 0
-        for state in self.PENDING_STATES:
+        for state in self._pending_states:
             nodes_count += self._db.count_nodes({
                 'parent': parent_id, 'state': state
             })
