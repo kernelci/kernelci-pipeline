@@ -19,6 +19,7 @@ import kernelci.lab
 from kernelci.cli import Args, Command, parse_opts
 
 from base import Service
+from job import Job
 
 
 class Runner(Service):
@@ -34,6 +35,12 @@ class Runner(Service):
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._verbose = args.verbose
+        self._job = Job(
+            self._db,
+            self._db_config_yaml,
+            configs['labs'][args.lab_config],
+            args.output
+        )
 
     def _create_node(self, checkout_node, plan_config):
         node = {
