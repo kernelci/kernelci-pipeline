@@ -118,13 +118,13 @@ class RunnerSingleJob(Runner):
 
     def _run(self, ctx):
         node, plan, device = (ctx[key] for key in ('node', 'plan', 'device'))
-        job, tmp = self._schedule_test(node, plan, device)
+        job, tmp = self._job.schedule_job(node, plan, device)
         if not job:
             self.log.error(
                 f"Failed to schedule job for {plan.name}. Error: {tmp}"
             )
             return False
-        if self._runtime.config.lab_type == 'shell':
+        if self._job.get_device_type() == 'shell':
             self.log.info("Waiting...")
             job.wait()
             self.log.info("...done")
