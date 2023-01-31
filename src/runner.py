@@ -22,13 +22,13 @@ class Runner(Service):
 
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
-        self._db_config_yaml = self._db_config.to_yaml()
+        self._api_config_yaml = self._api_config.to_yaml()
         self._plan_configs = configs['test_plans']
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
         self._job = Job(
-            self._db,
-            self._db_config_yaml,
+            self._api,
+            self._api_config_yaml,
             configs['labs'][args.lab_config],
             args.output
         )
@@ -52,14 +52,14 @@ class RunnerLoop(Runner):
         # ToDo: if stat != 0 then report error to API?
 
     def _setup(self, args):
-        return self._db.subscribe_node_channel(filters={
+        return self._api.subscribe_node_channel(filters={
             'name': 'checkout',
             'state': 'available',
         })
 
     def _stop(self, sub_id):
         if sub_id:
-            self._db.unsubscribe(sub_id)
+            self._api.unsubscribe(sub_id)
         self._cleanup_paths()
 
     def _run(self, sub_id):
@@ -74,7 +74,7 @@ class RunnerLoop(Runner):
             return False
 
         while True:
-            checkout_node = self._db.receive_node(sub_id)
+            checkout_node = self._api.receive_node(sub_id)
             node, msg = self._job.create_node(checkout_node, self._plan)
             if not node:
                 self.log.error(f"Failed to create node for \
@@ -95,14 +95,14 @@ class RunnerSingleJob(Runner):
     """Runner subclass to execute a single job"""
 
     def _get_node_from_commit(self, git_commit):
-        nodes = self._db.get_nodes({
+        nodes = self._api.get_nodes({
             "revision.commit": git_commit,
         })
         return nodes[0] if nodes else None
 
     def _setup(self, args):
         if args.node_id:
-            checkout_node = self._db.get_node(args.node_id)
+            checkout_node = self._api.get_node(args.node_id)
         elif args.git_commit:
             checkout_node = self._get_node_from_commit(args.git_commit)
         else:
@@ -133,7 +133,7 @@ class RunnerSingleJob(Runner):
 
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
-    args = [Args.db_config, Args.lab_config, Args.output]
+    args = [Args.api_config, Args.lab_config, Args.output]
     opt_args = [Args.verbose, Args.plan]
 
     def __call__(self, configs, args):
@@ -143,7 +143,7 @@ class cmd_loop(Command):
 class cmd_run(Command):
     help = "Run one arbitrary test and exit"
     args = [
-        Args.db_config, Args.lab_config, Args.output,
+        Args.api_config, Args.lab_config, Args.output,
         Args.plan, Args.target,
     ]
     opt_args = [

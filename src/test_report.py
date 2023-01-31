@@ -39,8 +39,8 @@ class TestReport(Service):
 
     def _get_group_stats(self, parent_id):
         return {
-            'total': self._db.count_nodes({"parent": parent_id}),
-            'failures': self._db.count_nodes({
+            'total': self._api.count_nodes({"parent": parent_id}),
+            'failures': self._api.count_nodes({
                 "parent": parent_id,
                 "result": "fail"
             })
@@ -50,13 +50,13 @@ class TestReport(Service):
         group = root_node['group']
         revision = root_node['revision']
         # Get count of group nodes and exclude the root node from it
-        group_nodes = self._db.count_nodes({
+        group_nodes = self._api.count_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
             'group': group,
         })-1
-        failures = self._db.get_nodes({
+        failures = self._api.get_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
@@ -72,7 +72,7 @@ class TestReport(Service):
         return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
 
     def _get_results_data(self, root_node):
-        group_nodes = self._db.get_nodes({"parent": root_node['_id']})
+        group_nodes = self._api.get_nodes({"parent": root_node['_id']})
         groups = {
             node['name']: self._get_group_data(node)
             for node in group_nodes
@@ -119,21 +119,21 @@ class TestReportLoop(TestReport):
     """Command to send reports upon receiving events in a loop"""
 
     def _setup(self, args):
-        return self._db.subscribe_node_channel(filters={
+        return self._api.subscribe_node_channel(filters={
             'name': 'checkout',
             'state': 'done',
         })
 
     def _stop(self, sub_id):
         if sub_id:
-            self._db.unsubscribe(sub_id)
+            self._api.unsubscribe(sub_id)
 
     def _run(self, sub_id):
         self.log.info("Listening for completed nodes")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            root_node = self._db.receive_node(sub_id)
+            root_node = self._api.receive_node(sub_id)
             content, subject = self._get_report(root_node)
             self._dump_report(content)
             self._send_report(subject, content)
@@ -146,7 +146,7 @@ class TestReportSingle(TestReport):
 
     def _setup(self, args):
         return {
-            'root_node': self._db.get_node(args.node_id),
+            'root_node': self._api.get_node(args.node_id),
             'dump': args.dump,
             'send': args.send,
         }
@@ -163,7 +163,7 @@ class TestReportSingle(TestReport):
 class cmd_loop(Command):
     help = "Generate test report"
     args = [
-        Args.db_config,
+        Args.api_config,
     ]
     opt_args = [
         {

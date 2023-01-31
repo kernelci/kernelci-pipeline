@@ -14,7 +14,6 @@ import datetime
 import sys
 
 import kernelci
-import kernelci.db
 import kernelci.config
 from kernelci.cli import Args, Command, parse_opts
 from kcidb import Client
@@ -33,7 +32,7 @@ class KCIDBBridge(Service):
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
-            'sub_id': self._db.subscribe_node_channel(filters={
+            'sub_id': self._api.subscribe_node_channel(filters={
                 'name': 'checkout',
                 'state': 'done',
             }),
@@ -42,7 +41,7 @@ class KCIDBBridge(Service):
 
     def _stop(self, context):
         if context['sub_id']:
-            self._db.unsubscribe(context['sub_id'])
+            self._api.unsubscribe(context['sub_id'])
 
     def _send_revision(self, client, revision):
         if kcidb.io.SCHEMA.is_valid(revision):
@@ -63,7 +62,7 @@ class KCIDBBridge(Service):
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            node = self._db.receive_node(context['sub_id'])
+            node = self._api.receive_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {node['_id']}")
 
             revision = {
@@ -96,7 +95,7 @@ class KCIDBBridge(Service):
 class cmd_run(Command):
     help = "Listen for events and send them to KCDIB"
     args = [
-        Args.db_config,
+        Args.api_config,
         {
             'name': '--kcidb-topic-name',
             'help': "KCIDB topic name",

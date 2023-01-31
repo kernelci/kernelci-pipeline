@@ -27,7 +27,7 @@ class TimeoutService(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._pending_states = [
-            state.value for state in self._db.node_states
+            state.value for state in self._api.node_states
             if state != state.DONE
         ]
 
@@ -41,14 +41,15 @@ class TimeoutService(Service):
         node_filters = filters.copy() if filters else {}
         for state in self._pending_states:
             node_filters['state'] = state
-            for node in self._db.get_nodes(node_filters):
+            for node in self._api.get_nodes(node_filters):
                 nodes[node['_id']] = node
         return nodes
 
     def _count_running_child_nodes(self, parent_id):
         nodes_count = 0
+
         for state in self._pending_states:
-            nodes_count += self._db.count_nodes({
+            nodes_count += self._api.count_nodes({
                 'parent': parent_id, 'state': state
             })
         return nodes_count
@@ -70,7 +71,7 @@ class TimeoutService(Service):
             if log:
                 self.log.debug(f"{node_id} {log}")
             try:
-                self._db.submit({'node': node_update})
+                self._api.submit({'node': node_update})
             except requests.exceptions.HTTPError as err:
                 err_msg = json.loads(err.response.content).get("detail", [])
                 self.log.error(err_msg)
@@ -108,7 +109,7 @@ class Holdoff(TimeoutService):
         super().__init__(configs, args, 'timeout-holdoff')
 
     def _get_available_nodes(self):
-        nodes = self._db.get_nodes({
+        nodes = self._api.get_nodes({
             'state': 'available',
             'holdoff__lt': datetime.isoformat(datetime.utcnow()),
         })
@@ -150,7 +151,7 @@ class Closing(TimeoutService):
         super().__init__(configs, args, 'timeout-closing')
 
     def _get_closing_nodes(self):
-        nodes = self._db.get_nodes({'state': 'closing'})
+        nodes = self._api.get_nodes({'state': 'closing'})
         return {node['_id']: node for node in nodes}
 
     def _check_closing_nodes(self, closing_nodes):
@@ -184,7 +185,7 @@ MODES = {
 class cmd_run(Command):
     help = "Set node state to done if maximum wait time is over"
     args = [
-        Args.db_config,
+        Args.api_config,
         {
             'name': '--poll-period',
             'type': int,

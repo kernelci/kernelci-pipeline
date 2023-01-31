@@ -25,14 +25,14 @@ class RegressionTracker(Service):
         ]
 
     def _setup(self, args):
-        return self._db.subscribe_node_channel(filters={
+        return self._api.subscribe_node_channel(filters={
             'state': 'done',
             'result': 'fail',
         })
 
     def _stop(self, sub_id):
         if sub_id:
-            self._db.unsubscribe(sub_id)
+            self._api.unsubscribe(sub_id)
 
     def _create_regression(self, failed_node, last_successful_node):
         """Method to create a regression"""
@@ -41,7 +41,7 @@ class RegressionTracker(Service):
             regression[field] = failed_node[field]
         regression['parent'] = failed_node['_id']
         regression['regression_data'] = [last_successful_node, failed_node]
-        self._db.submit({'regression': regression})
+        self._api.submit({'regression': regression})
 
     def _run(self, sub_id):
         """Method to run regression tracking"""
@@ -50,11 +50,11 @@ class RegressionTracker(Service):
         sys.stdout.flush()
 
         while True:
-            node = self._db.receive_node(sub_id)
+            node = self._api.receive_node(sub_id)
             if not node['group']:
                 continue
 
-            previous_nodes = self._db.get_nodes({
+            previous_nodes = self._api.get_nodes({
                 'name': node['name'],
                 'group': node['group'],
                 'revision.tree': node['revision']['tree'],
@@ -83,7 +83,7 @@ class RegressionTracker(Service):
 
 class cmd_run(Command):
     help = "Regression tracker"
-    args = [Args.db_config]
+    args = [Args.api_config]
 
     def __call__(self, configs, args):
         return RegressionTracker(configs, args).run(args)
