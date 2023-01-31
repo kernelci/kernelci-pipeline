@@ -24,11 +24,11 @@ class Notifier(Service):
         super().__init__(configs, args, 'notifier')
 
     def _setup(self, args):
-        return self._db.subscribe('node')
+        return self._api.subscribe('node')
 
     def _stop(self, sub_id):
         if sub_id:
-            self._db.unsubscribe(sub_id)
+            self._api.unsubscribe(sub_id)
         sys.stdout.flush()
 
     def _run(self, sub_id):
@@ -60,9 +60,9 @@ class Notifier(Service):
         sys.stdout.flush()
 
         while True:
-            event = self._db.get_event(sub_id)
+            event = self._api.get_event(sub_id)
             dt = datetime.datetime.fromisoformat(event['time'])
-            obj = self._db.get_node_from_event(event)
+            obj = self._api.get_node_from_event(event)
             self.log.info(log_fmt.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
@@ -78,7 +78,7 @@ class Notifier(Service):
 
 class cmd_run(Command):
     help = "Listen for events and report them on stdout"
-    args = [Args.db_config]
+    args = [Args.api_config]
 
     def __call__(self, configs, args):
         return Notifier(configs, args).run(args)

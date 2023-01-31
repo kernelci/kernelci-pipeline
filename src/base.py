@@ -9,7 +9,7 @@ import logging
 import os
 
 import kernelci
-import kernelci.db
+from kernelci.db import kernelci_api
 
 from logger import Logger
 
@@ -20,9 +20,9 @@ class Service:
     def __init__(self, configs, args, name):
         self._name = name
         self._logger = Logger("config/logger.conf", name)
-        self._db_config = configs['db_configs'][args.db_config]
+        self._api_config = configs['api_configs'][args.api_config]
         api_token = os.getenv('API_TOKEN')
-        self._db = kernelci.db.get_db(self._db_config, api_token)
+        self._api = kernelci_api.KernelCI_API(self._api_config, api_token)
 
     @property
     def log(self):

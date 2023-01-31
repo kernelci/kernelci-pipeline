@@ -118,13 +118,13 @@ scp \
             'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
         try:
-            self._db.submit({'node': node})
+            self._api.submit({'node': node})
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
     def _setup(self, args):
-        return self._db.subscribe_node_channel(filters={
+        return self._api.subscribe_node_channel(filters={
             'op': 'created',
             'name': 'checkout',
             'state': 'running',
@@ -132,14 +132,14 @@ scp \
 
     def _stop(self, sub_id):
         if sub_id:
-            self._db.unsubscribe(sub_id)
+            self._api.unsubscribe(sub_id)
 
     def _run(self, sub_id):
         self.log.info("Listening for new trigger events")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            checkout_node = self._db.receive_node(sub_id)
+            checkout_node = self._api.receive_node(sub_id)
 
             build_config = self._find_build_config(checkout_node)
             if build_config is None:
@@ -159,7 +159,7 @@ scp \
 class cmd_run(Command):
     help = "Wait for a new revision event and push a source tarball"
     args = [
-        Args.kdir, Args.output, Args.db_config,
+        Args.kdir, Args.output, Args.api_config,
         {
             'name': '--ssh-key',
             'help': "Path to the ssh key for uploading to storage",
