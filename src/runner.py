@@ -8,6 +8,7 @@
 
 import logging
 import sys
+import yaml
 
 import kernelci
 import kernelci.config
@@ -22,7 +23,7 @@ class Runner(Service):
 
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
-        self._api_config_yaml = self._api_config.to_yaml()
+        self._api_config_yaml = yaml.dump(self._api_config)
         self._plan_configs = configs['test_plans']
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
