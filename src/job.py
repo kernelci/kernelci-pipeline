@@ -17,9 +17,9 @@ import kernelci
 
 class Job():
     """Implements methods for creating and scheduling jobs"""
-    def __init__(self, db_handler, db_config_yaml, lab_config, output):
-        self._db = db_handler
-        self._db_config_yaml = db_config_yaml
+    def __init__(self, api_handler, api_config_yaml, lab_config, output):
+        self._api = api_handler
+        self._api_config_yaml = api_config_yaml
         self._runtime = kernelci.lab.get_api(lab_config)
         self._output = output
         self._create_output_dir()
@@ -44,7 +44,7 @@ class Job():
             'revision': checkout_node['revision'],
         }
         try:
-            return self._db.submit({'node': node})[0], \
+            return self._api.submit({'node': node})[0], \
                 "Node created successfully"
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
@@ -54,7 +54,7 @@ class Job():
         """Method to generate jobs"""
         revision = node['revision']
         params = {
-            'db_config_yaml': self._db_config_yaml,
+            'api_config_yaml': self._api_config_yaml,
             'name': plan_config.name,
             'node_id': node['_id'],
             'revision': revision,
