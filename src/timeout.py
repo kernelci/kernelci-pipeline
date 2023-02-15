@@ -5,12 +5,9 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-import logging
-import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import sleep
-import traceback
 import json
 import requests
 
@@ -19,7 +16,7 @@ import kernelci.config
 import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from base import Service
+from .base import Service
 
 
 class TimeoutService(Service):
@@ -204,6 +201,6 @@ class cmd_run(Command):
 
 if __name__ == '__main__':
     opts = parse_opts('timeout', globals())
-    configs = kernelci.config.load('config/pipeline.yaml')
-    status = opts.command(configs, opts)
+    pipeline = kernelci.config.load('config/pipeline.yaml')
+    status = opts.command(pipeline, opts)
     sys.exit(0 if status is True else 1)
