@@ -19,9 +19,15 @@ from base import Service
 
 
 class Notifier(Service):
+    LOG_FMT = \
+        "{time:26s}  {commit:12s}  {id:24} {state:9s}  {result:8s}  {name}"
 
     def __init__(self, configs, args):
         super().__init__(configs, args, 'notifier')
+        self._log_titles = self.LOG_FMT.format(
+            time="Time", commit="Commit", id="Node Id", state="State",
+            result="Result", name="Name"
+        )
 
     def _setup(self, args):
         return self._api.subscribe('node')
@@ -32,10 +38,6 @@ class Notifier(Service):
         sys.stdout.flush()
 
     def _run(self, sub_id):
-        log_fmt = \
-            "{time:26s}  {commit:12s}  {id:24}  " \
-            "{state:9s}  {result:8s}  {name}"
-
         state_map = {
             "running": "Running",
             "available": "Available",
@@ -53,16 +55,13 @@ class Notifier(Service):
 
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
-        print(log_fmt.format(
-            time="Time", commit="Commit", id="Node Id", state="State",
-            result="Result", name="Name"
-        ), flush=True)
+        print(self._log_titles, flush=True)
 
         while True:
             event = self._api.receive_event(sub_id)
             obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
-            print(log_fmt.format(
+            print(self.LOG_FMT.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
                 id=obj['id'],
