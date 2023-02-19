@@ -30,7 +30,7 @@ class Runner(Service):
         self._job = Job(
             self._api,
             self._api_config_yaml,
-            configs['labs'][args.lab_config],
+            configs['labs'][args.runtime_config],
             args.output
         )
 
@@ -134,7 +134,7 @@ class RunnerSingleJob(Runner):
 
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
-    args = [Args.api_config, Args.lab_config, Args.output]
+    args = [Args.api_config, Args.runtime_config, Args.output]
     opt_args = [Args.verbose, Args.plan]
 
     def __call__(self, configs, args):
@@ -144,7 +144,7 @@ class cmd_loop(Command):
 class cmd_run(Command):
     help = "Run one arbitrary test and exit"
     args = [
-        Args.api_config, Args.lab_config, Args.output,
+        Args.api_config, Args.runtime_config, Args.output,
         Args.plan, Args.target,
     ]
     opt_args = [
