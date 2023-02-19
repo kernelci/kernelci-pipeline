@@ -66,7 +66,14 @@ class Trigger(Service):
             'revision': revision,
             'timeout': timeout.isoformat(),
         }
-        self._api.create_node(node)
+        try:
+            self._api.create_node(node)
+        except requests.exceptions.HTTPError as ex:
+            detail = ex.response.json().get('detail')
+            if detail:
+                self.log.error(detail)
+        except Exception as ex:
+            self.traceback(ex)
 
     def _iterate_build_configs(self, force, build_configs_list):
         for name, config in self._build_configs.items():
