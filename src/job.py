@@ -17,10 +17,10 @@ import kernelci
 
 class Job():
     """Implements methods for creating and scheduling jobs"""
-    def __init__(self, api_handler, api_config_yaml, lab_config, output):
+    def __init__(self, api_handler, api_config_yaml, runtime_config, output):
         self._api = api_handler
         self._api_config_yaml = api_config_yaml
-        self._runtime = kernelci.lab.get_api(lab_config)
+        self._runtime = kernelci.lab.get_api(runtime_config)
         self._output = output
         self._create_output_dir()
 
