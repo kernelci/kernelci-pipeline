@@ -53,25 +53,23 @@ class Notifier(Service):
 
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
-        self.log.info(log_fmt.format(
+        print(log_fmt.format(
             time="Time", commit="Commit", id="Node Id", state="State",
             result="Result", name="Name"
-        ))
-        sys.stdout.flush()
+        ), flush=True)
 
         while True:
             event = self._api.receive_event(sub_id)
             obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
-            self.log.info(log_fmt.format(
+            print(log_fmt.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
                 id=obj['id'],
                 state=state_map[obj['state']],
                 result=result_map[obj['result']],
-                name=obj['name'],
-            ))
-            sys.stdout.flush()
+                name=obj['name']
+            ), flush=True)
 
         return True
 
