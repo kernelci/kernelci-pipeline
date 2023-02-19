@@ -30,7 +30,7 @@ class Runner(Service):
         self._job = Job(
             self._api,
             self._api_config_yaml,
-            configs['labs'][args.runtime_config],
+            configs['runtimes'][args.runtime_config],
             args.output
         )
 

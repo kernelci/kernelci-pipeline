@@ -65,7 +65,7 @@ api_configs:
     url: https://staging.kernelci.org:9000
 
 
-labs:
+runtimes:
 
   k8s-gke-eu-west4:
     lab_type: kubernetes
