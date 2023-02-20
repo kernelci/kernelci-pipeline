@@ -30,7 +30,7 @@ services:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
-      - '--lab-config=shell'
+      - '--runtime-config=shell'
       - '--plan=kver'
     volumes:
       - './src:/home/kernelci/pipeline'
@@ -48,7 +48,7 @@ services:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
-      - '--lab-config=k8s-gke-eu-west4'
+      - '--runtime-config=k8s-gke-eu-west4'
       - '--plan=kunit'
 
   tarball:
