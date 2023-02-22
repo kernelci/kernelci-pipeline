@@ -12,7 +12,7 @@ import yaml
 
 import kernelci
 import kernelci.config
-import kernelci.lab
+import kernelci.runtime
 from kernelci.cli import Args, Command, parse_opts
 
 from base import Service
