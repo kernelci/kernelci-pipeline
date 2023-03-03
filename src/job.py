@@ -65,10 +65,7 @@ class Job():
         }
         params.update(plan_config.params)
         params.update(device_config.params)
-        templates = ['config/runtime', '/etc/kernelci/runtime']
-        job = self._runtime.generate(
-            params, device_config, plan_config, templates_paths=templates
-        )
+        job = self._runtime.generate(params, device_config, plan_config)
         output_file = self._runtime.save_file(job, tmp, params)
         return output_file
 
