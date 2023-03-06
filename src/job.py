@@ -50,22 +50,12 @@ class Job():
             err_msg = json.loads(err.response.content).get("detail", [])
             return None, err_msg
 
-    def _generate_job(self, node, plan_config, device_config, tmp):
+    def _generate_job(self, node, plan_config, platform_config, tmp):
         """Method to generate jobs"""
-        revision = node['revision']
-        params = {
-            'api_config_yaml': self._api_config_yaml,
-            'name': plan_config.name,
-            'node_id': node['_id'],
-            'revision': revision,
-            'runtime': self._runtime.config.lab_type,
-            'runtime_image': plan_config.image,
-            'tarball_url': node['artifacts']['tarball'],
-            'workspace': tmp,
-        }
-        params.update(plan_config.params)
-        params.update(device_config.params)
-        job = self._runtime.generate(params, device_config, plan_config)
+        params = self._runtime.get_params(
+            node, plan_config, platform_config, self._api.config
+        )
+        job = self._runtime.generate(params, plan_config)
         output_file = self._runtime.save_file(job, tmp, params)
         return output_file
 
