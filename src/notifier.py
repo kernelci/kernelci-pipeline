@@ -60,9 +60,9 @@ class Notifier(Service):
         sys.stdout.flush()
 
         while True:
-            event = self._api.get_event(sub_id)
+            event = self._api.receive_event(sub_id)
             dt = datetime.datetime.fromisoformat(event['time'])
-            obj = self._api.get_node_from_event(event)
+            obj = self._api_helper.get_node_from_event(event)
             self.log.info(log_fmt.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
