@@ -34,11 +34,11 @@ class Trigger(Service):
 
     def _run_trigger(self, build_config, force):
         head_commit = kernelci.build.get_branch_head(build_config)
-        node_list = self._api.count_nodes({
+        node_count = self._api.count_nodes({
             "revision.commit": head_commit,
         })
 
-        if node_list:
+        if node_count > 0:
             if force:
                 self._log_revision(
                     "Resubmitting existing revision", build_config, head_commit
@@ -66,7 +66,7 @@ class Trigger(Service):
             'revision': revision,
             'timeout': timeout.isoformat(),
         }
-        self._api.submit({'node': node})
+        self._api.create_node(node)
 
     def _iterate_build_configs(self, force, build_configs_list):
         for name, config in self._build_configs.items():
