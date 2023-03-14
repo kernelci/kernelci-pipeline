@@ -68,7 +68,7 @@ class TimeoutService(Service):
             if log:
                 self.log.debug(f"{node_id} {log}")
             try:
-                self._api.submit({'node': node_update})
+                self._api.update_node(node_update)
             except requests.exceptions.HTTPError as err:
                 err_msg = json.loads(err.response.content).get("detail", [])
                 self.log.error(err_msg)
