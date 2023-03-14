@@ -106,13 +106,13 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
             'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
         try:
-            self._api.submit({'node': node})
+            self._api.update_node(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
     def _setup(self, args):
-        return self._api.subscribe_node_channel(filters={
+        return self._api_helper.subscribe_filters({
             'op': 'created',
             'name': 'checkout',
             'state': 'running',
@@ -120,14 +120,14 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
 
     def _stop(self, sub_id):
         if sub_id:
-            self._api.unsubscribe(sub_id)
+            self._api_helper.unsubscribe_filters(sub_id)
 
     def _run(self, sub_id):
         self.log.info("Listening for new trigger events")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            checkout_node = self._api.receive_node(sub_id)
+            checkout_node = self._api_helper.receive_event_node(sub_id)
 
             build_config = self._find_build_config(checkout_node)
             if build_config is None:
