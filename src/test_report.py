@@ -119,21 +119,21 @@ class TestReportLoop(TestReport):
     """Command to send reports upon receiving events in a loop"""
 
     def _setup(self, args):
-        return self._api.subscribe_node_channel(filters={
+        return self._api_helper.subscribe_filters({
             'name': 'checkout',
             'state': 'done',
         })
 
     def _stop(self, sub_id):
         if sub_id:
-            self._api.unsubscribe(sub_id)
+            self._api_helper.unsubscribe_filters(sub_id)
 
     def _run(self, sub_id):
         self.log.info("Listening for completed nodes")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            root_node = self._api.receive_node(sub_id)
+            root_node = self._api_helper.receive_event_node(sub_id)
             content, subject = self._get_report(root_node)
             self._dump_report(content)
             self._send_report(subject, content)
