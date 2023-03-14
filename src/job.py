@@ -17,8 +17,8 @@ import kernelci
 
 class Job():
     """Implements methods for creating and scheduling jobs"""
-    def __init__(self, api_handler, api_config_yaml, runtime_config, output):
-        self._api = api_handler
+    def __init__(self, api_helper, api_config_yaml, runtime_config, output):
+        self._helper = api_helper
         self._api_config_yaml = api_config_yaml
         self._runtime = kernelci.runtime.get_runtime(runtime_config)
         self._output = output
@@ -44,7 +44,7 @@ class Job():
             'revision': checkout_node['revision'],
         }
         try:
-            return self._api.submit({'node': node})[0], \
+            return self._helper.api.create_node(node), \
                 "Node created successfully"
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
@@ -53,7 +53,7 @@ class Job():
     def _generate_job(self, node, plan_config, platform_config, tmp):
         """Method to generate jobs"""
         params = self._runtime.get_params(
-            node, plan_config, platform_config, self._api.config
+            node, plan_config, platform_config, self._helper.api.config
         )
         job = self._runtime.generate(params, plan_config)
         output_file = self._runtime.save_file(job, tmp, params)

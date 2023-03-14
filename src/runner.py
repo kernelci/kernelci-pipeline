@@ -28,7 +28,7 @@ class Runner(Service):
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
         self._job = Job(
-            self._api,
+            self._api_helper,
             self._api_config_yaml,
             configs['runtimes'][args.runtime_config],
             args.output
@@ -53,14 +53,14 @@ class RunnerLoop(Runner):
         # ToDo: if stat != 0 then report error to API?
 
     def _setup(self, args):
-        return self._api.subscribe_node_channel(filters={
+        return self._api_helper.subscribe_filters({
             'name': 'checkout',
             'state': 'available',
         })
 
     def _stop(self, sub_id):
         if sub_id:
-            self._api.unsubscribe(sub_id)
+            self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
 
     def _run(self, sub_id):
@@ -75,7 +75,7 @@ class RunnerLoop(Runner):
             return False
 
         while True:
-            checkout_node = self._api.receive_node(sub_id)
+            checkout_node = self._api_helper.receive_event_node(sub_id)
             node, msg = self._job.create_node(checkout_node, self._plan)
             if not node:
                 self.log.error(f"Failed to create node for \
