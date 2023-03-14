@@ -32,7 +32,7 @@ class KCIDBBridge(Service):
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
-            'sub_id': self._api.subscribe_node_channel(filters={
+            'sub_id': self._api_helper.subscribe_filters({
                 'name': 'checkout',
                 'state': 'done',
             }),
@@ -41,7 +41,7 @@ class KCIDBBridge(Service):
 
     def _stop(self, context):
         if context['sub_id']:
-            self._api.unsubscribe(context['sub_id'])
+            self._api_helper.unsubscribe_filters(context['sub_id'])
 
     def _send_revision(self, client, revision):
         if kcidb.io.SCHEMA.is_valid(revision):
@@ -62,7 +62,7 @@ class KCIDBBridge(Service):
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            node = self._api.receive_node(context['sub_id'])
+            node = self._api_helper.receive_node_event(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {node['_id']}")
 
             revision = {
