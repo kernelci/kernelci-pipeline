@@ -9,6 +9,7 @@ import logging
 import os
 
 import kernelci
+from kernelci.api.helper import APIHelper
 
 from logger import Logger
 
@@ -22,6 +23,7 @@ class Service:
         self._api_config = configs['api_configs'][args.api_config]
         api_token = os.getenv('API_TOKEN')
         self._api = kernelci.api.get_api(self._api_config, api_token)
+        self._api_helper = APIHelper(self._api)
 
     @property
     def log(self):
