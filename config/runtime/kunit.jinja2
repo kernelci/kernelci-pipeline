@@ -9,6 +9,11 @@ import json
 import subprocess
 {%- endblock %}
 
+{%- block python_local_imports %}
+{{ super() }}
+import kernelci.api.helper
+{%- endblock %}
+
 {%- block python_globals %}
 {{ super() }}
 RESULT_MAP = {
@@ -65,10 +70,11 @@ cd {src_path} && \
 
         return results
 
-    def _submit(self, results, node_id, db):
+    def _submit(self, results, node_id, api):
         # Ensure top-level name is kept the same
-        node = db.get_node(node_id)
+        node = api.get_node(node_id)
         results['node']['name'] = node['name']
-        db.submit_results(results, node)
+        api_helper = kernelci.api.helper.APIHelper(api)
+        api_helper.submit_results(results, node)
         return node
 {% endblock %}
