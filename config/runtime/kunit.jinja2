@@ -45,28 +45,56 @@ class Job(BaseJob):
             'child_nodes': child_nodes,
         }
 
-    def _run(self, src_path):
-        kunit_json = 'kunit.json'
-
-        print("Running KUnit...")
-        cmd = f"\
-cd {src_path} && \
-./tools/testing/kunit/kunit.py run --json={kunit_json} --jobs=$(nproc)"
-        kunit_res = subprocess.run(cmd, shell=True).returncode
-
-        # ToDo: send {src_path}/.kunit/test.log as artifact
-        # ToDo: send {src_path}/kunit.json as artifact
-
+    def _parse_exec_results(self, src_path, kunit_json):
         kunit_json_path = os.path.join(src_path, kunit_json)
         print(f"Parsing results from {kunit_json_path}")
         with open(kunit_json_path) as results_json:
             results_raw = json.load(results_json)
         results = self._parse_results(results_raw)
-        results['node']['result'] = 'fail' if kunit_res else 'pass'
-        results_path = os.path.join(src_path, 'results.json')
-        print(f"Saving results file {results_path}")
-        with open(os.path.join(src_path, 'results.json'), 'w') as results_file:
-            json.dump(results, results_file, indent='  ')
+        return results
+
+    def _run_kunit(self, src_path, kunit_json, command):
+        cmd = f"(cd {src_path} && ./tools/testing/kunit/kunit.py {command})"
+        ret = subprocess.run(cmd, shell=True).returncode
+        return True if ret == 0 else False
+
+    def _run(self, src_path):
+        kunit_json = 'kunit.json'
+        steps = {
+            'config': 'config',
+            'build': 'build --jobs=$(nproc)',
+            'exec': f'exec --json={kunit_json}',
+        }
+        step_results = {name: (None, []) for name in steps.keys()}
+
+        for name, command in steps.items():
+            res = self._run_kunit(src_path, kunit_json, command)
+            res_str = 'pass' if res is True else 'fail'
+            step_results[name] = (res_str, [])
+            if res is False:
+                break
+
+        if step_results['exec'][0] == 'pass':
+            exec_results = self._parse_exec_results(src_path, kunit_json)
+            step_results['exec'] = ('pass', exec_results['child_nodes'])
+
+        results = {
+            'node': {
+                'result': step_results['exec'][0] or 'fail',
+            },
+            'child_nodes': [
+                {
+                    'node': {
+                        'name': name,
+                        'result': result,
+                    },
+                    'child_nodes': child_nodes,
+                } for name, (result, child_nodes) in step_results.items()
+            ]
+        }
+
+        # ToDo: send {src_path}/.kunit/test.log as artifact
+        # ToDo: send {src_path}/kunit.json as artifact
 
         return results
 
