@@ -16,7 +16,7 @@ import kernelci.config
 import kernelci.db
 from kernelci.cli import Args, Command, parse_opts
 
-from .base import Service
+from base import Service
 
 
 class TimeoutService(Service):
