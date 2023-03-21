@@ -78,14 +78,19 @@ class RunnerLoop(Runner):
             checkout_node = self._api_helper.receive_event_node(sub_id)
             node, msg = self._job.create_node(checkout_node, self._plan)
             if not node:
-                self.log.error(f"Failed to create node for \
-{self._plan.name}. Error: {msg}")
+                self.log.error(
+                    f"Failed to create node for {self._plan.name}: {msg}"
+                )
                 continue
             job, tmp = self._job.schedule_job(node, self._plan, device)
             if not job:
-                self.log.error(f"Failed to schedule job for \
-{self._plan.name}. Error: {tmp}")
+                self.log.error(
+                    f"Failed to schedule job for {self._plan.name}: {tmp}"
+                )
                 continue
+            self.log.info(' '.join([
+                node['_id'], self._job.runtime_name, str(self._job.get_id(job))
+            ]))
             if device_type == 'shell':
                 self._job_tmp_dirs[job] = tmp
 

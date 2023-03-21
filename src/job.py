@@ -24,6 +24,13 @@ class Job():
         self._output = output
         self._create_output_dir()
 
+    @property
+    def runtime_name(self):
+        return self._runtime.config.name
+
+    def get_id(self, job):
+        return self._runtime.get_job_id(job)
+
     def _create_output_dir(self):
         """Create output directory"""
         if not os.path.exists(self._output):
