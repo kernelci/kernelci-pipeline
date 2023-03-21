@@ -45,21 +45,49 @@ class Job(BaseJob):
             'child_nodes': child_nodes,
         }
 
-    def _parse_exec_results(self, src_path, kunit_json):
-        kunit_json_path = os.path.join(src_path, kunit_json)
+    def _parse_exec_results(self, kunit_json_path):
         print(f"Parsing results from {kunit_json_path}")
-        with open(kunit_json_path) as results_json:
+        with open(kunit_json_path, encoding='utf-8') as results_json:
             results_raw = json.load(results_json)
-        results = self._parse_results(results_raw)
-        return results
+        return self._parse_results(results_raw)
 
-    def _run_kunit(self, src_path, kunit_json, command):
-        cmd = f"(cd {src_path} && ./tools/testing/kunit/kunit.py {command})"
+    def _run_kunit(self, src_path, command, job_log):
+        cmd = f"""(\
+set -e
+cd {src_path}
+./tools/testing/kunit/kunit.py {command} >> {job_log} 2>&1
+)"""
         ret = subprocess.run(cmd, shell=True).returncode
-        return True if ret == 0 else False
+        return ret == 0
+
+    def _upload_artifacts(self, local_artifacts):
+        artifacts = {}
+        storage = self._get_storage()
+        if storage and NODE_ID:
+            root_path = '-'.join(['kunit', NODE_ID])
+            print(f"Uploading artifacts to {root_path}")
+            for file_name, file_path in local_artifacts.items():
+                if os.path.exists(file_path):
+                    file_url = storage.upload_single(
+                        (file_path, file_name), root_path
+                    )
+                    print(file_url)
+                    artifacts[file_name] = file_url
+        return artifacts
 
     def _run(self, src_path):
+        job_log = 'job.txt'
         kunit_json = 'kunit.json'
+        job_log_path, kunit_json_path = (
+            os.path.join(src_path, file_name)
+            for file_name in [job_log, kunit_json]
+        )
+        local_artifacts = {
+            job_log: job_log_path,
+            kunit_json: kunit_json_path,
+            'test.log': os.path.join(src_path, '.kunit/test.log')
+        }
+
         steps = {
             'config': 'config',
             'build': 'build --jobs=$(nproc)',
@@ -68,19 +96,28 @@ class Job(BaseJob):
         step_results = {name: (None, []) for name in steps.keys()}
 
         for name, command in steps.items():
-            res = self._run_kunit(src_path, kunit_json, command)
+            res = self._run_kunit(src_path, command, job_log)
             res_str = 'pass' if res is True else 'fail'
             step_results[name] = (res_str, [])
             if res is False:
                 break
 
+        artifacts = self._upload_artifacts(local_artifacts)
+
+        if os.path.exists(job_log_path):
+            with open(job_log_path, encoding='utf-8') as job_log_file:
+                print("--------------------------------------------------")
+                print(job_log_file.read())
+                print("--------------------------------------------------")
+
         if step_results['exec'][0] == 'pass':
-            exec_results = self._parse_exec_results(src_path, kunit_json)
+            exec_results = self._parse_exec_results(kunit_json_path)
             step_results['exec'] = ('pass', exec_results['child_nodes'])
 
         results = {
             'node': {
                 'result': step_results['exec'][0] or 'fail',
+                'artifacts': artifacts,
             },
             'child_nodes': [
                 {
@@ -92,9 +129,6 @@ class Job(BaseJob):
                 } for name, (result, child_nodes) in step_results.items()
             ]
         }
-
-        # ToDo: send {src_path}/.kunit/test.log as artifact
-        # ToDo: send {src_path}/kunit.json as artifact
 
         return results
 
