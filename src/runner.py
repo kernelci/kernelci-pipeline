@@ -7,12 +7,14 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import logging
+import os
 import sys
 import yaml
 
 import kernelci
 import kernelci.config
 import kernelci.runtime
+import kernelci.storage
 from kernelci.cli import Args, Command, parse_opts
 
 from base import Service
@@ -27,10 +29,16 @@ class Runner(Service):
         self._plan_configs = configs['test_plans']
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
+        self._storage_config = configs['storage_configs'][args.storage_config]
+        storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
+        self._storage = kernelci.storage.get_storage(
+            self._storage_config, storage_cred
+        )
         self._job = Job(
             self._api_helper,
             self._api_config_yaml,
             configs['runtimes'][args.runtime_config],
+            self._storage,
             args.output
         )
 
@@ -149,8 +157,8 @@ class cmd_loop(Command):
 class cmd_run(Command):
     help = "Run one arbitrary test and exit"
     args = [
-        Args.api_config, Args.runtime_config, Args.output,
-        Args.plan, Args.target,
+        Args.api_config, Args.runtime_config, Args.storage_config,
+        Args.output, Args.plan, Args.target,
     ]
     opt_args = [
         Args.verbose,
