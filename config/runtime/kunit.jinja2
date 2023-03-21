@@ -98,11 +98,12 @@ class Job(BaseJob):
 
         return results
 
-    def _submit(self, results, node_id, api):
+    def _submit(self, result, node_id, api):
         # Ensure top-level name is kept the same
         node = api.get_node(node_id)
-        results['node']['name'] = node['name']
+        result['node']['name'] = node['name']
         api_helper = kernelci.api.helper.APIHelper(api)
-        api_helper.submit_results(results, node)
+        api_helper.submit_results(result, node)
+
         return node
 {% endblock %}
