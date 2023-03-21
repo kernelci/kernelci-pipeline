@@ -17,10 +17,12 @@ import kernelci
 
 class Job():
     """Implements methods for creating and scheduling jobs"""
-    def __init__(self, api_helper, api_config_yaml, runtime_config, output):
+    def __init__(self, api_helper, api_config_yaml, runtime_config,
+                 storage, output):
         self._helper = api_helper
         self._api_config_yaml = api_config_yaml
         self._runtime = kernelci.runtime.get_runtime(runtime_config)
+        self._storage = storage
         self._output = output
         self._create_output_dir()
 
@@ -60,7 +62,8 @@ class Job():
     def _generate_job(self, node, plan_config, platform_config, tmp):
         """Method to generate jobs"""
         params = self._runtime.get_params(
-            node, plan_config, platform_config, self._helper.api.config
+            node, plan_config, platform_config, self._helper.api.config,
+            self._storage.config
         )
         job = self._runtime.generate(params, plan_config)
         output_file = self._runtime.save_file(job, tmp, params)
