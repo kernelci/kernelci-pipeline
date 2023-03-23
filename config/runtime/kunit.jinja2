@@ -21,6 +21,7 @@ RESULT_MAP = {
     'FAIL': 'fail',
     'SKIP': None,
 }
+ARCH = '{{ arch }}'
 {% endblock %}
 
 {% block python_job -%}
@@ -88,10 +89,11 @@ cd {src_path}
             'test.log': os.path.join(src_path, '.kunit/test.log')
         }
 
+        arch_arg = f'--arch={ARCH}' if ARCH else ''
         steps = {
-            'config': 'config',
-            'build': 'build --jobs=$(nproc)',
-            'exec': f'exec --json={kunit_json}',
+            'config': f'config {arch_arg}',
+            'build': f'build --jobs=$(nproc) {arch_arg}',
+            'exec': f'exec --json={kunit_json} {arch_arg}',
         }
         step_results = {name: (None, []) for name in steps.keys()}
 
