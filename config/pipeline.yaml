@@ -95,9 +95,14 @@ test_plans:
   fstests:
     pattern: 'fstests.jinja2'
 
-  kunit:
+  kunit: &kunit
     pattern: 'kunit.jinja2'
     image: 'kernelci/staging-gcc-10:x86-kunit-kernelci'
+
+  kunit-x86_64:
+    <<: *kunit
+    params:
+      arch: 'x86_64'
 
   kver:
     pattern: 'kver.jinja2'
