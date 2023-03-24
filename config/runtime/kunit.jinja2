@@ -89,6 +89,9 @@ cd {src_path}
             'test.log': os.path.join(src_path, '.kunit/test.log')
         }
 
+        if os.path.exists(job_log_path):
+            os.remove(job_log_path)
+
         arch_arg = f'--arch={ARCH}' if ARCH else ''
         steps = {
             'config': f'config {arch_arg}',
