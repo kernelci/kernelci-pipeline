@@ -49,7 +49,7 @@ class RunnerLoop(Runner):
     def __init__(self, configs, args, **kwargs):
         super().__init__(configs, args, **kwargs)
         self._job_tmp_dirs = {}
-        self._plan = self._plan_configs[args.plan]
+        self._plans = [self._plan_configs[plan] for plan in args.plans]
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -84,23 +84,26 @@ class RunnerLoop(Runner):
 
         while True:
             checkout_node = self._api_helper.receive_event_node(sub_id)
-            node, msg = self._job.create_node(checkout_node, self._plan)
-            if not node:
-                self.log.error(
-                    f"Failed to create node for {self._plan.name}: {msg}"
-                )
-                continue
-            job, tmp = self._job.schedule_job(node, self._plan, device)
-            if not job:
-                self.log.error(
-                    f"Failed to schedule job for {self._plan.name}: {tmp}"
-                )
-                continue
-            self.log.info(' '.join([
-                node['_id'], self._job.runtime_name, str(self._job.get_id(job))
-            ]))
-            if device_type == 'shell':
-                self._job_tmp_dirs[job] = tmp
+            for plan in self._plans:
+                node, msg = self._job.create_node(checkout_node, plan)
+                if not node:
+                    self.log.error(
+                        f"Failed to create node for {plan.name}: {msg}"
+                    )
+                    continue
+                job, tmp = self._job.schedule_job(node, plan, device)
+                if not job:
+                    self.log.error(
+                        f"Failed to schedule job for {plan.name}: {tmp}"
+                    )
+                    continue
+                self.log.info(' '.join([
+                    node['_id'],
+                    self._job.runtime_name,
+                    str(self._job.get_id(job)),
+                ]))
+                if device_type == 'shell':
+                    self._job_tmp_dirs[job] = tmp
 
         return True
 
@@ -148,7 +151,14 @@ class RunnerSingleJob(Runner):
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
     args = [Args.api_config, Args.runtime_config, Args.output]
-    opt_args = [Args.verbose, Args.plan]
+    opt_args = [
+        Args.verbose,
+        {
+            'name': 'plans',
+            'nargs': '+',
+            'help': "Test plans to run",
+        },
+    ]
 
     def __call__(self, configs, args):
         return RunnerLoop(configs, args).run()
