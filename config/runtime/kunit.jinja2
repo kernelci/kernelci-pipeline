@@ -65,7 +65,7 @@ cd {src_path}
         artifacts = {}
         storage = self._get_storage()
         if storage and NODE_ID:
-            root_path = '-'.join(['kunit', NODE_ID])
+            root_path = '-'.join([JOB_NAME, NODE_ID])
             print(f"Uploading artifacts to {root_path}")
             for file_name, file_path in local_artifacts.items():
                 if os.path.exists(file_path):
