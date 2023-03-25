@@ -51,6 +51,7 @@ services:
       - '--runtime-config=k8s-gke-eu-west4'
       - 'kunit'
       - 'kunit-x86_64'
+      - 'kbuild'
 
   tarball:
     <<: *base-service
