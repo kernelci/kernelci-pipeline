@@ -1,0 +1,118 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{%- extends 'base/python.jinja2' %}
+
+{%- block python_imports %}
+{{ super() }}
+import subprocess
+{%- endblock %}
+
+{%- block python_local_imports %}
+{{ super() }}
+import kernelci.api.helper
+{%- endblock %}
+
+{% block python_job -%}
+class Job(BaseJob):
+
+    def _run_kbuild(self, src_path, command, job_log):
+        cmd = f"""(\
+set -e
+cd {src_path}
+echo '# {command}' | tee -a {job_log}
+{command} >> {job_log} 2>&1
+)"""
+        ret = subprocess.run(cmd, shell=True).returncode
+        return ret == 0
+
+    def _upload_artifacts(self, local_artifacts):
+        artifacts = {}
+        storage = self._get_storage()
+        if storage and NODE_ID:
+            root_path = '-'.join([JOB_NAME, NODE_ID])
+            print(f"Uploading artifacts to {root_path}")
+            for file_name, file_path in local_artifacts.items():
+                if os.path.exists(file_path):
+                    file_url = storage.upload_single(
+                        (file_path, file_name), root_path
+                    )
+                    print(file_url)
+                    artifacts[file_name] = file_url
+        return artifacts
+
+    def _run(self, src_path):
+        job_log = 'job.txt'
+        job_log_path = os.path.join(src_path, job_log)
+        local_artifacts = {
+            job_log: job_log_path,
+            'config': os.path.join(src_path, '.config'),
+            'bzImage': os.path.join(src_path, 'arch/x86/boot/bzImage'),
+            'modules.tar.gz': os.path.join(src_path, 'modules.tar.gz'),
+        }
+
+        if os.path.exists(job_log_path):
+            os.remove(job_log_path)
+
+        steps = {
+            'config': 'make ARCH=x86_64 x86_64_defconfig',
+            'kernel': 'make ARCH=x86_64 bzImage --jobs=$(nproc)',
+            'modules': 'make ARCH=x86_64 modules --jobs=$(nproc)',
+            'modules_install': ' '.join([
+                'make',
+                'ARCH=x86_64',
+                'INSTALL_MOD_PATH=_modules_',
+                'INSTALL_MOD_STRIP=1',
+                'modules_install',
+            ]),
+            'modules_tarball': 'tar -C _modules_ -czf modules.tar.gz .',
+        }
+        step_results = {name: (None, []) for name in steps.keys()}
+
+        for name, command in steps.items():
+            res = self._run_kbuild(src_path, command, job_log)
+            res_str = 'pass' if res is True else 'fail'
+            step_results[name] = (res_str, [])
+            if res is False:
+                break
+
+        artifacts = self._upload_artifacts(local_artifacts)
+
+        if os.path.exists(job_log_path):
+            with open(job_log_path, encoding='utf-8') as job_log_file:
+                print("--------------------------------------------------")
+                print(job_log_file.read())
+                print("--------------------------------------------------")
+
+        job_result = 'pass' if all(
+            res == 'pass' for res in (
+                step_res for (name, (step_res, _)) in step_results.items()
+            )
+        ) else 'false'
+
+        results = {
+            'node': {
+                'result': job_result,
+                'artifacts': artifacts,
+            },
+            'child_nodes': [
+                {
+                    'node': {
+                        'name': name,
+                        'result': result,
+                    },
+                    'child_nodes': child_nodes,
+                } for name, (result, child_nodes) in step_results.items()
+            ]
+        }
+
+        return results
+
+    def _submit(self, result, node_id, api):
+        # Ensure top-level name is kept the same
+        node = api.get_node(node_id)
+        result['node']['name'] = node['name']
+        api_helper = kernelci.api.helper.APIHelper(api)
+        api_helper.submit_results(result, node)
+        return node
+{% endblock %}
