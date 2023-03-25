@@ -95,6 +95,10 @@ test_plans:
   fstests:
     pattern: 'fstests.jinja2'
 
+  kbuild:
+    pattern: 'kbuild.jinja2'
+    image: 'kernelci/staging-gcc-10:x86-kselftest-kernelci'
+
   kunit: &kunit
     pattern: 'kunit.jinja2'
     image: 'kernelci/staging-gcc-10:x86-kunit-kernelci'
