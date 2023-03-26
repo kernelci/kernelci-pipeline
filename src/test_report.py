@@ -91,7 +91,7 @@ class TestReport(Service):
         revision = root_node['revision']
         if root_node['result'] == 'incomplete':
             subject = (f"\
-{revision['tree']}/{revision['branch']} {revision['describe']}: \
+[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
 Failed to create source tarball for {root_node['name']}")
             content = template.render(
                 subject=subject, root=root_node, groups={}
@@ -101,7 +101,7 @@ Failed to create source tarball for {root_node['name']}")
             stats = results['stats']
             groups = results['groups']
             subject = (f"\
-{revision['tree']}/{revision['branch']} {revision['describe']}: \
+[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
 {stats['total']} runs {stats['failures']} failures")
             content = template.render(
                 subject=subject, root=root_node, groups=groups
