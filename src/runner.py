@@ -79,7 +79,7 @@ class RunnerLoop(Runner):
         device_type = self._job.get_device_type()
         device = self._device_configs.get(device_type)
         if device is None:
-            self.log.error("Device type not found: {device_type}")
+            self.log.error(f"Device type not found: {device_type}")
             return False
 
         while True:
