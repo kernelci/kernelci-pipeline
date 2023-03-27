@@ -14,8 +14,10 @@ REVISION, {{ super() }}
 
 {% block python_job -%}
 class Job(BaseJob):
+
     def __init__(self, revision, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._revision = revision
 
     def _get_makefile_version(self, makefile):
         mkver = {
@@ -62,7 +64,7 @@ class Job(BaseJob):
     def _run(self, src_path):
         print("Checking kernel revision")
         with open(os.path.join(src_path, 'Makefile')) as makefile:
-            kver = REVISION['version']
+            kver = self._revision['version']
             res = self._check_kver(makefile, kver)
             result = 'pass' if res is True else 'fail'
             print(f"Result: {result}")
