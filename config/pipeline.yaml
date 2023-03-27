@@ -115,6 +115,10 @@ test_plans:
 
 device_types:
 
+  docker:
+    base_name: docker
+    class: docker
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
