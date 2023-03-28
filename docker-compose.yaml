@@ -40,6 +40,24 @@ services:
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
 
+  runner-docker:
+    <<: *runner
+    container_name: 'kernelci-pipeline-runner-docker'
+    user: root  # Docker-in-Docker
+    working_dir: /home/kernelci
+    command:
+      - './pipeline/runner.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'loop'
+      - '--runtime-config=docker'
+      - 'kunit'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/output:/home/kernelci/data/output'
+      - './.docker-env:/home/kernelci/.docker-env'
+      - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
+
   runner-k8s:
     <<: *runner
     container_name: 'kernelci-pipeline-runner-k8s'
@@ -49,7 +67,6 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
       - '--runtime-config=k8s-gke-eu-west4'
-      - 'kunit'
       - 'kunit-x86_64'
       - 'kbuild'
 
