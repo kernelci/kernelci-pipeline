@@ -53,9 +53,10 @@ class RunnerLoop(Runner):
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
-            process: tmp
-            for process, tmp in self._job_tmp_dirs.items()
-            if process.poll() is None
+            job: tmp
+            for job, tmp in self._job_tmp_dirs.items()
+            # ToDo: if job.is_done()
+            if job.poll() is None
         }
         self._job_tmp_dirs = job_tmp_dirs
         # ToDo: if stat != 0 then report error to API?
@@ -102,7 +103,7 @@ class RunnerLoop(Runner):
                     self._job.runtime_name,
                     str(self._job.get_id(job)),
                 ]))
-                if device_type == 'shell':
+                if device_type in ['shell', 'docker']:
                     self._job_tmp_dirs[job] = tmp
 
         return True
