@@ -68,7 +68,7 @@ services:
       - 'loop'
       - '--runtime-config=k8s-gke-eu-west4'
       - 'kunit-x86_64'
-      - 'kbuild'
+      - 'kbuild-gcc-10-x86'
 
   tarball:
     <<: *base-service
