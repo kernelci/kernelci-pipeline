@@ -26,7 +26,7 @@ class Runner(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
         self._api_config_yaml = yaml.dump(self._api_config)
-        self._plan_configs = configs['test_plans']
+        self._job_configs = configs['jobs']
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
         self._storage_config = configs['storage_configs'][args.storage_config]
@@ -49,7 +49,7 @@ class RunnerLoop(Runner):
     def __init__(self, configs, args, **kwargs):
         super().__init__(configs, args, **kwargs)
         self._job_tmp_dirs = {}
-        self._plans = [self._plan_configs[plan] for plan in args.plans]
+        self._jobs = [self._job_configs[job] for job in args.jobs]
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -85,26 +85,26 @@ class RunnerLoop(Runner):
 
         while True:
             checkout_node = self._api_helper.receive_event_node(sub_id)
-            for plan in self._plans:
-                node, msg = self._job.create_node(checkout_node, plan)
+            for job in self._jobs:
+                node, msg = self._job.create_node(checkout_node, job)
                 if not node:
                     self.log.error(
-                        f"Failed to create node for {plan.name}: {msg}"
+                        f"Failed to create node for {job.name}: {msg}"
                     )
                     continue
-                job, tmp = self._job.schedule_job(node, plan, device)
-                if not job:
+                job_obj, tmp = self._job.schedule_job(node, job, device)
+                if not job_obj:
                     self.log.error(
-                        f"Failed to schedule job for {plan.name}: {tmp}"
+                        f"Failed to schedule job for {job.name}: {tmp}"
                     )
                     continue
                 self.log.info(' '.join([
                     node['_id'],
                     self._job.runtime_name,
-                    str(self._job.get_id(job)),
+                    str(self._job.get_id(job_obj)),
                 ]))
                 if device_type in ['shell', 'docker']:
-                    self._job_tmp_dirs[job] = tmp
+                    self._job_tmp_dirs[job_obj] = tmp
 
         return True
 
@@ -115,9 +115,9 @@ class cmd_loop(Command):
     opt_args = [
         Args.verbose,
         {
-            'name': 'plans',
+            'name': 'jobs',
             'nargs': '+',
-            'help': "Test plans to run",
+            'help': "Test jobs to run",
         },
     ]
 

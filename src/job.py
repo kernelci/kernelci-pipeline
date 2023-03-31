@@ -30,8 +30,8 @@ class Job():
     def runtime_name(self):
         return self._runtime.config.name
 
-    def get_id(self, job):
-        return self._runtime.get_job_id(job)
+    def get_id(self, job_obj):
+        return self._runtime.get_job_id(job_obj)
 
     def _create_output_dir(self):
         """Create output directory"""
@@ -42,13 +42,13 @@ class Job():
         """Method to get device type"""
         return self._runtime.config.lab_type
 
-    def create_node(self, checkout_node, plan_config):
+    def create_node(self, checkout_node, job_config):
         """Method to generate node for the job"""
         node = {
             'parent': checkout_node['_id'],
-            'name': plan_config.name,
-            'path': checkout_node['path'] + [plan_config.name],
-            'group': plan_config.name,
+            'name': job_config.name,
+            'path': checkout_node['path'] + [job_config.name],
+            'group': job_config.name,
             'artifacts': checkout_node['artifacts'],
             'revision': checkout_node['revision'],
         }
@@ -59,19 +59,19 @@ class Job():
             err_msg = json.loads(err.response.content).get("detail", [])
             return None, err_msg
 
-    def _generate_job(self, node, plan_config, platform_config, tmp):
+    def _generate_job(self, node, job_config, platform_config, tmp):
         """Method to generate jobs"""
         params = self._runtime.get_params(
-            node, plan_config, platform_config, self._helper.api.config,
+            node, job_config, platform_config, self._helper.api.config,
             self._storage.config
         )
-        job = self._runtime.generate(params, plan_config)
-        output_file = self._runtime.save_file(job, tmp, params)
+        job_data = self._runtime.generate(params, job_config)
+        output_file = self._runtime.save_file(job_data, tmp, params)
         return output_file
 
-    def schedule_job(self, node, plan, device):
+    def schedule_job(self, node, job_config, device):
         """Generate and schedule jobs"""
         tmp = tempfile.TemporaryDirectory(dir=self._output)
-        output_file = self._generate_job(node, plan, device, tmp.name)
-        job = self._runtime.submit(output_file)
-        return job, tmp
+        output_file = self._generate_job(node, job_config, device, tmp.name)
+        job_obj = self._runtime.submit(output_file)
+        return job_obj, tmp
