@@ -42,23 +42,6 @@ class Job():
         """Method to get device type"""
         return self._runtime.config.lab_type
 
-    def create_node(self, checkout_node, job_config):
-        """Method to generate node for the job"""
-        node = {
-            'parent': checkout_node['_id'],
-            'name': job_config.name,
-            'path': checkout_node['path'] + [job_config.name],
-            'group': job_config.name,
-            'artifacts': checkout_node['artifacts'],
-            'revision': checkout_node['revision'],
-        }
-        try:
-            return self._helper.api.create_node(node), \
-                "Node created successfully"
-        except requests.exceptions.HTTPError as err:
-            err_msg = json.loads(err.response.content).get("detail", [])
-            return None, err_msg
-
     def _generate_job(self, node, job_config, platform_config, tmp):
         """Method to generate jobs"""
         params = self._runtime.get_params(
