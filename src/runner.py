@@ -109,46 +109,6 @@ class RunnerLoop(Runner):
         return True
 
 
-class RunnerSingleJob(Runner):
-    """Runner subclass to execute a single job"""
-
-    def _get_node_from_commit(self, git_commit):
-        nodes = self._api.get_nodes({
-            "revision.commit": git_commit,
-        })
-        return nodes[0] if nodes else None
-
-    def _setup(self, args):
-        if args.node_id:
-            checkout_node = self._api.get_node(args.node_id)
-        elif args.git_commit:
-            checkout_node = self._get_node_from_commit(args.git_commit)
-        else:
-            checkout_node = None
-        if checkout_node is None:
-            self._logger.log_message(logging.ERROR, "Node not found")
-            return False
-        return {
-            'node': checkout_node,
-            'plan': self._plan_configs[args.plan],
-            'device': self._device_configs[args.target],
-        }
-
-    def _run(self, ctx):
-        node, plan, device = (ctx[key] for key in ('node', 'plan', 'device'))
-        job, tmp = self._job.schedule_job(node, plan, device)
-        if not job:
-            self.log.error(
-                f"Failed to schedule job for {plan.name}. Error: {tmp}"
-            )
-            return False
-        if self._job.get_device_type() == 'shell':
-            self.log.info("Waiting...")
-            job.wait()
-            self.log.info("...done")
-        return True
-
-
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
     args = [Args.api_config, Args.runtime_config, Args.output]
@@ -163,35 +123,6 @@ class cmd_loop(Command):
 
     def __call__(self, configs, args):
         return RunnerLoop(configs, args).run()
-
-
-class cmd_run(Command):
-    help = "Run one arbitrary test and exit"
-    args = [
-        Args.api_config, Args.runtime_config, Args.storage_config,
-        Args.output, Args.plan, Args.target,
-    ]
-    opt_args = [
-        Args.verbose,
-        {
-            'name': '--node-id',
-            'help': "id of the checkout node rather than pub/sub",
-        },
-        {
-            'name': '--git-commit',
-            'help': "git commit rather than pub/sub event",
-        },
-    ]
-
-    def __call__(self, configs, args):
-        if not args.node_id and not args.git_commit:
-            print("Either --node-id or --git-commit is required",
-                  file=sys.stderr)
-        try:
-            return RunnerSingleJob(configs, args).run(args)
-        except Exception as e:
-            print(f"Error: {e}", file=sys.stderr)
-            return False
 
 
 if __name__ == '__main__':
