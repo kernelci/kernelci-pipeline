@@ -9,6 +9,7 @@
 import logging
 import os
 import sys
+import tempfile
 import yaml
 
 import kernelci
@@ -26,9 +27,11 @@ class Runner(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
         self._api_config_yaml = yaml.dump(self._api_config)
-        self._job_configs = configs['jobs']
         self._device_configs = configs['device_types']
         self._verbose = args.verbose
+        self._output = args.output
+        self._runtime_config = configs['runtimes'][args.runtime_config]
+        self._runtime = kernelci.runtime.get_runtime(self._runtime_config)
         self._storage_config = configs['storage_configs'][args.storage_config]
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         self._storage = kernelci.storage.get_storage(
@@ -49,7 +52,7 @@ class RunnerLoop(Runner):
     def __init__(self, configs, args, **kwargs):
         super().__init__(configs, args, **kwargs)
         self._job_tmp_dirs = {}
-        self._jobs = [self._job_configs[job] for job in args.jobs]
+        self._job_configs = [configs['jobs'][job] for job in args.jobs]
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -77,7 +80,7 @@ class RunnerLoop(Runner):
         self.log.info("Press Ctrl-C to stop.")
 
         # ToDo: iterate over device types for the current runtime
-        device_type = self._job.get_device_type()
+        device_type = self._runtime.config.lab_type
         device = self._device_configs.get(device_type)
         if device is None:
             self.log.error(f"Device type not found: {device_type}")
@@ -85,23 +88,20 @@ class RunnerLoop(Runner):
 
         while True:
             checkout_node = self._api_helper.receive_event_node(sub_id)
-            for job in self._jobs:
-                node, msg = self._job.create_node(checkout_node, job)
-                if not node:
-                    self.log.error(
-                        f"Failed to create node for {job.name}: {msg}"
-                    )
-                    continue
-                job_obj, tmp = self._job.schedule_job(node, job, device)
-                if not job_obj:
-                    self.log.error(
-                        f"Failed to schedule job for {job.name}: {tmp}"
-                    )
-                    continue
+            for config in self._job_configs:
+                node = self._api_helper.create_job_node(config, checkout_node)
+                job = kernelci.runtime.Job(node, config)
+                job.platform_config = device
+                job.storage_config = self._storage_config
+                params = self._runtime.get_params(job, self._api.config)
+                data = self._runtime.generate(job, params)
+                tmp = tempfile.TemporaryDirectory(dir=self._output)
+                output_file = self._runtime.save_file(data, tmp.name, params)
+                job_obj = self._runtime.submit(output_file)
                 self.log.info(' '.join([
                     node['_id'],
-                    self._job.runtime_name,
-                    str(self._job.get_id(job_obj)),
+                    self._runtime.config.name,
+                    str(self._runtime.get_job_id(job_obj)),
                 ]))
                 if device_type in ['shell', 'docker']:
                     self._job_tmp_dirs[job_obj] = tmp
