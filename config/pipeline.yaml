@@ -91,6 +91,15 @@ storage_configs:
 
 runtimes:
 
+  docker:
+    lab_type: docker
+    env_file: '/home/kernelci/.docker-env'
+    user: 'root'  # Docker-in-Docker
+    volumes:
+      # Note: Absolute paths on the host are required here
+      - 'data/ssh/:/home/kernelci/data/ssh'
+      - 'data/output/:/home/kernelci/data/output'
+
   k8s-gke-eu-west4:
     lab_type: kubernetes
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
