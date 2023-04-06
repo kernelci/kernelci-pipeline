@@ -13,6 +13,16 @@ import subprocess
 import kernelci.api.helper
 {%- endblock %}
 
+{%- block python_globals %}
+{{ super() }}
+KBUILD_PARAMS = {
+    'arch': '{{ arch }}',
+    'compiler': '{{ compiler }}',
+    'defconfig': '{{ defconfig }}',
+    'fragments': [],
+}
+{%- endblock %}
+
 {% block python_job -%}
 class Job(BaseJob):
 
@@ -55,17 +65,17 @@ echo '# {command}' | tee -a {job_log}
             os.remove(job_log_path)
 
         steps = {
-            'config': 'make ARCH=x86_64 x86_64_defconfig',
-            'kernel': 'make ARCH=x86_64 bzImage --jobs=$(nproc)',
-            'modules': 'make ARCH=x86_64 modules --jobs=$(nproc)',
+            'config': f"make ARCH=x86_64 {KBUILD_PARAMS['defconfig']}",
+            'kernel': "make ARCH=x86_64 bzImage --jobs=$(nproc)",
+            'modules': "make ARCH=x86_64 modules --jobs=$(nproc)",
             'modules_install': ' '.join([
-                'make',
-                'ARCH=x86_64',
-                'INSTALL_MOD_PATH=_modules_',
-                'INSTALL_MOD_STRIP=1',
-                'modules_install',
+                "make",
+                "ARCH=x86_64",
+                "INSTALL_MOD_PATH=_modules_",
+                "INSTALL_MOD_STRIP=1",
+                "modules_install",
             ]),
-            'modules_tarball': 'tar -C _modules_ -czf modules.tar.gz .',
+            'modules_tarball': "tar -C _modules_ -czf modules.tar.gz .",
         }
         step_results = {name: (None, []) for name in steps.keys()}
 
@@ -109,8 +119,14 @@ echo '# {command}' | tee -a {job_log}
         return results
 
     def _submit(self, result, node_id, api):
-        # Ensure top-level name is kept the same
         node = api.get_node(node_id)
+        node['data'] = {
+            key: KBUILD_PARAMS[key] for key in [
+                'arch', 'defconfig', 'compiler', 'fragments',
+            ]
+        }
+
+        # Ensure top-level name is kept the same
         result['node']['name'] = node['name']
         api_helper = kernelci.api.helper.APIHelper(api)
         api_helper.submit_results(result, node)
