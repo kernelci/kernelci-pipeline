@@ -88,7 +88,7 @@ echo '# {command}' | tee -a {job_log}
             res == 'pass' for res in (
                 step_res for (name, (step_res, _)) in step_results.items()
             )
-        ) else 'false'
+        ) else 'fail'
 
         results = {
             'node': {
