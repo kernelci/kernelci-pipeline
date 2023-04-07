@@ -67,7 +67,9 @@ jobs:
     image: 'kernelci/staging-gcc-10:x86-kselftest-kernelci'
     conditions: *checkout
     params:
-      config: x86_64_defconfig
+      arch: x86_64
+      compiler: gcc-10
+      defconfig: x86_64_defconfig
 
   kunit: &kunit-job
     template: 'kunit.jinja2'
