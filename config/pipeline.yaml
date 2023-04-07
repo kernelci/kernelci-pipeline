@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021, 2022 Collabora Limited
+# Copyright (C) 2021, 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 # Not directly loaded into the config, only used for YAML anchors in this file
@@ -10,59 +10,6 @@ _aliases:
   - event: node
     name: checkout
     result: pass
-
-
-trees:
-
-  kernelci:
-    url: "https://github.com/kernelci/linux.git"
-
-  mainline:
-    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
-
-
-build_environments:
-
-  gcc-10:
-    cc: gcc
-    cc_version: 10
-    arch_params:
-      x86_64:
-        name: 'x86'
-
-
-build_variants:
-  variants: &build-variants
-    gcc-10:
-      build_environment: gcc-10
-      architectures:
-        x86_64:
-          base_defconfig: 'x86_64_defconfig'
-          filters:
-            - regex: { defconfig: 'x86_64_defconfig' }
-
-
-build_configs:
-
-  kernelci_staging-mainline:
-    tree: kernelci
-    branch: 'staging-mainline'
-    variants: *build-variants
-
-  kernelci_staging-next:
-    tree: kernelci
-    branch: 'staging-next'
-    variants: *build-variants
-
-  kernelci_staging-stable:
-    tree: kernelci
-    branch: 'staging-stable'
-    variants: *build-variants
-
-  mainline:
-    tree: mainline
-    branch: 'master'
-    variants: *build-variants
 
 
 api_configs:
@@ -138,6 +85,15 @@ jobs:
     conditions: *checkout
 
 
+trees:
+
+  kernelci:
+    url: "https://github.com/kernelci/linux.git"
+
+  mainline:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+
 device_types:
 
   docker:
@@ -151,3 +107,51 @@ device_types:
   shell:
     base_name: shell
     class: shell
+
+
+# -----------------------------------------------------------------------------
+# Legacy configuration data (still used by trigger service)
+#
+
+build_environments:
+
+  gcc-10:
+    cc: gcc
+    cc_version: 10
+    arch_params:
+      x86_64:
+        name: 'x86'
+
+
+build_variants:
+  variants: &build-variants
+    gcc-10:
+      build_environment: gcc-10
+      architectures:
+        x86_64:
+          base_defconfig: 'x86_64_defconfig'
+          filters:
+            - regex: { defconfig: 'x86_64_defconfig' }
+
+
+build_configs:
+
+  kernelci_staging-mainline:
+    tree: kernelci
+    branch: 'staging-mainline'
+    variants: *build-variants
+
+  kernelci_staging-next:
+    tree: kernelci
+    branch: 'staging-next'
+    variants: *build-variants
+
+  kernelci_staging-stable:
+    tree: kernelci
+    branch: 'staging-stable'
+    variants: *build-variants
+
+  mainline:
+    tree: mainline
+    branch: 'master'
+    variants: *build-variants
