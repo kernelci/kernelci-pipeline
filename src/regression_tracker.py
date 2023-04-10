@@ -50,7 +50,7 @@ class RegressionTracker(Service):
         sys.stdout.flush()
 
         while True:
-            node = self._api_helper.receive_node_event(sub_id)
+            node = self._api_helper.receive_event_node(sub_id)
             if not node['group']:
                 continue
 
