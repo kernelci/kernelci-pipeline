@@ -62,7 +62,7 @@ class KCIDBBridge(Service):
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            node = self._api_helper.receive_node_event(context['sub_id'])
+            node = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {node['_id']}")
 
             revision = {
