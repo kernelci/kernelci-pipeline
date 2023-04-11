@@ -92,22 +92,6 @@ services:
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'run'
 
-  kcidb:
-    container_name: 'kernelci-pipeline-kcidb'
-    build: {context: 'docker-kcidb'}
-    env_file: ['.env']
-    stop_signal: 'SIGINT'
-    command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/send_kcidb.py'
-      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
-      - 'run'
-    volumes:
-      - './src:/home/kernelci/pipeline'
-      - './config:/home/kernelci/config'
-      - './data/kcidb:/home/kernelci/data/kcidb'
-
   regression_tracker:
     <<: *base-service
     container_name: 'kernelci-pipeline-regression_tracker'
