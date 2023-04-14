@@ -115,7 +115,7 @@ cd {src_path}
                 print(job_log_file.read())
                 print("--------------------------------------------------")
 
-        if step_results['exec'][0] == 'pass':
+        if os.path.exists(kunit_json_path):
             exec_results = self._parse_exec_results(kunit_json_path)
             step_results['exec'] = ('pass', exec_results['child_nodes'])
 
