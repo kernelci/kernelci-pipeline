@@ -23,6 +23,7 @@ from job import Job
 
 
 class Runner(Service):
+    """Service to run jobs that match received events"""
 
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
@@ -37,6 +38,8 @@ class Runner(Service):
         self._storage = kernelci.storage.get_storage(
             self._storage_config, storage_cred
         )
+        self._job_tmp_dirs = {}
+        self._job_configs = [configs['jobs'][job] for job in args.jobs]
         self._job = Job(
             self._api_helper,
             self._api_config_yaml,
@@ -44,15 +47,6 @@ class Runner(Service):
             self._storage,
             args.output
         )
-
-
-class RunnerLoop(Runner):
-    """Runner subclass to execute in a loop"""
-
-    def __init__(self, configs, args, **kwargs):
-        super().__init__(configs, args, **kwargs)
-        self._job_tmp_dirs = {}
-        self._job_configs = [configs['jobs'][job] for job in args.jobs]
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -122,7 +116,7 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        return RunnerLoop(configs, args).run()
+        return Runner(configs, args).run()
 
 
 if __name__ == '__main__':
