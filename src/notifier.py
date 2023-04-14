@@ -61,12 +61,12 @@ class Notifier(Service):
 
         while True:
             event = self._api.receive_event(sub_id)
+            obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
-            obj = self._api_helper.get_node_from_event(event)
             self.log.info(log_fmt.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
                 commit=obj['revision']['commit'][:12],
-                id=obj['_id'],
+                id=obj['id'],
                 state=state_map[obj['state']],
                 result=result_map[obj['result']],
                 name=obj['name'],
