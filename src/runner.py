@@ -99,7 +99,7 @@ class RunnerLoop(Runner):
                 output_file = self._runtime.save_file(data, tmp.name, params)
                 job_obj = self._runtime.submit(output_file)
                 self.log.info(' '.join([
-                    node['_id'],
+                    node['id'],
                     self._runtime.config.name,
                     str(self._runtime.get_job_id(job_obj)),
                 ]))

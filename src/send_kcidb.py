@@ -63,13 +63,13 @@ class KCIDBBridge(Service):
 
         while True:
             node = self._api_helper.receive_event_node(context['sub_id'])
-            self.log.info(f"Submitting node to KCIDB: {node['_id']}")
+            self.log.info(f"Submitting node to KCIDB: {node['id']}")
 
             revision = {
                 'builds': [],
                 'checkouts': [
                     {
-                        'id': f"{context['origin']}:{node['_id']}",
+                        'id': f"{context['origin']}:{node['id']}",
                         'origin': context['origin'],
                         'tree_name': node['revision']['tree'],
                         'git_repository_url': node['revision']['url'],

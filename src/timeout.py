@@ -39,7 +39,7 @@ class TimeoutService(Service):
         for state in self._pending_states:
             node_filters['state'] = state
             for node in self._api.get_nodes(node_filters):
-                nodes[node['_id']] = node
+                nodes[node['id']] = node
         return nodes
 
     def _count_running_child_nodes(self, parent_id):
@@ -53,7 +53,7 @@ class TimeoutService(Service):
 
     def _get_child_nodes_recursive(self, node, state_filter=None):
         recursive = {}
-        child_nodes = self._get_pending_nodes({'parent': node['_id']})
+        child_nodes = self._get_pending_nodes({'parent': node['id']})
         for child_id, child in child_nodes.items():
             if state_filter is None or child['state'] == state_filter:
                 recursive.update(self._get_child_nodes_recursive(
@@ -110,7 +110,7 @@ class Holdoff(TimeoutService):
             'state': 'available',
             'holdoff__lt': datetime.isoformat(datetime.utcnow()),
         })
-        return {node['_id']: node for node in nodes}
+        return {node['id']: node for node in nodes}
 
     def _check_available_nodes(self, available_nodes):
         timeout_nodes = {}
@@ -149,7 +149,7 @@ class Closing(TimeoutService):
 
     def _get_closing_nodes(self):
         nodes = self._api.get_nodes({'state': 'closing'})
-        return {node['_id']: node for node in nodes}
+        return {node['id']: node for node in nodes}
 
     def _check_closing_nodes(self, closing_nodes):
         done_nodes = {}

@@ -64,7 +64,7 @@ class TestReport(Service):
             'result': 'fail',
         })
         failures = [
-            node for node in failures if node['_id'] != root_node['_id']
+            node for node in failures if node['id'] != root_node['id']
         ]
         parent_path_len = len(root_node['path'])
         for node in failures:
@@ -72,12 +72,12 @@ class TestReport(Service):
         return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
 
     def _get_results_data(self, root_node):
-        group_nodes = self._api.get_nodes({"parent": root_node['_id']})
+        group_nodes = self._api.get_nodes({"parent": root_node['id']})
         groups = {
             node['name']: self._get_group_data(node)
             for node in group_nodes
         }
-        group_stats = self._get_group_stats(root_node['_id'])
+        group_stats = self._get_group_stats(root_node['id'])
         return {
             'stats': group_stats,
             'groups': groups,
