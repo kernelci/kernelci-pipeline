@@ -39,7 +39,7 @@ class RegressionTracker(Service):
         regression = {}
         for field in self._regression_fields:
             regression[field] = failed_node[field]
-        regression['parent'] = failed_node['_id']
+        regression['parent'] = failed_node['id']
         regression['regression_data'] = [last_successful_node, failed_node]
         self._api_helper.submit_regression(regression)
 
@@ -74,7 +74,7 @@ class RegressionTracker(Service):
 
             if previous_nodes[0]['result'] == 'pass':
                 self.log.info(f"Detected regression for node id: \
-{node['_id']}")
+{node['id']}")
                 self._create_regression(node, previous_nodes[0])
 
             sys.stdout.flush()
