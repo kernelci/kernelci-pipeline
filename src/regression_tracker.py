@@ -53,6 +53,7 @@ class RegressionTracker(Service):
             node = self._api_helper.receive_event_node(sub_id)
             if not node['group']:
                 continue
+            self.log.debug(f"Received node: {node['id']}")
 
             previous_nodes = self._api.get_nodes({
                 'name': node['name'],
@@ -62,7 +63,7 @@ class RegressionTracker(Service):
                 'revision.url': node['revision']['url'],
                 'created__lt': node['created'],
             })
-
+            self.log.debug(f"Previous node: {previous_nodes}")
             if not previous_nodes:
                 continue
 
@@ -71,7 +72,7 @@ class RegressionTracker(Service):
                 key=lambda node: node['created'],
                 reverse=True
             )
-
+            self.log.debug(f"Sorted previous node: {previous_nodes}")
             if previous_nodes[0]['result'] == 'pass':
                 self.log.info(f"Detected regression for node id: \
 {node['id']}")
