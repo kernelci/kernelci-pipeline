@@ -9,7 +9,8 @@ services:
 
   kcidb:
     container_name: 'kernelci-pipeline-kcidb'
-    build: {context: 'docker-kcidb'}
+    build:
+      context: 'docker/kcidb'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     networks: ['kcidb']
