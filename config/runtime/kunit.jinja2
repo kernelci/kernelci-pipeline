@@ -137,9 +137,9 @@ cd {src_path}
 
         return results
 
-    def _submit(self, result, node_id, api):
+    def _submit(self, result, node, api):
         # Ensure top-level name is kept the same
-        node = api.get_node(node_id)
+        result = result.copy()
         result['node']['name'] = node['name']
         api_helper = kernelci.api.helper.APIHelper(api)
         api_helper.submit_results(result, node)
