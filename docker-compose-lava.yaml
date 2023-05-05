@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+version: '3'
+
+services:
+
+  lava-callback:
+    container_name: 'kernelci-pipeline-lava-callback'
+    networks: ['lava-callback']
+    build:
+      context: 'docker/lava-callback'
+    ports:
+      - '${LAVA_CALLBACK_PORT:-8100}:8000'
+    command:
+      - '/usr/bin/env'
+      - 'python3'
+      - '/home/kernelci/pipeline/lava_callback.py'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+
+networks:
+  lava-callback:
+    driver: bridge
