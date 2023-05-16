@@ -7,6 +7,7 @@ import kernelci.api.helper
 import kernelci.config
 from kernelci.runtime.lava import Callback
 
+import requests
 from flask import Flask, request
 
 
@@ -18,6 +19,12 @@ def _get_api_helper(api_config_name, api_token):
 
 
 app = Flask(__name__)
+
+
+@app.errorhandler(requests.exceptions.HTTPError)
+def handle_http_error(ex):
+    detail = ex.response.json().get('detail') or str(ex)
+    return detail, ex.response.status_code
 
 
 @app.route('/')
