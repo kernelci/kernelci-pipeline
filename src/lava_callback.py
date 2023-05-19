@@ -45,5 +45,6 @@ def callback(node_id):
     return api_helper.submit_results(hierarchy, job_node)
 
 
+# Default built-in development server, not suitable for production
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

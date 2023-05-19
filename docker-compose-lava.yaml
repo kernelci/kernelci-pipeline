@@ -15,6 +15,7 @@ services:
     env_file: ['.env']
     ports:
       - '${LAVA_CALLBACK_PORT:-8100}:8000'
+    # With Werkzeug development server, not suitable for a public instance
     command:
       - '/usr/bin/env'
       - 'python3'

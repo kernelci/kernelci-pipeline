@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+version: '3'
+
+services:
+
+  lava-callback:
+    # With uWSGI in socket mode, to use with reverse proxy e.g. Nginx and SSL
+    command:
+      - '/usr/local/bin/uwsgi'
+      - '--socket=:8000'
+      - '--buffer-size=32768'
+      - '-p${NPROC:-4}'
+      - '--wsgi-file=/home/kernelci/pipeline/lava_callback.py'
+      - '--callable=app'
+
+    # With uWSGI HTTP server, suitable for a public instance but no SSL
+    # command:
+    #   - '/usr/local/bin/uwsgi'
+    #   - '--http-socket=:8000'
+    #   - '--master'
+    #   - '--wsgi-file=/home/kernelci/pipeline/lava_callback.py'
+    #   - '--callable=app'
