@@ -3,8 +3,6 @@
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-import os
-
 import kernelci.api.helper
 import kernelci.config
 from kernelci.runtime.lava import Callback
@@ -12,10 +10,9 @@ from kernelci.runtime.lava import Callback
 from flask import Flask, request
 
 
-def _get_api_helper(api_config_name):
+def _get_api_helper(api_config_name, api_token):
     configs = kernelci.config.load('config/pipeline.yaml')
     api_config = configs['api_configs'][api_config_name]
-    api_token = os.getenv(api_token)
     api = kernelci.api.get_api(api_config, api_token)
     return kernelci.api.helper.APIHelper(api)
 
@@ -33,7 +30,8 @@ def callback(node_id):
     data = request.get_json()
     job_callback = Callback(data)
     api_config_name = job_callback.get_meta('api_config_name')
-    api_helper = _get_api_helper(api_config_name)
+    api_token = request.headers.get('Authorization')
+    api_helper = _get_api_helper(api_config_name, api_token)
     results = job_callback.get_results()
     job_node = api_helper.api.get_node(node_id)
     hierarchy = job_callback.get_hierarchy(results, job_node)
