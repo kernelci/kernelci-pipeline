@@ -57,10 +57,13 @@ runtimes:
 
 jobs:
 
-  fstests:
-    template: 'fstests.jinja2'
-    image: 'kernelci/staging-kernelci'
-    conditions: *checkout
+  # FIXME This will need to be reworked later when the fstests runner has been
+  # removed
+  #
+  # fstests:
+  #   template: 'fstests.jinja2'
+  #   image: 'kernelci/staging-kernelci'
+  #   conditions: *checkout
 
   kbuild-gcc-10-x86:
     template: 'kbuild.jinja2'
