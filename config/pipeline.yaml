@@ -3,13 +3,13 @@
 # Copyright (C) 2021, 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-# Not directly loaded into the config, only used for YAML anchors in this file
-_aliases:
+# Not directly loaded into the config, only used for YAML aliases in this file
+_anchors:
 
   checkout: &checkout
-  - event: node
+  - channel: node
     name: checkout
-    result: pass
+    state: available
 
 
 api_configs:
@@ -63,21 +63,21 @@ jobs:
   # fstests:
   #   template: 'fstests.jinja2'
   #   image: 'kernelci/staging-kernelci'
-  #   conditions: *checkout
+  #   run_on: *checkout
 
   kbuild-gcc-10-x86:
-    template: 'kbuild.jinja2'
-    image: 'kernelci/staging-gcc-10:x86-kselftest-kernelci'
-    conditions: *checkout
+    template: kbuild.jinja2
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    run_on: *checkout
     params:
       arch: x86_64
       compiler: gcc-10
       defconfig: x86_64_defconfig
 
   kunit: &kunit-job
-    template: 'kunit.jinja2'
-    image: 'kernelci/staging-gcc-10:x86-kunit-kernelci'
-    conditions: *checkout
+    template: kunit.jinja2
+    image: kernelci/staging-gcc-10:x86-kunit-kernelci
+    run_on: *checkout
 
   kunit-x86_64:
     <<: *kunit-job
@@ -85,9 +85,9 @@ jobs:
       arch: x86_64
 
   kver:
-    template: 'kver.jinja2'
-    image: 'kernelci/staging-kernelci'
-    conditions: *checkout
+    template: kver.jinja2
+    image: kernelci/staging-kernelci
+    run_on: *checkout
 
 
 trees:
