@@ -15,11 +15,11 @@ import yaml
 import kernelci
 import kernelci.config
 import kernelci.runtime
+import kernelci.scheduler
 import kernelci.storage
 from kernelci.cli import Args, Command, parse_opts
 
 from base import Service
-from job import Job
 
 
 class Runner(Service):
@@ -28,25 +28,30 @@ class Runner(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'runner')
         self._api_config_yaml = yaml.dump(self._api_config)
-        self._device_configs = configs['device_types']
         self._verbose = args.verbose
         self._output = args.output
-        self._runtime_config = configs['runtimes'][args.runtime_config]
-        self._runtime = kernelci.runtime.get_runtime(self._runtime_config)
+        if not os.path.exists(self._output):
+            os.makedirs(self._output)
+        rconfigs = (
+            configs['runtimes'] if args.runtimes is None
+            else self._get_runtimes_configs(configs['runtimes'], args.runtimes)
+        )
+        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
+        self._sched = kernelci.scheduler.Scheduler(configs, runtimes)
         self._storage_config = configs['storage_configs'][args.storage_config]
         storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
         self._storage = kernelci.storage.get_storage(
             self._storage_config, storage_cred
         )
         self._job_tmp_dirs = {}
-        self._job_configs = [configs['jobs'][job] for job in args.jobs]
-        self._job = Job(
-            self._api_helper,
-            self._api_config_yaml,
-            configs['runtimes'][args.runtime_config],
-            self._storage,
-            args.output
-        )
+
+    def _get_runtimes_configs(self, configs, runtimes):
+        runtimes_configs = {}
+        for name in runtimes:
+            config = configs.get(name)
+            if config:
+                runtimes_configs[name] = config
+        return runtimes_configs
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -59,59 +64,55 @@ class Runner(Service):
         # ToDo: if stat != 0 then report error to API?
 
     def _setup(self, args):
-        return self._api_helper.subscribe_filters({
-            'name': 'checkout',
-            'state': 'available',
-        })
+        return self._api.subscribe('node')
 
     def _stop(self, sub_id):
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
 
+    def _run_job(self, job_config, runtime, platform, input_node):
+        node = self._api_helper.create_job_node(job_config, input_node)
+        job = kernelci.runtime.Job(node, job_config)
+        job.platform_config = platform
+        job.storage_config = self._storage_config
+        params = runtime.get_params(job, self._api.config)
+        data = runtime.generate(job, params)
+        tmp = tempfile.TemporaryDirectory(dir=self._output)
+        output_file = runtime.save_file(data, tmp.name, params)
+        running_job = runtime.submit(output_file)
+        self.log.info(' '.join([
+            node['id'],
+            runtime.config.name,
+            platform.name,
+            job_config.name,
+            str(runtime.get_job_id(running_job)),
+        ]))
+        if runtime.config.lab_type in ['shell', 'docker']:
+            self._job_tmp_dirs[running_job] = tmp
+
     def _run(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
 
-        # ToDo: iterate over device types for the current runtime
-        device_type = self._runtime.config.lab_type
-        device = self._device_configs.get(device_type)
-        if device is None:
-            self.log.error(f"Device type not found: {device_type}")
-            return False
-
         while True:
-            checkout_node = self._api_helper.receive_event_node(sub_id)
-            for config in self._job_configs:
-                node = self._api_helper.create_job_node(config, checkout_node)
-                job = kernelci.runtime.Job(node, config)
-                job.platform_config = device
-                job.storage_config = self._storage_config
-                params = self._runtime.get_params(job, self._api.config)
-                data = self._runtime.generate(job, params)
-                tmp = tempfile.TemporaryDirectory(dir=self._output)
-                output_file = self._runtime.save_file(data, tmp.name, params)
-                job_obj = self._runtime.submit(output_file)
-                self.log.info(' '.join([
-                    node['id'],
-                    self._runtime.config.name,
-                    str(self._runtime.get_job_id(job_obj)),
-                ]))
-                if device_type in ['shell', 'docker']:
-                    self._job_tmp_dirs[job_obj] = tmp
+            event = self._api_helper.receive_event_data(sub_id)
+            for job, runtime, platform in self._sched.get_schedule(event):
+                input_node = self._api.get_node(event['id'])
+                self._run_job(job, runtime, platform, input_node)
 
         return True
 
 
 class cmd_loop(Command):
     help = "Listen to pub/sub events and run in a loop"
-    args = [Args.api_config, Args.runtime_config, Args.output]
+    args = [Args.api_config, Args.output]
     opt_args = [
         Args.verbose,
         {
-            'name': 'jobs',
-            'nargs': '+',
-            'help': "Test jobs to run",
+            'name': '--runtimes',
+            'nargs': '*',
+            'help': "Runtime environments to use, all by default",
         },
     ]
 
