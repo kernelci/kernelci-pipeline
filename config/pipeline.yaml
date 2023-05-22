@@ -114,6 +114,24 @@ device_types:
     class: shell
 
 
+scheduler:
+
+  - job: kbuild-gcc-10-x86
+    runtime:
+      type: kubernetes
+
+  - job: kunit
+    runtime:
+      type: docker
+
+  - job: kunit-x86_64
+    runtime:
+      name: k8s-gke-eu-west4
+
+  - job: kver
+    runtime:
+      type: shell
+
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
 #
