@@ -30,8 +30,7 @@ services:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
-      - '--runtime-config=shell'
-      - 'kver'
+      - '--runtimes=shell'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -49,8 +48,7 @@ services:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
-      - '--runtime-config=docker'
-      - 'kunit'
+      - '--runtimes=docker'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -66,9 +64,7 @@ services:
       - './pipeline/runner.py'
       - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
-      - '--runtime-config=k8s-gke-eu-west4'
-      - 'kunit-x86_64'
-      - 'kbuild-gcc-10-x86'
+      - '--runtimes=k8s-gke-eu-west4'
 
   tarball:
     <<: *base-service
