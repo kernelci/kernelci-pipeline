@@ -51,6 +51,16 @@ runtimes:
     lab_type: kubernetes
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
+  lava-collabora:
+    lab_type: lava
+    url: https://lava.collabora.dev/
+    priority_min: 40
+    priority_max: 60
+    notify:
+      callback:
+        token: kernelci-api-token-staging
+        url: https://staging.kernelci.org:9100
+
   shell:
     lab_type: shell
 
