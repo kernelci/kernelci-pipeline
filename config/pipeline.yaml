@@ -65,6 +65,13 @@ jobs:
   #   image: 'kernelci/staging-kernelci'
   #   run_on: *checkout
 
+  baseline-x86:
+    template: baseline.jinja2
+    run_on:
+      - channel: node
+        name: kbuild-gcc-10-x86
+        result: pass
+
   kbuild-gcc-10-x86:
     template: kbuild.jinja2
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
@@ -105,6 +112,12 @@ device_types:
     base_name: docker
     class: docker
 
+  qemu-x86:
+    base_name: qemu
+    arch: x86_64
+    boot_method: qemu
+    mach: qemu
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
@@ -115,6 +128,12 @@ device_types:
 
 
 scheduler:
+
+  - job: baseline-x86
+    runtime:
+      type: lava
+    platforms:
+      - qemu-x86
 
   - job: kbuild-gcc-10-x86
     runtime:
