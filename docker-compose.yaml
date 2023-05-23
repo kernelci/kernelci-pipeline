@@ -56,6 +56,15 @@ services:
       - './.docker-env:/home/kernelci/.docker-env'
       - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
 
+  runner-lava:
+    <<: *runner
+    container_name: 'kernelci-pipeline-runner-lava'
+    command:
+      - './pipeline/runner.py'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - 'loop'
+      - '--runtimes=lava-collabora'
+
   runner-k8s:
     <<: *runner
     container_name: 'kernelci-pipeline-runner-k8s'
