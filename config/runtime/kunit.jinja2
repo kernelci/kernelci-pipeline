@@ -64,8 +64,8 @@ cd {src_path}
     def _upload_artifacts(self, local_artifacts):
         artifacts = {}
         storage = self._get_storage()
-        if storage and NODE_ID:
-            root_path = '-'.join([JOB_NAME, NODE_ID])
+        if storage and NODE:
+            root_path = '-'.join([JOB_NAME, NODE['id']])
             print(f"Uploading artifacts to {root_path}")
             for file_name, file_path in local_artifacts.items():
                 if os.path.exists(file_path):
