@@ -18,7 +18,7 @@ services:
       - '/usr/bin/env'
       - 'python3'
       - '/home/kernelci/pipeline/send_kcidb.py'
-      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - '--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     volumes:
       - './src:/home/kernelci/pipeline'
