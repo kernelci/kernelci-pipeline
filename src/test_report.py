@@ -89,23 +89,15 @@ class TestReport(Service):
                         )
         template = template_env.get_template("test-report.jinja2")
         revision = root_node['revision']
-        if root_node['result'] == 'incomplete':
-            subject = (f"\
+        results = self._get_results_data(root_node)
+        stats = results['stats']
+        groups = results['groups']
+        subject = f"\
 [STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
-Failed to create source tarball for {root_node['name']}")
-            content = template.render(
-                subject=subject, root=root_node, groups={}
-            )
-        else:
-            results = self._get_results_data(root_node)
-            stats = results['stats']
-            groups = results['groups']
-            subject = (f"\
-[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
-{stats['total']} runs {stats['failures']} failures")
-            content = template.render(
-                subject=subject, root=root_node, groups=groups
-            )
+{stats['total']} runs {stats['failures']} failures"
+        content = template.render(
+            subject=subject, root=root_node, groups=groups
+        )
         return content, subject
 
     def _send_report(self, subject, content):
