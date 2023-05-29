@@ -85,7 +85,7 @@ class cmd_run(Command):
 
 
 if __name__ == '__main__':
-    opts = parse_opts('runner', globals())
+    opts = parse_opts('notifier', globals())
     configs = kernelci.config.load('config/pipeline.yaml')
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
