@@ -27,7 +27,6 @@ class RegressionTracker(Service):
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
             'state': 'done',
-            'result': 'fail',
         })
 
     def _stop(self, sub_id):
@@ -43,29 +42,19 @@ class RegressionTracker(Service):
         regression['regression_data'] = [last_successful_node, failed_node]
         self._api_helper.submit_regression(regression)
 
-    def _run(self, sub_id):
-        """Method to run regression tracking"""
-        self.log.info("Tracking regressions... ")
-        self.log.info("Press Ctrl-C to stop.")
-        sys.stdout.flush()
+    def _detect_regression(self, node):
+        """Method to check and detect regression"""
+        previous_nodes = self._api.get_nodes({
+            'name': node['name'],
+            'group': node['group'],
+            'path': node['path'],
+            'revision.tree': node['revision']['tree'],
+            'revision.branch': node['revision']['branch'],
+            'revision.url': node['revision']['url'],
+            'created__lt': node['created'],
+        })
 
-        while True:
-            node = self._api_helper.receive_event_node(sub_id)
-            if not node['group']:
-                continue
-
-            previous_nodes = self._api.get_nodes({
-                'name': node['name'],
-                'group': node['group'],
-                'revision.tree': node['revision']['tree'],
-                'revision.branch': node['revision']['branch'],
-                'revision.url': node['revision']['url'],
-                'created__lt': node['created'],
-            })
-
-            if not previous_nodes:
-                continue
-
+        if previous_nodes:
             previous_nodes = sorted(
                 previous_nodes,
                 key=lambda node: node['created'],
@@ -76,6 +65,32 @@ class RegressionTracker(Service):
                 self.log.info(f"Detected regression for node id: \
 {node['id']}")
                 self._create_regression(node, previous_nodes[0])
+
+    def _get_all_failed_child_nodes(self, failures, root_node):
+        """Method to get all failed nodes recursively from top-level node"""
+        child_nodes = self._api.get_nodes({'parent': root_node['id']})
+        for node in child_nodes:
+            if node['result'] == 'fail':
+                failures.append(node)
+            self._get_all_failed_child_nodes(failures, node)
+
+    def _run(self, sub_id):
+        """Method to run regression tracking"""
+        self.log.info("Tracking regressions... ")
+        self.log.info("Press Ctrl-C to stop.")
+        sys.stdout.flush()
+
+        while True:
+            node = self._api_helper.receive_event_node(sub_id)
+
+            if node['name'] == 'checkout':
+                continue
+
+            failures = []
+            self._get_all_failed_child_nodes(failures, node)
+
+            for node in failures:
+                self._detect_regression(node)
 
             sys.stdout.flush()
         return True
