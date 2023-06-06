@@ -23,6 +23,7 @@ services:
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
+      - './data/ssh:/home/kernelci/data/ssh'
 
 networks:
   lava-callback:
