@@ -33,7 +33,7 @@ storage_configs:
     storage_type: ssh
     host: staging.kernelci.org
     port: 9022
-    base_url: http://staging.kernelci.org:9080/
+    base_url: http://storage.staging.kernelci.org/api/
 
 
 runtimes:
