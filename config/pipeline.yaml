@@ -6,8 +6,8 @@
 # Not directly loaded into the config, only used for YAML aliases in this file
 _anchors:
 
-  checkout: &checkout
-  - channel: node
+  checkout: &checkout-event
+    channel: node
     name: checkout
     state: available
 
@@ -73,19 +73,13 @@ jobs:
   # fstests:
   #   template: 'fstests.jinja2'
   #   image: 'kernelci/staging-kernelci'
-  #   run_on: *checkout
 
   baseline-x86:
     template: baseline.jinja2
-    run_on:
-      - channel: node
-        name: kbuild-gcc-10-x86
-        result: pass
 
   kbuild-gcc-10-x86:
     template: kbuild.jinja2
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
-    run_on: *checkout
     params:
       arch: x86_64
       compiler: gcc-10
@@ -94,7 +88,6 @@ jobs:
   kunit: &kunit-job
     template: kunit.jinja2
     image: kernelci/staging-gcc-10:x86-kunit-kernelci
-    run_on: *checkout
 
   kunit-x86_64:
     <<: *kunit-job
@@ -104,7 +97,6 @@ jobs:
   kver:
     template: kver.jinja2
     image: kernelci/staging-kernelci
-    run_on: *checkout
 
 
 trees:
@@ -140,24 +132,32 @@ device_types:
 scheduler:
 
   - job: baseline-x86
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
     runtime:
       type: lava
     platforms:
       - qemu-x86
 
   - job: kbuild-gcc-10-x86
+    event: *checkout-event
     runtime:
       type: kubernetes
 
   - job: kunit
+    event: *checkout-event
     runtime:
       type: docker
 
   - job: kunit-x86_64
+    event: *checkout-event
     runtime:
       name: k8s-gke-eu-west4
 
   - job: kver
+    event: *checkout-event
     runtime:
       type: shell
 
