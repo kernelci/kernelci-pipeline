@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 KernelCI Authors.
+# Author: Sanskar Bhushan <sbdtu5498@gmail.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kernelci-pipeline-regression-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kernelci-pipeline-regression-tracker
+  template:
+    metadata:
+      labels:
+        app: kernelci-pipeline-regression-tracker
+    spec:
+      containers:
+        - name: kernelci-pipeline-regression-tracker
+          image: kernelci/staging-kernelci
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-pipeline-secrets
+                  key: kci-api-token
+            - name: SETTINGS
+              valueFrom:
+                configMapKeyRef:
+                  name: kernelci-pipeline-config
+                  key: settings
+          command:
+            - "/usr/bin/env"
+            - "python3"
+            - "/home/kernelci/pipeline/regression_tracker.py"
+            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "run"
+          volumeMounts:
+            - name: pipeline-volume
+              mountPath: /home/kernelci/pipeline
+            - name: config-volume
+              mountPath: /home/kernelci/config
+          # Resource limits needs to be discussed.
+          resources:
+      volumes:
+        - name: pipeline-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/src
+        - name: config-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/config
