@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 KernelCI Authors.
+# Author: Sanskar Bhushan <sbdtu5498@gmail.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kernelci-pipeline-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kernelci-pipeline-runner
+  template:
+    metadata:
+      labels:
+        app: kernelci-pipeline-runner
+    spec:
+      containers:
+        - name: kernelci-pipeline-runner
+          image: kernelci/staging-kernelci
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-pipeline-secrets
+                  key: kci-api-token
+            - name: SETTINGS
+              valueFrom:
+                configMapKeyRef:
+                  name: kernelci-pipeline-config
+                  key: settings          
+          command:      
+            - "home/kernelci/pipeline/runner.py"
+            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}"
+            - "loop"
+            - "--runtimes=lava-collabora"
+          volumeMounts:
+            - name: pipeline-volume
+              mountPath: /home/kernelci/pipeline
+            - name: config-volume
+              mountPath: /home/kernelci/config
+            - name: output-volume
+              mountPath: /home/kernelci/output
+            - name: kube-volume
+              mountPath: /home/kernelci/.kube
+            - name: gcloud-volume
+              mountPath: /home/kernelci/.config/gcloud
+            - name: azure-volume
+              mountPath: /home/kernelci/.azure
+          # Resource limits needs to be discussed.
+          resources:
+      volumes:
+        - name: pipeline-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/src
+        - name: config-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/config
+        - name: output-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/data/output
+        - name: kube-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/data/k8s-credentials/.kube
+        - name: gcloud-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/data/k8s-credentials/.config/gcloud
+        - name: azure-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/data/k8s-credentials/.azure

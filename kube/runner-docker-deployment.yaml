@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 KernelCI Authors.
+# Author: Sanskar Bhushan <sbdtu5498@gmail.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kernelci-pipeline-runner-docker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kernelci-pipeline-runner-docker
+  template:
+    metadata:
+      labels:
+        app: kernelci-pipeline-runner-docker
+    spec:
+      containers:
+        - name: kernelci-pipeline-runner-docker
+          image: kernelci/staging-kernelci
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-pipeline-secrets
+                  key: kci-api-token
+            - name: SETTINGS
+              valueFrom:
+                configMapKeyRef:
+                  name: kernelci-pipeline-config
+                  key: settings          
+          command:      
+            - "./pipeline/runner.py"
+            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "loop"
+            - "--runtimes=docker"
+          volumeMounts:
+            - name: pipeline-volume
+              mountPath: /home/kernelci/pipeline
+            - name: config-volume
+              mountPath: /home/kernelci/config
+            - name: output-volume
+              mountPath: /home/kernelci/data/output
+            - name: docker-env-file
+              mountPath: /home/kernelci/.docker-env
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+        # Need to discuss whether docker:dind-rootless can work instead,
+        # and whether it might be a better option from security perspective.
+        - name: dind-sidecar
+          image: docker:dind
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+      # Resource limits needs to be discussed.
+      resources:
+      volumes:
+        - name: pipeline-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/src
+        - name: config-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/config
+        - name: output-volume
+          hostPath:
+            path: /home/docker/kernelci-pipeline/data/output
+        - name: docker-env-file
+          hostPath:
+            path: /home/docker/kernelci-pipeline/.docker-env
