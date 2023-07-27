@@ -35,6 +35,12 @@ storage_configs:
     port: 9022
     base_url: http://storage.staging.kernelci.org/api/
 
+  staging-azure:
+    storage_type: azure
+    base_url: https://kciapistagingstorage1.file.core.windows.net/
+    share: staging
+    sas_public_token: "?sv=2022-11-02&ss=bfqt&srt=sco&sp=r&se=2123-07-20T22:00:00Z&st=2023-07-21T18:27:25Z&spr=https&sig=TDt3NorDXylmyUtBQnP1S5BZ3uywR06htEGTG%2BSxLWg%3D"
+
 
 runtimes:
 
