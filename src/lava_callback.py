@@ -29,8 +29,7 @@ def _get_api_helper(api_config_name, api_token):
 
 def _get_storage(storage_config_name):
     storage_config = CONFIGS['storage_configs'][storage_config_name]
-    section = SETTINGS[(':'.join(('storage', storage_config_name)))]
-    storage_cred = section['storage_cred']
+    storage_cred = SETTINGS['storage'][storage_config_name]['storage_cred']
     return kernelci.storage.get_storage(storage_config, storage_cred)
 
 
