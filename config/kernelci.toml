@@ -23,6 +23,8 @@ kcidb_project_id = "kernelci-production"
 origin = "kernelci"
 
 [test_report]
+email_sender = "bot@kernelci.org"
+email_recipient = "kernelci-results-staging@groups.io"
 
 [timeout]
 
