@@ -30,8 +30,8 @@ class TestReport(Service):
         super().__init__(configs, args, 'test_report')
         self._email_sender = EmailSender(
             args.smtp_host, args.smtp_port,
-            email_send_from='bot@kernelci.org',
-            email_send_to='kernelci-results-staging@groups.io',
+            email_sender=args.email_sender,
+            email_recipient=args.email_recipient,
         ) if args.smtp_host and args.smtp_port else None
 
     def _dump_report(self, content):
@@ -166,6 +166,14 @@ class cmd_loop(Command):
             'name': '--smtp-port',
             'help': "SMTP server port number",
             'type': int,
+        },
+        {
+            'name': '--email-sender',
+            'help': "Email address of test report sender",
+        },
+        {
+            'name': '--email-recipient',
+            'help': "Email address of test report recipient",
         },
     ]
 
