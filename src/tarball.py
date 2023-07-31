@@ -59,6 +59,28 @@ class Tarball(Service):
         kernelci.build.update_repo(config, self._kdir)
         self.log.info("Repo updated")
 
+    def _find_patchwork_patches(self, node):
+        node_data = node.get('data')
+        if not node_data:
+            return []
+
+        if patchwork_data := node_data.get('patchwork'):
+            config_version = patchwork_data["version"]
+            if config_version == 1:
+                return [patch_metadata['mbox'] for patch_metadata in patchwork_data['payload']['patches']]
+            else:
+                self.log.error(f"Unsupported patchwork config version {config_version}")
+
+        return []
+
+    def _apply_patches(self, patch_mbox_urls):
+        # Appling patches in the reverse order
+        for patch_mbox_url in patch_mbox_urls[::-1]:
+            self.log.info(
+                f"Applying patch to the repo, patch mbox url: {patch_mbox_url}"
+            )
+            kernelci.build.apply_patch_mbox(self._kdir, patch_mbox_url)
+
     def _make_tarball(self, config, describe):
         name = '-'.join(['linux', config.tree.name, config.branch, describe])
         tarball = f"{name}.tar.gz"
@@ -134,6 +156,11 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
                 continue
 
             self._update_repo(build_config)
+
+            patches = self._find_patchwork_patches(checkout_node)
+            if patches:
+                self._apply_patches(patches)
+
             describe = kernelci.build.git_describe(
                 build_config.tree.name, self._kdir
             )
