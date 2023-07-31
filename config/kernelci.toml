@@ -13,6 +13,15 @@ kdir = "/home/kernelci/data/src/linux"
 output = "/home/kernelci/data/output"
 storage_config = "docker-host"
 
+[patchset]
+kdir = "/home/kernelci/data/src/linux-patchset"
+output = "/home/kernelci/data/output"
+storage_config = "docker-host"
+patchset_tmp_file_prefix = "kernel-patch"
+patchset_short_hash_len = 13
+allowed_domains = ["patchwork.kernel.org"]
+polling_delay_secs = 30
+
 [scheduler]
 output = "/home/kernelci/data/output"
 
