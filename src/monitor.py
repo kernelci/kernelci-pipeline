@@ -60,9 +60,10 @@ class Monitor(Service):
             event = self._api.receive_event(sub_id)
             obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
-            commit = (obj['data']['kernel_revision']['commit'][:12]
-                      if 'kernel_revision' in obj['data']
-                      else str(None))
+            try:
+                commit = obj['data']['kernel_revision']['commit'][:12]
+            except (KeyError, TypeError):
+                commit = str(None)
             result = result_map[obj['result']] if obj['result'] else str(None)
             print(self.LOG_FMT.format(
                 time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),

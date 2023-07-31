@@ -5,13 +5,12 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+# Author: Nikolay Yurin <yurinnick@meta.com>
 
 from datetime import datetime, timedelta
-import logging
 import os
 import re
 import sys
-import urllib.parse
 import json
 import requests
 
@@ -32,25 +31,30 @@ KVER_RE = re.compile(
 
 
 class Tarball(Service):
+    TAR_CREATE_CMD = """\
+set -e
+cd {target_dir}
+git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
+"""
 
-    def __init__(self, configs, args):
-        super().__init__(configs, args, 'tarball')
-        self._build_configs = configs['build_configs']
-        self._kdir = args.kdir
-        self._output = args.output
-        if not os.path.exists(self._output):
-            os.makedirs(self._output)
-        self._verbose = args.verbose
-        self._storage_config = configs['storage_configs'][args.storage_config]
+    def __init__(self, global_configs, service_config):
+        super().__init__(global_configs, service_config, 'tarball')
+        self._service_config = service_config
+        self._build_configs = global_configs['build_configs']
+        if not os.path.exists(self._service_config.output):
+            os.makedirs(self._service_config.output)
+        storage_config = global_configs['storage_configs'][
+            service_config.storage_config
+        ]
         self._storage = kernelci.storage.get_storage(
-            self._storage_config, args.storage_cred
+            storage_config, service_config.storage_cred
         )
 
     def _find_build_config(self, node):
         revision = node['data']['kernel_revision']
         tree = revision['tree']
         branch = revision['branch']
-        for name, config in self._build_configs.items():
+        for config in self._build_configs.values():
             if config.tree.name == tree and config.branch == branch:
                 return config
 
@@ -61,13 +65,16 @@ class Tarball(Service):
         '''
         self.log.info(f"Updating repo for {config.name}")
         try:
-            kernelci.build.update_repo(config, self._kdir)
+            kernelci.build.update_repo(config, self._service_config.kdir)
         except Exception as err:
             self.log.error(f"Failed to update: {err}, cleaning stale repo")
             # safeguard, make sure it is git repo
-            if not os.path.exists(os.path.join(self._kdir, '.git')):
-                self.log.error(f"{self._kdir} is not a git repo")
-                raise Exception(f"{self._kdir} is not a git repo")
+            if not os.path.exists(
+                os.path.join(self._service_config.kdir, '.git')
+            ):
+                err_msg = f"{self._service_config.kdir} is not a git repo"
+                self.log.error(err_msg)
+                raise Exception(err_msg)
             # cleanup the repo and return True, so we try again
             kernelci.shell_cmd(f"rm -rf {self._kdir}")
             return True
@@ -75,24 +82,24 @@ class Tarball(Service):
         self.log.info("Repo updated")
         return False
 
-    def _make_tarball(self, config, describe):
-        name = '-'.join(['linux', config.tree.name, config.branch, describe])
-        tarball = f"{name}.tar.gz"
-        self.log.info(f"Making tarball {tarball}")
-        output_path = os.path.relpath(self._output, self._kdir)
-        cmd = """\
-set -e
-cd {kdir}
-git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
-""".format(kdir=self._kdir, name=name, output=output_path, tarball=tarball)
+    def _make_tarball(self, target_dir, tarball_name):
+        self.log.info(f"Making tarball {tarball_name}")
+        tarball_path = os.path.join(
+            self._service_config.output,
+            f"{tarball_name}.tar.gz"
+        )
+        cmd = self.TAR_CREATE_CMD.format(
+            target_dir=target_dir,
+            prefix=tarball_name,
+            tarball_path=tarball_path
+        )
         self.log.info(cmd)
         kernelci.shell_cmd(cmd)
         self.log.info("Tarball created")
-        return tarball
+        return tarball_path
 
-    def _push_tarball(self, config, describe):
-        tarball_name = self._make_tarball(config, describe)
-        tarball_path = os.path.join(self._output, tarball_name)
+    def _push_tarball(self, tarball_path):
+        tarball_name = os.path.basename(tarball_path)
         self.log.info(f"Uploading {tarball_path}")
         tarball_url = self._storage.upload_single((tarball_path, tarball_name))
         self.log.info(f"Upload complete: {tarball_url}")
@@ -100,7 +107,9 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         return tarball_url
 
     def _get_version_from_describe(self):
-        describe_v = kernelci.build.git_describe_verbose(self._kdir)
+        describe_v = kernelci.build.git_describe_verbose(
+            self._service_config.kdir
+        )
         version = KVER_RE.match(describe_v).groupdict()
         return {
             key: value
@@ -157,13 +166,21 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
                     os._exit(1)
 
             describe = kernelci.build.git_describe(
-                build_config.tree.name, self._kdir
+                build_config.tree.name, self._service_config.kdir
             )
             version = self._get_version_from_describe()
-            tarball_url = self._push_tarball(build_config, describe)
+            tarball_name = '-'.join([
+                'linux',
+                build_config.tree.name,
+                build_config.branch,
+                describe
+            ])
+            tarball_path = self._make_tarball(
+                self._service_config.kdir,
+                tarball_name
+            )
+            tarball_url = self._push_tarball(tarball_path)
             self._update_node(checkout_node, describe, version, tarball_url)
-
-        return True
 
 
 class cmd_run(Command):

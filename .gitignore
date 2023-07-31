@@ -2,3 +2,5 @@
 .docker-env
 data
 *.pyc
+*.venv
+
