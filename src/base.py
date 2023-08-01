@@ -24,6 +24,7 @@ class Service:
         api_token = os.getenv('KCI_API_TOKEN')
         self._api = kernelci.api.get_api(self._api_config, api_token)
         self._api_helper = APIHelper(self._api)
+        self._args = args
 
     @property
     def log(self):
@@ -65,7 +66,7 @@ class Service:
         context = None
 
         try:
-            context = self._setup(args)
+            context = self._setup(args or self._args)
             status = self._run(context)
         except KeyboardInterrupt:
             self.log.info("Stopping.")
