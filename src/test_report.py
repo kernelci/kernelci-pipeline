@@ -174,7 +174,6 @@ class cmd_loop(Command):
             'name': '--smtp-port',
             'help': "SMTP server port number",
             'type': int,
-            'default': 25,
         },
     ]
 
