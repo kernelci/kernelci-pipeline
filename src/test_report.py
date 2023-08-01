@@ -83,28 +83,42 @@ class TestReport(Service):
             'groups': groups,
         }
 
+    def _get_patch_data(self, root_node):
+        root_node_data = root_node.get('data')
+        if not root_node_data:
+            return {}
+
+        if patchwork_metadata := root_node_data.get('patchwork'):
+            if patchwork_metadata["version"] == 1:
+                patch = patchwork_metadata['payload']['patches'][0]
+                return {
+                    'title': "foobar",
+                    'hash': patch['hash'],
+                    'url': patch['web_url'],
+                }
+
+        return {}
+
     def _get_report(self, root_node):
         template_env = jinja2.Environment(
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
         template = template_env.get_template("test-report.jinja2")
         revision = root_node['revision']
+
+        patch_metadata = self._get_patch_data(root_node)
+        base_subject= f"[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}"
         if root_node['result'] == 'incomplete':
-            subject = (f"\
-[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
-Failed to create source tarball for {root_node['name']}")
+            subject = (f"{base_subject}: Failed to create source tarball for {root_node['name']}")
             content = template.render(
-                subject=subject, root=root_node, groups={}
+                subject=subject, root=root_node, groups={}, patch=patch_metadata,
             )
         else:
             results = self._get_results_data(root_node)
             stats = results['stats']
-            groups = results['groups']
-            subject = (f"\
-[STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
-{stats['total']} runs {stats['failures']} failures")
+            subject = (f"{base_subject}: {stats['total']} runs {stats['failures']} failures")
             content = template.render(
-                subject=subject, root=root_node, groups=groups
+                subject=subject, root=root_node, groups=results['groups'], patch=patch_metadata,
             )
         return content, subject
 
