@@ -57,6 +57,16 @@ class KCIDBBridge(Service):
                 created_time.timestamp(), tz=tz_utc)
         return created_time.isoformat()
 
+    def _get_patchset_hash(node_data):
+        if not node_data:
+            return ""
+
+        if patchwork_metadata := node_data.get('patchwork'):
+            if patchwork_metadata['version'] == 1:
+                return patchwork_metadata['payload']['patches'][0]['hash']
+
+        return ""
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
@@ -76,7 +86,7 @@ class KCIDBBridge(Service):
                         'git_commit_hash': node['revision']['commit'],
                         'git_repository_branch': node['revision']['branch'],
                         'start_time': self._set_timezone(node['created']),
-                        'patchset_hash': '',
+                        'patchset_hash': self._get_patchset_hash(node.get('data')),
                         'misc': {
                             'submitted_by': 'kernelci-pipeline'
                         },
