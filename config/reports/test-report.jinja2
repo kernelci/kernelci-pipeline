@@ -9,7 +9,12 @@ Tree:     {{ root.revision.tree }}
 Branch:   {{ root.revision.branch }}
 Describe: {{ root.revision.describe }}
 URL:      {{ root.revision.url }}
-SHA1:     {{ root.revision.commit }}
+Commit:   {{ root.revision.commit }}
+{%- if patch %}
+Patch Title:    {{ patch["title"] }}
+Patch URL:      {{ patch["url"] }}
+Patch Hash:     {{ patch["hash"] }}
+{%- endif %}
 
 {%- if groups.items() %}
 {{ '%-15s %s %-8s %s %-8s %s %-8s'|format(
