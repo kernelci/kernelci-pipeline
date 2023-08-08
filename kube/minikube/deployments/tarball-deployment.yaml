@@ -35,6 +35,8 @@ spec:
             - "/home/kernelci/pipeline/tarball.py"
             - "--settings=$(SETTINGS)"
             - "run"
+            - "--api-config=k8s-host"
+            - "--storage-config=k8s-host"
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline

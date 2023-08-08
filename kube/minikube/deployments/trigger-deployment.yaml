@@ -35,6 +35,7 @@ spec:
             - "/home/kernelci/pipeline/trigger.py"
             - "--settings=$(SETTINGS)"
             - "run"
+            - "--api-config=k8s-host"
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline
