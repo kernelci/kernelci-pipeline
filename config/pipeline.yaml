@@ -23,6 +23,9 @@ api_configs:
   early-access:
     url: https://kernelci-api.eastus.cloudapp.azure.com
 
+  k8s-host:
+    url: http://kernelci-api:8001
+
 
 storage_configs:
 
@@ -37,6 +40,12 @@ storage_configs:
     host: staging.kernelci.org
     port: 9022
     base_url: http://storage.staging.kernelci.org/api/
+  
+  k8s-host:
+    storage_type: ssh
+    host: kernelci-api-ssh
+    port: 8022
+    base_url: http://kernelci-api-storage:8002/
 
   staging-azure: &azure-files
     storage_type: azure
