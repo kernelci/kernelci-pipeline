@@ -33,7 +33,7 @@ spec:
                   key: settings          
           command:      
             - "home/kernelci/pipeline/runner.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.conf}"
+            - "--settings=$(SETTINGS)"
             - "loop"
             - "--runtimes=k8s-gke-eu-west4"
           volumeMounts:

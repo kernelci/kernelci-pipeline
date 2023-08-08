@@ -30,7 +30,7 @@ spec:
             - "/usr/bin/env"
             - "python3"
             - "/home/kernelci/pipeline/timeout.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "--settings=$(SETTINGS)"
             - "run"
             - "--mode=holdoff"          
           volumeMounts:
