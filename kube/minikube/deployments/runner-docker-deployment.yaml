@@ -33,7 +33,7 @@ spec:
                   key: settings          
           command:      
             - "./pipeline/runner.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "--settings=$(SETTINGS)"
             - "loop"
             - "--runtimes=docker"
           volumeMounts:

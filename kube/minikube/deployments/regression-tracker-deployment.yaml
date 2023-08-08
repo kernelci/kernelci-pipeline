@@ -35,7 +35,7 @@ spec:
             - "/usr/bin/env"
             - "python3"
             - "/home/kernelci/pipeline/regression_tracker.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "--settings=$(SETTINGS)"
             - "run"
           volumeMounts:
             - name: pipeline-volume

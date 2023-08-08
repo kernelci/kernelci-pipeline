@@ -31,7 +31,7 @@ spec:
                 configMapKeyRef:
                   name: kernelci-pipeline-config
                   key: settings          
-          command: ["/home/kernelci/pipeline/runner.py", "--setting=${SETTINGS:-/home/kernelci/config/kernelci.toml}", "loop", "--runtimes=shell"]
+          command: ["/home/kernelci/pipeline/runner.py", "--setting=$(SETTINGS)", "loop", "--runtimes=shell"]
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline

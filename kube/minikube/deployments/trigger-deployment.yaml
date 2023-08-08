@@ -33,7 +33,7 @@ spec:
                   key: settings
           command:
             - "/home/kernelci/pipeline/trigger.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "--settings=$(SETTINGS)"
             - "run"
           volumeMounts:
             - name: pipeline-volume

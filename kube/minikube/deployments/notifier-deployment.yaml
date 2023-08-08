@@ -33,7 +33,7 @@ spec:
                   key: settings
           command:
             - "./pipeline/notifier.py"
-            - "--settings=${SETTINGS:-/home/kernelci/config/kernelci.toml}"
+            - "--settings=$(SETTINGS)"
             - "run"
           volumeMounts:
             - name: pipeline-volume
