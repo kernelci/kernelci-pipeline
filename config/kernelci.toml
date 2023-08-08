@@ -30,3 +30,6 @@ origin = "kernelci"
 
 ["storage:docker-host"]
 storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
+
+[storage.k8s-host]
+storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
