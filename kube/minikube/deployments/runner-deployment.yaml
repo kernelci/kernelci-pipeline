@@ -31,7 +31,13 @@ spec:
                 configMapKeyRef:
                   name: kernelci-pipeline-config
                   key: settings          
-          command: ["/home/kernelci/pipeline/runner.py", "--setting=$(SETTINGS)", "loop", "--runtimes=shell"]
+          command: [
+            "/home/kernelci/pipeline/runner.py",
+            "--setting=$(SETTINGS)",
+            "loop",
+            "--runtimes=shell",
+            "--api-config=k8s-host",
+          ]
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline
