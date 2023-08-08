@@ -36,6 +36,7 @@ spec:
             - "--settings=$(SETTINGS)"
             - "loop"
             - "--runtimes=docker"
+            - "--api-config=k8s-host"
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline
