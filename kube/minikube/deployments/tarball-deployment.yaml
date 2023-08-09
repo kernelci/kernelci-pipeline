@@ -42,6 +42,12 @@ spec:
               mountPath: /home/kernelci/pipeline
             - name: config-volume
               mountPath: /home/kernelci/config
+            - name: ssh-volume
+              mountPath: /home/kernelci/data/ssh
+            - name: src-volume
+              mountPath: /home/kernelci/data/src
+            - name: output-volume
+              mountPath: /home/kernelci/data/output
           # Resource limits needs to be discussed.
           resources:
       volumes:
