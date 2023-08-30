@@ -1,3 +1,8 @@
 [DEFAULT]
 api_config = "early-access"
 verbose = true
+
+[trigger]
+poll_period = 3600
+startup_delay = 3
+build_configs = "mainline"
