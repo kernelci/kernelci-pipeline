@@ -1,0 +1,3 @@
+[DEFAULT]
+api_config = "early-access"
+verbose = true
