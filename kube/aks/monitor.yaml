@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: monitor
+  namespace: kernelci-pipeline
+spec:
+  containers:
+  - name: monitor
+    image: kernelci/pipeline
+    imagePullPolicy: Always
+    command:
+    - ./src/monitor.py
+    - --settings=/home/kernelci/pipeline/kube/aks/kernelci.toml
+    - run
+    env:
+    - name: KCI_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: kernelci-api-token
+          key: token
