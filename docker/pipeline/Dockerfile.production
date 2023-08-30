@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+FROM kernelci/kernelci
+MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
+
+ARG git_url=https://github.com/kernelci/kernelci-pipeline.git
+ARG git_rev=main
+RUN git clone --depth=1 $git_url pipeline
+WORKDIR pipeline
+RUN git fetch origin $git_rev
+RUN git checkout FETCH_HEAD
+RUN mkdir -p /home/kernelci/.config/kernelci
+COPY kernelci.toml /home/kernelci/.config/kernelci
