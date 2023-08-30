@@ -18,12 +18,12 @@ from kernelci.cli import Args, Command, parse_opts
 from base import Service
 
 
-class Notifier(Service):
+class Monitor(Service):
     LOG_FMT = \
         "{time:26s}  {commit:12s}  {id:24} {state:9s}  {result:8s}  {name}"
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'notifier')
+        super().__init__(configs, args, 'monitor')
         self._log_titles = self.LOG_FMT.format(
             time="Time", commit="Commit", id="Node Id", state="State",
             result="Result", name="Name"
@@ -78,11 +78,11 @@ class cmd_run(Command):
     args = [Args.api_config]
 
     def __call__(self, configs, args):
-        return Notifier(configs, args).run(args)
+        return Monitor(configs, args).run(args)
 
 
 if __name__ == '__main__':
-    opts = parse_opts('notifier', globals())
+    opts = parse_opts('monitor', globals())
     configs = kernelci.config.load('config/pipeline.yaml')
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

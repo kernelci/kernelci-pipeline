@@ -8,13 +8,13 @@ version: '3'
 
 services:
 
-  notifier: &base-service
-    container_name: 'kernelci-pipeline-notifier'
+  monitor: &base-service
+    container_name: 'kernelci-pipeline-monitor'
     image: 'kernelci/staging-kernelci'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     command:
-      - './pipeline/notifier.py'
+      - './pipeline/monitor.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     volumes: &base-volumes
