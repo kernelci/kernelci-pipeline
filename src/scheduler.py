@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021, 2022 Collabora Limited
+# Copyright (C) 2021, 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
@@ -22,11 +22,11 @@ from kernelci.cli import Args, Command, parse_opts
 from base import Service
 
 
-class Runner(Service):
-    """Service to run jobs that match received events"""
+class Scheduler(Service):
+    """Service to schedule jobs that match received events"""
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'runner')
+        super().__init__(configs, args, 'scheduler')
         self._api_config_yaml = yaml.dump(self._api_config)
         self._verbose = args.verbose
         self._output = args.output
@@ -117,11 +117,11 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        return Runner(configs, args).run()
+        return Scheduler(configs, args).run()
 
 
 if __name__ == '__main__':
-    opts = parse_opts('runner', globals())
+    opts = parse_opts('scheduler', globals())
     configs = kernelci.config.load('config/pipeline.yaml')
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

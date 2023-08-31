@@ -76,8 +76,8 @@ runtimes:
 
 jobs:
 
-  # FIXME This will need to be reworked later when the fstests runner has been
-  # removed
+  # FIXME This will need to be reworked later when the fstests scheduler has
+  # been removed
   #
   # fstests:
   #   template: 'fstests.jinja2'
