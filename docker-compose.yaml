@@ -21,13 +21,13 @@ services:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
 
-  runner: &runner
-    container_name: 'kernelci-pipeline-runner'
+  scheduler: &scheduler
+    container_name: 'kernelci-pipeline-scheduler'
     image: 'kernelci/staging-kernelci'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     command:
-      - './pipeline/runner.py'
+      - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=shell'
@@ -39,13 +39,13 @@ services:
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
 
-  runner-docker:
-    <<: *runner
-    container_name: 'kernelci-pipeline-runner-docker'
+  scheduler-docker:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-docker'
     user: root  # Docker-in-Docker
     working_dir: /home/kernelci
     command:
-      - './pipeline/runner.py'
+      - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=docker'
@@ -56,21 +56,21 @@ services:
       - './.docker-env:/home/kernelci/.docker-env'
       - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
 
-  runner-lava:
-    <<: *runner
-    container_name: 'kernelci-pipeline-runner-lava'
+  scheduler-lava:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-lava'
     command:
-      - './pipeline/runner.py'
+      - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.conf}'
       - 'loop'
       - '--runtimes=lava-collabora'
 
-  runner-k8s:
-    <<: *runner
-    container_name: 'kernelci-pipeline-runner-k8s'
+  scheduler-k8s:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-k8s'
     image: 'kernelci/staging-k8s:kernelci'
     command:
-      - './pipeline/runner.py'
+      - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=k8s-gke-eu-west4'
