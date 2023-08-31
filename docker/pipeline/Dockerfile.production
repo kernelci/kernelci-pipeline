@@ -3,7 +3,7 @@
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-FROM kernelci/kernelci
+FROM kernelci/k8s:kernelci
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 
 ARG git_url=https://github.com/kernelci/kernelci-pipeline.git
