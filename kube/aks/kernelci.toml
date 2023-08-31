@@ -11,3 +11,6 @@ build_configs = "mainline"
 [tarball]
 kdir = "/home/kernelci/pipeline/data/src/linux"
 output = "/home/kernelci/pipeline/data/output"
+
+[scheduler]
+output = "/home/kernelci/pipeline/data/output"
