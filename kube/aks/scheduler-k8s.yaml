@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: scheduler-k8s
+  namespace: kernelci-pipeline
+spec:
+  containers:
+  - name: scheduler
+    image: kernelci/pipeline
+    imagePullPolicy: Always
+    command:
+    - ./src/scheduler.py
+    - --settings=/home/kernelci/secrets/kernelci.toml
+    - loop
+    - --runtimes=k8s-gke-eu-west4
+    env:
+    - name: KCI_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: kernelci-api-token
+          key: token
+    volumeMounts:
+    - name: secrets
+      mountPath: /home/kernelci/secrets
+    - name: secrets
+      mountPath: /home/kernelci/.kube
+      subPath: k8s-credentials/.kube
+    - name: secrets
+      mountPath: /home/kernelci/.config/gcloud
+      subPath: k8s-credentials/.config/gcloud
+    - name: secrets
+      mountPath: /home/kernelci/.azure
+      subPath: k8s-credentials/.azure
+  initContainers:
+  - name: settings
+    image: kernelci/pipeline
+    imagePullPolicy: Always
+    env:
+    - name: AZURE_FILES_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: azure-files-token
+          key: token
+    volumeMounts:
+    - name: secrets
+      mountPath: /tmp/secrets
+    command:
+    - /bin/bash
+    - -e
+    - -c
+    - "\
+cp /home/kernelci/pipeline/kube/aks/kernelci.toml /tmp/secrets/; \
+echo -e \"\
+\\n\
+[storage.early-access-azure]\\n\
+storage_cred = \\\"$AZURE_FILES_TOKEN\\\"\
+\" >> /tmp/secrets/kernelci.toml;"
+  - name: credentials
+    image: kernelci/pipeline
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: secrets
+      mountPath: /tmp/secrets
+    - name: credentials
+      mountPath: /tmp/credentials
+    command:
+    - tar
+    - xzf
+    - /tmp/credentials/k8s-credentials.tar.gz
+    - -C
+    - /tmp/secrets
+  volumes:
+  - name: secrets
+    emptyDir: {}
+  - name: credentials
+    secret:
+      secretName: k8s-credentials
