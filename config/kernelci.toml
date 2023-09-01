@@ -12,7 +12,7 @@ kdir = "/home/kernelci/data/src/linux"
 output = "/home/kernelci/data/output"
 storage_config = "docker-host"
 
-[runner]
+[scheduler]
 output = "/home/kernelci/output"
 
 [notifier]
