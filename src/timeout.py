@@ -27,6 +27,8 @@ class TimeoutService(Service):
             state.value for state in self._api.node_states
             if state != state.DONE
         ]
+        self._user = self._api.whoami()
+        self._username = self._user['profile']['username']
 
     def _setup(self, args):
         return {
@@ -39,7 +41,9 @@ class TimeoutService(Service):
         for state in self._pending_states:
             node_filters['state'] = state
             for node in self._api.get_nodes(node_filters):
-                nodes[node['id']] = node
+                # Until permissions for the timeout service are fixed:
+                if node['owner'] == self._username:
+                    nodes[node['id']] = node
         return nodes
 
     def _count_running_child_nodes(self, parent_id):
@@ -89,6 +93,7 @@ class Timeout(TimeoutService):
     def _run(self, ctx):
         self.log.info("Looking for nodes with lapsed timeout...")
         self.log.info("Press Ctrl-C to stop.")
+        self.log.info(f"Current user: {self._username}")
 
         while True:
             pending_nodes = self._get_pending_nodes({
