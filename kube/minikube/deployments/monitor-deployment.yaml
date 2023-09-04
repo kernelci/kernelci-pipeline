@@ -2,23 +2,26 @@
 #
 # Copyright (C) 2023 KernelCI Authors.
 # Author: Sanskar Bhushan <sbdtu5498@gmail.com>
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kernelci-pipeline-notifier
+  name: kernelci-pipeline-monitor
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kernelci-pipeline-notifier
+      app: kernelci-pipeline-monitor
   template:
     metadata:
       labels:
-        app: kernelci-pipeline-notifier
+        app: kernelci-pipeline-monitor
     spec:
       containers:
-        - name: kernelci-pipeline-notifier
+        - name: kernelci-pipeline-monitor
           image: kernelci/staging-kernelci
           env:
             - name: KCI_API_TOKEN
@@ -32,7 +35,7 @@ spec:
                   name: kernelci-pipeline-config
                   key: settings
           command:
-            - "./pipeline/notifier.py"
+            - "./pipeline/monitor.py"
             - "--settings=$(SETTINGS)"
             - "run"
             - "--api-config=k8s-host"
