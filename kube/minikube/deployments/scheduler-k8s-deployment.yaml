@@ -2,23 +2,26 @@
 #
 # Copyright (C) 2023 KernelCI Authors.
 # Author: Sanskar Bhushan <sbdtu5498@gmail.com>
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kernelci-pipeline-runner
+  name: kernelci-pipeline-scheduler
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kernelci-pipeline-runner
+      app: kernelci-pipeline-scheduler
   template:
     metadata:
       labels:
-        app: kernelci-pipeline-runner
+        app: kernelci-pipeline-scheduler
     spec:
       containers:
-        - name: kernelci-pipeline-runner
+        - name: kernelci-pipeline-scheduler
           image: kernelci/staging-kernelci
           env:
             - name: KCI_API_TOKEN
@@ -32,10 +35,10 @@ spec:
                   name: kernelci-pipeline-config
                   key: settings          
           command:      
-            - "home/kernelci/pipeline/runner.py"
+            - "home/kernelci/pipeline/scheduler.py"
             - "--settings=$(SETTINGS)"
             - "loop"
-            - "--runtimes=lava-collabora"
+            - "--runtimes=k8s-gke-eu-west4"
             - "--api-config=k8s-host"
           volumeMounts:
             - name: pipeline-volume
