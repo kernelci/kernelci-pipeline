@@ -33,7 +33,6 @@ spec:
             - "--settings=$(SETTINGS)"
             - "run"
             - "--mode=holdoff"
-            - "--api-config=k8s-host"  
           volumeMounts:
               - name: pipeline-volume
                 mountPath: /home/kernelci/pipeline

@@ -9,4 +9,4 @@ metadata:
   name: kernelci-pipeline-config
   namespace: default
 data:
-  settings: "/home/kernelci/config/kernelci.toml"
+  settings: "/home/kernelci/kube/minikube/kernelci.toml"

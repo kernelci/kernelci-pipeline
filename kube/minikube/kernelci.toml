@@ -1,0 +1,37 @@
+[DEFAULT]
+api_config = "k8s-host"
+storage_config = "k8s-host"
+verbose = true
+
+[trigger]
+poll_period = 0
+startup_delay = 3
+
+[tarball]
+kdir = "/home/kernelci/data/src/linux"
+output = "/home/kernelci/data/output"
+storage_config = "k8s-host"
+
+[scheduler]
+output = "/home/kernelci/output"
+
+[monitor]
+
+[send_kcidb]
+kcidb_topic_name = "playground_kcidb_new"
+kcidb_project_id = "kernelci-production"
+origin = "kernelci"
+
+[test_report]
+email_sender = "bot@kernelci.org"
+email_recipient = "kernelci-results-staging@groups.io"
+
+[timeout]
+
+[regression_tracker]
+
+[storage.docker-host]
+storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
+
+[storage.k8s-host]
+storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"

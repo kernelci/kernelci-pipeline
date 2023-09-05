@@ -39,7 +39,6 @@ spec:
             - "--settings=$(SETTINGS)"
             - "loop"
             - "--runtimes=k8s-gke-eu-west4"
-            - "--api-config=k8s-host"
           volumeMounts:
             - name: pipeline-volume
               mountPath: /home/kernelci/pipeline
