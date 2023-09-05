@@ -39,7 +39,6 @@ spec:
             "--setting=$(SETTINGS)",
             "loop",
             "--runtimes=shell",
-            "--api-config=k8s-host",
           ]
           volumeMounts:
             - name: pipeline-volume
