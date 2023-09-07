@@ -52,8 +52,13 @@ spec:
               mountPath: /home/kernelci/.config/gcloud
             - name: azure-volume
               mountPath: /home/kernelci/.azure
-          # Resource limits needs to be discussed.
           resources:
+            requests:
+              memory: "128M"
+              cpu: "250m"
+            limits:
+              memory: "256M"
+              cpu: "500m"
       volumes:
         - name: pipeline-volume
           hostPath:

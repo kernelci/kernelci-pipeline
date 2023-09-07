@@ -42,8 +42,13 @@ spec:
               mountPath: /home/kernelci/pipeline
             - name: config-volume
               mountPath: /home/kernelci/config
-          # Resource limits needs to be discussed.
           resources:
+            requests:
+              memory: "128M"
+              cpu: "250m"
+            limits:
+              memory: "256M"
+              cpu: "500m"
       volumes:
         - name: pipeline-volume
           hostPath:
