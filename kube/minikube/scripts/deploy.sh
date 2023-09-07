@@ -14,18 +14,6 @@ check_resource_exist() {
   echo "$kind $name is available!"
 }
 
-# Function to check if a resource is ready (for Deployments)
-check_deployment_ready() {
-  local name=$1
-
-  # Wait for the Deployment to have available replicas
-  while [[ "$(kubectl get deployment $name -o 'jsonpath={.status.availableReplicas}')" != "$(kubectl get deployment $name -o 'jsonpath={.status.replicas}')" ]]; do
-    echo "Waiting for Deployment $name to have available replicas..."
-    sleep 5
-  done
-
-  echo "Deployment $name is ready!"
-}
 
 # Function to check if a resource is completed (for Jobs)
 check_job_completed() {
@@ -38,28 +26,6 @@ check_job_completed() {
   done
 
   echo "Job $name is completed!"
-}
-
-# Function to apply a resource and check if it is ready or completed (for Jobs)
-apply_and_check_resource() {
-  local file=$1
-
-  kubectl apply -f "$file"
-
-  # Get the resource kind and name from the file
-  kind=$(kubectl get -f "$file" -o 'jsonpath={.kind}')
-  name=$(kubectl get -f "$file" -o 'jsonpath={.metadata.name}')
-
-  case "$kind" in
-    "Job")
-      check_job_completed "$name"
-      ;;
-    "Deployment")
-      check_deployment_ready "$name"
-      ;;
-    *)
-      ;;
-  esac
 }
 
 # Function to check if a secret 'kci-api-token' exists
@@ -90,7 +56,9 @@ check_resource_exist "configmaps" "kernelci-pipeline-config"
 
 # Apply all the deployments
 for file in ../deployments/*.yaml; do
-  apply_and_check_resource "$file"
+  kubectl apply -f "$file"
+  name=$(kubectl get -f "$file" -o 'jsonpath={.metadata.name}')
+  kubectl wait --for=condition=Available --timeout=60s deploy "$name"
 done
 
 echo "All components deployed successfully!"
