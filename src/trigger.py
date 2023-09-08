@@ -32,7 +32,7 @@ class Trigger(Service):
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
-    def _run_trigger(self, build_config, force):
+    def _run_trigger(self, build_config, force, timeout):
         head_commit = kernelci.build.get_branch_head(build_config)
         node_count = self._api.count_nodes({
             "revision.commit": head_commit,
@@ -59,12 +59,12 @@ class Trigger(Service):
             'branch': build_config.branch,
             'commit': head_commit,
         }
-        timeout = datetime.utcnow() + timedelta(hours=1)
+        checkout_timeout = datetime.utcnow() + timedelta(minutes=timeout)
         node = {
             'name': 'checkout',
             'path': ['checkout'],
             'revision': revision,
-            'timeout': timeout.isoformat(),
+            'timeout': checkout_timeout.isoformat(),
         }
         try:
             self._api.create_node(node)
@@ -75,10 +75,11 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, build_configs_list):
+    def _iterate_build_configs(self, force, build_configs_list,
+                               timeout):
         for name, config in self._build_configs.items():
             if not build_configs_list or name in build_configs_list:
-                self._run_trigger(config, force)
+                self._run_trigger(config, force, timeout)
 
     def _setup(self, args):
         return {
@@ -86,12 +87,14 @@ class Trigger(Service):
             'force': args.force,
             'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
+            'timeout': args.timeout,
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list, startup_delay = (
+        poll_period, force, build_configs_list, startup_delay, timeout = (
             ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list', 'startup_delay'
+                'poll_period', 'force', 'build_configs_list', 'startup_delay',
+                'timeout'
             )
         )
 
@@ -100,7 +103,8 @@ class Trigger(Service):
             time.sleep(startup_delay)
 
         while True:
-            self._iterate_build_configs(force, build_configs_list)
+            self._iterate_build_configs(force, build_configs_list,
+                                        timeout)
             if poll_period:
                 self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
@@ -135,6 +139,11 @@ class cmd_run(Command):
             'name': '--startup-delay',
             'type': int,
             'help': "Delay loop at startup by a number of seconds",
+        },
+        {
+            'name': '--timeout',
+            'type': float,
+            'help': "Timeout minutes for checkout node",
         },
     ]
 
