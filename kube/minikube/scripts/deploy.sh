@@ -14,20 +14,6 @@ check_resource_exist() {
   echo "$kind $name is available!"
 }
 
-
-# Function to check if a resource is completed (for Jobs)
-check_job_completed() {
-  local name=$1
-
-  # Wait for the Job to be completed
-  while [[ "$(kubectl get job $name -o 'jsonpath={.status.conditions[?(@.type=="Complete")].status}')" != "True" ]]; do
-    echo "Waiting for Job $name to be completed..."
-    sleep 5
-  done
-
-  echo "Job $name is completed!"
-}
-
 # Function to check if a secret 'kci-api-token' exists
 check_secret_key_exists() {
   local kind=$1
@@ -43,8 +29,16 @@ check_secret_key_exists() {
 }
 
 # Fork GitHub repository in Minikube node
-kubectl apply -f ../init/init-pod.yaml
-check_job_completed "github-cloning-pod"
+kubectl apply -f ../init/init-job.yaml
+kubectl wait --for=condition=Complete --timeout=60s job/pipeline-github-cloning-job
+exit_code=$?
+if [ $exit_code -ne 0 ];
+then
+   echo "Error: Init job could not complete"
+   exit 1
+else
+   echo "Init job is completed successfully"
+fi
 
 # Create Kubernetes secret
 kubectl create secret generic kernelci-pipeline-secrets --from-literal=kci-api-token=$KCI_API_TOKEN
