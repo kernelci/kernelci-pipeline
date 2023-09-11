@@ -178,7 +178,7 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        return TestReportLoop(configs, args).run()
+        return TestReportLoop(configs, args).run(args)
 
 
 class cmd_run(Command):
@@ -203,7 +203,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return TestReportSingle(configs, args).run()
+        return TestReportSingle(configs, args).run(args)
 
 
 if __name__ == '__main__':
