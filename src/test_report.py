@@ -46,16 +46,21 @@ class TestReport(Service):
             })
         }
 
-    def _get_group_data(self, root_node):
-        group = root_node['group']
-        revision = root_node['revision']
-        # Get count of group nodes and exclude the root node from it
+    def _get_group_data(self, checkout_node, group):
+        revision = checkout_node['revision']
+
+        root_node = self._api.get_nodes({
+            'revision.commit': revision['commit'],
+            'revision.tree': revision['tree'],
+            'revision.branch': revision['branch'],
+            'name': group,
+        })[0]
         group_nodes = self._api.count_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
             'group': group,
-        })-1
+        })
         failures = self._api.get_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
@@ -64,23 +69,40 @@ class TestReport(Service):
             'result': 'fail',
         })
         failures = [
-            node for node in failures if node['id'] != root_node['id']
+            node for node in failures if node['id']
         ]
+
         parent_path_len = len(root_node['path'])
         for node in failures:
+            if node['id'] == root_node['id']:
+                parent_path_len = len(checkout_node['path'])
             node['path'] = '.'.join(node['path'][parent_path_len:])
         return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
 
+    def _get_groups(self, root_node):
+        groups = []
+        revision = root_node['revision']
+        nodes = self._api.get_nodes({
+            'revision.commit': revision['commit'],
+            'revision.tree': revision['tree'],
+            'revision.branch': revision['branch']
+        })
+        for node in nodes:
+            if node['group'] and node['group'] not in groups:
+                groups.append(node['group'])
+        return groups
+
     def _get_results_data(self, root_node):
-        group_nodes = self._api.get_nodes({"parent": root_node['id']})
-        groups = {
-            node['name']: self._get_group_data(node)
-            for node in group_nodes
+        groups = self._get_groups(root_node)
+
+        groups_data = {
+            group: self._get_group_data(root_node, group)
+            for group in groups
         }
         group_stats = self._get_group_stats(root_node['id'])
         return {
             'stats': group_stats,
-            'groups': groups,
+            'groups': groups_data,
         }
 
     def _get_report(self, root_node):
