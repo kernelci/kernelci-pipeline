@@ -12,12 +12,12 @@ URL:      {{ root.revision.url }}
 SHA1:     {{ root.revision.commit }}
 
 {%- if groups.items() %}
-{{ '%-15s %s %-8s %s %-8s %s %-8s'|format(
+{{ '%-17s %s %-8s %s %-8s %s %-8s'|format(
 "Name", "|", "Result", "|", "Total", "|", "Failures") }}
 {{ '%s%s%s%s%s%s%s'|format(
-"-"*16, "+", "-"*10, "+", "-"*10, "+", "-"*9) }}
+"-"*18, "+", "-"*10, "+", "-"*10, "+", "-"*9) }}
 {%- for group_name, group in groups.items() %}
-{{ '%-15s %s %-8s %s %8d %s %8d'|format(
+{{ '%-17s %s %-8s %s %8d %s %8d'|format(
 group_name, "|",
 group.root.result, "|",
 group.nodes, "|",
