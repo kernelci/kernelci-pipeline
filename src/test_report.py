@@ -37,37 +37,37 @@ class TestReport(Service):
     def _dump_report(self, content):
         print(content, flush=True)
 
-    def _get_group_stats(self, groups_data):
+    def _get_job_stats(self, jobs_data):
         failures = 0
-        for _, group in groups_data.items():
-            if group['root']['result'] == 'fail':
+        for _, job in jobs_data.items():
+            if job['root']['result'] == 'fail':
                 failures += 1
 
         return {
-            'total': len(groups_data),
+            'total': len(jobs_data),
             'failures': failures,
         }
 
-    def _get_group_data(self, checkout_node, group):
+    def _get_job_data(self, checkout_node, job):
         revision = checkout_node['revision']
 
         root_node = self._api.get_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
-            'name': group,
+            'name': job,
         })[0]
-        group_nodes = self._api.count_nodes({
+        job_nodes = self._api.count_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
-            'group': group,
+            'group': job,
         })
         failures = self._api.get_nodes({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
-            'group': group,
+            'group': job,
             'result': 'fail',
         })
         failures = [
@@ -79,10 +79,10 @@ class TestReport(Service):
             if node['id'] == root_node['id']:
                 parent_path_len = len(checkout_node['path'])
             node['path'] = '.'.join(node['path'][parent_path_len:])
-        return {'root': root_node, 'nodes': group_nodes, 'failures': failures}
+        return {'root': root_node, 'nodes': job_nodes, 'failures': failures}
 
-    def _get_groups(self, root_node):
-        groups = []
+    def _get_jobs(self, root_node):
+        jobs = []
         revision = root_node['revision']
         nodes = self._api.get_nodes({
             'revision.commit': revision['commit'],
@@ -90,21 +90,21 @@ class TestReport(Service):
             'revision.branch': revision['branch']
         })
         for node in nodes:
-            if node['group'] and node['group'] not in groups:
-                groups.append(node['group'])
-        return groups
+            if node['group'] and node['group'] not in jobs:
+                jobs.append(node['group'])
+        return jobs
 
     def _get_results_data(self, root_node):
-        groups = self._get_groups(root_node)
+        jobs = self._get_jobs(root_node)
 
-        groups_data = {
-            group: self._get_group_data(root_node, group)
-            for group in groups
+        jobs_data = {
+            job: self._get_job_data(root_node, job)
+            for job in jobs
         }
-        group_stats = self._get_group_stats(groups_data)
+        jobs_stats = self._get_job_stats(jobs_data)
         return {
-            'stats': group_stats,
-            'groups': groups_data,
+            'stats': jobs_stats,
+            'jobs': jobs_data,
         }
 
     def _get_report(self, root_node):
@@ -115,12 +115,12 @@ class TestReport(Service):
         revision = root_node['revision']
         results = self._get_results_data(root_node)
         stats = results['stats']
-        groups = results['groups']
+        jobs = results['jobs']
         subject = f"\
 [STAGING] {revision['tree']}/{revision['branch']} {revision['describe']}: \
 {stats['total']} runs {stats['failures']} failures"
         content = template.render(
-            subject=subject, root=root_node, groups=groups
+            subject=subject, root=root_node, jobs=jobs
         )
         return content, subject
 
