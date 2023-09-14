@@ -37,13 +37,15 @@ class TestReport(Service):
     def _dump_report(self, content):
         print(content, flush=True)
 
-    def _get_group_stats(self, parent_id):
+    def _get_group_stats(self, groups_data):
+        failures = 0
+        for _, group in groups_data.items():
+            if group['root']['result'] == 'fail':
+                failures += 1
+
         return {
-            'total': self._api.count_nodes({"parent": parent_id}),
-            'failures': self._api.count_nodes({
-                "parent": parent_id,
-                "result": "fail"
-            })
+            'total': len(groups_data),
+            'failures': failures,
         }
 
     def _get_group_data(self, checkout_node, group):
@@ -99,7 +101,7 @@ class TestReport(Service):
             group: self._get_group_data(root_node, group)
             for group in groups
         }
-        group_stats = self._get_group_stats(root_node['id'])
+        group_stats = self._get_group_stats(groups_data)
         return {
             'stats': group_stats,
             'groups': groups_data,
