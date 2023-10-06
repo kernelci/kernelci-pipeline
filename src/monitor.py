@@ -83,6 +83,7 @@ class cmd_run(Command):
 
 if __name__ == '__main__':
     opts = parse_opts('monitor', globals())
-    configs = kernelci.config.load('config/pipeline.yaml')
+    yaml_configs = opts.get_yaml_configs() or 'config/pipeline.yaml'
+    configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
