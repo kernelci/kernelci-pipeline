@@ -28,7 +28,7 @@ class TimeoutService(Service):
             if state != state.DONE
         ]
         self._user = self._api.whoami()
-        self._username = self._user['profile']['username']
+        self._username = self._user['username']
 
     def _setup(self, args):
         return {
