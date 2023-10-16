@@ -6,6 +6,8 @@
 {%- block python_imports %}
 {{ super() }}
 import subprocess
+import re
+import tarfile
 {%- endblock %}
 
 {%- block python_local_imports %}
@@ -19,14 +21,115 @@ KBUILD_PARAMS = {
     'arch': '{{ arch }}',
     'compiler': '{{ compiler }}',
     'defconfig': '{{ defconfig }}',
-    'fragments': [],
+{%- if fragments %}
+    'fragments': {{ fragments }}
+{%- else %}
+    'fragments': []
+{%- endif %}
 }
 {%- endblock %}
 
 {% block python_job -%}
+
+CROS_CONFIG_URL = \
+    "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
+
+LEGACY_FRAG_CONFIG = '/etc/kernelci/core/build-configs.yaml'
+
+def _download_file(url, file_path):
+    print(f"[_download_file] Downloading {url} to {file_path}")
+    r = requests.get(url, stream=True)
+    if r.status_code == 200:
+        with open(file_path, 'wb') as f:
+            for chunk in r:
+                f.write(chunk)
+        return True
+    else:
+        return False
+
+class Config:
+    def __init__(self):
+        self._config = []
+
+    def extract_config(self, frag):
+        txt = ''
+        config = frag['configs']
+        for c in config:
+            txt += c + '\n'
+        return txt
+
+    def add_fragment(self, fragname):
+        if fragname.startswith('cros://'):
+            self.cros_config(fragname)
+            return
+        if '=' in fragname:
+            self.add_option(fragname)
+            return
+        # TODO(nuclearcat): add handling legacy vs new fragments
+        self.add_legacy_fragment(fragname, LEGACY_FRAG_CONFIG)
+
+    def add_legacy_fragment(self, fragname, cfgfile):
+        with open(cfgfile, 'r') as cfgfile:
+            content = cfgfile.read()
+            yml = yaml.safe_load(content)
+
+        print(f"Searching for fragment {fragname} in {cfgfile}")
+        if 'fragments' in yml:
+            frag = yml['fragments']
+        else:
+            print("No fragments section in config file")
+            frag = []
+        if fragname in frag:
+            txt = self.extract_config(frag[fragname])
+            self._config.append(txt)
+        else:
+            print(f"Fragment {fragname} not found")
+
+    def get_config(self):
+        return self._config
+
+    def merge_frags(self, srcdir):
+        cwd = os.getcwd()
+        os.chdir(srcdir)
+        for i, cfg in enumerate(self._config):
+            with open(f"/tmp/{i}.config", 'w') as cfgfile:
+                cfgfile.write(cfg)
+            print(f"[_merge_frags] Merging fragment")
+            cmd = f"./scripts/kconfig/merge_config.sh -m .config /tmp/{i}.config"
+            ret = subprocess.run(cmd, shell=True).returncode
+            if ret != 0:
+                print(f"[_merge_frags] Failed to merge fragment")
+            print(f"[_merge_frags] Merging fragment done")
+            os.remove(f"/tmp/{i}.config")
+
+    # TODO(nuclearcat): ChromeOS should have its own config as "defconfig"
+    def cros_config(self, config):
+        buffer = ''
+        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", config)
+        cros_config = "/tmp/cros-config.tgz"
+        url = CROS_CONFIG_URL.format(branch=branch)
+        if not _download_file(url, cros_config):
+            raise FileNotFoundError("Error reading {}".format(url))
+        tar = tarfile.open(cros_config)
+        subdir = 'chromeos'
+        config_file_names = [
+            os.path.join(subdir, 'base.config'),
+            os.path.join(subdir, os.path.dirname(config), "common.config"),
+            os.path.join(subdir, config),
+        ]
+        for file_name in config_file_names:
+            buffer += tar.extractfile(file_name).read().decode('utf-8')
+
+        self._config.append(buffer)
+
+    def add_option(self, option):
+        self._config.append(option+'\n')
+
+
 class Job(BaseJob):
 
     def _run_kbuild(self, src_path, command, job_log):
+        print(f"[_run_kbuild] Running: {command}")
         cmd = f"""(\
 set -e
 cd {src_path}
@@ -34,6 +137,7 @@ echo '# {command}' | tee -a {job_log}
 {command} >> {job_log} 2>&1
 )"""
         ret = subprocess.run(cmd, shell=True).returncode
+        print(f"[_run_kbuild] Completed: {ret}")
         return ret == 0
 
     def _upload_artifacts(self, local_artifacts):
@@ -41,7 +145,7 @@ echo '# {command}' | tee -a {job_log}
         storage = self._get_storage()
         if storage and NODE:
             root_path = '-'.join([JOB_NAME, NODE['id']])
-            print(f"Uploading artifacts to {root_path}")
+            print(f"[_upload_artifacts] Uploading artifacts to {root_path}")
             for file_name, file_path in local_artifacts.items():
                 if os.path.exists(file_path):
                     file_url = storage.upload_single(
@@ -51,7 +155,32 @@ echo '# {command}' | tee -a {job_log}
                     artifacts[file_name] = file_url
         return artifacts
 
+    def _fetch_firmware(self, src_path):
+        # TODO(nuclearcat): firmware fetch
+        # only if it is required
+        print(f"[_run] Fetching firmware")
+        cwd = os.getcwd()
+        fwdir = os.path.join(cwd, 'firmware')
+        os.makedirs(fwdir, exist_ok=True)
+        cmd = f"git clone --depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git firmware-repo"
+        ret = subprocess.run(cmd, shell=True).returncode
+        if ret != 0:
+            print(f"[_run] Failed to fetch firmware")
+            return False
+        os.chdir('firmware-repo')
+        # copy-firmware.sh required as linux-firmware
+        # by some reason hate symlinks
+        cmd = f"./copy-firmware.sh {fwdir}"
+        ret = subprocess.run(cmd, shell=True).returncode
+        if ret != 0:
+            print(f"[_run] Failed to copy firmware")
+            return False
+        os.chdir(cwd)
+        print(f"[_run] Fetching firmware done")
+        return fwdir
+
     def _run(self, src_path):
+        print(f"[_run] Running job in {src_path}")
         job_log = 'job.txt'
         job_log_path = os.path.join(src_path, job_log)
         local_artifacts = {
@@ -80,12 +209,28 @@ echo '# {command}' | tee -a {job_log}
         step_results = {name: (None, []) for name in steps.keys()}
 
         for name, command in steps.items():
+            print(f"[_run] Running step {name}")
             res = self._run_kbuild(src_path, command, job_log)
             res_str = 'pass' if res is True else 'fail'
             step_results[name] = (res_str, [])
             if res is False:
                 break
+            if name == 'config':
+                # TODO(nuclearcat): move fragments to separate function
+                print(f"[_run] Configuring build fragments")
+                cfg = Config()
+                for frag in KBUILD_PARAMS['fragments']:
+                    print(f"[_run] Adding fragment {frag}")
+                    cfg.add_fragment(frag)
+                print(f"[_run] Configuring build fragments done")
 
+                print(f"[_run] Append config to .config")
+                fwdir = self._fetch_firmware(src_path)
+                if fwdir:
+                    cfg.add_option(f'CONFIG_EXTRA_FIRMWARE_DIR="{fwdir}"')
+                cfg.merge_frags(src_path)
+
+        print(f"[_run] Uploading artifacts")
         artifacts = self._upload_artifacts(local_artifacts)
 
         if os.path.exists(job_log_path):
@@ -119,6 +264,7 @@ echo '# {command}' | tee -a {job_log}
         return results
 
     def _submit(self, result, node, api):
+        print(f"[_submit] Submitting results to {api}")
         node = node.copy()
         node['data'] = {
             key: KBUILD_PARAMS[key] for key in [
@@ -130,5 +276,6 @@ echo '# {command}' | tee -a {job_log}
         result['node']['name'] = node['name']
         api_helper = kernelci.api.helper.APIHelper(api)
         api_helper.submit_results(result, node)
+        print(f"[_submit] Results submitted to API")
         return node
 {% endblock %}

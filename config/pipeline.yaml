@@ -115,6 +115,24 @@ jobs:
       compiler: gcc-10
       defconfig: x86_64_defconfig
 
+  kbuild-gcc-10-x86-board:
+    template: kbuild.jinja2
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params:
+      arch: x86_64
+      compiler: gcc-10
+      defconfig: x86_64_defconfig
+      fragments: ['x86-board']
+
+  kbuild-gcc-10-x86-chromeos:
+    template: kbuild.jinja2
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params:
+      arch: x86_64
+      compiler: gcc-10
+      defconfig: allnoconfig
+      fragments: ['x86-board','cros://chromeos-6.1/x86_64/chromeos-intel-pineview.flavour.config','CONFIG_MODULE_COMPRESS=n']
+
   kunit: &kunit-job
     template: kunit.jinja2
     image: kernelci/staging-gcc-10:x86-kunit-kernelci
@@ -172,6 +190,16 @@ scheduler:
       - qemu-x86
 
   - job: kbuild-gcc-10-x86
+    event: *checkout-event
+    runtime:
+      type: kubernetes
+
+  - job: kbuild-gcc-10-x86-board
+    event: *checkout-event
+    runtime:
+      type: kubernetes
+
+  - job: kbuild-gcc-10-x86-chromeos
     event: *checkout-event
     runtime:
       type: kubernetes
