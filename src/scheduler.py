@@ -17,7 +17,7 @@ import kernelci.config
 import kernelci.runtime
 import kernelci.scheduler
 import kernelci.storage
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
 

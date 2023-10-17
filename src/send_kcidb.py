@@ -15,7 +15,7 @@ import sys
 
 import kernelci
 import kernelci.config
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 from kcidb import Client
 import kcidb
 

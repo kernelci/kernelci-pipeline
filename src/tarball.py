@@ -18,7 +18,7 @@ import requests
 import kernelci
 import kernelci.build
 import kernelci.config
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 import kernelci.storage
 
 from base import Service

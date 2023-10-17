@@ -10,7 +10,7 @@ import sys
 import kernelci
 import kernelci.config
 import kernelci.db
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
 
