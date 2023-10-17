@@ -16,7 +16,7 @@ import kernelci
 import kernelci.build
 import kernelci.config
 import kernelci.db
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 import urllib
 import requests
 

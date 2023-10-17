@@ -17,7 +17,7 @@ import traceback
 
 import kernelci.config
 import kernelci.db
-from kernelci.cli import Args, Command, parse_opts
+from kernelci.legacy.cli import Args, Command, parse_opts
 import jinja2
 
 from kernelci_pipeline.email_sender import EmailSender
