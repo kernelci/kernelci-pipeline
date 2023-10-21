@@ -24,7 +24,7 @@ app = Flask(__name__)
 
 
 def _get_api_helper(api_config_name, api_token):
-    api_config = CONFIGS['api_configs'][api_config_name]
+    api_config = CONFIGS['api'][api_config_name]
     api = kernelci.api.get_api(api_config, api_token)
     return kernelci.api.helper.APIHelper(api)
 
