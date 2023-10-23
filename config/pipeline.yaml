@@ -27,7 +27,7 @@ api:
     url: http://kernelci-api:8001
 
 
-storage_configs:
+storage:
 
   docker-host:
     storage_type: ssh
