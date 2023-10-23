@@ -12,7 +12,7 @@ _anchors:
     state: available
 
 
-api_configs:
+api:
 
   docker-host:
     url: http://172.17.0.1:8001
@@ -40,7 +40,7 @@ storage_configs:
     host: staging.kernelci.org
     port: 9022
     base_url: http://storage.staging.kernelci.org/api/
-  
+
   k8s-host:
     storage_type: ssh
     host: kernelci-api-ssh
