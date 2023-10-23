@@ -38,8 +38,10 @@ class RegressionTracker(Service):
         regression = {}
         for field in self._regression_fields:
             regression[field] = failed_node[field]
-        regression['parent'] = failed_node['id']
-        regression['regression_data'] = [last_successful_node, failed_node]
+        regression['data'] = {
+            'node_failed': failed_node['id'],
+            'node_passed': last_successful_node['id'],
+        }
         self._api_helper.submit_regression(regression)
 
     def _detect_regression(self, node):
