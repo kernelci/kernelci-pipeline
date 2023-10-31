@@ -167,6 +167,10 @@ device_types:
     arch: x86_64
     boot_method: qemu
     mach: qemu
+    context:
+      arch: x86_64
+      cpu: qemu64
+      guestfs_interface: ide
 
   minnowboard-turbot-E3826:
     arch: x86_64
