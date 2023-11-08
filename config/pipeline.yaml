@@ -178,6 +178,11 @@ device_types:
     boot_method: grub
     mach: x86
 
+  asus-cx9400-volteer:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
@@ -199,6 +204,16 @@ scheduler:
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
+
+  - job: baseline-x86-board
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-board
+      result: pass
+    runtime:
+      type: lava
+    platforms:
+      - asus-cx9400-volteer
 
   - job: kbuild-gcc-10-x86
     event: *checkout-event
