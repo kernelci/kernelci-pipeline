@@ -1,59 +1,49 @@
+---
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: scheduler-lava
   namespace: kernelci-pipeline
 spec:
-  containers:
-  - name: scheduler
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    command:
-    - ./src/scheduler.py
-    - --settings=/home/kernelci/secrets/kernelci.toml
-    - loop
-    # Note: This sould be lava-collabora but the callback token name is
-    # different depending on the API instance (staging vs early-access).  So
-    # for now we have 2 configs for the same runtime.
-    - --runtimes=lava-collabora-early-access
-    env:
-    - name: KCI_API_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: kernelci-api-token
-          key: token
-    volumeMounts:
-    - name: secrets
-      mountPath: /home/kernelci/secrets
-  initContainers:
-  - name: settings
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    env:
-    - name: LAVA_COLLABORA_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: lava-collabora-token
-          key: token
-    volumeMounts:
-    - name: secrets
-      mountPath: /tmp/secrets
-    command:
-    - /bin/bash
-    - -e
-    - -c
-    - "\
-cp /home/kernelci/pipeline/kube/aks/kernelci.toml /tmp/secrets/; \
-echo -e \"\
-\\n\
-[runtime.lava-collabora-early-access]\\n\
-runtime_token = \\\"$LAVA_COLLABORA_TOKEN\\\"\
-\" >> /tmp/secrets/kernelci.toml;"
-  volumes:
-  - name: secrets
-    emptyDir: {}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler-lava
+  template:
+    metadata:
+      labels:
+        app: scheduler-lava
+    spec:
+      containers:
+        - name: scheduler
+          image: kernelci/pipeline:latest
+          imagePullPolicy: Always
+          command:
+            - ./src/scheduler.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - loop
+            - --runtimes=lava-collabora-early-access
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap

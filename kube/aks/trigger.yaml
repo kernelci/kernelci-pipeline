@@ -1,25 +1,48 @@
+---
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: trigger
   namespace: kernelci-pipeline
 spec:
-  containers:
-  - name: trigger
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    command:
-    - ./src/trigger.py
-    - --settings=/home/kernelci/pipeline/kube/aks/kernelci.toml
-    - run
-    env:
-    - name: KCI_API_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: kernelci-api-token
-          key: token
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trigger
+  template:
+    metadata:
+      labels:
+        app: trigger
+    spec:
+      containers:
+        - name: trigger
+          image: kernelci/pipeline
+          imagePullPolicy: Always
+          command:
+            - ./src/trigger.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - run
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
