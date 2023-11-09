@@ -7,42 +7,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: monitor
+  name: lava-callback
   namespace: kernelci-pipeline
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: monitor
+      app: lava-callback
   template:
     metadata:
       labels:
-        app: monitor
+        app: lava-callback
     spec:
       containers:
-        - name: monitor
-          image: kernelci/pipeline:latest
+        - name: lava-callback
+          image: kernelci/pipeline-lava-callback
           imagePullPolicy: Always
           command:
-            - ./src/monitor.py
-            - --settings=/secrets/kernelci.toml
+            - python3
+            - src/lava_callback.py
             - --yaml-config=/config/pipeline.yaml
-            - run
           env:
             - name: KCI_API_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: kernelci-api-token
                   key: token
-          volumeMounts:
-            - name: secrets
-              mountPath: /secrets
-            - name: config-volume
-              mountPath: /config
-      volumes:
-        - name: secrets
-          secret:
-            secretName: pipeline-secrets
-        - name: config-volume
-          configMap:
-            name: pipeline-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lava-callback
+  namespace: kernelci-pipeline
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: lava-callback

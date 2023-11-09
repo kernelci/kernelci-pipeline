@@ -1,93 +1,59 @@
+---
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: tarball
   namespace: kernelci-pipeline
 spec:
-  containers:
-  - name: tarball
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    resources:
-      requests:
-        memory: 1Gi
-        cpu: 500m
-      limits:
-        memory: 4Gi
-        cpu: 2
-    command:
-    - ./src/tarball.py
-    - --settings=/home/kernelci/secrets/kernelci.toml
-    - run
-    env:
-    - name: KCI_API_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: kernelci-api-token
-          key: token
-    volumeMounts:
-    - name: secrets
-      mountPath: /home/kernelci/secrets
-    - name: src
-      mountPath: /home/kernelci/pipeline/data/src
-  initContainers:
-  - name: secrets
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    env:
-    - name: AZURE_FILES_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: azure-files-token
-          key: token
-    volumeMounts:
-    - name: secrets
-      mountPath: /tmp/secrets
-    command:
-    - /bin/bash
-    - -e
-    - -c
-    - "\
-cp /home/kernelci/pipeline/kube/aks/kernelci.toml /tmp/secrets/; \
-echo -e \"\
-\\n\
-[storage.early-access-azure]\\n\
-storage_cred = \\\"$AZURE_FILES_TOKEN\\\"\
-\" >> /tmp/secrets/kernelci.toml;"
-  # Until we have a mirror on persistent storage, pre-populate a linux kernel
-  # checkout with some amount of git history to speed things up a bit
-  # https://github.com/kernelci/kernelci-pipeline/issues/310
-  - name: git-clone
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    volumeMounts:
-    - name: src
-      mountPath: /tmp/src
-    command:
-    - git
-    - clone
-    - --depth=100
-    - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-    - /tmp/src/linux
-  - name: git-tags
-    image: kernelci/pipeline
-    imagePullPolicy: Always
-    volumeMounts:
-    - name: src
-      mountPath: /tmp/src
-    workingDir: /tmp/src/linux
-    command:
-    - git
-    - fetch
-    - --tags
-    - origin
-  volumes:
-  - name: src
-    emptyDir: {}
-  - name: secrets
-    emptyDir: {}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tarball
+  template:
+    metadata:
+      labels:
+        app: tarball
+    spec:
+      containers:
+        - name: tarball
+          image: kernelci/pipeline:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 2
+          command:
+            - ./src/tarball.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - run
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: src
+              mountPath: /home/kernelci/pipeline/data/src
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: src
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap

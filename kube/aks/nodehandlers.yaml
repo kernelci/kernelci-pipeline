@@ -1,0 +1,137 @@
+---
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeout
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timeout
+  template:
+    metadata:
+      labels:
+        app: timeout
+    spec:
+      containers:
+        - name: timeout
+          image: kernelci/pipeline:latest
+          imagePullPolicy: Always
+          command:
+            - ./src/timeout.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - run
+            - --mode=timeout
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: closing
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: closing
+  template:
+    metadata:
+      labels:
+        app: closing
+    spec:
+      containers:
+        - name: timeout
+          image: kernelci/pipeline:latest
+          imagePullPolicy: Always
+          command:
+            - ./src/timeout.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - run
+            - --mode=closing
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: holdoff
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: holdoff
+  template:
+    metadata:
+      labels:
+        app: holdoff
+    spec:
+      containers:
+        - name: timeout
+          image: kernelci/pipeline:latest
+          imagePullPolicy: Always
+          command:
+            - ./src/timeout.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config/pipeline.yaml
+            - run
+            - --mode=holdoff
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
