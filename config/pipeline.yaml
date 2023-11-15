@@ -91,6 +91,16 @@ runtimes:
         token: kernelci-api-token-early-access
         url: https://staging.kernelci.org:9100
 
+  lava-collabora-staging:
+    lab_type: lava
+    url: https://staging.lava.collabora.dev/
+    priority_min: 40
+    priority_max: 60
+    notify:
+      callback:
+        token: kernelci-api-token-lava-staging
+        url: https://staging.kernelci.org:9100
+
   shell:
     lab_type: shell
 
@@ -108,6 +118,9 @@ jobs:
     template: baseline.jinja2
 
   baseline-x86-board:
+    <<: *baseline-x86-job
+
+  baseline-x86-board-staging:
     <<: *baseline-x86-job
 
   kbuild-gcc-10-x86:
@@ -190,6 +203,11 @@ device_types:
     boot_method: depthcharge
     mach: x86
 
+  dell-latitude-3445-7520c-skyrim:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
@@ -219,8 +237,20 @@ scheduler:
       result: pass
     runtime:
       type: lava
+      name: lava-collabora
     platforms:
       - asus-cx9400-volteer
+
+  - job: baseline-x86-board-staging
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-board
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora-staging
+    platforms:
+      - dell-latitude-3445-7520c-skyrim
 
   - job: kbuild-gcc-10-x86
     event: *checkout-event
