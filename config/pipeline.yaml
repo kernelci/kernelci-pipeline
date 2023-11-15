@@ -104,8 +104,11 @@ jobs:
   #   template: 'fstests.jinja2'
   #   image: 'kernelci/staging-kernelci'
 
-  baseline-x86:
+  baseline-x86: &baseline-x86-job
     template: baseline.jinja2
+
+  baseline-x86-board:
+    <<: *baseline-x86-job
 
   kbuild-gcc-10-x86:
     template: kbuild.jinja2
