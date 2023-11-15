@@ -146,13 +146,15 @@ echo '# {command}' | tee -a {job_log}
         if storage and NODE:
             root_path = '-'.join([JOB_NAME, NODE['id']])
             print(f"[_upload_artifacts] Uploading artifacts to {root_path}")
-            for file_name, file_path in local_artifacts.items():
+            for artifact_name, file_path in local_artifacts.items():
+                file_name = os.path.basename(file_path)
+                print(f"[_upload_artifacts] Uploading [{artifact_name}] {file_name}")
                 if os.path.exists(file_path):
                     file_url = storage.upload_single(
                         (file_path, file_name), root_path
                     )
                     print(file_url)
-                    artifacts[file_name] = file_url
+                    artifacts[artifact_name] = file_url
         return artifacts
 
     def _fetch_firmware(self, src_path):
@@ -187,7 +189,7 @@ echo '# {command}' | tee -a {job_log}
             job_log: job_log_path,
             'config': os.path.join(src_path, '.config'),
             'bzImage': os.path.join(src_path, 'arch/x86/boot/bzImage'),
-            'modules.tar.gz': os.path.join(src_path, 'modules.tar.gz'),
+            'modules': os.path.join(src_path, 'modules.tar.xz'),
         }
 
         if os.path.exists(job_log_path):
@@ -204,7 +206,7 @@ echo '# {command}' | tee -a {job_log}
                 "INSTALL_MOD_STRIP=1",
                 "modules_install",
             ]),
-            'modules_tarball': "tar -C _modules_ -czf modules.tar.gz .",
+            'modules_tarball': "tar -C _modules_ -cJf modules.tar.xz .",
         }
         step_results = {name: (None, []) for name in steps.keys()}
 
