@@ -72,6 +72,11 @@ class Trigger(Service):
             detail = ex.response.json().get('detail')
             if detail:
                 self.log.error(detail)
+            # TODO(nuclearcat): Re-read authorization token if it's failing
+            # if error Unauthorized 401 - quit
+            if ex.response.status_code == 401:
+                self.log.error("Unauthorized 401 - Quit")
+                sys.exit(1)
         except Exception as ex:
             self.traceback(ex)
 
