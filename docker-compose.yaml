@@ -10,6 +10,7 @@ services:
 
   monitor: &base-service
     container_name: 'kernelci-pipeline-monitor'
+    restart: on-failure
     image: 'kernelci/staging-kernelci'
     env_file: ['.env']
     stop_signal: 'SIGINT'
@@ -23,6 +24,7 @@ services:
 
   scheduler: &scheduler
     container_name: 'kernelci-pipeline-scheduler'
+    restart: on-failure
     image: 'kernelci/staging-kernelci'
     env_file: ['.env']
     stop_signal: 'SIGINT'
@@ -42,6 +44,7 @@ services:
   scheduler-docker:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-docker'
+    restart: on-failure
     user: root  # Docker-in-Docker
     working_dir: /home/kernelci
     command:
@@ -59,6 +62,7 @@ services:
   scheduler-lava:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-lava'
+    restart: on-failure
     command:
       - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.conf}'
@@ -68,6 +72,7 @@ services:
   scheduler-k8s:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-k8s'
+    restart: on-failure
     image: 'kernelci/staging-k8s:kernelci'
     command:
       - './pipeline/scheduler.py'
@@ -78,6 +83,7 @@ services:
   tarball:
     <<: *base-service
     container_name: 'kernelci-pipeline-tarball'
+    restart: on-failure
     command:
       - './pipeline/tarball.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
@@ -92,6 +98,7 @@ services:
   trigger:
     <<: *base-service
     container_name: 'kernelci-pipeline-trigger'
+    restart: on-failure
     command:
       - './pipeline/trigger.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
@@ -100,6 +107,7 @@ services:
   regression_tracker:
     <<: *base-service
     container_name: 'kernelci-pipeline-regression_tracker'
+    restart: on-failure
     command:
       - '/usr/bin/env'
       - 'python3'
@@ -110,6 +118,7 @@ services:
   test_report:
     <<: *base-service
     container_name: 'kernelci-pipeline-test_report'
+    restart: on-failure
     command:
       - '/usr/bin/env'
       - 'python3'
@@ -120,6 +129,7 @@ services:
   timeout:
     <<: *base-service
     container_name: 'kernelci-pipeline-timeout'
+    restart: on-failure
     command:
       - '/usr/bin/env'
       - 'python3'
@@ -131,6 +141,7 @@ services:
   timeout-closing:
     <<: *base-service
     container_name: 'kernelci-pipeline-closing'
+    restart: on-failure
     command:
       - '/usr/bin/env'
       - 'python3'
@@ -142,6 +153,7 @@ services:
   timeout-holdoff:
     <<: *base-service
     container_name: 'kernelci-pipeline-holdoff'
+    restart: on-failure
     command:
       - '/usr/bin/env'
       - 'python3'
