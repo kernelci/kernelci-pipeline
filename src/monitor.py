@@ -61,14 +61,18 @@ class Monitor(Service):
             event = self._api.receive_event(sub_id)
             obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
-            print(self.LOG_FMT.format(
-                time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                commit=obj['revision']['commit'][:12],
-                id=obj['id'],
-                state=state_map[obj['state']],
-                result=result_map[obj['result']],
-                name=obj['name']
-            ), flush=True)
+            # Print the status line only for events that contain
+            # "revision" data. Implement proper event filtering when the
+            # models are production-ready
+            if 'revision' in obj:
+                print(self.LOG_FMT.format(
+                    time=dt.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    commit=obj['revision']['commit'][:12],
+                    id=obj['id'],
+                    state=state_map[obj['state']],
+                    result=result_map[obj['result']],
+                    name=obj['name']
+                ), flush=True)
 
         return True
 
