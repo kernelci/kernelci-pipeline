@@ -28,14 +28,17 @@ class Trigger(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
+        self._current_user = self._api.whoami()
 
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
     def _run_trigger(self, build_config, force, timeout):
         head_commit = kernelci.build.get_branch_head(build_config)
+
         node_count = self._api.count_nodes({
             "revision.commit": head_commit,
+            "owner": self._current_user['username'],
         })
 
         if node_count > 0:
