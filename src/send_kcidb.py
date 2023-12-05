@@ -33,7 +33,7 @@ class KCIDBBridge(Service):
                 topic_name=args.kcidb_topic_name
             ),
             'sub_id': self._api_helper.subscribe_filters({
-                'name': 'checkout',
+                'kind': 'checkout',
                 'state': 'done',
             }),
             'origin': args.origin,
@@ -71,10 +71,13 @@ class KCIDBBridge(Service):
                     {
                         'id': f"{context['origin']}:{node['id']}",
                         'origin': context['origin'],
-                        'tree_name': node['revision']['tree'],
-                        'git_repository_url': node['revision']['url'],
-                        'git_commit_hash': node['revision']['commit'],
-                        'git_repository_branch': node['revision']['branch'],
+                        'tree_name': node['data']['kernel_revision']['tree'],
+                        'git_repository_url':
+                            node['data']['kernel_revision']['url'],
+                        'git_commit_hash':
+                            node['data']['kernel_revision']['commit'],
+                        'git_repository_branch':
+                            node['data']['kernel_revision']['branch'],
                         'start_time': self._set_timezone(node['created']),
                         'patchset_hash': '',
                         'misc': {
