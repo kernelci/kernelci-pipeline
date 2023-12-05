@@ -49,7 +49,7 @@ class TestReport(Service):
         }
 
     def _get_job_data(self, checkout_node, job):
-        revision = checkout_node['revision']
+        revision = checkout_node['data']['kernel_revision']
 
         root_node = self._api.node.find({
             'revision.commit': revision['commit'],
@@ -83,7 +83,7 @@ class TestReport(Service):
 
     def _get_jobs(self, root_node):
         jobs = []
-        revision = root_node['revision']
+        revision = root_node['data']['kernel_revision']
         nodes = self._api.node.find({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
@@ -112,7 +112,7 @@ class TestReport(Service):
                             loader=jinja2.FileSystemLoader("./config/reports/")
                         )
         template = template_env.get_template("test-report.jinja2")
-        revision = root_node['revision']
+        revision = root_node['data']['kernel_revision']
         results = self._get_results_data(root_node)
         stats = results['stats']
         jobs = results['jobs']
@@ -136,7 +136,7 @@ class TestReportLoop(TestReport):
 
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
-            'name': 'checkout',
+            'kind': 'checkout',
             'state': 'done',
         })
 
