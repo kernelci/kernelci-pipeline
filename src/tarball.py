@@ -47,7 +47,7 @@ class Tarball(Service):
         )
 
     def _find_build_config(self, node):
-        revision = node['revision']
+        revision = node['data']['kernel_revision']
         tree = revision['tree']
         branch = revision['branch']
         for name, config in self._build_configs.items():
@@ -94,7 +94,7 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
 
     def _update_node(self, checkout_node, describe, version, tarball_url):
         node = checkout_node.copy()
-        node['revision'].update({
+        node['data']['kernel_revision'].update({
             'describe': describe,
             'version': version,
         })
@@ -114,7 +114,7 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
             'op': 'created',
-            'name': 'checkout',
+            'kind': 'checkout',
             'state': 'running',
         })
 
