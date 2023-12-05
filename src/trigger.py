@@ -65,7 +65,10 @@ class Trigger(Service):
         node = {
             'name': 'checkout',
             'path': ['checkout'],
-            'revision': revision,
+            'kind': 'checkout',
+            'data': {
+                'kernel_revision': revision,
+            },
             'timeout': checkout_timeout.isoformat(),
         }
         try:
