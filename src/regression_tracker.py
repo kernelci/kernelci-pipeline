@@ -19,10 +19,7 @@ class RegressionTracker(Service):
 
     def __init__(self, configs, args):
         super().__init__(configs, args, 'regression_tracker')
-        self._regression_fields = [
-            'artifacts', 'group', 'name', 'path', 'revision', 'result',
-            'state',
-        ]
+        self._regression_fields = ['group', 'name', 'path']
 
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
@@ -38,9 +35,13 @@ class RegressionTracker(Service):
         regression = {}
         for field in self._regression_fields:
             regression[field] = failed_node[field]
-        regression['parent'] = failed_node['id']
-        regression['regression_data'] = [last_successful_node, failed_node]
-        self._api_helper.submit_regression(regression)
+
+        regression['kind'] = 'regression'
+        regression['data'] = {
+            'fail_node': failed_node['id'],
+            'pass_node': last_successful_node['id'],
+        }
+        reg = self._api_helper.submit_regression(regression)
 
     def _detect_regression(self, node):
         """Method to check and detect regression"""
@@ -48,9 +49,11 @@ class RegressionTracker(Service):
             'name': node['name'],
             'group': node['group'],
             'path': node['path'],
-            'revision.tree': node['revision']['tree'],
-            'revision.branch': node['revision']['branch'],
-            'revision.url': node['revision']['url'],
+            'data.kernel_revision.tree':
+                node['data']['kernel_revision']['tree'],
+            'data.kernel_revision.branch':
+                node['data']['kernel_revision']['branch'],
+            'data.kernel_revision.url': node['data']['kernel_revision']['url'],
             'created__lt': node['created'],
         })
 
@@ -83,7 +86,7 @@ class RegressionTracker(Service):
         while True:
             node = self._api_helper.receive_event_node(sub_id)
 
-            if node['name'] == 'checkout':
+            if node['kind'] == 'checkout':
                 continue
 
             failures = []
