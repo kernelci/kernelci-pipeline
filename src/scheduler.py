@@ -80,7 +80,18 @@ class Scheduler(Service):
         data = runtime.generate(job, params)
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
-        running_job = runtime.submit(output_file)
+        try:
+            running_job = runtime.submit(output_file)
+        except Exception as e:
+            self.log.error(' '.join([
+                node['id'],
+                runtime.config.name,
+                platform.name,
+                job_config.name,
+                str(e),
+            ]))
+            return
+
         self.log.info(' '.join([
             node['id'],
             runtime.config.name,
