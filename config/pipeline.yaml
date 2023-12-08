@@ -208,6 +208,11 @@ device_types:
     boot_method: depthcharge
     mach: x86
 
+  hp-x360-12b-ca0010nr-n4020-octopus:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
@@ -239,6 +244,7 @@ scheduler:
       type: lava
       name: lava-collabora
     platforms:
+      - hp-x360-12b-ca0010nr-n4020-octopus
       - asus-cx9400-volteer
 
   - job: baseline-x86-board-staging
