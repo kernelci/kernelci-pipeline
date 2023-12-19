@@ -5,14 +5,13 @@
 
 {%- block python_imports %}
 {{ super() }}
-import subprocess
-import re
-import tarfile
 {%- endblock %}
 
 {%- block python_local_imports %}
 {{ super() }}
-import kernelci.api.helper
+from kernelci.kbuild import KBuild
+import os
+import sys
 {%- endblock %}
 
 {%- block python_globals %}
@@ -36,259 +35,25 @@ CROS_CONFIG_URL = \
 
 LEGACY_FRAG_CONFIG = '/etc/kernelci/core/build-configs.yaml'
 
-def _download_file(url, file_path):
-    print(f"[_download_file] Downloading {url} to {file_path}")
-    r = requests.get(url, stream=True)
-    if r.status_code == 200:
-        with open(file_path, 'wb') as f:
-            for chunk in r:
-                f.write(chunk)
-        return True
-    else:
-        return False
+WORKSPACE = '/tmp/kci'
 
-class Config:
-    def __init__(self):
-        self._config = []
+def main(args):
+    build = KBuild(node=NODE, jobname=JOB_NAME, params=KBUILD_PARAMS)
+    build.set_workspace(WORKSPACE)
+    build.set_api_config(API_CONFIG_YAML)
+    build.set_storage_config(STORAGE_CONFIG_YAML)
+    build.write_script("build.sh")
+    build.serialize("_build.json")
+    r = os.system("bash build.sh")
+    build2 = KBuild.from_json("_build.json")
+    build2.verify_build()
+    results = build2.submit(r)
+    return results
 
-    def extract_config(self, frag):
-        txt = ''
-        config = frag['configs']
-        for c in config:
-            txt += c + '\n'
-        return txt
-
-    def add_fragment(self, fragname):
-        if fragname.startswith('cros://'):
-            self.cros_config(fragname)
-            return
-        if '=' in fragname:
-            self.add_option(fragname)
-            return
-        # TODO(nuclearcat): add handling legacy vs new fragments
-        self.add_legacy_fragment(fragname, LEGACY_FRAG_CONFIG)
-
-    def add_legacy_fragment(self, fragname, cfgfile):
-        with open(cfgfile, 'r') as cfgfile:
-            content = cfgfile.read()
-            yml = yaml.safe_load(content)
-
-        print(f"Searching for fragment {fragname} in {cfgfile}")
-        if 'fragments' in yml:
-            frag = yml['fragments']
-        else:
-            print("No fragments section in config file")
-            frag = []
-        if fragname in frag:
-            txt = self.extract_config(frag[fragname])
-            self._config.append(txt)
-        else:
-            print(f"Fragment {fragname} not found")
-
-    def get_config(self):
-        return self._config
-
-    def merge_frags(self, srcdir):
-        cwd = os.getcwd()
-        os.chdir(srcdir)
-        for i, cfg in enumerate(self._config):
-            with open(f"/tmp/{i}.config", 'w') as cfgfile:
-                cfgfile.write(cfg)
-            print(f"[_merge_frags] Merging fragment")
-            cmd = f"./scripts/kconfig/merge_config.sh -m .config /tmp/{i}.config"
-            ret = subprocess.run(cmd, shell=True).returncode
-            if ret != 0:
-                print(f"[_merge_frags] Failed to merge fragment")
-            print(f"[_merge_frags] Merging fragment done")
-            os.remove(f"/tmp/{i}.config")
-    
-    def olddefconfig(self, srcdir):
-        cwd = os.getcwd()
-        os.chdir(srcdir)
-        print(f"[_olddefconfig] Running olddefconfig")
-        cmd = f"make ARCH=x86_64 olddefconfig"
-        ret = subprocess.run(cmd, shell=True).returncode
-        if ret != 0:
-            print(f"[_olddefconfig] Failed to run olddefconfig")
-        print(f"[_olddefconfig] Running olddefconfig done")
-
-    # TODO(nuclearcat): ChromeOS should have its own config as "defconfig"
-    def cros_config(self, config):
-        buffer = ''
-        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", config)
-        cros_config = "/tmp/cros-config.tgz"
-        url = CROS_CONFIG_URL.format(branch=branch)
-        if not _download_file(url, cros_config):
-            raise FileNotFoundError("Error reading {}".format(url))
-        tar = tarfile.open(cros_config)
-        subdir = 'chromeos'
-        config_file_names = [
-            os.path.join(subdir, 'base.config'),
-            os.path.join(subdir, os.path.dirname(config), "common.config"),
-            os.path.join(subdir, config),
-        ]
-        for file_name in config_file_names:
-            buffer += tar.extractfile(file_name).read().decode('utf-8')
-
-        self._config.append(buffer)
-
-    def add_option(self, option):
-        self._config.append(option+'\n')
-
-
-class Job(BaseJob):
-
-    def _run_kbuild(self, src_path, command, job_log):
-        print(f"[_run_kbuild] Running: {command}")
-        cmd = f"""(\
-set -e
-cd {src_path}
-echo '# {command}' | tee -a {job_log}
-{command} >> {job_log} 2>&1
-)"""
-        ret = subprocess.run(cmd, shell=True).returncode
-        print(f"[_run_kbuild] Completed: {ret}")
-        return ret == 0
-
-    def _upload_artifacts(self, local_artifacts):
-        artifacts = {}
-        storage = self._get_storage()
-        if storage and NODE:
-            root_path = '-'.join([JOB_NAME, NODE['id']])
-            print(f"[_upload_artifacts] Uploading artifacts to {root_path}")
-            for artifact_name, file_path in local_artifacts.items():
-                file_name = os.path.basename(file_path)
-                print(f"[_upload_artifacts] Uploading [{artifact_name}] {file_name}")
-                if os.path.exists(file_path):
-                    file_url = storage.upload_single(
-                        (file_path, file_name), root_path
-                    )
-                    print(file_url)
-                    artifacts[artifact_name] = file_url
-        return artifacts
-
-    def _fetch_firmware(self, src_path):
-        # TODO(nuclearcat): firmware fetch
-        # only if it is required
-        print(f"[_run] Fetching firmware")
-        cwd = os.getcwd()
-        fwdir = os.path.join(cwd, 'firmware')
-        os.makedirs(fwdir, exist_ok=True)
-        cmd = f"git clone --depth 1 git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git firmware-repo"
-        ret = subprocess.run(cmd, shell=True).returncode
-        if ret != 0:
-            print(f"[_run] Failed to fetch firmware")
-            return False
-        os.chdir('firmware-repo')
-        # copy-firmware.sh required as linux-firmware
-        # by some reason hate symlinks
-        cmd = f"./copy-firmware.sh {fwdir}"
-        ret = subprocess.run(cmd, shell=True).returncode
-        if ret != 0:
-            print(f"[_run] Failed to copy firmware")
-            return False
-        os.chdir(cwd)
-        print(f"[_run] Fetching firmware done")
-        return fwdir
-
-    def _run(self, src_path):
-        print(f"[_run] Running job in {src_path}")
-        job_log = 'job.txt'
-        job_log_path = os.path.join(src_path, job_log)
-        local_artifacts = {
-            job_log: job_log_path,
-            'config': os.path.join(src_path, '.config'),
-            'bzImage': os.path.join(src_path, 'arch/x86/boot/bzImage'),
-            'modules': os.path.join(src_path, 'modules.tar.xz'),
-        }
-
-        if os.path.exists(job_log_path):
-            os.remove(job_log_path)
-
-        steps = {
-            'config': f"make ARCH=x86_64 {KBUILD_PARAMS['defconfig']}",
-            'kernel': "make ARCH=x86_64 bzImage --jobs=$(nproc)",
-            'modules': "make ARCH=x86_64 modules --jobs=$(nproc)",
-            'modules_install': ' '.join([
-                "make",
-                "ARCH=x86_64",
-                "INSTALL_MOD_PATH=_modules_",
-                "INSTALL_MOD_STRIP=1",
-                "modules_install",
-            ]),
-            'modules_tarball': "tar -C _modules_ -cJf modules.tar.xz .",
-        }
-        step_results = {name: (None, []) for name in steps.keys()}
-
-        for name, command in steps.items():
-            print(f"[_run] Running step {name}")
-            res = self._run_kbuild(src_path, command, job_log)
-            res_str = 'pass' if res is True else 'fail'
-            step_results[name] = (res_str, [])
-            if res is False:
-                break
-            if name == 'config':
-                # TODO(nuclearcat): move fragments to separate function
-                print(f"[_run] Configuring build fragments")
-                cfg = Config()
-                for frag in KBUILD_PARAMS['fragments']:
-                    print(f"[_run] Adding fragment {frag}")
-                    cfg.add_fragment(frag)
-                print(f"[_run] Configuring build fragments done")
-
-                print(f"[_run] Append config to .config")
-                fwdir = self._fetch_firmware(src_path)
-                if fwdir:
-                    cfg.add_option(f'CONFIG_EXTRA_FIRMWARE_DIR="{fwdir}"')
-                cfg.merge_frags(src_path)
-                cfg.olddefconfig(src_path)
-
-        print(f"[_run] Uploading artifacts")
-        artifacts = self._upload_artifacts(local_artifacts)
-
-        if os.path.exists(job_log_path):
-            with open(job_log_path, encoding='utf-8') as job_log_file:
-                print("--------------------------------------------------")
-                print(job_log_file.read())
-                print("--------------------------------------------------")
-
-        job_result = 'pass' if all(
-            res == 'pass' for res in (
-                step_res for (name, (step_res, _)) in step_results.items()
-            )
-        ) else 'fail'
-
-        results = {
-            'node': {
-                'result': job_result,
-                'artifacts': artifacts,
-            },
-            'child_nodes': [
-                {
-                    'node': {
-                        'name': name,
-                        'result': result,
-                    },
-                    'child_nodes': child_nodes,
-                } for name, (result, child_nodes) in step_results.items()
-            ]
-        }
-
-        return results
-
-    def _submit(self, result, node, api):
-        print(f"[_submit] Submitting results to {api}")
-        node = node.copy()
-        node['data'] = {
-            key: KBUILD_PARAMS[key] for key in [
-                'arch', 'defconfig', 'compiler', 'fragments',
-            ]
-        }
-
-        # Ensure top-level name is kept the same
-        result['node']['name'] = node['name']
-        api_helper = kernelci.api.helper.APIHelper(api)
-        api_helper.submit_results(result, node)
-        print(f"[_submit] Results submitted to API")
-        return node
 {% endblock %}
+
+{%- block python_main %}
+if __name__ == '__main__':
+    main(sys.argv)
+    sys.exit(0)
+{%- endblock %}
