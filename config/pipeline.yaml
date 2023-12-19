@@ -198,12 +198,57 @@ device_types:
     boot_method: grub
     mach: x86
 
+  acer-R721T-grunt:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  acer-cb317-1h-c3z6-dedede:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  acer-cbv514-1h-34uz-brya:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  acer-chromebox-cxi4-puff:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  acer-cp514-3wh-r0qs-guybrush:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  asus-C433TA-AJ0005-rammus:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  asus-C436FA-Flip-hatch:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
   asus-cx9400-volteer:
     arch: x86_64
     boot_method: depthcharge
     mach: x86
 
   dell-latitude-3445-7520c-skyrim:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  dell-latitude-5300-8145U-arcada:
+    arch: x86_64
+    boot_method: depthcharge
+    mach: x86
+
+  hp-14b-na0052xx-zork:
     arch: x86_64
     boot_method: depthcharge
     mach: x86
@@ -244,8 +289,18 @@ scheduler:
       type: lava
       name: lava-collabora
     platforms:
-      - hp-x360-12b-ca0010nr-n4020-octopus
+      - acer-R721T-grunt
+      - acer-cb317-1h-c3z6-dedede
+      - acer-cbv514-1h-34uz-brya
+      - acer-chromebox-cxi4-puff
+      - acer-cp514-3wh-r0qs-guybrush
+      - asus-C433TA-AJ0005-rammus
+      - asus-C436FA-Flip-hatch
       - asus-cx9400-volteer
+      - dell-latitude-3445-7520c-skyrim
+      - dell-latitude-5300-8145U-arcada
+      - hp-14b-na0052xx-zork
+      - hp-x360-12b-ca0010nr-n4020-octopus
 
   - job: baseline-x86-board-staging
     event:
