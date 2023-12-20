@@ -28,7 +28,7 @@ class Trigger(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
-        self._current_user = self._api.whoami()
+        self._current_user = self._api.user.whoami()
 
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
