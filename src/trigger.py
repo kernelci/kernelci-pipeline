@@ -35,8 +35,7 @@ class Trigger(Service):
 
     def _run_trigger(self, build_config, force, timeout):
         head_commit = kernelci.build.get_branch_head(build_config)
-
-        node_count = self._api.count_nodes({
+        node_count = self._api.node.count({
             "revision.commit": head_commit,
             "owner": self._current_user['username'],
         })
@@ -70,7 +69,7 @@ class Trigger(Service):
             'timeout': checkout_timeout.isoformat(),
         }
         try:
-            self._api.create_node(node)
+            self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
             detail = ex.response.json().get('detail')
             if detail:

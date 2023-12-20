@@ -24,7 +24,7 @@ class TimeoutService(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._pending_states = [
-            state.value for state in self._api.node_states
+            state.value for state in self._api.node.states
             if state != state.DONE
         ]
         self._user = self._api.whoami()
@@ -40,7 +40,7 @@ class TimeoutService(Service):
         node_filters = filters.copy() if filters else {}
         for state in self._pending_states:
             node_filters['state'] = state
-            for node in self._api.get_nodes(node_filters):
+            for node in self._api.node.find(node_filters):
                 # Until permissions for the timeout service are fixed:
                 if node['owner'] == self._username:
                     nodes[node['id']] = node
@@ -50,7 +50,7 @@ class TimeoutService(Service):
         nodes_count = 0
 
         for state in self._pending_states:
-            nodes_count += self._api.count_nodes({
+            nodes_count += self._api.node.count({
                 'parent': parent_id, 'state': state
             })
         return nodes_count
@@ -72,7 +72,7 @@ class TimeoutService(Service):
             if log:
                 self.log.debug(f"{node_id} {log}")
             try:
-                self._api.update_node(node_update)
+                self._api.node.update(node_update)
             except requests.exceptions.HTTPError as err:
                 err_msg = json.loads(err.response.content).get("detail", [])
                 self.log.error(err_msg)
@@ -111,7 +111,7 @@ class Holdoff(TimeoutService):
         super().__init__(configs, args, 'timeout-holdoff')
 
     def _get_available_nodes(self):
-        nodes = self._api.get_nodes({
+        nodes = self._api.node.find({
             'state': 'available',
             'holdoff__lt': datetime.isoformat(datetime.utcnow()),
         })
@@ -153,7 +153,7 @@ class Closing(TimeoutService):
         super().__init__(configs, args, 'timeout-closing')
 
     def _get_closing_nodes(self):
-        nodes = self._api.get_nodes({'state': 'closing'})
+        nodes = self._api.node.find({'state': 'closing'})
         return {node['id']: node for node in nodes}
 
     def _check_closing_nodes(self, closing_nodes):

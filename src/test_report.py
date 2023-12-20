@@ -51,19 +51,19 @@ class TestReport(Service):
     def _get_job_data(self, checkout_node, job):
         revision = checkout_node['revision']
 
-        root_node = self._api.get_nodes({
+        root_node = self._api.node.find({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
             'name': job,
         })[0]
-        job_nodes = self._api.count_nodes({
+        job_nodes = self._api.node.count({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
             'group': job,
         })
-        failures = self._api.get_nodes({
+        failures = self._api.node.find({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch'],
@@ -84,7 +84,7 @@ class TestReport(Service):
     def _get_jobs(self, root_node):
         jobs = []
         revision = root_node['revision']
-        nodes = self._api.get_nodes({
+        nodes = self._api.node.find({
             'revision.commit': revision['commit'],
             'revision.tree': revision['tree'],
             'revision.branch': revision['branch']
@@ -162,7 +162,7 @@ class TestReportSingle(TestReport):
 
     def _setup(self, args):
         return {
-            'root_node': self._api.get_node(args.node_id),
+            'root_node': self._api.node.find(args.node_id),
             'dump': args.dump,
             'send': args.send,
         }

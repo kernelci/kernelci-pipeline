@@ -106,7 +106,7 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
             'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
         })
         try:
-            self._api.update_node(node)
+            self._api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
