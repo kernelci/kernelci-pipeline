@@ -63,7 +63,7 @@ def callback(node_id):
     api_token = request.headers.get('Authorization')
     api_helper = _get_api_helper(api_config_name, api_token)
     results = job_callback.get_results()
-    job_node = api_helper.api.get_node(node_id)
+    job_node = api_helper.api.node.get(node_id)
 
     log_parser = job_callback.get_log_parser()
     storage_config_name = job_callback.get_meta('storage_config_name')

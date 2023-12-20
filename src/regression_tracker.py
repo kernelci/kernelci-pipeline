@@ -44,7 +44,7 @@ class RegressionTracker(Service):
 
     def _detect_regression(self, node):
         """Method to check and detect regression"""
-        previous_nodes = self._api.get_nodes({
+        previous_nodes = self._api.node.find({
             'name': node['name'],
             'group': node['group'],
             'path': node['path'],
@@ -68,7 +68,7 @@ class RegressionTracker(Service):
 
     def _get_all_failed_child_nodes(self, failures, root_node):
         """Method to get all failed nodes recursively from top-level node"""
-        child_nodes = self._api.get_nodes({'parent': root_node['id']})
+        child_nodes = self._api.node.find({'parent': root_node['id']})
         for node in child_nodes:
             if node['result'] == 'fail':
                 failures.append(node)
