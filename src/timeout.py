@@ -27,7 +27,7 @@ class TimeoutService(Service):
             state.value for state in self._api.node.states
             if state != state.DONE
         ]
-        self._user = self._api.whoami()
+        self._user = self._api.user.whoami()
         self._username = self._user['username']
 
     def _setup(self, args):
