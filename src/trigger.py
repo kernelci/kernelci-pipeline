@@ -70,7 +70,7 @@ class Trigger(Service):
             'timeout': checkout_timeout.isoformat(),
         }
         try:
-            self._api.create_node(node)
+            self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
             detail = ex.response.json().get('detail')
             if detail:
