@@ -6,6 +6,7 @@
 import os
 import tempfile
 
+import hashlib
 import requests
 from flask import Flask, request
 import toml
@@ -60,7 +61,14 @@ def callback(node_id):
     job_callback = kernelci.runtime.lava.Callback(data)
 
     api_config_name = job_callback.get_meta('api_config_name')
-    api_token = request.headers.get('Authorization')
+    api_token = os.environ.get('KCI_API_TOKEN')
+    t_hash = hashlib.md5(api_token.encode('utf-8')).hexdigest()
+    lava_token = request.headers.get('Authorization')
+    # compare token hash with lava callback token
+    # ref. LAVA.generate() in kernelci-core
+    # return 401 if authorization token is not valid
+    if t_hash != lava_token:
+        return 'Unauthorized', 401
     api_helper = _get_api_helper(api_config_name, api_token)
     results = job_callback.get_results()
     job_node = api_helper.api.get_node(node_id)

@@ -79,7 +79,8 @@ runtimes:
     priority_max: 60
     notify:
       callback:
-        token: kernelci-api-token-staging
+        # By default retrieve token from environment variable
+        # token: kernelci-api-token-staging
         url: https://staging.kernelci.org:9100
 
   # ToDo: avoid creating a separate Runtime entry
@@ -88,7 +89,8 @@ runtimes:
     <<: *lava-collabora-staging
     notify:
       callback:
-        token: kernelci-api-token-early-access
+        # By default retrieve token from environment variable
+        # token: kernelci-api-token-early-access
         url: https://staging.kernelci.org:9100
 
   lava-collabora-staging:
@@ -98,7 +100,8 @@ runtimes:
     priority_max: 60
     notify:
       callback:
-        token: kernelci-api-token-lava-staging
+        # By default retrieve token from environment variable
+        # token: kernelci-api-token-lava-staging
         url: https://staging.kernelci.org:9100
 
   shell:
