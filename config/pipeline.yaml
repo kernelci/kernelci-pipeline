@@ -11,6 +11,14 @@ _anchors:
     name: checkout
     state: available
 
+  x86_64-device: &x86_64-device
+    arch: x86_64
+    boot_method: grub
+    mach: x86
+
+  x86_64-chromebook-device: &x86_64-chromebook-device
+    <<: *x86_64-device
+    boot_method: depthcharge
 
 api:
 
@@ -188,75 +196,21 @@ device_types:
       cpu: qemu64
       guestfs_interface: ide
 
-  minnowboard-turbot-E3826:
-    arch: x86_64
-    boot_method: grub
-    mach: x86
+  minnowboard-turbot-E3826: *x86_64-device
+  aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
 
-  aaeon-UPN-EHLX4RE-A10-0864:
-    arch: x86_64
-    boot_method: grub
-    mach: x86
-
-  acer-R721T-grunt:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  acer-cb317-1h-c3z6-dedede:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  acer-cbv514-1h-34uz-brya:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  acer-chromebox-cxi4-puff:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  acer-cp514-3wh-r0qs-guybrush:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  asus-C433TA-AJ0005-rammus:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  asus-C436FA-Flip-hatch:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  asus-cx9400-volteer:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  dell-latitude-3445-7520c-skyrim:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  dell-latitude-5300-8145U-arcada:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  hp-14b-na0052xx-zork:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
-
-  hp-x360-12b-ca0010nr-n4020-octopus:
-    arch: x86_64
-    boot_method: depthcharge
-    mach: x86
+  acer-R721T-grunt: *x86_64-chromebook-device
+  acer-cb317-1h-c3z6-dedede: *x86_64-chromebook-device
+  acer-cbv514-1h-34uz-brya: *x86_64-chromebook-device
+  acer-chromebox-cxi4-puff: *x86_64-chromebook-device
+  acer-cp514-3wh-r0qs-guybrush: *x86_64-chromebook-device
+  asus-C433TA-AJ0005-rammus: *x86_64-chromebook-device
+  asus-C436FA-Flip-hatch: *x86_64-chromebook-device
+  asus-cx9400-volteer: *x86_64-chromebook-device
+  dell-latitude-3445-7520c-skyrim: *x86_64-chromebook-device
+  dell-latitude-5300-8145U-arcada: *x86_64-chromebook-device
+  hp-14b-na0052xx-zork: *x86_64-chromebook-device
+  hp-x360-12b-ca0010nr-n4020-octopus: *x86_64-chromebook-device
 
   kubernetes:
     base_name: kubernetes
