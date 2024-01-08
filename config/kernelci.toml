@@ -36,3 +36,11 @@ storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
 
 [storage.k8s-host]
 storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
+
+#[runtime.lava-collabora]
+#runtime_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
+#callback_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
+
+#[runtime.lava-collabora-early-access]
+#runtime_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA-EARLY-ACCESS"
+#callback_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"

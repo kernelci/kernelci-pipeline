@@ -19,6 +19,7 @@ SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
     SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config/pipeline.yaml')
 )
+SETTINGS_PREFIX = 'runtime'
 
 app = Flask(__name__)
 
@@ -56,14 +57,37 @@ def hello():
 
 @app.post('/node/<node_id>')
 def callback(node_id):
+    tokens = SETTINGS.get(SETTINGS_PREFIX)
+    if not tokens:
+        return 'Unauthorized', 401
     data = request.get_json()
     job_callback = kernelci.runtime.lava.Callback(data)
 
     api_config_name = job_callback.get_meta('api_config_name')
-    api_token = request.headers.get('Authorization')
+    lab_token = request.headers.get('Authorization')
+    # return 401 if no token
+    if not lab_token:
+        return 'Unauthorized', 401
+    # iterate over tokens and check if value of one matches
+    # we might have runtime_token and callback_token
+    lab_name = None
+    for lab, tokens in tokens.items():
+        if tokens.get('runtime_token') == lab_token:
+            lab_name = lab
+            break
+        if tokens.get('callback_token') == lab_token:
+            lab_name = lab
+            break
+
+    # return 401 if no match
+    if not lab_name:
+        return 'Unauthorized', 401
+
+    api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
     results = job_callback.get_results()
     job_node = api_helper.api.node.get(node_id)
+    # TODO: Verify lab_name matches job node lab name
 
     log_parser = job_callback.get_log_parser()
     storage_config_name = job_callback.get_meta('storage_config_name')
@@ -77,4 +101,7 @@ def callback(node_id):
 
 # Default built-in development server, not suitable for production
 if __name__ == '__main__':
+    tokens = SETTINGS.get(SETTINGS_PREFIX)
+    if not tokens:
+        print('No tokens configured in toml file')
     app.run(host='0.0.0.0', port=8000)
