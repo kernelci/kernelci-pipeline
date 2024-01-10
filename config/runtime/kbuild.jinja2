@@ -44,7 +44,7 @@ def main(args):
     build.set_storage_config(STORAGE_CONFIG_YAML)
     build.write_script("build.sh")
     build.serialize("_build.json")
-    r = os.system("bash build.sh")
+    r = os.system("bash -e build.sh")
     build2 = KBuild.from_json("_build.json")
     build2.verify_build()
     results = build2.submit(r)
