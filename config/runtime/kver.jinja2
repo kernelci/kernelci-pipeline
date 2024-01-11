@@ -5,7 +5,7 @@
 
 {%- block python_globals %}
 {{ super() }}
-REVISION = {{ node.revision }}
+REVISION = {{ node.data.kernel_revision }}
 {% endblock %}
 
 {% block python_job_constr -%}
