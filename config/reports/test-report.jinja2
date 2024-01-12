@@ -5,11 +5,11 @@
 Summary
 =======
 
-Tree:     {{ root.revision.tree }}
-Branch:   {{ root.revision.branch }}
-Describe: {{ root.revision.describe }}
-URL:      {{ root.revision.url }}
-SHA1:     {{ root.revision.commit }}
+Tree:     {{ root.data.kernel_revision.tree }}
+Branch:   {{ root.data.kernel_revision.branch }}
+Describe: {{ root.data.kernel_revision.describe }}
+URL:      {{ root.data.kernel_revision.url }}
+SHA1:     {{ root.data.kernel_revision.commit }}
 
 {%- if jobs.items() %}
 {{ '%-17s %s %-8s %s %-8s %s %-8s'|format(
