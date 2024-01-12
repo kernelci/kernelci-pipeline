@@ -68,6 +68,8 @@ cd {src_path}
             root_path = '-'.join([JOB_NAME, NODE['id']])
             print(f"Uploading artifacts to {root_path}")
             for file_name, file_path in local_artifacts.items():
+                # Normalize field names
+                file_name = file_name.replace('.', '_')
                 if os.path.exists(file_path):
                     file_url = storage.upload_single(
                         (file_path, file_name), root_path
