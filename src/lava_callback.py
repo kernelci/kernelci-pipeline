@@ -41,7 +41,7 @@ def _upload_log(log_parser, job_node, storage):
         log_parser.get_text_log(log_txt)
         os.chmod(log_txt.name, 0o644)
         log_dir = '-'.join((job_node['name'], job_node['id']))
-        return storage.upload_single((log_txt.name, 'log.txt'), log_dir)
+        return storage.upload_single((log_txt.name, 'lava_log.txt'), log_dir)
 
 
 @app.errorhandler(requests.exceptions.HTTPError)
@@ -60,14 +60,11 @@ def callback(node_id):
     tokens = SETTINGS.get(SETTINGS_PREFIX)
     if not tokens:
         return 'Unauthorized', 401
-    data = request.get_json()
-    job_callback = kernelci.runtime.lava.Callback(data)
-
-    api_config_name = job_callback.get_meta('api_config_name')
     lab_token = request.headers.get('Authorization')
     # return 401 if no token
     if not lab_token:
         return 'Unauthorized', 401
+
     # iterate over tokens and check if value of one matches
     # we might have runtime_token and callback_token
     lab_name = None
@@ -78,11 +75,13 @@ def callback(node_id):
         if tokens.get('callback_token') == lab_token:
             lab_name = lab
             break
-
     # return 401 if no match
     if not lab_name:
         return 'Unauthorized', 401
 
+    data = request.get_json()
+    job_callback = kernelci.runtime.lava.Callback(data)
+    api_config_name = job_callback.get_meta('api_config_name')
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
     results = job_callback.get_results()
@@ -93,7 +92,7 @@ def callback(node_id):
     storage_config_name = job_callback.get_meta('storage_config_name')
     storage = _get_storage(storage_config_name)
     log_txt_url = _upload_log(log_parser, job_node, storage)
-    job_node['artifacts']['log.txt'] = log_txt_url
+    job_node['artifacts']['lava_log'] = log_txt_url
 
     hierarchy = job_callback.get_hierarchy(results, job_node)
     return api_helper.submit_results(hierarchy, job_node)
