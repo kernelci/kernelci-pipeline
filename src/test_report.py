@@ -119,8 +119,8 @@ class TestReport(Service):
         # TODO: Sanity-check all referenced values, handle corner cases
         # properly
         subject = (f"[STAGING] {revision['tree']}/{revision['branch']} "
-                   "{revision.get('describe', '')}: "
-                   "{stats['total']} runs {stats['failures']} failures")
+                   f"{revision.get('describe', '')}: "
+                   f"{stats['total']} runs {stats['failures']} failures")
         content = template.render(
             subject=subject, root=root_node, jobs=jobs
         )
