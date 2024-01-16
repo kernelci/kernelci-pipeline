@@ -9,11 +9,13 @@ import tempfile
 import requests
 from flask import Flask, request
 import toml
+import threading
 
 import kernelci.api.helper
 import kernelci.config
 import kernelci.runtime.lava
 import kernelci.storage
+
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
@@ -41,7 +43,8 @@ def _upload_log(log_parser, job_node, storage):
         log_parser.get_text_log(log_txt)
         os.chmod(log_txt.name, 0o644)
         log_dir = '-'.join((job_node['name'], job_node['id']))
-        return storage.upload_single((log_txt.name, 'lava_log.txt'), log_dir)
+        log_txt.flush()
+        return storage.upload_single((log_txt.name, 'log.txt'), log_dir)
 
 
 @app.errorhandler(requests.exceptions.HTTPError)
@@ -53,6 +56,27 @@ def handle_http_error(ex):
 @app.route('/')
 def hello():
     return "KernelCI API & Pipeline LAVA callback handler"
+
+
+def async_job_submit(api_helper, node_id, job_callback):
+    '''
+    Heavy lifting is done in a separate thread to avoid blocking the callback
+    handler. This is not ideal as we don't have a way to report errors back to
+    the caller, but it's OK as LAVA don't care about the response.
+    '''
+    results = job_callback.get_results()
+    job_node = api_helper.api.node.get(node_id)
+    # TODO: Verify lab_name matches job node lab name
+    # Also extract job_id and compare with node job_id (future)
+    # Or at least first record job_id in node metadata
+
+    log_parser = job_callback.get_log_parser()
+    storage_config_name = job_callback.get_meta('storage_config_name')
+    storage = _get_storage(storage_config_name)
+    log_txt_url = _upload_log(log_parser, job_node, storage)
+    job_node['artifacts']['lava_log'] = log_txt_url
+    hierarchy = job_callback.get_hierarchy(results, job_node)
+    api_helper.submit_results(hierarchy, job_node)
 
 
 @app.post('/node/<node_id>')
@@ -75,7 +99,6 @@ def callback(node_id):
         if tokens.get('callback_token') == lab_token:
             lab_name = lab
             break
-    # return 401 if no match
     if not lab_name:
         return 'Unauthorized', 401
 
@@ -84,18 +107,17 @@ def callback(node_id):
     api_config_name = job_callback.get_meta('api_config_name')
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
-    results = job_callback.get_results()
-    job_node = api_helper.api.node.get(node_id)
-    # TODO: Verify lab_name matches job node lab name
 
-    log_parser = job_callback.get_log_parser()
-    storage_config_name = job_callback.get_meta('storage_config_name')
-    storage = _get_storage(storage_config_name)
-    log_txt_url = _upload_log(log_parser, job_node, storage)
-    job_node['artifacts']['lava_log'] = log_txt_url
+    # Spawn a thread to do the job submission without blocking
+    # the callback
+    thread = threading.Thread(
+        target=async_job_submit,
+        args=(api_helper, node_id, job_callback)
+    )
+    thread.setDaemon(True)
+    thread.start()
 
-    hierarchy = job_callback.get_hierarchy(results, job_node)
-    return api_helper.submit_results(hierarchy, job_node)
+    return 'OK', 202
 
 
 # Default built-in development server, not suitable for production
