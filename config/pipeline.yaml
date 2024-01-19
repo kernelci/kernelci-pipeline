@@ -124,6 +124,7 @@ jobs:
 
   baseline-x86: &baseline-x86-job
     template: baseline.jinja2
+    kind: test
 
   baseline-x86-board:
     <<: *baseline-x86-job
@@ -133,6 +134,7 @@ jobs:
 
   kbuild-gcc-10-x86:
     template: kbuild.jinja2
+    kind: kbuild
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
     params:
       arch: x86_64
@@ -141,6 +143,7 @@ jobs:
 
   kbuild-gcc-10-x86-board:
     template: kbuild.jinja2
+    kind: kbuild
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
     params:
       arch: x86_64
@@ -150,6 +153,7 @@ jobs:
 
   kbuild-gcc-10-x86-chromeos:
     template: kbuild.jinja2
+    kind: kbuild
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
     params:
       arch: x86_64
@@ -159,6 +163,7 @@ jobs:
 
   kunit: &kunit-job
     template: kunit.jinja2
+    kind: test
     image: kernelci/staging-gcc-10:x86-kunit-kernelci
 
   kunit-x86_64:
@@ -168,6 +173,7 @@ jobs:
 
   kver:
     template: kver.jinja2
+    kind: test
     image: kernelci/staging-kernelci
 
 
