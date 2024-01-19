@@ -52,21 +52,21 @@ class TestReport(Service):
         revision = checkout_node['data']['kernel_revision']
 
         root_node = self._api.node.find({
-            'revision.commit': revision['commit'],
-            'revision.tree': revision['tree'],
-            'revision.branch': revision['branch'],
+            'data.kernel_revision.commit': revision['commit'],
+            'data.kernel_revision.tree': revision['tree'],
+            'data.kernel_revision.branch': revision['branch'],
             'name': job,
         })[0]
         job_nodes = self._api.node.count({
-            'revision.commit': revision['commit'],
-            'revision.tree': revision['tree'],
-            'revision.branch': revision['branch'],
+            'data.kernel_revision.commit': revision['commit'],
+            'data.kernel_revision.tree': revision['tree'],
+            'data.kernel_revision.branch': revision['branch'],
             'group': job,
         })
         failures = self._api.node.find({
-            'revision.commit': revision['commit'],
-            'revision.tree': revision['tree'],
-            'revision.branch': revision['branch'],
+            'data.kernel_revision.commit': revision['commit'],
+            'data.kernel_revision.tree': revision['tree'],
+            'data.kernel_revision.branch': revision['branch'],
             'group': job,
             'result': 'fail',
         })
@@ -85,9 +85,9 @@ class TestReport(Service):
         jobs = []
         revision = root_node['data']['kernel_revision']
         nodes = self._api.node.find({
-            'revision.commit': revision['commit'],
-            'revision.tree': revision['tree'],
-            'revision.branch': revision['branch']
+            'data.kernel_revision.commit': revision['commit'],
+            'data.kernel_revision.tree': revision['tree'],
+            'data.kernel_revision.branch': revision['branch']
         })
         for node in nodes:
             if node['group'] and node['group'] not in jobs:
