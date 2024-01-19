@@ -36,7 +36,8 @@ class Trigger(Service):
     def _run_trigger(self, build_config, force, timeout):
         head_commit = kernelci.build.get_branch_head(build_config)
         node_count = self._api.node.count({
-            "revision.commit": head_commit,
+            "kind": "checkout",
+            "data.kernel_revision.commit": head_commit,
             "owner": self._current_user['username'],
         })
 
