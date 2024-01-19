@@ -72,8 +72,12 @@ class Scheduler(Service):
         self._cleanup_paths()
 
     def _run_job(self, job_config, runtime, platform, input_node):
-        node = self._api_helper.create_job_node(job_config, input_node,
-                                                runtime, platform)
+        try:
+            node = self._api_helper.create_job_node(job_config, input_node,
+                                                    runtime, platform)
+        except RuntimeError as error:
+            self.log.error(f"Error generating job node: {error}")
+            return
         job = kernelci.runtime.Job(node, job_config)
         job.platform_config = platform
         job.storage_config = self._storage_config
