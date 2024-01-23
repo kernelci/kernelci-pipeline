@@ -21,9 +21,15 @@ KBUILD_PARAMS = {
     'compiler': '{{ compiler }}',
     'defconfig': '{{ defconfig }}',
 {%- if fragments %}
-    'fragments': {{ fragments }}
+    'fragments': {{ fragments }},
 {%- else %}
-    'fragments': []
+    'fragments': [],
+{%- endif %}
+{%- if cross_compile %}
+    'cross_compile': '{{ cross_compile }}',
+{%- endif %}
+{%- if cross_compile_compat %}
+    'cross_compile_compat': '{{ cross_compile_compat }}'
 {%- endif %}
 }
 {%- endblock %}

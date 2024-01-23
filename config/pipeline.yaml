@@ -132,6 +132,18 @@ jobs:
   baseline-x86-board-staging:
     <<: *baseline-x86-job
 
+  kbuild-gcc-10-arm64-chromebook:
+    template: kbuild.jinja2
+    kind: kbuild
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params:
+      arch: arm64
+      compiler: gcc-10
+      cross_compile: 'aarch64-linux-gnu-'
+      cross_compile_compat: 'arm-linux-gnueabihf-'
+      defconfig: defconfig
+      fragments: ['arm64-chromebook']
+
   kbuild-gcc-10-x86:
     template: kbuild.jinja2
     kind: kbuild
@@ -272,6 +284,11 @@ scheduler:
       name: lava-collabora-staging
     platforms:
       - dell-latitude-3445-7520c-skyrim
+
+  - job: kbuild-gcc-10-arm64-chromebook
+    event: *checkout-event
+    runtime:
+      type: kubernetes      
 
   - job: kbuild-gcc-10-x86
     event: *checkout-event
