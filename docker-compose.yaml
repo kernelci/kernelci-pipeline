@@ -34,7 +34,7 @@ services:
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
-      - './data/output:/home/kernelci/output'
+      - './data/output:/home/kernelci/data/output'
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
