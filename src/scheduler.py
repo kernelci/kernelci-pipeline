@@ -6,11 +6,12 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-import logging
 import os
 import sys
 import tempfile
+import json
 import yaml
+import requests
 
 import kernelci
 import kernelci.config
@@ -93,12 +94,20 @@ class Scheduler(Service):
             ]))
             return
 
+        job_id = str(runtime.get_job_id(running_job))
+        node['data']['job_id'] = job_id
+        try:
+            self._api.node.update(node)
+        except requests.exceptions.HTTPError as err:
+            err_msg = json.loads(err.response.content).get("detail", [])
+            self.log.error(err_msg)
+
         self.log.info(' '.join([
             node['id'],
             runtime.config.name,
             platform.name,
             job_config.name,
-            str(runtime.get_job_id(running_job)),
+            job_id,
         ]))
         if runtime.config.lab_type in ['shell', 'docker']:
             self._job_tmp_dirs[running_job] = tmp
