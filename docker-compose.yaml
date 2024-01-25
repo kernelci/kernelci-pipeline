@@ -61,7 +61,7 @@ services:
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
       - './pipeline/scheduler.py'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.conf}'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes'
       - 'lava-collabora'
