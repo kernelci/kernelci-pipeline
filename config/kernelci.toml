@@ -14,7 +14,7 @@ output = "/home/kernelci/data/output"
 storage_config = "docker-host"
 
 [scheduler]
-output = "/home/kernelci/output"
+output = "/home/kernelci/data/output"
 
 [notifier]
 
