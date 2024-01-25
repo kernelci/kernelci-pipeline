@@ -20,6 +20,10 @@ _anchors:
     <<: *x86_64-device
     boot_method: depthcharge
 
+  arm64-chromebook-device: &arm64-chromebook-device
+    arch: arm64
+    boot_method: depthcharge
+
 api:
 
   docker-host:
@@ -122,15 +126,15 @@ jobs:
   #   template: 'fstests.jinja2'
   #   image: 'kernelci/staging-kernelci'
 
-  baseline-x86: &baseline-x86-job
+  _baseline: &baseline-job
     template: baseline.jinja2
     kind: test
 
-  baseline-x86-board:
-    <<: *baseline-x86-job
-
-  baseline-x86-board-staging:
-    <<: *baseline-x86-job
+  baseline-x86: *baseline-job
+  baseline-x86-board: *baseline-job
+  baseline-x86-board-staging: *baseline-job
+  baseline-arm64: *baseline-job
+  baseline-arm64-chromebook: *baseline-job
 
   kbuild-gcc-10-arm64-chromebook:
     template: kbuild.jinja2
@@ -230,6 +234,16 @@ device_types:
   hp-14b-na0052xx-zork: *x86_64-chromebook-device
   hp-x360-12b-ca0010nr-n4020-octopus: *x86_64-chromebook-device
 
+  mt8183-kukui-jacuzzi-juniper-sku16:
+    <<: *arm64-chromebook-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
+
+  sc7180-trogdor-kingoftown:
+    <<: *arm64-chromebook-device
+    mach: qcom
+    dtb: dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
+
   kubernetes:
     base_name: kubernetes
     class: kubernetes
@@ -284,6 +298,18 @@ scheduler:
       name: lava-collabora-staging
     platforms:
       - dell-latitude-3445-7520c-skyrim
+
+  - job: baseline-arm64-chromebook
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
+      - sc7180-trogdor-kingoftown
 
   - job: kbuild-gcc-10-arm64-chromebook
     event: *checkout-event
