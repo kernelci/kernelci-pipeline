@@ -78,6 +78,15 @@ class Scheduler(Service):
         job.platform_config = platform
         job.storage_config = self._storage_config
         params = runtime.get_params(job, self._api.config)
+        if not params:
+            self.log.error(' '.join([
+                node['id'],
+                runtime.config.name,
+                platform.name,
+                job_config.name,
+                "Invalid job parameters, aborting...",
+            ]))
+            return
         data = runtime.generate(job, params)
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
