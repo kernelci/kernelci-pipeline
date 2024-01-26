@@ -91,25 +91,19 @@ class Trigger(Service):
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list, startup_delay, timeout = (
-            ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list', 'startup_delay',
-                'timeout'
-            )
-        )
-
-        if startup_delay:
-            self.log.info(f"Delay: {startup_delay}s")
-            time.sleep(startup_delay)
+        if ctx['startup_delay']:
+            self.log.info(f"Delay: {ctx['startup_delay']}s")
+            time.sleep(ctx['startup_delay'])
 
         while True:
             # Iterate through build configs
             for name, config in self._build_configs.items():
-                if not build_configs_list or name in build_configs_list:
-                    self._run_trigger(config, force, timeout)
-            if poll_period:
-                self.log.info(f"Sleeping for {poll_period}s")
-                time.sleep(poll_period)
+                if (not ctx['build_configs_list'] or
+                    name in ctx['build_configs_list']):  # noqa
+                    self._run_trigger(config, ctx['force'], ctx['timeout'])
+            if ctx['poll_period']:
+                self.log.info(f"Sleeping for {ctx['poll_period']}s")
+                time.sleep(ctx['poll_period'])
             else:
                 self.log.info("Not polling.")
                 break
