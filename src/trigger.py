@@ -81,12 +81,6 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, build_configs_list,
-                               timeout):
-        for name, config in self._build_configs.items():
-            if not build_configs_list or name in build_configs_list:
-                self._run_trigger(config, force, timeout)
-
     def _setup(self, args):
         return {
             'poll_period': int(args.poll_period),
@@ -109,8 +103,10 @@ class Trigger(Service):
             time.sleep(startup_delay)
 
         while True:
-            self._iterate_build_configs(force, build_configs_list,
-                                        timeout)
+            # Iterate through build configs
+            for name, config in self._build_configs.items():
+                if not build_configs_list or name in build_configs_list:
+                    self._run_trigger(config, force, timeout)
             if poll_period:
                 self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
