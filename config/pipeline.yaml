@@ -84,6 +84,15 @@ runtimes:
     lab_type: kubernetes
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
+  k8s-all:
+    lab_type: kubernetes
+    context: 
+      - 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
+      - 'gke_android-kernelci-external_europe-west1-d_kci-eu-west1'
+      - 'gke_android-kernelci-external_us-central1-c_kci-us-central1'
+      - 'gke_android-kernelci-external_us-east4-c_kci-big-us-east4'
+      - 'gke_android-kernelci-external_us-west1-a_kci-us-west1'
+
   lava-collabora: &lava-collabora-staging
     lab_type: lava
     url: https://lava.collabora.dev/
@@ -314,22 +323,22 @@ scheduler:
   - job: kbuild-gcc-10-arm64-chromebook
     event: *checkout-event
     runtime:
-      type: kubernetes      
+      name: k8s-all
 
   - job: kbuild-gcc-10-x86
     event: *checkout-event
     runtime:
-      type: kubernetes
+      name: k8s-all
 
   - job: kbuild-gcc-10-x86-board
     event: *checkout-event
     runtime:
-      type: kubernetes
+      name: k8s-all
 
   - job: kbuild-gcc-10-x86-chromeos
     event: *checkout-event
     runtime:
-      type: kubernetes
+      name: k8s-all
 
   - job: kunit
     event: *checkout-event
