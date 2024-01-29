@@ -75,7 +75,9 @@ services:
       - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
-      - '--runtimes=k8s-gke-eu-west4'
+      - '--runtimes'
+      - 'k8s-gke-eu-west4'
+      - 'k8s-all'
 
   tarball:
     <<: *base-service
