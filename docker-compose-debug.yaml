@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2021, 2022, 2024 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+# Author: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+
+version: '3'
+
+services:
+
+  base-service: &base-service
+    container_name: 'kernelci-pipeline-base-service'
+    image: 'kernelci/staging-kernelci'
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+    tty: true
+
+  monitor:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-monitor'
+    command:
+      - './pipeline/monitor.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+
+  scheduler: &scheduler
+    container_name: 'kernelci-pipeline-scheduler'
+    image: 'kernelci/staging-kernelci'
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/output:/home/kernelci/output'
+      - './data/k8s-credentials/.kube:/home/kernelci/.kube'
+      - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
+      - './data/k8s-credentials/.azure:/home/kernelci/.azure'
+    tty: true
+
+  scheduler-docker:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-docker'
+    user: root  # Docker-in-Docker
+    working_dir: /home/kernelci
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/output:/home/kernelci/data/output'
+      - './.docker-env:/home/kernelci/.docker-env'
+      - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
+
+  scheduler-lava:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-lava'
+
+  scheduler-k8s:
+    <<: *scheduler
+    container_name: 'kernelci-pipeline-scheduler-k8s'
+    image: 'kernelci/staging-k8s:kernelci'
+
+  tarball:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-tarball'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/ssh:/home/kernelci/data/ssh'
+      - './data/src:/home/kernelci/data/src'
+      - './data/output:/home/kernelci/data/output'
+
+  trigger:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-trigger'
+
+  regression_tracker:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-regression_tracker'
+
+  test_report:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-test_report'
+
+  timeout:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-timeout'
+
+  timeout-closing:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-closing'
+
+  timeout-holdoff:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-holdoff'
