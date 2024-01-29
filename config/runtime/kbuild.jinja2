@@ -50,10 +50,14 @@ def main(args):
     build.set_storage_config(STORAGE_CONFIG_YAML)
     build.write_script("build.sh")
     build.serialize("_build.json")
-    r = os.system("bash -e build.sh")
     build2 = KBuild.from_json("_build.json")
     build2.verify_build()
-    results = build2.submit(r)
+    if NODE.get('debug') and NODE['debug'].get('dry_run'):
+        retcode = 0 if NODE['debug']['result'] == 'pass' else 1
+        results = build2.submit(retcode, dry_run=True)
+    else:
+        r = os.system("bash -e build.sh")
+        results = build2.submit(r)
     return results
 
 {% endblock %}
