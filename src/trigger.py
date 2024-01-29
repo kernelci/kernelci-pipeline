@@ -33,7 +33,7 @@ class Trigger(Service):
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
-    def _run_trigger(self, build_config, force, timeout):
+    def _run_trigger(self, build_config, force, timeout, dry_run=None):
         head_commit = kernelci.build.get_branch_head(build_config)
         node_count = self._api.node.count({
             "kind": "checkout",
@@ -72,6 +72,11 @@ class Trigger(Service):
             },
             'timeout': checkout_timeout.isoformat(),
         }
+        if dry_run:
+            node['debug'] = {
+                'dry_run': True,
+                'result': dry_run,
+            }
         try:
             self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
@@ -85,6 +90,7 @@ class Trigger(Service):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
+            'dry_run': args.dry_run,
             'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
             'timeout': args.timeout,
@@ -100,7 +106,8 @@ class Trigger(Service):
             for name, config in self._build_configs.items():
                 if (not ctx['build_configs_list'] or
                     name in ctx['build_configs_list']):  # noqa
-                    self._run_trigger(config, ctx['force'], ctx['timeout'])
+                    self._run_trigger(config, ctx['force'],
+                                      ctx['timeout'], ctx['dry_run'])
             if ctx['poll_period']:
                 self.log.info(f"Sleeping for {ctx['poll_period']}s")
                 time.sleep(ctx['poll_period'])
@@ -140,6 +147,13 @@ class cmd_run(Command):
             'name': '--timeout',
             'type': float,
             'help': "Timeout minutes for checkout node",
+        },
+        {
+            'name': '--dry-run',
+            'type': str,
+            'metavar': "RESULT",
+            'help': ("Generates debug checkout nodes with fake "
+                     "pass/fail results")
         },
     ]
 
