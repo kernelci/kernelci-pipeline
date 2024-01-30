@@ -6,10 +6,39 @@
 # Not directly loaded into the config, only used for YAML aliases in this file
 _anchors:
 
+  arm64-chromebook-device: &arm64-chromebook-device
+    arch: arm64
+    boot_method: depthcharge
+
+  baseline: &baseline-job
+    template: baseline.jinja2
+    kind: test
+
   checkout: &checkout-event
     channel: node
     name: checkout
     state: available
+
+  kbuild: &kbuild-job
+    template: kbuild.jinja2
+    kind: kbuild
+
+  kbuild-gcc-10-arm64: &kbuild-gcc-10-arm64-job
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params: &kbuild-gcc-10-arm64-params
+      arch: arm64
+      compiler: gcc-10
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+
+  kbuild-gcc-10-x86: &kbuild-gcc-10-x86-job
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params: &kbuild-gcc-10-x86-params
+      arch: x86_64
+      compiler: gcc-10
+      defconfig: x86_64_defconfig
 
   x86_64-device: &x86_64-device
     arch: x86_64
@@ -18,10 +47,6 @@ _anchors:
 
   x86_64-chromebook-device: &x86_64-chromebook-device
     <<: *x86_64-device
-    boot_method: depthcharge
-
-  arm64-chromebook-device: &arm64-chromebook-device
-    arch: arm64
     boot_method: depthcharge
 
 api:
@@ -135,54 +160,32 @@ jobs:
   #   template: 'fstests.jinja2'
   #   image: 'kernelci/staging-kernelci'
 
-  _baseline: &baseline-job
-    template: baseline.jinja2
-    kind: test
-
+  baseline-arm64: *baseline-job
+  baseline-arm64-chromebook: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-board: *baseline-job
   baseline-x86-board-staging: *baseline-job
-  baseline-arm64: *baseline-job
-  baseline-arm64-chromebook: *baseline-job
 
   kbuild-gcc-10-arm64-chromebook:
-    template: kbuild.jinja2
-    kind: kbuild
-    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    <<: *kbuild-gcc-10-arm64-job
     params:
-      arch: arm64
-      compiler: gcc-10
-      cross_compile: 'aarch64-linux-gnu-'
+      <<: *kbuild-gcc-10-arm64-params
       cross_compile_compat: 'arm-linux-gnueabihf-'
-      defconfig: defconfig
       fragments: ['arm64-chromebook']
 
   kbuild-gcc-10-x86:
-    template: kbuild.jinja2
-    kind: kbuild
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
-    params:
-      arch: x86_64
-      compiler: gcc-10
-      defconfig: x86_64_defconfig
+    <<: *kbuild-gcc-10-x86-job
 
   kbuild-gcc-10-x86-board:
-    template: kbuild.jinja2
-    kind: kbuild
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    <<: *kbuild-gcc-10-x86-job
     params:
-      arch: x86_64
-      compiler: gcc-10
-      defconfig: x86_64_defconfig
+      <<: *kbuild-gcc-10-x86-params
       fragments: ['x86-board']
 
   kbuild-gcc-10-x86-chromeos:
-    template: kbuild.jinja2
-    kind: kbuild
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    <<: *kbuild-gcc-10-x86-job
     params:
-      arch: x86_64
-      compiler: gcc-10
+      <<: *kbuild-gcc-10-x86-params
       defconfig: allnoconfig
       fragments: ['x86-board','cros://chromeos-6.1/x86_64/chromeos-intel-pineview.flavour.config','CONFIG_MODULE_COMPRESS=n']
 
@@ -264,6 +267,18 @@ device_types:
 
 scheduler:
 
+  - job: baseline-arm64-chromebook
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
+      - sc7180-trogdor-kingoftown
+
   - job: baseline-x86
     event:
       channel: node
@@ -307,18 +322,6 @@ scheduler:
       name: lava-collabora-staging
     platforms:
       - dell-latitude-3445-7520c-skyrim
-
-  - job: baseline-arm64-chromebook
-    event:
-      channel: node
-      name: kbuild-gcc-10-arm64-chromebook
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
-    platforms:
-      - mt8183-kukui-jacuzzi-juniper-sku16
-      - sc7180-trogdor-kingoftown
 
   - job: kbuild-gcc-10-arm64-chromebook
     event: *checkout-event
