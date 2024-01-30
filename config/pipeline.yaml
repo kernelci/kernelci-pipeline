@@ -220,6 +220,9 @@ trees:
   mainline:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
+  stable-rc:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
+
 
 device_types:
 
@@ -441,4 +444,9 @@ build_configs:
   mainline:
     tree: mainline
     branch: 'master'
+    variants: *build-variants
+
+  stable-rc_6.6:
+    tree: stable-rc
+    branch: 'linux-6.6.y'
     variants: *build-variants
