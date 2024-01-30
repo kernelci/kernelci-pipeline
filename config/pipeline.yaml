@@ -381,6 +381,10 @@ build_variants:
           base_defconfig: 'x86_64_defconfig'
           filters:
             - regex: { defconfig: 'x86_64_defconfig' }
+        arm64:
+          base_defconfig: 'defconfig'
+          filters:
+            - regex: { defconfig: 'defconfig' }
 
 
 build_configs:
