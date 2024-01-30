@@ -6,8 +6,12 @@
 # Not directly loaded into the config, only used for YAML aliases in this file
 _anchors:
 
-  arm64-chromebook-device: &arm64-chromebook-device
+  arm64-device: &arm64-device
     arch: arm64
+    boot_method: u-boot
+
+  arm64-chromebook-device: &arm64-chromebook-device
+    <<: *arm64-device
     boot_method: depthcharge
 
   baseline: &baseline-job
@@ -166,6 +170,9 @@ jobs:
   baseline-x86-board: *baseline-job
   baseline-x86-board-staging: *baseline-job
 
+  kbuild-gcc-10-arm64:
+    <<: *kbuild-gcc-10-arm64-job
+
   kbuild-gcc-10-arm64-chromebook:
     <<: *kbuild-gcc-10-arm64-job
     params:
@@ -246,6 +253,16 @@ device_types:
   hp-14b-na0052xx-zork: *x86_64-chromebook-device
   hp-x360-12b-ca0010nr-n4020-octopus: *x86_64-chromebook-device
 
+  bcm2711-rpi-4-b:
+    <<: *arm64-device
+    mach: broadcom
+    dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
+
+  meson-g12b-a311d-khadas-vim3:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
+
   mt8183-kukui-jacuzzi-juniper-sku16:
     <<: *arm64-chromebook-device
     mach: mediatek
@@ -266,6 +283,18 @@ device_types:
 
 
 scheduler:
+
+  - job: baseline-arm64
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+      - meson-g12b-a311d-khadas-vim3
 
   - job: baseline-arm64-chromebook
     event:
@@ -322,6 +351,11 @@ scheduler:
       name: lava-collabora-staging
     platforms:
       - dell-latitude-3445-7520c-skyrim
+
+  - job: kbuild-gcc-10-arm64
+    event: *checkout-event
+    runtime:
+      type: kubernetes
 
   - job: kbuild-gcc-10-arm64-chromebook
     event: *checkout-event
