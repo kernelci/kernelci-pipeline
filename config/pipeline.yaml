@@ -23,6 +23,11 @@ _anchors:
     name: checkout
     state: available
 
+  build-k8s-all: &build-k8s-all
+    event: *checkout-event
+    runtime:
+      name: k8s-all
+
   kbuild: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -115,7 +120,7 @@ runtimes:
 
   k8s-all:
     lab_type: kubernetes
-    context: 
+    context:
       - 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
       - 'gke_android-kernelci-external_europe-west1-d_kci-eu-west1'
       - 'gke_android-kernelci-external_us-central1-c_kci-us-central1'
@@ -179,6 +184,32 @@ jobs:
       <<: *kbuild-gcc-10-arm64-params
       cross_compile_compat: 'arm-linux-gnueabihf-'
       fragments: ['arm64-chromebook']
+
+  kbuild-gcc-10-arm:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params:
+      arch: arm
+      compiler: gcc-10
+      cross_compile: 'arm-linux-gnueabihf-'
+      defconfig: defconfig
+
+  kbuild-gcc-10-i386:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params:
+      arch: i386
+      compiler: gcc-10
+      defconfig: i386_defconfig
+
+  kbuild-gcc-10-riscv:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:riscv64-kselftest-kernelci
+    params:
+      arch: riscv
+      compiler: gcc-10
+      cross_compile: 'riscv64-linux-gnu-'
+      defconfig: defconfig
 
   kbuild-gcc-10-x86:
     <<: *kbuild-gcc-10-x86-job
@@ -353,29 +384,28 @@ scheduler:
       - dell-latitude-3445-7520c-skyrim
 
   - job: kbuild-gcc-10-arm64
-    event: *checkout-event
-    runtime:
-      type: kubernetes
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-10-arm64-chromebook
-    event: *checkout-event
-    runtime:
-      name: k8s-all
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-i386
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-riscv
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86
-    event: *checkout-event
-    runtime:
-      name: k8s-all
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86-board
-    event: *checkout-event
-    runtime:
-      name: k8s-all
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86-chromeos
-    event: *checkout-event
-    runtime:
-      name: k8s-all
+    <<: *build-k8s-all
 
   - job: kunit
     event: *checkout-event
