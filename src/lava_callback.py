@@ -10,6 +10,7 @@ import requests
 from flask import Flask, request
 import toml
 import threading
+import json
 
 import kernelci.api.helper
 import kernelci.config
@@ -65,7 +66,9 @@ def async_job_submit(api_helper, node_id, job_callback):
     the caller, but it's OK as LAVA don't care about the response.
     '''
     results = job_callback.get_results()
+    print(f"[ASYNC_JOB_SUBMIT] results: {results}")
     job_node = api_helper.api.node.get(node_id)
+    print(f"[ASYNC_JOB_SUBMIT] job node: {job_node}")
     # TODO: Verify lab_name matches job node lab name
     # Also extract job_id and compare with node job_id (future)
     # Or at least first record job_id in node metadata
@@ -76,6 +79,8 @@ def async_job_submit(api_helper, node_id, job_callback):
     log_txt_url = _upload_log(log_parser, job_node, storage)
     job_node['artifacts']['lava_log'] = log_txt_url
     hierarchy = job_callback.get_hierarchy(results, job_node)
+    print("[ASYNC_JOB_SUBMIT] hierarchy")
+    print(json.dumps(hierarchy, indent=4))
     api_helper.submit_results(hierarchy, job_node)
 
 
@@ -104,7 +109,10 @@ def callback(node_id):
 
     data = request.get_json()
     job_callback = kernelci.runtime.lava.Callback(data)
+    print("[LAVA CALLBACK] callback data:")
+    print(json.dumps(data, indent=4))
     api_config_name = job_callback.get_meta('api_config_name')
+    print(f"[LAVA CALLBACK] api_config_name: {api_config_name}")
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
 
