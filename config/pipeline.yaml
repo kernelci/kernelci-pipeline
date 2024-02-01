@@ -14,6 +14,14 @@ _anchors:
     <<: *arm64-device
     boot_method: depthcharge
 
+  armel-device: &armel-device
+    <<: *arm64-device
+    arch: armel
+
+  armel-chromebook-device: &armel-chromebook-device
+    <<: *armel-device
+    boot_method: depthcharge
+
   baseline: &baseline-job
     template: baseline.jinja2
     kind: test
@@ -171,6 +179,8 @@ jobs:
 
   baseline-arm64: *baseline-job
   baseline-arm64-chromebook: *baseline-job
+  baseline-armel: *baseline-job
+  baseline-armel-chromebook: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-board: *baseline-job
   baseline-x86-board-staging: *baseline-job
@@ -292,6 +302,16 @@ device_types:
     mach: broadcom
     dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
 
+  bcm2836-rpi-2-b:
+    <<: *armel-device
+    mach: broadcom
+    dtb: dtbs/bcm2836-rpi-2-b.dtb
+
+  imx6q-sabrelite:
+    <<: *armel-device
+    mach: imx
+    dtb: dtbs/imx6q-sabrelite.dtb
+
   meson-g12b-a311d-khadas-vim3:
     <<: *arm64-device
     mach: amlogic
@@ -316,6 +336,21 @@ device_types:
     <<: *arm64-chromebook-device
     mach: mediatek
     dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
+
+  odroid-xu3:
+    <<: *armel-device
+    mach: samsung
+    dtb: dtbs/exynos5422-odroidxu3.dtb
+
+  rk3288-rock2-square:
+    <<: *armel-device
+    mach: rockchip
+    dtb: dtbs/rk3288-rock2-square.dtb
+
+  rk3288-veyron-jaq:
+    <<: *armel-chromebook-device
+    mach: rockchip
+    dtb: dtbs/rk3288-veyron-jaq.dtb
 
   rk3399-gru-kevin:
     <<: *arm64-chromebook-device
@@ -389,6 +424,31 @@ scheduler:
       - rk3399-gru-kevin
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
+
+  - job: baseline-armel
+    event:
+      channel: node
+      name: kbuild-gcc-10-armel
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2836-rpi-2-b
+      - imx6q-sabrelite
+      - odroid-xu3
+      - rk3288-rock2-square
+
+  - job: baseline-armel-chromebook
+    event:
+      channel: node
+      name: kbuild-gcc-10-armel
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - rk3288-veyron-jaq
 
   - job: baseline-x86
     event:
