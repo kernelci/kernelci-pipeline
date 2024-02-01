@@ -302,10 +302,30 @@ device_types:
     mach: mediatek
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
 
+  mt8186-corsola-steelix-sku131072:
+    <<: *arm64-chromebook-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb
+
+  mt8192-asurada-spherion-r0:
+    <<: *arm64-chromebook-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
+
+  mt8195-cherry-tomato-r2:
+    <<: *arm64-chromebook-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
+
   sc7180-trogdor-kingoftown:
     <<: *arm64-chromebook-device
     mach: qcom
     dtb: dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
+
+  sc7180-trogdor-lazor-limozeen:
+    <<: *arm64-chromebook-device
+    mach: qcom
+    dtb: dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb
 
   kubernetes:
     base_name: kubernetes
@@ -340,7 +360,11 @@ scheduler:
       name: lava-collabora
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
+      - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
       - sc7180-trogdor-kingoftown
+      - sc7180-trogdor-lazor-limozeen
 
   - job: baseline-x86
     event:
