@@ -317,6 +317,21 @@ device_types:
     mach: mediatek
     dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
 
+  rk3399-gru-kevin:
+    <<: *arm64-chromebook-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
+
+  rk3399-rock-pi-4b:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-rock-pi-4b.dtb
+
+  rk3588-rock-5b:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3588-rock-5b.dtb
+
   sc7180-trogdor-kingoftown:
     <<: *arm64-chromebook-device
     mach: qcom
@@ -326,6 +341,11 @@ device_types:
     <<: *arm64-chromebook-device
     mach: qcom
     dtb: dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb
+
+  sun50i-h6-pine-h64:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
 
   kubernetes:
     base_name: kubernetes
@@ -349,6 +369,9 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
 
   - job: baseline-arm64-chromebook
     event:
@@ -363,6 +386,7 @@ scheduler:
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
+      - rk3399-gru-kevin
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
 
