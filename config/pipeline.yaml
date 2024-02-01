@@ -192,7 +192,7 @@ jobs:
       arch: arm
       compiler: gcc-10
       cross_compile: 'arm-linux-gnueabihf-'
-      defconfig: defconfig
+      defconfig: multi_v7_defconfig
 
   kbuild-gcc-10-i386:
     <<: *kbuild-job
@@ -454,6 +454,10 @@ build_variants:
           base_defconfig: 'defconfig'
           filters:
             - regex: { defconfig: 'defconfig' }
+        armel:
+          base_defconfig: 'multi_v7_defconfig'
+          filters:
+            - regex: { defconfig: 'multi_v7_defconfig' }
 
 
 build_configs:
