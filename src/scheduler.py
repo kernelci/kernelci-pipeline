@@ -105,12 +105,18 @@ class Scheduler(Service):
 
         job_id = str(runtime.get_job_id(running_job))
         node['data']['job_id'] = job_id
+
+        if platform.name == "kubernetes":
+            context = runtime.get_context()
+            node['data']['k8s_context'] = context
+
         try:
             self._api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
+        self.log.debug(f"job node: {node}")
         self.log.info(' '.join([
             node['id'],
             runtime.config.name,
