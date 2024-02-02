@@ -185,7 +185,7 @@ jobs:
       cross_compile_compat: 'arm-linux-gnueabihf-'
       fragments: ['arm64-chromebook']
 
-  kbuild-gcc-10-arm:
+  kbuild-gcc-10-armel:
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
     params:
@@ -389,7 +389,7 @@ scheduler:
   - job: kbuild-gcc-10-arm64
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm
+  - job: kbuild-gcc-10-armel
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-arm64-chromebook
@@ -435,6 +435,8 @@ build_environments:
     cc: gcc
     cc_version: 10
     arch_params:
+      armel:
+        name: 'arm'
       x86_64:
         name: 'x86'
 
