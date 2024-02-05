@@ -87,6 +87,14 @@ class Scheduler(Service):
                 job_config.name,
                 "Invalid job parameters, aborting...",
             ]))
+            node['state'] = 'done'
+            node['result'] = 'fail'
+            node['data']['error_code'] = 'invalid_job_params'
+            try:
+                self._api.node.update(node)
+            except requests.exceptions.HTTPError as err:
+                err_msg = json.loads(err.response.content).get("detail", [])
+                self.log.error(err_msg)
             return
         data = runtime.generate(job, params)
         tmp = tempfile.TemporaryDirectory(dir=self._output)
@@ -101,6 +109,14 @@ class Scheduler(Service):
                 job_config.name,
                 str(e),
             ]))
+            node['state'] = 'done'
+            node['result'] = 'fail'
+            node['data']['error_code'] = 'submit_error'
+            try:
+                self._api.node.update(node)
+            except requests.exceptions.HTTPError as err:
+                err_msg = json.loads(err.response.content).get("detail", [])
+                self.log.error(err_msg)
             return
 
         job_id = str(runtime.get_job_id(running_job))
