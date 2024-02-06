@@ -116,7 +116,6 @@ class Scheduler(Service):
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
-        self.log.debug(f"job node: {node}")
         self.log.info(' '.join([
             node['id'],
             runtime.config.name,
