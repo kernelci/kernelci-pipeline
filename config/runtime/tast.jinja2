@@ -1,0 +1,13 @@
+{%- set boot_commands = 'nfs' %}
+{%- set boot_namespace = 'modules' %}
+{%- set kernel_url = platform_config.params.flash_kernel.image %}
+{%- set modules_url = platform_config.params.flash_kernel.modules %}
+{%- if platform_config.dtb %}
+{%-   set dtb_url = platform_config.params.flash_kernel.dtb %}
+{%- endif %}
+{%- set nfsroot = platform_config.params.nfsroot %}
+
+{%- set test_method = 'tast' %}
+
+{%- set base_template = 'base/' + runtime + '.jinja2' %}
+{%- extends base_template %}
