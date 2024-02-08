@@ -65,12 +65,20 @@ class TimeoutService(Service):
                 ))
         return recursive
 
-    def _submit_lapsed_nodes(self, lapsed_nodes, state, log=None):
+    def _submit_lapsed_nodes(self, lapsed_nodes, state, mode):
         for node_id, node in lapsed_nodes.items():
             node_update = node.copy()
             node_update['state'] = state
-            if log:
-                self.log.debug(f"{node_id} {log}")
+            self.log.debug(f"{node_id} {mode}")
+            if mode == 'TIMEOUT':
+                if node['kind'] != 'checkout':
+                    if 'data' not in node_update:
+                        node_update['data'] = {}
+                    node_update['result'] = 'incomplete'
+                    node_update['data']['error_code'] = 'node_timeout'
+                else:
+                    node_update['result'] = 'pass'
+
             try:
                 self._api.node.update(node_update)
             except requests.exceptions.HTTPError as err:
