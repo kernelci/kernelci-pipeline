@@ -124,7 +124,7 @@ class Scheduler(Service):
 
         if platform.name == "kubernetes":
             context = runtime.get_context()
-            node['data']['k8s_context'] = context
+            node['data']['job_context'] = context
 
         try:
             self._api.node.update(node)
