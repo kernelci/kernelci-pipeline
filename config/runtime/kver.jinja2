@@ -51,10 +51,10 @@ class Job(BaseJob):
                 return False
 
         return (
-            kver['version'] == mkver['VERSION'] and
-            kver['patchlevel'] == mkver['PATCHLEVEL'] and (
+            int(kver['version']) == mkver['VERSION'] and
+            int(kver['patchlevel']) == mkver['PATCHLEVEL'] and (
                 not mkver['SUBLEVEL'] or
-                kver['sublevel'] == mkver['SUBLEVEL']
+                int(kver['sublevel']) == mkver['SUBLEVEL']
             ) and (
                 not mkver['EXTRAVERSION'] or
                 kver['extra'].startswith(mkver['EXTRAVERSION'])
