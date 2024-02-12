@@ -26,7 +26,7 @@ class FstestsRunner:
         api_token = os.getenv('API_TOKEN')
         self._db_config = configs['db_configs'][args.db_config]
         self._db = kernelci.db.get_db(self._db_config, api_token)
-        self._device_configs = configs['device_types']
+        self._device_configs = configs['platforms']
         self._gce = args.gce
         self._gce_project = args.gce_project
         self._gce_zone = args.gce_zone
