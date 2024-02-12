@@ -66,6 +66,7 @@ services:
       - '--runtimes'
       - 'lava-collabora'
       - 'lava-collabora-staging'
+      - 'lava-broonie'
 
   scheduler-k8s:
     <<: *scheduler
