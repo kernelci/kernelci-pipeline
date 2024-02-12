@@ -265,11 +265,9 @@ trees:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
 
 
-device_types:
+platforms:
 
   docker:
-    base_name: docker
-    class: docker
 
   qemu-x86:
     base_name: qemu
@@ -383,12 +381,8 @@ device_types:
     dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
 
   kubernetes:
-    base_name: kubernetes
-    class: kubernetes
 
   shell:
-    base_name: shell
-    class: shell
 
 
 scheduler:
