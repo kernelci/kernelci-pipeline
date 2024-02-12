@@ -135,6 +135,16 @@ runtimes:
       - 'gke_android-kernelci-external_us-east4-c_kci-big-us-east4'
       - 'gke_android-kernelci-external_us-west1-a_kci-us-west1'
 
+  lava-broonie:
+    lab_type: lava
+    url: 'https://lava.sirena.org.uk/'
+    priority_min: 10
+    priority_max: 40
+    notify:
+      callback:
+        token: kernelci-new-api-callback
+        url: https://staging.kernelci.org:9100
+
   lava-collabora: &lava-collabora-staging
     lab_type: lava
     url: https://lava.collabora.dev/
@@ -178,6 +188,7 @@ jobs:
   #   image: 'kernelci/staging-kernelci'
 
   baseline-arm64: *baseline-job
+  baseline-arm64-broonie: *baseline-job
   baseline-arm64-chromebook: *baseline-job
   baseline-armel: *baseline-job
   baseline-armel-chromebook: *baseline-job
@@ -312,6 +323,11 @@ device_types:
     mach: imx
     dtb: dtbs/imx6q-sabrelite.dtb
 
+  sun50i-h5-libretech-all-h3-cc:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
+
   meson-g12b-a311d-khadas-vim3:
     <<: *arm64-device
     mach: amlogic
@@ -408,6 +424,17 @@ scheduler:
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
 
+  - job: baseline-arm64-broonie
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-broonie
+    platforms:
+      - sun50i-h5-libretech-all-h3-cc
+
   - job: baseline-arm64-chromebook
     event:
       channel: node
@@ -457,6 +484,7 @@ scheduler:
       result: pass
     runtime:
       type: lava
+      name: lava-collabora
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
