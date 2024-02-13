@@ -70,6 +70,9 @@ def async_job_submit(api_helper, node_id, job_callback):
     '''
     results = job_callback.get_results()
     job_node = api_helper.api.node.get(node_id)
+    if not job_node:
+        print(f'Node {node_id} not found')
+        return
     # TODO: Verify lab_name matches job node lab name
     # Also extract job_id and compare with node job_id (future)
     # Or at least first record job_id in node metadata
