@@ -142,6 +142,8 @@ cd {src_path}
     def _submit(self, result, node, api):
         # Ensure top-level name is kept the same
         result = result.copy()
+        # update node to newest
+        node = api.node.get(node['id'])
         result['node']['name'] = node['name']
         api_helper = kernelci.api.helper.APIHelper(api)
         api_helper.submit_results(result, node)
