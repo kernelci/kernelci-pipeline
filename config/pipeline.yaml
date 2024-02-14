@@ -245,8 +245,8 @@ jobs:
     <<: *kbuild-gcc-10-x86-job
     params:
       <<: *kbuild-gcc-10-x86-params
-      defconfig: allnoconfig
-      fragments: ['x86-board','cros://chromeos-6.1/x86_64/chromeos-intel-pineview.flavour.config','CONFIG_MODULE_COMPRESS=n']
+      defconfig: 'cros://chromeos-{krev}/x86_64/chromeos-intel-pineview.flavour.config'
+      fragments: ['x86-board','CONFIG_MODULE_COMPRESS=n']
 
   kunit: &kunit-job
     template: kunit.jinja2
