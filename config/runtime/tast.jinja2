@@ -1,9 +1,15 @@
+{%- set base_kurl = platform_config.params.flash_kernel.url %}
 {%- set boot_commands = 'nfs' %}
 {%- set boot_namespace = 'modules' %}
-{%- set kernel_url = platform_config.params.flash_kernel.image %}
-{%- set modules_url = platform_config.params.flash_kernel.modules %}
+{%- set flash_modules = 'modules.tar.xz' %}
+{%- if platform_config.params.flash_kernel.modules %}
+{%-   set flash_modules = platform_config.params.flash_kernel.modules %}
+{%- endif %}
+
+{%- set kernel_url = base_kurl ~ '/' ~ platform_config.params.flash_kernel.image %}
+{%- set modules_url = base_kurl ~ '/' ~ flash_modules %}
 {%- if platform_config.dtb %}
-{%-   set dtb_url = platform_config.params.flash_kernel.dtb %}
+{%-   set dtb_url = base_kurl ~ '/' ~ platform_config.dtb %}
 {%- endif %}
 {%- set nfsroot = platform_config.params.nfsroot %}
 
