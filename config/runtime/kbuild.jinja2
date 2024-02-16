@@ -36,11 +36,6 @@ KBUILD_PARAMS = {
 
 {% block python_job -%}
 
-CROS_CONFIG_URL = \
-    "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
-
-LEGACY_FRAG_CONFIG = '/etc/kernelci/core/build-configs.yaml'
-
 WORKSPACE = '/tmp/kci'
 
 def main(args):
