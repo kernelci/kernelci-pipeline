@@ -1,0 +1,117 @@
+_anchors:
+
+  amd-stoneyridge-platforms: &amd-stoneyridge-platforms
+    - acer-R721T-grunt
+    - acer-cp514-3wh-r0qs-guybrush
+    - asus-CM1400CXA-dalboz_chromeos
+    - dell-latitude-3445-7520c-skyrim
+    - hp-14-db0003na-grunt
+    - hp-11A-G6-EE-grunt
+    - hp-14b-na0052xx-zork
+    - hp-x360-14a-cb0001xx-zork
+    - lenovo-TPad-C13-Yoga-zork
+
+  intel-pineview-platforms: &intel-pineview-platforms
+    - acer-cb317-1h-c3z6-dedede
+    - acer-cbv514-1h-34uz-brya
+    - acer-chromebox-cxi4-puff
+    - acer-cp514-2h-1160g7-volteer
+    - asus-cx9400-volteer
+    - asus-C433TA-AJ0005-rammus
+    - asus-C436FA-Flip-hatch
+    - asus-C523NA-A20057-coral
+    - dell-latitude-5300-8145U-arcada
+    - dell-latitude-5400-4305U-sarien
+    - dell-latitude-5400-8665U-sarien
+    - hp-x360-14-G1-sona
+    - hp-x360-12b-ca0010nr-n4020-octopus
+    - hp-x360-12b-ca0500na-n4000-octopus
+
+  mediatek-platforms: &mediatek-platforms
+    - mt8183-kukui-jacuzzi-juniper-sku16
+    - mt8186-corsola-steelix-sku131072
+    - mt8192-asurada-spherion-r0
+    - mt8195-cherry-tomato-r2
+
+  qualcomm-platforms: &qualcomm-platforms
+    - sc7180-trogdor-kingoftown
+    - sc7180-trogdor-lazor-limozeen
+
+  build-k8s-all: &build-k8s-all
+    event:
+      channel: node
+      name: checkout
+      state: available
+    runtime:
+      name: k8s-all
+
+  lava-job-collabora: &lava-job-collabora
+    runtime:
+      type: lava
+      name: lava-collabora
+
+  test-job-mediatek: &test-job-mediatek
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromeos-mediatek
+      result: pass
+    platforms: *mediatek-platforms
+
+  test-job-pineview: &test-job-pineview
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-chromeos-pineview
+      result: pass
+    platforms: *intel-pineview-platforms
+
+  test-job-qualcomm: &test-job-qualcomm
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromeos-qualcomm
+      result: pass
+    platforms: *qualcomm-platforms
+
+  test-job-stoneyridge: &test-job-stoneyridge
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-chromeos-stoneyridge
+      result: pass
+    platforms: *amd-stoneyridge-platforms
+
+scheduler:
+
+  - job: baseline-arm64-chromeos-mediatek
+    <<: *test-job-mediatek
+
+  - job: baseline-arm64-chromeos-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: baseline-x86-pineview
+    <<: *test-job-pineview
+
+  - job: baseline-x86-stoneyridge
+    <<: *test-job-stoneyridge
+
+  - job: baseline-x86-stoneyridge-staging
+    <<: *test-job-stoneyridge
+    runtime:
+      type: lava
+      name: lava-collabora-staging
+    platforms:
+    - dell-latitude-3445-7520c-skyrim
+
+  - job: kbuild-gcc-10-arm64-chromeos-mediatek
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm64-chromeos-qualcomm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-x86-chromeos-pineview
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-x86-chromeos-stoneyridge
+    <<: *build-k8s-all
