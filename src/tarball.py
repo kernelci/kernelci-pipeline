@@ -138,6 +138,8 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
                 build_config.tree.name, self._kdir
             )
             version = self._get_version_from_describe()
+            # Make the field data types compatible with API version model
+            version = self._api_helper.translate_version_fields(version)
             tarball_url = self._push_tarball(build_config, describe)
             self._update_node(checkout_node, describe, version, tarball_url)
 
