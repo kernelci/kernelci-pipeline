@@ -26,7 +26,7 @@ spec:
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=timeout
           env:
@@ -70,7 +70,7 @@ spec:
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=closing
           env:
@@ -114,7 +114,7 @@ spec:
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=holdoff
           env:

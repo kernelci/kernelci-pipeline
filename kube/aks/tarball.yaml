@@ -33,7 +33,7 @@ spec:
           command:
             - ./src/tarball.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
           env:
             - name: KCI_API_TOKEN
