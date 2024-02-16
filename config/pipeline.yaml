@@ -10,17 +10,9 @@ _anchors:
     arch: arm64
     boot_method: u-boot
 
-  arm64-chromebook-device: &arm64-chromebook-device
-    <<: *arm64-device
-    boot_method: depthcharge
-
   armel-device: &armel-device
     <<: *arm64-device
     arch: armel
-
-  armel-chromebook-device: &armel-chromebook-device
-    <<: *armel-device
-    boot_method: depthcharge
 
   baseline: &baseline-job
     template: baseline.jinja2
@@ -61,10 +53,6 @@ _anchors:
     arch: x86_64
     boot_method: grub
     mach: x86
-
-  x86_64-chromebook-device: &x86_64-chromebook-device
-    <<: *x86_64-device
-    boot_method: depthcharge
 
 api:
 
@@ -298,19 +286,6 @@ platforms:
   minnowboard-turbot-E3826: *x86_64-device
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
 
-  acer-R721T-grunt: *x86_64-chromebook-device
-  acer-cb317-1h-c3z6-dedede: *x86_64-chromebook-device
-  acer-cbv514-1h-34uz-brya: *x86_64-chromebook-device
-  acer-chromebox-cxi4-puff: *x86_64-chromebook-device
-  acer-cp514-3wh-r0qs-guybrush: *x86_64-chromebook-device
-  asus-C433TA-AJ0005-rammus: *x86_64-chromebook-device
-  asus-C436FA-Flip-hatch: *x86_64-chromebook-device
-  asus-cx9400-volteer: *x86_64-chromebook-device
-  dell-latitude-3445-7520c-skyrim: *x86_64-chromebook-device
-  dell-latitude-5300-8145U-arcada: *x86_64-chromebook-device
-  hp-14b-na0052xx-zork: *x86_64-chromebook-device
-  hp-x360-12b-ca0010nr-n4020-octopus: *x86_64-chromebook-device
-
   bcm2711-rpi-4-b:
     <<: *arm64-device
     mach: broadcom
@@ -336,26 +311,6 @@ platforms:
     mach: amlogic
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
 
-  mt8183-kukui-jacuzzi-juniper-sku16:
-    <<: *arm64-chromebook-device
-    mach: mediatek
-    dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
-
-  mt8186-corsola-steelix-sku131072:
-    <<: *arm64-chromebook-device
-    mach: mediatek
-    dtb: dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb
-
-  mt8192-asurada-spherion-r0:
-    <<: *arm64-chromebook-device
-    mach: mediatek
-    dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
-
-  mt8195-cherry-tomato-r2:
-    <<: *arm64-chromebook-device
-    mach: mediatek
-    dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
-
   odroid-xu3:
     <<: *armel-device
     mach: samsung
@@ -367,12 +322,14 @@ platforms:
     dtb: dtbs/rk3288-rock2-square.dtb
 
   rk3288-veyron-jaq:
-    <<: *armel-chromebook-device
+    <<: *armel-device
+    boot_method: depthcharge
     mach: rockchip
     dtb: dtbs/rk3288-veyron-jaq.dtb
 
   rk3399-gru-kevin:
-    <<: *arm64-chromebook-device
+    <<: *arm64-device
+    boot_method: depthcharge
     mach: rockchip
     dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
 
@@ -385,16 +342,6 @@ platforms:
     <<: *arm64-device
     mach: rockchip
     dtb: dtbs/rockchip/rk3588-rock-5b.dtb
-
-  sc7180-trogdor-kingoftown:
-    <<: *arm64-chromebook-device
-    mach: qcom
-    dtb: dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
-
-  sc7180-trogdor-lazor-limozeen:
-    <<: *arm64-chromebook-device
-    mach: qcom
-    dtb: dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb
 
   sun50i-h6-pine-h64:
     <<: *arm64-device
