@@ -26,7 +26,7 @@ spec:
           command:
             - ./src/scheduler.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - loop
             - --runtimes=lava-collabora-early-access
           env:
