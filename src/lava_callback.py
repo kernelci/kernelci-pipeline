@@ -19,7 +19,7 @@ import kernelci.storage
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
-    SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config/pipeline.yaml')
+    SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config')
 )
 SETTINGS_PREFIX = 'runtime'
 

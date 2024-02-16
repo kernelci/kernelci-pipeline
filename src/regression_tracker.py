@@ -109,7 +109,7 @@ class cmd_run(Command):
 
 if __name__ == '__main__':
     opts = parse_opts('regression_tracker', globals())
-    yaml_configs = opts.get_yaml_configs() or 'config/pipeline.yaml'
+    yaml_configs = opts.get_yaml_configs() or 'config'
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

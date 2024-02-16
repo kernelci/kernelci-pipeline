@@ -182,6 +182,6 @@ class cmd_run(Command):
 
 if __name__ == '__main__':
     opts = parse_opts('fstests_runner', globals())
-    configs = kernelci.config.load('config/pipeline.yaml')
+    configs = kernelci.config.load('config')
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
