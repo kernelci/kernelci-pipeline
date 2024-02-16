@@ -177,22 +177,11 @@ jobs:
 
   baseline-arm64: *baseline-job
   baseline-arm64-broonie: *baseline-job
-  baseline-arm64-chromebook: *baseline-job
   baseline-armel: *baseline-job
-  baseline-armel-chromebook: *baseline-job
   baseline-x86: *baseline-job
-  baseline-x86-board: *baseline-job
-  baseline-x86-board-staging: *baseline-job
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
-
-  kbuild-gcc-10-arm64-chromebook:
-    <<: *kbuild-gcc-10-arm64-job
-    params:
-      <<: *kbuild-gcc-10-arm64-params
-      cross_compile_compat: 'arm-linux-gnueabihf-'
-      fragments: ['arm64-chromebook']
 
   kbuild-gcc-10-armel:
     <<: *kbuild-job
@@ -222,19 +211,6 @@ jobs:
 
   kbuild-gcc-10-x86:
     <<: *kbuild-gcc-10-x86-job
-
-  kbuild-gcc-10-x86-board:
-    <<: *kbuild-gcc-10-x86-job
-    params:
-      <<: *kbuild-gcc-10-x86-params
-      fragments: ['x86-board']
-
-  kbuild-gcc-10-x86-chromeos:
-    <<: *kbuild-gcc-10-x86-job
-    params:
-      <<: *kbuild-gcc-10-x86-params
-      defconfig: 'cros://chromeos-{krev}/x86_64/chromeos-intel-pineview.flavour.config'
-      fragments: ['x86-board','CONFIG_MODULE_COMPRESS=n']
 
   kunit: &kunit-job
     template: kunit.jinja2
@@ -366,6 +342,7 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
+      - rk3399-gru-kevin
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
@@ -381,23 +358,6 @@ scheduler:
     platforms:
       - sun50i-h5-libretech-all-h3-cc
 
-  - job: baseline-arm64-chromebook
-    event:
-      channel: node
-      name: kbuild-gcc-10-arm64-chromebook
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
-    platforms:
-      - mt8183-kukui-jacuzzi-juniper-sku16
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
-      - mt8195-cherry-tomato-r2
-      - rk3399-gru-kevin
-      - sc7180-trogdor-kingoftown
-      - sc7180-trogdor-lazor-limozeen
-
   - job: baseline-armel
     event:
       channel: node
@@ -411,16 +371,6 @@ scheduler:
       - imx6q-sabrelite
       - odroid-xu3
       - rk3288-rock2-square
-
-  - job: baseline-armel-chromebook
-    event:
-      channel: node
-      name: kbuild-gcc-10-armel
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
-    platforms:
       - rk3288-veyron-jaq
 
   - job: baseline-x86
@@ -435,46 +385,10 @@ scheduler:
       - qemu-x86
       - minnowboard-turbot-E3826
 
-  - job: baseline-x86-board
-    event:
-      channel: node
-      name: kbuild-gcc-10-x86-board
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
-    platforms:
-      - acer-R721T-grunt
-      - acer-cb317-1h-c3z6-dedede
-      - acer-cbv514-1h-34uz-brya
-      - acer-chromebox-cxi4-puff
-      - acer-cp514-3wh-r0qs-guybrush
-      - asus-C433TA-AJ0005-rammus
-      - asus-C436FA-Flip-hatch
-      - asus-cx9400-volteer
-      - dell-latitude-3445-7520c-skyrim
-      - dell-latitude-5300-8145U-arcada
-      - hp-14b-na0052xx-zork
-      - hp-x360-12b-ca0010nr-n4020-octopus
-
-  - job: baseline-x86-board-staging
-    event:
-      channel: node
-      name: kbuild-gcc-10-x86-board
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora-staging
-    platforms:
-      - dell-latitude-3445-7520c-skyrim
-
   - job: kbuild-gcc-10-arm64
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-armel
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-10-arm64-chromebook
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-i386
@@ -484,12 +398,6 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-10-x86-board
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-10-x86-chromeos
     <<: *build-k8s-all
 
   - job: kunit

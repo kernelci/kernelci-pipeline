@@ -1,0 +1,62 @@
+_anchors:
+
+  kbuild-gcc-10-arm64-chromeos: &kbuild-gcc-10-arm64-chromeos-job
+    template: kbuild.jinja2
+    kind: kbuild
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params: &kbuild-gcc-10-arm64-chromeos-params
+      arch: arm64
+      compiler: gcc-10
+      cross_compile: 'aarch64-linux-gnu-'
+      cross_compile_compat: 'arm-linux-gnueabihf-'
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{arch}-generic.flavour.config'
+      fragments:
+        - arm64-chromebook
+        - CONFIG_MODULE_COMPRESS=n
+
+  kbuild-gcc-10-x86-chromeos: &kbuild-gcc-10-x86-chromeos-job
+    <<: *kbuild-gcc-10-arm64-chromeos-job
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params: &kbuild-gcc-10-x86-chromeos-params
+      arch: x86_64
+      compiler: gcc-10
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{arch}-generic.flavour.config'
+      fragments:
+        - x86-board
+        - CONFIG_MODULE_COMPRESS=n
+
+jobs:
+
+  baseline-arm64-chromeos-mediatek: &baseline-job
+    template: baseline.jinja2
+    kind: test
+
+  baseline-arm64-chromeos-qualcomm: *baseline-job
+  baseline-x86-pineview: *baseline-job
+  baseline-x86-stoneyridge: *baseline-job
+  baseline-x86-stoneyridge-staging: *baseline-job
+
+  kbuild-gcc-10-arm64-chromeos-mediatek:
+    <<: *kbuild-gcc-10-arm64-chromeos-job
+    params:
+      <<: *kbuild-gcc-10-arm64-chromeos-params
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-mediatek.flavour.config'
+
+  kbuild-gcc-10-arm64-chromeos-qualcomm:
+    <<: *kbuild-gcc-10-arm64-chromeos-job
+    params:
+      <<: *kbuild-gcc-10-arm64-chromeos-params
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-qualcomm.flavour.config'
+
+  kbuild-gcc-10-x86-chromeos-pineview:
+    <<: *kbuild-gcc-10-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-10-x86-chromeos-params
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-intel-pineview.flavour.config'
+
+  kbuild-gcc-10-x86-chromeos-stoneyridge:
+    <<: *kbuild-gcc-10-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-10-x86-chromeos-params
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-amd-stoneyridge.flavour.config'
+
