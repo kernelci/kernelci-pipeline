@@ -275,6 +275,8 @@ trees:
   stable-rc:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
 
+  next:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
 platforms:
 
@@ -640,3 +642,8 @@ build_configs:
   stable-rc_6.7:
     <<: *stable-rc
     branch: 'linux-6.7.y'
+
+  next_master:
+    tree: next
+    branch: 'master'
+    variants: *build-variants
