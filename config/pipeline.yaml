@@ -278,6 +278,9 @@ trees:
   next:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
+  mediatek:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
+
 platforms:
 
   docker:
@@ -646,4 +649,9 @@ build_configs:
   next_master:
     tree: next
     branch: 'master'
+    variants: *build-variants
+
+  mediatek_for_next:
+    tree: mediatek
+    branch: 'for-next'
     variants: *build-variants
