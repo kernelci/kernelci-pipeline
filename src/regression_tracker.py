@@ -16,7 +16,6 @@ from base import Service
 
 
 class RegressionTracker(Service):
-
     def __init__(self, configs, args):
         super().__init__(configs, args, 'regression_tracker')
         self._regression_fields = ['group', 'name', 'path']
@@ -79,16 +78,12 @@ class RegressionTracker(Service):
 
         while True:
             node = self._api_helper.receive_event_node(sub_id)
-
             if node['kind'] == 'checkout':
                 continue
-
             failures = []
             self._get_all_failed_child_nodes(failures, node)
-
             for node in failures:
                 self._detect_regression(node)
-
             sys.stdout.flush()
         return True
 
