@@ -30,44 +30,38 @@ class RegressionTracker(Service):
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
 
-    def _create_regression(self, failed_node, last_successful_node):
-        """Method to create a regression"""
-        regression = {}
-        for field in self._regression_fields:
-            regression[field] = failed_node[field]
-
-        regression['kind'] = 'regression'
-        regression['data'] = {
-            'fail_node': failed_node['id'],
-            'pass_node': last_successful_node['id'],
-        }
-        reg = self._api_helper.submit_regression(regression)
-
-    def _detect_regression(self, node):
+    def _detect_regression(self, fail_node):
         """Method to check and detect regression"""
         previous_nodes = self._api.node.find({
-            'name': node['name'],
-            'group': node['group'],
-            'path': node['path'],
+            'name': fail_node['name'],
+            'group': fail_node['group'],
+            'path': fail_node['path'],
             'data.kernel_revision.tree':
-                node['data']['kernel_revision']['tree'],
+                fail_node['data']['kernel_revision']['tree'],
             'data.kernel_revision.branch':
-                node['data']['kernel_revision']['branch'],
-            'data.kernel_revision.url': node['data']['kernel_revision']['url'],
-            'created__lt': node['created'],
+                fail_node['data']['kernel_revision']['branch'],
+            'data.kernel_revision.url':
+                fail_node['data']['kernel_revision']['url'],
+            'data.arch': fail_node['data']['arch'],
+            'data.defconfig': fail_node['data']['defconfig'],
+            'data.compiler': fail_node['data']['compiler'],
+            'data.platform': fail_node['data']['platform'],
+            'created__lt': fail_node['created'],
+            'state': 'done'
         })
-
-        if previous_nodes:
-            previous_nodes = sorted(
-                previous_nodes,
-                key=lambda node: node['created'],
-                reverse=True
-            )
-
-            if previous_nodes[0]['result'] == 'pass':
-                self.log.info(f"Detected regression for node id: \
-{node['id']}")
-                self._create_regression(node, previous_nodes[0])
+        if not previous_nodes:
+            return
+        previous_node = sorted(
+            previous_nodes,
+            key=lambda node: node['created'],
+            reverse=True
+        )[0]
+        if previous_node['result'] == 'pass':
+            self.log.info("Detected regression for node id: "
+                          f"{fail_node['id']}")
+            regression = self._api_helper.submit_regression(fail_node,
+                                                            previous_node)
+            self.log.info(f"Regression submitted: {regression['id']}")
 
     def _get_all_failed_child_nodes(self, failures, root_node):
         """Method to get all failed nodes recursively from top-level node"""
