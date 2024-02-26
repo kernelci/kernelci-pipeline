@@ -55,9 +55,25 @@ class Tarball(Service):
                 return config
 
     def _update_repo(self, config):
+        '''
+        Return True - if failed to update repo and need to retry
+        Return False - if repo updated successfully
+        '''
         self.log.info(f"Updating repo for {config.name}")
-        kernelci.build.update_repo(config, self._kdir)
+        try:
+            kernelci.build.update_repo(config, self._kdir)
+        except Exception as err:
+            self.log.error(f"Failed to update: {err}, cleaning stale repo")
+            # safeguard, make sure it is git repo
+            if not os.path.exists(os.path.join(self._kdir, '.git')):
+                self.log.error(f"{self._kdir} is not a git repo")
+                raise Exception(f"{self._kdir} is not a git repo")
+            # cleanup the repo and return True, so we try again
+            kernelci.shell_cmd(f"rm -rf {self._kdir}")
+            return True
+
         self.log.info("Repo updated")
+        return False
 
     def _make_tarball(self, config, describe):
         name = '-'.join(['linux', config.tree.name, config.branch, describe])
@@ -133,7 +149,13 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
             if build_config is None:
                 continue
 
-            self._update_repo(build_config)
+            if self._update_repo(build_config):
+                self.log.error("Failed to update repo, retrying")
+                if self._update_repo(build_config):
+                    # critical failure, something wrong with git
+                    self.log.error("Failed to update repo again, exit")
+                    os._exit(1)
+
             describe = kernelci.build.git_describe(
                 build_config.tree.name, self._kdir
             )
