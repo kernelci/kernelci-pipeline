@@ -71,7 +71,6 @@ class RegressionTracker(Service):
             'created__lt': fail_node['created'],
             'state': 'done'
         })
-
         if not previous_nodes:
             return
         previous_node = sorted(
@@ -97,19 +96,14 @@ class RegressionTracker(Service):
         self.log.info("Tracking regressions... ")
         self.log.info("Press Ctrl-C to stop.")
         sys.stdout.flush()
-
         while True:
             node = self._api_helper.receive_event_node(sub_id)
-
             if node['kind'] == 'checkout':
                 continue
-
             failures = []
             self._get_all_failed_child_nodes(failures, node)
-
             for node in failures:
                 self._detect_regression(node)
-
             sys.stdout.flush()
         return True
 
