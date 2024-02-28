@@ -68,7 +68,10 @@ def async_job_submit(api_helper, node_id, job_callback):
     handler. This is not ideal as we don't have a way to report errors back to
     the caller, but it's OK as LAVA don't care about the response.
     '''
+    print("DEBUG: node_id:", node_id)
+    print("DEBUG: job_callback.get_job_status:", job_callback.get_job_status())
     results = job_callback.get_results()
+    print("DEBUG: job_callback.get_results:", results)
     job_node = api_helper.api.node.get(node_id)
     # TODO: Verify lab_name matches job node lab name
     # Also extract job_id and compare with node job_id (future)
@@ -86,6 +89,8 @@ def async_job_submit(api_helper, node_id, job_callback):
     job_node['result'] = job_result
     job_node['state'] = 'done'
     hierarchy = job_callback.get_hierarchy(results, job_node)
+    print("DEBUG: submitting job node", job_node)
+    print("DEBUG: submitting hierarchy:", hierarchy)
     api_helper.submit_results(hierarchy, job_node)
 
 
