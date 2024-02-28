@@ -31,7 +31,7 @@ class RegressionTracker(Service):
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
 
-    def _create_regression(self, failed_node, last_successful_node):
+    def _create_regression(self, failed_node, last_pass_node):
         """Method to create a regression"""
         regression = {}
         regression['kind'] = 'regression'
@@ -41,7 +41,7 @@ class RegressionTracker(Service):
         regression['state'] = 'done'
         regression['data'] = {
             'fail_node': failed_node['id'],
-            'pass_node': last_successful_node['id'],
+            'pass_node': last_pass_node['id'],
             'arch': failed_node['data'].get('arch'),
             'defconfig': failed_node['data'].get('defconfig'),
             'compiler': failed_node['data'].get('compiler'),
@@ -53,7 +53,8 @@ class RegressionTracker(Service):
         self.log.info(f"Regression submitted: {reg['id']}")
 
     def _detect_regression(self, fail_node):
-        """Method to check and detect regression"""
+        """Detects if <fail_node> (a failed job) produces a regression,
+        ie. if the previous job run with the same parameters passed"""
         previous_nodes = self._api.node.find({
             'name': fail_node['name'],
             'group': fail_node['group'],
@@ -81,7 +82,20 @@ class RegressionTracker(Service):
         if previous_node['result'] == 'pass':
             self.log.info("Detected regression for node id: "
                           f"{fail_node['id']}")
-            self._create_regression(fail_node, previous_node)
+            # Skip the regression generation if it was already in the
+            # DB. This may happen if a job was detected to generate a
+            # regression when it failed and then the same job was
+            # checked again after its parent job finished running and
+            # was updated.
+            existing_regression = self._api.node.find({
+                'kind': 'regression',
+                'data.fail_node': fail_node['id'],
+                'data.pass_node': previous_node['id']
+            })
+            if not existing_regression:
+                self._create_regression(fail_node, previous_node)
+            else:
+                self.log.info(f"Skipping regression: already exists")
 
     def _get_all_failed_child_nodes(self, failures, root_node):
         """Method to get all failed nodes recursively from top-level node"""
@@ -92,7 +106,7 @@ class RegressionTracker(Service):
             self._get_all_failed_child_nodes(failures, node)
 
     def _run(self, sub_id):
-        """Method to run regression tracking"""
+        """Method to run regression detection and generation"""
         self.log.info("Tracking regressions... ")
         self.log.info("Press Ctrl-C to stop.")
         sys.stdout.flush()
@@ -100,6 +114,11 @@ class RegressionTracker(Service):
             node = self._api_helper.receive_event_node(sub_id)
             if node['kind'] == 'checkout':
                 continue
+            if node['result'] == 'fail':
+                self._detect_regression(node)
+            # When a node hierarchy is submitted on a single operation,
+            # an event is generated only for the root node. Walk the
+            # children node tree to check for event-less failed jobs
             failures = []
             self._get_all_failed_child_nodes(failures, node)
             for node in failures:
