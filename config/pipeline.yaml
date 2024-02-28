@@ -223,6 +223,13 @@ jobs:
     kind: test
     image: kernelci/staging-kernelci
 
+  kselftest-dt:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      collections: dt
+      job_timeout: 10
+
 
 trees:
 
@@ -410,6 +417,17 @@ scheduler:
     event: *checkout-event
     runtime:
       type: shell
+
+  - job: kselftest-dt
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
