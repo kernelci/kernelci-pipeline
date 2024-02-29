@@ -23,6 +23,21 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  result_summary:
+    container_name: 'kernelci-pipeline-result-summary'
+    image: 'kernelci/staging-kernelci'
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
+    entrypoint:
+      - './pipeline/result_summary.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+      - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/output:/home/kernelci/data/output'
+
   scheduler: &scheduler
     container_name: 'kernelci-pipeline-scheduler'
     image: 'kernelci/staging-kernelci'

@@ -1,0 +1,59 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{#
+Template to generate a text-based summary for tast test failures. It
+expects the following input parameters:
+  - from_date: start date of the results query
+  - to_date: end date of the results query
+  - results_per_branch: a dict containing the result test nodes
+    grouped by tree and branch like this:
+
+    results_per_branch = {
+        <tree_1>: {
+            <branch_1>: [
+                test_1,
+                ...
+                test_n
+            ],
+            ...,
+            <branch_n>: ...
+        },
+        ...,
+        <tree_n>: ...
+    }
+#}
+
+Tast test failures between {{ from_date }} and {{ to_date }}
+
+{% if results_per_branch | count == 0 -%}
+No tast failures found.
+{% else -%}
+  {% for tree in results_per_branch %}
+    {% for branch in results_per_branch[tree] %}
+## Failures in {{ tree }}/{{ branch }}:
+      {% for test in results_per_branch[tree][branch] -%}
+        {% set kernel_version = test['data']['kernel_revision'] %}
+    KernelCI node id: {{ test['id'] }}
+    Test name: {{ test['name'] }} ({{ test['group'] }})
+    Date: {{ test['created'] }}
+    Kernel version: {{ kernel_version['describe'] }}
+    Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})
+    Arch : {{ test['data']['arch'] }}
+    Config: {{ test['data']['config_full'] }}
+    Compiler: {{ test['data']['compiler'] }}
+    Error code: {{ test['data']['error_code'] }}
+    Error message: {{ test['data']['error_msg'] }}
+    {% if test['logs'] | count > 0 -%}
+    Logs:
+      {% for log in test['logs'] -%}
+      - {{ log }}: {{ test['logs'][log] }}
+      {% endfor %}
+    {% else -%}
+    No logs available
+    {% endif %}
+      {%- endfor %}
+    {%- endfor %}
+  {%- endfor %}
+{%- endif %}
+
+Tested-by: kernelci.org bot <bot@kernelci.org>
