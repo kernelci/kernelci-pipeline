@@ -75,6 +75,8 @@ class Scheduler(Service):
     def _run_job(self, job_config, runtime, platform, input_node):
         node = self._api_helper.create_job_node(job_config, input_node,
                                                 runtime, platform)
+        if 'debug' in input_node:
+            node['debug'] = input_node['debug']
         job = kernelci.runtime.Job(node, job_config)
         job.platform_config = platform
         job.storage_config = self._storage_config

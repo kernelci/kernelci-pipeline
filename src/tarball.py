@@ -122,6 +122,15 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
 
+    def _dry_run(self, checkout_node):
+        self.log.info(f"Dry-run - node: {checkout_node['id']}")
+        debug_params = checkout_node['debug']
+        describe = debug_params.get('describe', 'v0.1.dry-run')
+        version = self._get_version_from_describe()
+        tarball_url = debug_params.get('tarball',
+                                       'http://dry-run.test/tarball')
+        self._update_node(checkout_node, describe, version, tarball_url)
+
     def _run(self, sub_id):
         self.log.info("Listening for new trigger events")
         self.log.info("Press Ctrl-C to stop.")
@@ -133,14 +142,18 @@ git archive --format=tar --prefix={name}/ HEAD | gzip > {output}/{tarball}
             if build_config is None:
                 continue
 
-            self._update_repo(build_config)
-            describe = kernelci.build.git_describe(
-                build_config.tree.name, self._kdir
-            )
-            version = self._get_version_from_describe()
-            tarball_url = self._push_tarball(build_config, describe)
-            self._update_node(checkout_node, describe, version, tarball_url)
-
+            if (checkout_node.get('debug') and
+                checkout_node['debug'].get('dry_run')):  # noqa
+                self._dry_run(checkout_node)
+            else:
+                self._update_repo(build_config)
+                describe = kernelci.build.git_describe(
+                    build_config.tree.name, self._kdir
+                )
+                version = self._get_version_from_describe()
+                tarball_url = self._push_tarball(build_config, describe)
+                self._update_node(checkout_node, describe,
+                                  version, tarball_url)
         return True
 
 

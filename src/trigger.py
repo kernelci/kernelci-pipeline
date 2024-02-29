@@ -33,7 +33,7 @@ class Trigger(Service):
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
-    def _run_trigger(self, build_config, force, timeout):
+    def _run_trigger(self, build_config, force, timeout, dry_run=None):
         head_commit = kernelci.build.get_branch_head(build_config)
         node_count = self._api.node.count({
             "kind": "checkout",
@@ -72,6 +72,11 @@ class Trigger(Service):
             },
             'timeout': checkout_timeout.isoformat(),
         }
+        if dry_run:
+            node['debug'] = {
+                'dry_run': True,
+                'result': dry_run,
+            }
         try:
             self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
@@ -81,39 +86,31 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, build_configs_list,
-                               timeout):
-        for name, config in self._build_configs.items():
-            if not build_configs_list or name in build_configs_list:
-                self._run_trigger(config, force, timeout)
-
     def _setup(self, args):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
+            'dry_run': args.dry_run,
             'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
             'timeout': args.timeout,
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list, startup_delay, timeout = (
-            ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list', 'startup_delay',
-                'timeout'
-            )
-        )
-
-        if startup_delay:
-            self.log.info(f"Delay: {startup_delay}s")
-            time.sleep(startup_delay)
+        if ctx['startup_delay']:
+            self.log.info(f"Delay: {ctx['startup_delay']}s")
+            time.sleep(ctx['startup_delay'])
 
         while True:
-            self._iterate_build_configs(force, build_configs_list,
-                                        timeout)
-            if poll_period:
-                self.log.info(f"Sleeping for {poll_period}s")
-                time.sleep(poll_period)
+            # Iterate through build configs
+            for name, config in self._build_configs.items():
+                if (not ctx['build_configs_list'] or
+                    name in ctx['build_configs_list']):  # noqa
+                    self._run_trigger(config, ctx['force'],
+                                      ctx['timeout'], ctx['dry_run'])
+            if ctx['poll_period']:
+                self.log.info(f"Sleeping for {ctx['poll_period']}s")
+                time.sleep(ctx['poll_period'])
             else:
                 self.log.info("Not polling.")
                 break
@@ -150,6 +147,13 @@ class cmd_run(Command):
             'name': '--timeout',
             'type': float,
             'help': "Timeout minutes for checkout node",
+        },
+        {
+            'name': '--dry-run',
+            'type': str,
+            'metavar': "RESULT",
+            'help': ("Generates debug checkout nodes with fake "
+                     "pass/fail results")
         },
     ]
 
