@@ -1,0 +1,58 @@
+
+# List of report presets
+#
+# Each item defines a report preset containing a set of search
+# parameters and values. The output for the preset will be formatted
+# using the template in config/reports/<preset-name>.jinja2
+
+# Inside each preset definition, top level blocks define the 'kind' of
+# result to search for, ie. test, kbuild, regression.
+# The dict of items in each block specifies the query parameters:
+#     {query_parameter: value}
+# The query parameter may include suffixes like __gt, __lt or __re to
+# search for values "greater than", "lesser than" or a regexp text
+# match.
+
+# Example, <default-test> preset. Searches for dmesg baseline tests for
+# arm64 in two repo trees, and also for all results for tests whose name
+# contains "mytest":
+#
+# default-test:
+#
+#   test:
+#     # Query by group, name, arch and list of repos
+#     - group__re: baseline
+#       name: dmesg
+#       arch: arm64
+#       repos:
+#         - tree: stable-rc
+#           branch: linux-5.4.y
+#         - tree: stable-rc
+#           branch: linux-5.15.y
+#         - tree: mytree
+#     # Query by name
+#     - name_re: mytest
+
+
+
+
+# stable-rc kernel build regressions
+stable-rc-build:
+  regression:
+    - name__re: kbuild
+      repos:
+        - tree: stable-rc
+
+# stable-rc kernel boot regressions
+stable-rc-boot:
+  regression:
+    - group__re: baseline
+      repos:
+        - tree: stable-rc
+
+# tast test failures
+tast-failures:
+  test:
+    - group__re: tast
+      name__ne: tast
+      result: fail
