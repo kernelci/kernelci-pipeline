@@ -36,6 +36,87 @@ _anchors:
         - platform.CheckDiskSpace
         - platform.TPMResponsive
 
+  tast-decoder-chromestack: &tast-decoder-chromestack-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.ChromeStackDecoder.*
+        - video.ChromeStackDecoderVerification.*
+
+  tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateful_h264_*
+
+  tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateful_hevc_*
+
+  tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateful_vp8_*
+
+  tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group3_*
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_*
+
+  tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_svc
+
+  tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_av1_*
+
+  tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_h264_*
+
+  tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_hevc_*
+
+  tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_vp8_*
+
+  tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_group3_*
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_group4_*
+
+  tast-decoder-v4l2-sl-vp9-extra: &tast-decoder-v4l2-sl-vp9-extra-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
+        - video.PlatformDecoding.v4l2_stateless_vp9_0_svc
+
   tast-hardware: &tast-hardware-job
     <<: *tast-job
     params:
@@ -74,6 +155,51 @@ _anchors:
         - kernel.HighResTimers
         - kernel.Limits
         - kernel.PerfCallgraph
+
+  tast-mm-decode: &tast-mm-decode-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group2_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group3_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group4_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_level5_0_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_level5_1_buf
+        - video.PlatformDecoding.ffmpeg_vaapi_av1
+        - video.PlatformDecoding.ffmpeg_vaapi_vp8_inter
+        - video.PlatformDecoding.ffmpeg_vaapi_h264_baseline
+        - video.PlatformDecoding.ffmpeg_vaapi_h264_main
+        - video.PlatformDecoding.ffmpeg_vaapi_hevc_main
+        - video.PlatformDecoding.vaapi_vp9_0_group1_buf
+        - video.PlatformDecoding.vaapi_vp9_0_group2_buf
+        - video.PlatformDecoding.vaapi_vp9_0_group3_buf
+        - video.PlatformDecoding.vaapi_vp9_0_group4_buf
+        - video.PlatformDecoding.vaapi_vp9_0_level5_0_buf
+        - video.PlatformDecoding.vaapi_vp9_0_level5_1_buf
+
+  tast-mm-encode: &tast-mm-encode-job
+    <<: *tast-job
+    params:
+      tests:
+        - video.EncodeAccel.h264_1080p_global_vaapi_lock_disabled
+        - video.EncodeAccel.vp8_1080p_global_vaapi_lock_disabled
+        - video.EncodeAccel.vp9_1080p_global_vaapi_lock_disabled
+        - video.EncodeAccelPerf.h264_1080p_global_vaapi_lock_disabled
+        - video.EncodeAccelPerf.vp8_1080p_global_vaapi_lock_disabled
+        - video.EncodeAccelPerf.vp9_1080p_global_vaapi_lock_disabled
+        - video.PlatformEncoding.vaapi_vp8_720
+        - video.PlatformEncoding.vaapi_vp8_720_meet
+        - video.PlatformEncoding.vaapi_vp9_720
+        - video.PlatformEncoding.vaapi_vp9_720_meet
+        - video.PlatformEncoding.vaapi_h264_720
+        - video.PlatformEncoding.vaapi_h264_720_meet
+        - webrtc.MediaRecorderMulti.vp8_vp8_global_vaapi_lock_disabled
+        - webrtc.MediaRecorderMulti.vp8_h264_global_vaapi_lock_disabled
+        - webrtc.MediaRecorderMulti.h264_h264_global_vaapi_lock_disabled
+        - webrtc.RTCPeerConnectionPerf.vp8_hw_multi_vp9_3x3_global_vaapi_lock_disabled
+        - webrtc.RTCPeerConnectionPerf.vp8_hw_multi_vp9_4x4_global_vaapi_lock_disabled
+        - webrtc.RTCPeerConnectionPerf.vp9_hw_multi_vp9_3x3_global_vaapi_lock_disabled
 
   tast-mm-misc: &tast-mm-misc-job
     <<: *tast-job
@@ -213,12 +339,6 @@ _anchors:
         - ui.HotseatAnimation.shelf_with_navigation_widget_lacros
         - ui.WindowControl
 
-  tast-video: &tast-video-job
-    <<: *tast-job
-    params:
-      tests:
-        - video.ChromeStackDecoder.*
-
 jobs:
 
   baseline-arm64-chromeos-mediatek: &baseline-job
@@ -259,6 +379,23 @@ jobs:
   tast-basic-x86-pineview: *tast-basic-job
   tast-basic-x86-stoneyridge: *tast-basic-job
 
+  tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
+  tast-decoder-chromestack-arm64-qualcomm: *tast-decoder-chromestack-job
+  tast-decoder-chromestack-x86-pineview: *tast-decoder-chromestack-job
+  tast-decoder-chromestack-x86-stoneyridge: *tast-decoder-chromestack-job
+
+  tast-decoder-v4l2-sl-av1-arm64-mediatek: *tast-decoder-v4l2-sl-av1-job
+  tast-decoder-v4l2-sl-h264-arm64-mediatek: *tast-decoder-v4l2-sl-h264-job
+  tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
+  tast-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-decoder-v4l2-sl-vp8-job
+  tast-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-decoder-v4l2-sl-vp9-job
+
+  tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
+  tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
+  tast-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-decoder-v4l2-sf-vp8-job
+  tast-decoder-v4l2-sf-vp9-arm64-qualcomm: *tast-decoder-v4l2-sf-vp9-job
+  tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm: *tast-decoder-v4l2-sf-vp9-extra-job
+
   tast-hardware-arm64-mediatek: *tast-hardware-job
   tast-hardware-arm64-qualcomm: *tast-hardware-job
   tast-hardware-x86-pineview: *tast-hardware-job
@@ -268,6 +405,9 @@ jobs:
   tast-kernel-arm64-qualcomm: *tast-kernel-job
   tast-kernel-x86-pineview: *tast-kernel-job
   tast-kernel-x86-stoneyridge: *tast-kernel-job
+
+  tast-mm-decode-arm64-mediatek: *tast-mm-decode-job
+  tast-mm-decode-arm64-qualcomm: *tast-mm-decode-job
 
   tast-mm-misc-arm64-mediatek: *tast-mm-misc-job
   tast-mm-misc-arm64-qualcomm: *tast-mm-misc-job
@@ -303,8 +443,3 @@ jobs:
   tast-ui-arm64-qualcomm: *tast-ui-job
   tast-ui-x86-pineview: *tast-ui-job
   tast-ui-x86-stoneyridge: *tast-ui-job
-
-  tast-video-arm64-mediatek: *tast-video-job
-  tast-video-arm64-qualcomm: *tast-video-job
-  tast-video-x86-pineview: *tast-video-job
-  tast-video-x86-stoneyridge: *tast-video-job
