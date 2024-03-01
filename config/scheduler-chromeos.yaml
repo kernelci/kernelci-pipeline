@@ -128,6 +128,62 @@ scheduler:
   - job: tast-basic-x86-stoneyridge
     <<: *test-job-stoneyridge
 
+  - job: tast-decoder-chromestack-arm64-mediatek
+    <<: *test-job-mediatek
+
+  - job: tast-decoder-chromestack-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-chromestack-x86-pineview
+    <<: *test-job-pineview
+
+  - job: tast-decoder-chromestack-x86-stoneyridge
+    <<: *test-job-stoneyridge
+
+  - job: tast-decoder-v4l2-sl-av1-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-decoder-v4l2-sl-h264-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-decoder-v4l2-sl-hevc-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-decoder-v4l2-sl-vp8-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-decoder-v4l2-sl-vp9-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-decoder-v4l2-sf-h264-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-v4l2-sf-hevc-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-v4l2-sf-vp8-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-v4l2-sf-vp9-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm
+    <<: *test-job-qualcomm
+
   - job: tast-hardware-arm64-mediatek
     <<: *test-job-mediatek
 
@@ -151,6 +207,15 @@ scheduler:
 
   - job: tast-kernel-x86-stoneyridge
     <<: *test-job-stoneyridge
+
+  - job: tast-mm-decode-arm64-mediatek
+    <<: *test-job-mediatek
+    platforms:
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: tast-mm-decode-arm64-qualcomm
+    <<: *test-job-qualcomm
 
   - job: tast-mm-misc-arm64-mediatek
     <<: *test-job-mediatek
@@ -234,16 +299,4 @@ scheduler:
     <<: *test-job-pineview
 
   - job: tast-ui-x86-stoneyridge
-    <<: *test-job-stoneyridge
-
-  - job: tast-video-arm64-mediatek
-    <<: *test-job-mediatek
-
-  - job: tast-video-arm64-qualcomm
-    <<: *test-job-qualcomm
-
-  - job: tast-video-x86-pineview
-    <<: *test-job-pineview
-
-  - job: tast-video-x86-stoneyridge
     <<: *test-job-stoneyridge
