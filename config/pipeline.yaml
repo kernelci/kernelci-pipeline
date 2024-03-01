@@ -117,11 +117,7 @@ runtimes:
   k8s-all:
     lab_type: kubernetes
     context:
-      - 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
-      - 'gke_android-kernelci-external_europe-west1-d_kci-eu-west1'
-      - 'gke_android-kernelci-external_us-central1-c_kci-us-central1'
-      - 'gke_android-kernelci-external_us-east4-c_kci-big-us-east4'
-      - 'gke_android-kernelci-external_us-west1-a_kci-us-west1'
+      - 'aks-kbuild-medium-1'
 
   lava-broonie:
     lab_type: lava
