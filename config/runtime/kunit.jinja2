@@ -64,8 +64,8 @@ cd {src_path}
     def _upload_artifacts(self, local_artifacts):
         artifacts = {}
         storage = self._get_storage()
-        if storage and NODE:
-            root_path = '-'.join([JOB_NAME, NODE['id']])
+        if storage and self._node:
+            root_path = '-'.join([JOB_NAME, self._node['id']])
             print(f"Uploading artifacts to {root_path}")
             for file_name, file_path in local_artifacts.items():
                 # Normalize field names
@@ -139,12 +139,12 @@ cd {src_path}
 
         return results
 
-    def _submit(self, result, node, api):
+    def _submit(self, result):
         # Ensure top-level name is kept the same
         result = result.copy()
-        result['node']['name'] = node['name']
-        api_helper = kernelci.api.helper.APIHelper(api)
-        api_helper.submit_results(result, node)
+        result['node']['name'] = self._node['name']
+        api_helper = kernelci.api.helper.APIHelper(self._api)
+        api_helper.submit_results(result, self._node)
 
         return node
 {% endblock %}

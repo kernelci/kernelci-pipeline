@@ -39,9 +39,8 @@ KBUILD_PARAMS = {
 WORKSPACE = '/tmp/kci'
 
 def main(args):
-    build = KBuild(node=NODE, jobname=JOB_NAME, params=KBUILD_PARAMS)
+    build = KBuild(node=NODE, jobname=JOB_NAME, params=KBUILD_PARAMS, apiconfig=API_CONFIG_YAML)
     build.set_workspace(WORKSPACE)
-    build.set_api_config(API_CONFIG_YAML)
     build.set_storage_config(STORAGE_CONFIG_YAML)
     build.write_script("build.sh")
     build.serialize("_build.json")
