@@ -128,6 +128,9 @@ runtimes:
       callback:
         token: kernelci-new-api-callback
         url: https://staging.kernelci.org:9100
+    rules:
+      tree:
+      - '!android'
 
   lava-collabora: &lava-collabora-staging
     lab_type: lava
@@ -138,6 +141,9 @@ runtimes:
       callback:
         token: kernelci-api-token-staging
         url: https://staging.kernelci.org:9100
+    rules:
+      tree:
+      - '!android'
 
   # ToDo: avoid creating a separate Runtime entry
   # https://github.com/kernelci/kernelci-core/issues/2088
@@ -149,10 +155,8 @@ runtimes:
         url: https://staging.kernelci.org:9100
 
   lava-collabora-staging:
-    lab_type: lava
+    <<: *lava-collabora-staging
     url: https://staging.lava.collabora.dev/
-    priority_min: 40
-    priority_max: 60
     notify:
       callback:
         token: kernelci-api-token-lava-staging
