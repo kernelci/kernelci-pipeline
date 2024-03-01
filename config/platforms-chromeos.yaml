@@ -8,6 +8,12 @@ _anchors:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-{mach}
         image: 'kernel/Image'
       nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/arm64
+    rules: &arm64-chromebook-device-rules
+      defconfig:
+        - '!allnoconfig'
+        - '!allmodconfig'
+      fragments:
+        - 'arm64-chromebook'
 
   x86-chromebook-device: &x86-chromebook-device
     arch: x86_64
@@ -18,6 +24,10 @@ _anchors:
         url: https://storage.chromeos.kernelci.org/images/kernel/cros-20230815-amd64/clang-14
         image: 'kernel/bzImage'
       nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/amd64
+    rules:
+      <<: *arm64-chromebook-device-rules
+      fragments:
+        - 'x86-board'
 
 platforms:
   acer-R721T-grunt: &chromebook-grunt-device
