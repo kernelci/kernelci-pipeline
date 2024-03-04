@@ -31,6 +31,24 @@ class RegressionTracker(Service):
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
 
+    def _collect_logs(self, node):
+        """Returns a dict containing the log artifacts of <node>. Log
+        artifacts are those named 'log' or whose name contains the
+        '_log' suffix. If <node> doesn't have any artifacts, the
+        search will continue upwards through parent nodes until reaching
+        a node that has them.
+        """
+        logs = {}
+        if node.get('artifacts'):
+            for artifact, value in node['artifacts'].items():
+                if artifact == 'log' or '_log' in artifact:
+                    logs[artifact] = value
+        elif node.get('parent'):
+            parent = self._api.node.get(node['parent'])
+            if parent:
+                logs = self._collect_logs(parent)
+        return logs
+
     def _create_regression(self, failed_node, last_pass_node):
         """Method to create a regression"""
         regression = {}
@@ -48,6 +66,7 @@ class RegressionTracker(Service):
             'platform': failed_node['data'].get('platform'),
             'failed_kernel_version': failed_node['data'].get('kernel_revision'),   # noqa
         }
+        regression['artifacts'] = self._collect_logs(failed_node)
         resp = self._api_helper.submit_regression(regression)
         reg = json.loads(resp.text)
         self.log.info(f"Regression submitted: {reg['id']}")
