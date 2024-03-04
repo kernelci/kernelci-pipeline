@@ -136,6 +136,11 @@ platforms:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-mediatek
         image: 'kernel/Image'
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20240129.0/arm64/tast.tgz
+    rules:
+      <<: *arm64-chromebook-device-rules
+      min_version:
+        version: 6
+        patchlevel: 1
 
   mt8186-corsola-steelix-sku131072:
     <<: *mediatek-chromebook-device
@@ -146,6 +151,11 @@ platforms:
         url: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240129.0/arm64
         image: 'Image'
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240129.0/arm64/tast.tgz
+    rules:
+      <<: *arm64-chromebook-device-rules
+      min_version:
+        version: 6
+        patchlevel: 9
 
   mt8192-asurada-spherion-r0:
     <<: *mediatek-chromebook-device
@@ -153,6 +163,11 @@ platforms:
     params:
       <<: *mediatek-chromebook-device-params
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20240129.0/arm64/tast.tgz
+    rules:
+      <<: *arm64-chromebook-device-rules
+      min_version:
+        version: 6
+        patchlevel: 4
 
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
@@ -160,6 +175,11 @@ platforms:
     params:
       <<: *mediatek-chromebook-device-params
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20240129.0/arm64/tast.tgz
+    rules:
+      <<: *arm64-chromebook-device-rules
+      min_version:
+        version: 6
+        patchlevel: 7
 
   sc7180-trogdor-kingoftown: &trogdor-chromebook-device
     <<: *arm64-chromebook-device
