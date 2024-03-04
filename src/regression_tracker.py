@@ -44,6 +44,7 @@ class RegressionTracker(Service):
             'pass_node': last_pass_node['id'],
             'arch': failed_node['data'].get('arch'),
             'defconfig': failed_node['data'].get('defconfig'),
+            'config_full': failed_node['data'].get('config_full'),
             'compiler': failed_node['data'].get('compiler'),
             'platform': failed_node['data'].get('platform'),
             'failed_kernel_version': failed_node['data'].get('kernel_revision'),   # noqa
@@ -67,6 +68,7 @@ class RegressionTracker(Service):
                 fail_node['data']['kernel_revision']['url'],
             'data.arch': fail_node['data']['arch'],
             'data.defconfig': fail_node['data']['defconfig'],
+            'data.config_full': fail_node['data']['config_full'],
             'data.compiler': fail_node['data']['compiler'],
             'data.platform': fail_node['data']['platform'],
             'created__lt': fail_node['created'],
