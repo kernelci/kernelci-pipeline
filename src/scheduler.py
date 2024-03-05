@@ -109,6 +109,14 @@ class Scheduler(Service):
                 err_msg = json.loads(err.response.content).get("detail", [])
                 self.log.error(err_msg)
             return
+        # Process potential f-strings in `params` with configured job params
+        # and platform attributes
+        kernel_revision = job_node['data']['kernel_revision']['version']
+        extra_args = {
+            'krev': f"{kernel_revision['version']}.{kernel_revision['patchlevel']}"
+        }
+        extra_args.update(job.config.params)
+        params = job.platform_config.format_params(params, extra_args)
         data = runtime.generate(job, params)
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
