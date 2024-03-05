@@ -77,7 +77,18 @@ class Scheduler(Service):
                                                 runtime, platform)
         if not node:
             return
-        job = kernelci.runtime.Job(node, job_config)
+        # Most of the time, the artifacts we need originate from the parent
+        # node. Import those into the current node, working on a copy so the
+        # original node doesn't get "polluted" with useless artifacts when we
+        # update it with the results
+        job_node = node.copy()
+        if job_node.get('parent'):
+            parent_node = self._api.node.get(job_node['parent'])
+            if job_node.get('artifacts'):
+                job_node['artifacts'].update(parent_node['artifacts'])
+            else:
+                job_node['artifacts'] = parent_node['artifacts']
+        job = kernelci.runtime.Job(job_node, job_config)
         job.platform_config = platform
         job.storage_config = self._storage_config
         params = runtime.get_params(job, self._api.config)
