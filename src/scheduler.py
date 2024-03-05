@@ -150,9 +150,10 @@ class Scheduler(Service):
 
         while True:
             event = self._api_helper.receive_event_data(sub_id)
-            for job, runtime, platform in self._sched.get_schedule(event):
+            for job, runtime, platform, rules in self._sched.get_schedule(event):
                 input_node = self._api.node.get(event['id'])
-                self._run_job(job, runtime, platform, input_node)
+                if self._api_helper.should_create_node(rules, input_node):
+                    self._run_job(job, runtime, platform, input_node)
 
         return True
 
