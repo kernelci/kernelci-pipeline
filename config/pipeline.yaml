@@ -179,6 +179,16 @@ jobs:
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
 
+  kbuild-gcc-10-arm64-dtbscheck:
+    <<: *kbuild-gcc-10-arm64-job
+    kind: test
+    params:
+      <<: *kbuild-gcc-10-arm64-params
+      dtbs_check: true
+    rules:
+      tree: next
+      branch: 'master'
+
   kbuild-gcc-10-armel:
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
@@ -389,6 +399,9 @@ scheduler:
       - minnowboard-turbot-E3826
 
   - job: kbuild-gcc-10-arm64
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm64-dtbscheck
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-armel
