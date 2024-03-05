@@ -9,7 +9,8 @@ _anchors:
       compiler: gcc-10
       cross_compile: 'aarch64-linux-gnu-'
       cross_compile_compat: 'arm-linux-gnueabihf-'
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{arch}-generic.flavour.config'
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{flavour}.flavour.config'
+      flavour: '{arch}-generic'
       fragments:
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
@@ -20,7 +21,8 @@ _anchors:
     params: &kbuild-gcc-10-x86-chromeos-params
       arch: x86_64
       compiler: gcc-10
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{arch}-generic.flavour.config'
+      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-{flavour}.flavour.config'
+      flavour: '{arch}-generic'
       fragments:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
@@ -234,25 +236,25 @@ jobs:
     <<: *kbuild-gcc-10-arm64-chromeos-job
     params:
       <<: *kbuild-gcc-10-arm64-chromeos-params
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-mediatek.flavour.config'
+      flavour: mediatek
 
   kbuild-gcc-10-arm64-chromeos-qualcomm:
     <<: *kbuild-gcc-10-arm64-chromeos-job
     params:
       <<: *kbuild-gcc-10-arm64-chromeos-params
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-qualcomm.flavour.config'
+      flavour: qualcomm
 
   kbuild-gcc-10-x86-chromeos-pineview:
     <<: *kbuild-gcc-10-x86-chromeos-job
     params:
       <<: *kbuild-gcc-10-x86-chromeos-params
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-intel-pineview.flavour.config'
+      flavour: intel-pineview
 
   kbuild-gcc-10-x86-chromeos-stoneyridge:
     <<: *kbuild-gcc-10-x86-chromeos-job
     params:
       <<: *kbuild-gcc-10-x86-chromeos-params
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-amd-stoneyridge.flavour.config'
+      flavour: amd-stoneyridge
 
   tast-basic-arm64-mediatek: *tast-basic-job
   tast-basic-arm64-qualcomm: *tast-basic-job

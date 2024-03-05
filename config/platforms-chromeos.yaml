@@ -8,6 +8,7 @@ _anchors:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-{mach}
         image: 'kernel/Image'
       nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/arm64
+      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/arm64/tast.tgz
     rules: &arm64-chromebook-device-rules
       defconfig:
         - '!allnoconfig'
@@ -19,11 +20,12 @@ _anchors:
     arch: x86_64
     boot_method: depthcharge
     mach: x86
-    params: &x86-chromebook-device-params
+    params:
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/cros-20230815-amd64/clang-14
         image: 'kernel/bzImage'
       nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/amd64
+      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/amd64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       fragments:
@@ -32,77 +34,53 @@ _anchors:
 platforms:
   acer-R721T-grunt: &chromebook-grunt-device
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20240129.0/amd64/tast.tgz
+    base_name: grunt
 
   acer-cb317-1h-c3z6-dedede:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20240129.0/amd64/tast.tgz
+    base_name: dedede
 
   acer-cbv514-1h-34uz-brya:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-brya/20240129.0/amd64/tast.tgz
+    base_name: brya
 
   acer-chromebox-cxi4-puff:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-puff/20240129.0/amd64/tast.tgz
+    base_name: puff
 
   acer-cp514-2h-1160g7-volteer: &chromebook-volteer-device
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20240129.0/amd64/tast.tgz
+    base_name: volteer
 
   acer-cp514-3wh-r0qs-guybrush:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-guybrush/20240129.0/amd64/tast.tgz
+    base_name: guybrush
 
   asus-C433TA-AJ0005-rammus:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20240129.0/amd64/tast.tgz
+    base_name: rammus
 
   asus-C436FA-Flip-hatch:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20240129.0/amd64/tast.tgz
+    base_name: hatch
 
   asus-C523NA-A20057-coral:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20240129.0/amd64/tast.tgz
+    base_name: coral
 
   asus-CM1400CXA-dalboz_chromeos: &chromebook-zork-device
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20240129.0/amd64/tast.tgz
+    base_name: zork
 
   asus-cx9400-volteer: *chromebook-volteer-device
 
   dell-latitude-3445-7520c-skyrim:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-skyrim/20240129.0/amd64/tast.tgz
+    base_name: skyrim
 
   dell-latitude-5300-8145U-arcada: &chromebook-sarien-device
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20240129.0/amd64/tast.tgz
+    base_name: sarien
 
   dell-latitude-5400-4305U-sarien: *chromebook-sarien-device
   dell-latitude-5400-8665U-sarien: *chromebook-sarien-device
@@ -112,15 +90,11 @@ platforms:
 
   hp-x360-14-G1-sona:
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20240129.0/amd64/tast.tgz
+    base_name: nami
 
   hp-x360-12b-ca0010nr-n4020-octopus: &chromebook-octopus-device
     <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20240129.0/amd64/tast.tgz
+    base_name: octopus
 
   hp-x360-12b-ca0500na-n4000-octopus: *chromebook-octopus-device
   hp-x360-14a-cb0001xx-zork: *chromebook-zork-device
@@ -128,14 +102,9 @@ platforms:
 
   mt8183-kukui-jacuzzi-juniper-sku16: &mediatek-chromebook-device
     <<: *arm64-chromebook-device
+    base_name: jacuzzi
     mach: mediatek
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
-    params: &mediatek-chromebook-device-params
-      <<: *arm64-chromebook-device-params
-      flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-mediatek
-        image: 'kernel/Image'
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20240129.0/arm64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -144,13 +113,13 @@ platforms:
 
   mt8186-corsola-steelix-sku131072:
     <<: *mediatek-chromebook-device
+    base_name: corsola
     dtb: dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb
     params:
-      <<: *mediatek-chromebook-device-params
+      <<: *arm64-chromebook-device-params
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240129.0/arm64
         image: 'Image'
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240129.0/arm64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -159,10 +128,8 @@ platforms:
 
   mt8192-asurada-spherion-r0:
     <<: *mediatek-chromebook-device
+    base_name: asurada
     dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
-    params:
-      <<: *mediatek-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20240129.0/arm64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -171,10 +138,8 @@ platforms:
 
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
+    base_name: cherry
     dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
-    params:
-      <<: *mediatek-chromebook-device-params
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-cherry/20240129.0/arm64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -183,6 +148,7 @@ platforms:
 
   sc7180-trogdor-kingoftown: &trogdor-chromebook-device
     <<: *arm64-chromebook-device
+    base_name: trogdor
     mach: qcom
     dtb: dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
     params:
@@ -190,7 +156,6 @@ platforms:
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm
         image: 'kernel/Image'
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20240129.0/arm64/tast.tgz
 
   sc7180-trogdor-lazor-limozeen:
     <<: *trogdor-chromebook-device
