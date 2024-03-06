@@ -49,6 +49,25 @@ class RegressionTracker(Service):
                 logs = self._collect_logs(parent)
         return logs
 
+    def _collect_errors(self, node):
+        """Returns a dict containing the 'error_code' and 'error_msg'
+        data fields of <node>. If <node> doesn't have any info in them,
+        it searches upwards through parent nodes until it reaches a node
+        that has them.
+        """
+        if node['data'].get('error_code'):
+            return {
+                'error_code': node['data']['error_code'],
+                'error_msg': node['data']['error_msg']
+            }
+        elif node.get('parent'):
+            parent = self._api.node.get(node['parent'])
+            return self._collect_errors(parent)
+        return {
+            'error_code': None,
+            'error_msg': None
+        }
+
     def _create_regression(self, failed_node, last_pass_node):
         """Method to create a regression"""
         regression = {}
@@ -57,6 +76,7 @@ class RegressionTracker(Service):
         regression['path'] = failed_node['path']
         regression['group'] = failed_node['group']
         regression['state'] = 'done'
+        error = self._collect_errors(failed_node)
         regression['data'] = {
             'fail_node': failed_node['id'],
             'pass_node': last_pass_node['id'],
@@ -66,6 +86,8 @@ class RegressionTracker(Service):
             'compiler': failed_node['data'].get('compiler'),
             'platform': failed_node['data'].get('platform'),
             'failed_kernel_version': failed_node['data'].get('kernel_revision'),   # noqa
+            'error_code': error['error_code'],
+            'error_msg': error['error_msg'],
         }
         regression['artifacts'] = self._collect_logs(failed_node)
         resp = self._api_helper.submit_regression(regression)
