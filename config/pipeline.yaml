@@ -221,6 +221,10 @@ jobs:
 
   kbuild-gcc-10-x86:
     <<: *kbuild-gcc-10-x86-job
+    params:
+      <<: *kbuild-gcc-10-x86-params
+      fragments:
+        - 'x86-board'
 
   kunit: &kunit-job
     template: kunit.jinja2
@@ -244,6 +248,13 @@ jobs:
       collections: dt
       job_timeout: 10
 
+  # amd64-only temporary
+  sleep:
+    template: sleep.jinja2
+    kind: test
+    params:
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{arch}
+      sleep_params: mem freeze
 
 trees:
 
@@ -445,6 +456,17 @@ scheduler:
       name: lava-collabora
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: sleep
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - acer-chromebox-cxi4-puff
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
