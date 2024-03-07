@@ -23,7 +23,7 @@
 #     # Query by group, name, arch and list of repos
 #     - group__re: baseline
 #       name: dmesg
-#       arch: arm64
+#       data.arch: arm64
 #       repos:
 #         - tree: stable-rc
 #           branch: linux-5.4.y
@@ -56,3 +56,10 @@ tast-failures:
     - group__re: tast
       name__ne: tast
       result: fail
+
+# tast test regression
+tast-regressions-x86_64:
+  regression:
+    - group__re: tast
+      name__ne: tast
+      data.arch: x86_64
