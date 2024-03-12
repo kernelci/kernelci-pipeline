@@ -253,6 +253,7 @@ jobs:
     template: kselftest.jinja2
     kind: test
     params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{arch}'
       collections: dt
       job_timeout: 10
 
