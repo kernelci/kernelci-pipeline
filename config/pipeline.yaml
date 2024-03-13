@@ -170,6 +170,21 @@ runtimes:
         token: kernelci-api-token-lava-staging
         url: https://staging.kernelci.org:9100
 
+  lava-baylibre:
+    lab_type: lava
+    url: 'https://lava.baylibre.com/'
+    priority_min: 50
+    priority_max: 70
+    notify:
+      callback:
+        token: kernelci-new-api
+        url: https://staging.kernelci.org:9100
+    rules:
+      tree:
+      - kernelci
+      - mainline
+      - next
+
   shell:
     lab_type: shell
 
