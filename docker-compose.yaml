@@ -88,6 +88,7 @@ services:
       - 'lava-collabora'
       - 'lava-collabora-staging'
       - 'lava-broonie'
+      - 'lava-baylibre'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
