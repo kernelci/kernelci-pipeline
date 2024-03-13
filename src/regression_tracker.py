@@ -97,7 +97,7 @@ class RegressionTracker(Service):
     def _detect_regression(self, fail_node):
         """Detects if <fail_node> (a failed job) produces a regression,
         ie. if the previous job run with the same parameters passed"""
-        previous_nodes = self._api.node.find({
+        search_params = {
             'name': fail_node['name'],
             'group': fail_node['group'],
             'path': fail_node['path'],
@@ -107,14 +107,16 @@ class RegressionTracker(Service):
                 fail_node['data']['kernel_revision']['branch'],
             'data.kernel_revision.url':
                 fail_node['data']['kernel_revision']['url'],
-            'data.arch': fail_node['data']['arch'],
-            'data.defconfig': fail_node['data']['defconfig'],
-            'data.config_full': fail_node['data']['config_full'],
-            'data.compiler': fail_node['data']['compiler'],
-            'data.platform': fail_node['data']['platform'],
             'created__lt': fail_node['created'],
-            'state': 'done'
-        })
+            'state': 'done',
+            # Parameters that may be null in some test nodes
+            'data.arch': fail_node['data'].get('arch', 'null'),
+            'data.defconfig': fail_node['data'].get('defconfig', 'null'),
+            'data.config_full': fail_node['data'].get('config_full', 'null'),
+            'data.compiler': fail_node['data'].get('compiler', 'null'),
+            'data.platform': fail_node['data'].get('platform', 'null'),
+        }
+        previous_nodes = self._api.node.find(search_params)
         if not previous_nodes:
             return
         previous_node = sorted(
