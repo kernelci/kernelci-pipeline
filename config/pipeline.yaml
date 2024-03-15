@@ -179,11 +179,11 @@ runtimes:
       callback:
         token: kernelci-new-api
         url: https://staging.kernelci.org:9100
-    rules:
-      tree:
-      - kernelci
-      - mainline
-      - next
+    # rules:
+    #   tree:
+    #   - kernelci
+    #   - mainline
+    #   - next
 
   shell:
     lab_type: shell
