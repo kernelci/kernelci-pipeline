@@ -118,6 +118,23 @@ class Scheduler(Service):
         extra_args.update(job.config.params)
         params = job.platform_config.format_params(params, extra_args)
         data = runtime.generate(job, params)
+        if not data:
+            self.log.error(' '.join([
+                node['id'],
+                runtime.config.name,
+                platform.name,
+                job_config.name,
+                "Failed to generate job definition, aborting...",
+            ]))
+            node['state'] = 'done'
+            node['result'] = 'fail'
+            node['data']['error_code'] = 'job_generation_error'
+            try:
+                self._api.node.update(node)
+            except requests.exceptions.HTTPError as err:
+                err_msg = json.loads(err.response.content).get("detail", [])
+                self.log.error(err_msg)
+            return
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
         try:
