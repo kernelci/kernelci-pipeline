@@ -73,12 +73,6 @@ class TestReport(Service):
         failures = [
             node for node in failures if node['id']
         ]
-
-        parent_path_len = len(root_node['path'])
-        for node in failures:
-            if node['id'] == root_node['id']:
-                parent_path_len = len(checkout_node['path'])
-            node['path'] = '.'.join(node['path'][parent_path_len:])
         return {'root': root_node, 'nodes': job_nodes, 'failures': failures}
 
     def _get_jobs(self, root_node):
