@@ -119,7 +119,7 @@ class ResultSummary(Service):
                         new_repo[f'data.kernel_revision.{key}'] = value
                     repos.append(new_repo)
             for key, value in item.items():
-                item_base_params[key] = value
+                item_base_params[key] = value if value else 'null'
             if repos:
                 for repo in repos:
                     query_params.append({**item_base_params, **repo})
