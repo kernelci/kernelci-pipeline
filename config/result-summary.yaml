@@ -57,9 +57,20 @@ tast-failures:
       name__ne: tast
       result: fail
 
-# tast test regression
+# tast tests regressions for x86_64 targets
+# Collect only regressions that aren't caused by runtime errors
 tast-regressions-x86_64:
   regression:
     - group__re: tast
       name__ne: tast
       data.arch: x86_64
+      # Get only the regressions from results with no runtime errors
+      data.error_code: null
+
+# tast tests regressions for x86_64 targets caused by runtime errors
+tast-regressions-x86_64__runtime_errors:
+  regression:
+    - group__re: tast
+      name__ne: tast
+      data.arch: x86_64
+      data.error_code__ne: null
