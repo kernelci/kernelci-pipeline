@@ -43,8 +43,12 @@ No regressions found.
     Arch : {{ regression['data']['arch'] }}
     Config: {{ regression['data']['config_full'] }}
     Compiler: {{ regression['data']['compiler'] }}
-    Error code: {{ regression['data']['error_code'] }}
-    Error message: {{ regression['data']['error_msg'] }}
+    {% if regression['data']['error_code'] -%}
+        Error code: {{ regression['data']['error_code'] }}
+    {% endif -%}
+    {% if regression['data']['error_msg'] -%}
+        Error message: {{ regression['data']['error_msg'] }}
+    {% endif -%}
     {% if regression['logs'] | count > 0 -%}
     Logs:
       {% for log in regression['logs'] -%}
