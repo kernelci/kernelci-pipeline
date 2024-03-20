@@ -1,6 +1,6 @@
 _anchors:
 
-  amd-stoneyridge-platforms: &amd-stoneyridge-platforms
+  amd-platforms: &amd-platforms
     - acer-R721T-grunt
     - acer-cp514-3wh-r0qs-guybrush
     - asus-CM1400CXA-dalboz_chromeos
@@ -11,7 +11,7 @@ _anchors:
     - hp-x360-14a-cb0001xx-zork
     - lenovo-TPad-C13-Yoga-zork
 
-  intel-pineview-platforms: &intel-pineview-platforms
+  intel-platforms: &intel-platforms
     - acer-cb317-1h-c3z6-dedede
     - acer-cbv514-1h-34uz-brya
     - acer-chromebox-cxi4-puff
@@ -64,7 +64,7 @@ _anchors:
       channel: node
       name: kbuild-gcc-10-x86-chromeos-pineview
       result: pass
-    platforms: *intel-pineview-platforms
+    platforms: *intel-platforms
 
   test-job-qualcomm: &test-job-qualcomm
     <<: *lava-job-collabora
@@ -80,7 +80,7 @@ _anchors:
       channel: node
       name: kbuild-gcc-10-x86-chromeos-stoneyridge
       result: pass
-    platforms: *amd-stoneyridge-platforms
+    platforms: *amd-platforms
 
 scheduler:
 
