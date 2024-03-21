@@ -178,10 +178,13 @@ class ResultSummary(Service):
         params = self._parse_config()
 
         # Collect results
+        nodes = []
         for params_set in params:
             self.log.debug(f"Query: {params_set}")
-            nodes = self._iterate_node_find(params_set)
-            self.log.info(f"Total matches found: {len(nodes)}")
+            query_results = self._iterate_node_find(params_set)
+            self.log.debug(f"Query matches found: {len(query_results)}")
+            nodes.extend(query_results)
+        self.log.info(f"Total nodes found: {len(nodes)}")
 
         # Filter log files
         # - remove empty files
