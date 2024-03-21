@@ -101,7 +101,7 @@ class Scheduler(Service):
                 "Invalid job parameters, aborting...",
             ]))
             node['state'] = 'done'
-            node['result'] = 'fail'
+            node['result'] = 'incomplete'
             node['data']['error_code'] = 'invalid_job_params'
             try:
                 self._api.node.update(node)
@@ -131,7 +131,7 @@ class Scheduler(Service):
                 str(e),
             ]))
             node['state'] = 'done'
-            node['result'] = 'fail'
+            node['result'] = 'incomplete'
             node['data']['error_code'] = 'submit_error'
             try:
                 self._api.node.update(node)
