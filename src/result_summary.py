@@ -102,6 +102,9 @@ class ResultSummary(Service):
             'kind': kind,
             'state': state,
         }
+        kernel_revision_field = 'data.kernel_revision'
+        if kind == 'regression':
+            kernel_revision_field = 'data.failed_kernel_version'
         if self._from_date:
             base_params['created__gt'] = self._from_date
         if self._to_date:
@@ -116,7 +119,7 @@ class ResultSummary(Service):
                 for repo in item.pop('repos'):
                     new_repo = {}
                     for key, value in repo.items():
-                        new_repo[f'data.kernel_revision.{key}'] = value
+                        new_repo[f'{kernel_revision_field}.{key}'] = value
                     repos.append(new_repo)
             for key, value in item.items():
                 item_base_params[key] = value if value else 'null'
