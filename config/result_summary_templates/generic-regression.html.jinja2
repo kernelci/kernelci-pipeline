@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Regression summary: {{ from_date }} - {{ to_date }}{% endblock %}
+
+{% block content %}
+  <h1 class="text-bg-light p-3 rounded">
+    Regressions between {{ from_date }} and {{ to_date }}
+  </h1>
+  {% if results_per_branch | count == 0 %}
+    No regressions found.
+  {% else -%}
+    {% for tree in results_per_branch %}
+      {% for branch in results_per_branch[tree] %}
+        <h2 class="text-bg-light p-3 rounded">
+          Regressions found in {{ tree }}/{{ branch }}:
+        </h2>
+        {% for regression in results_per_branch[tree][branch] -%}
+          {% set kernel_version = regression['data']['failed_kernel_version'] %}
+          <h3>
+            {{ regression['name'] }} ({{ regression['group'] }})
+          </h3>
+          <ul>
+            <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['id'] }}">
+                {{ regression['id'] }}</a></li>
+            <li>Date: {{ regression['created'] }}</li>
+            <li>Tree: {{ kernel_version['tree'] }}</li>
+            <li>Branch: {{ kernel_version['branch'] }}</li>
+            <li>Kernel version: {{ kernel_version['describe'] }}</li>
+            <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})</li>
+            <li>Arch : {{ regression['data']['arch'] }}</li>
+            <li>Config: {{ regression['data']['config_full'] }}</li>
+            <li>Compiler: {{ regression['data']['compiler'] }}</li>
+            {% if regression['data']['error_code'] -%}
+              <li>Error code: {{ regression['data']['error_code'] }}</li>
+            {% endif -%}
+            {% if regression['data']['error_msg'] -%}
+              <li>Error message: {{ regression['data']['error_msg'] }}</li>
+            {% endif -%}
+            {% if regression['logs'] | count > 0 -%}
+              <li>Logs:
+              <ul>
+                {% for log in regression['logs'] -%}
+                  <li><a href="{{ regression['logs'][log] }}">{{ log }}</a></li>
+                {% endfor %}
+              </ul></li>
+            {% else -%}
+              <li>No logs available</li>
+            {% endif %}
+          </ul>    
+        {%- endfor %}
+      {%- endfor %}
+    {%- endfor %}
+  {%- endif %}
+{% endblock %}
