@@ -10,7 +10,7 @@
 #
 # How to use this (for now):
 #
-#        docker-compose run result_summary --preset=<result-preset>
+#        docker-compose run result_summary --preset=<result-preset> --output <file_name>
 #
 # where <result-preset> is defined as a query preset definition in
 # config/result-summary.yaml and as a template:
@@ -19,6 +19,9 @@
 # You can specify a date range for the searh using the --date-from
 # (default: yesterday) and --date-to (default: now) options, formatted
 # as YYYY-MM-DD or YYYY-MM-DDTHH:mm:SS (UTC)
+#
+# The output will be generated in data/output/<file_name>. If the
+# --output flag is ommited, the output will be printed in stdout.
 
 
 # TODO:
@@ -35,6 +38,8 @@
 import sys
 from datetime import datetime, timedelta, timezone
 import logging
+import os
+import shutil
 
 import jinja2
 import json
@@ -48,6 +53,7 @@ from base import Service
 
 SERVICE_NAME = 'result_summary'
 TEMPLATES_DIR = './config/result_summary_templates/'
+OUTPUT_DIR = '/home/kernelci/data/output/'
 
 
 class ResultSummary(Service):
@@ -78,6 +84,9 @@ class ResultSummary(Service):
         else:
             date = datetime.now(timezone.utc)
             self._to_date = date.strftime("%Y-%m-%dT%H:%M:%S")
+        self._output = None
+        if args.output:
+            self._output = args.output
 
     def _parse_block_config(self, block, kind, state):
         """Parse a config block. Every block may define a set of
@@ -248,8 +257,13 @@ class ResultSummary(Service):
             'from_date': self._from_date,
             'to_date': self._to_date,
         }
-        output = template.render(template_params)
-        self.log.info(output)
+        output_text = template.render(template_params)
+        if not self._output:
+            self.log.info(output_text)
+        else:
+            with open(os.path.join(OUTPUT_DIR, self._output), 'w') as output_file:
+                output_file.write(output_text)
+            shutil.copy(os.path.join(TEMPLATES_DIR, 'main.css'), OUTPUT_DIR)
         return True
 
 
@@ -276,6 +290,10 @@ class cmd_run(Command):
             'name': '--to-date',
             'help': ("Collect results up to this date (YYYY-MM-DD). "
                      "Default: now"),
+        },
+        {
+            'name': '--output',
+            'help': "Save the generated output to the specified file"
         },
         Args.verbose,
     ]
