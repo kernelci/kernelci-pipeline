@@ -149,13 +149,28 @@ class ResultSummary(Service):
             params.extend(self._parse_block_config(body, block_name, 'done'))
         return params
 
-    def _check_log(self, url):
-        """Sanity checks for a job output log, given its url. Returns
-        True if the log exists and looks valid, False otherwise."""
+    def _get_log(self, url, snippet_lines=0):
+        """Fetches a text log given its url.
+
+        Returns:
+          If the log file couldn't be retrieved by any reason: None
+          Otherwise:
+            If snippet_lines == 0: the full log
+            If snippet_lines > 0: the first snippet_lines log lines
+            If snippet_lines < 0: the last snippet_lines log lines
+        """
         response = requests.get(url)
-        if not len(response.content):
-            return False
-        return True
+        if not len(response.text):
+            return None
+        if snippet_lines > 0:
+            lines = response.text.splitlines()
+            return '\n'.join(lines[:snippet_lines])
+        elif snippet_lines < 0:
+            lines = response.text.splitlines()
+            # self.log.info(f"Lines: {lines}")
+            # self.log.info(f"Number of lines: {len(lines)}")
+            return '\n'.join(lines[snippet_lines:])
+        return response.text
 
     def _iterate_node_find(self, params):
         """Request a node search to the KernelCI API based on a set of
@@ -207,8 +222,9 @@ class ResultSummary(Service):
                 all_logs = {item: url for item, url in node['artifacts'].items()
                             if item == 'log' or item.endswith('_log')}
                 for log_name, url in all_logs.items():
-                    if self._check_log(url):
-                        logs[log_name] = url
+                    text = self._get_log(url, snippet_lines=-10)
+                    if text:
+                        logs[log_name] = {'url': url, 'text': text}
             node['logs'] = logs
             progress += 1
             if progress >= progress_total / 10:
