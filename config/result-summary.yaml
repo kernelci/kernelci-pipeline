@@ -37,15 +37,29 @@
 
 
 # stable-rc kernel build regressions
-stable-rc-build:
+stable-rc-build-regressions:
   regression:
     - name__re: kbuild
       repos:
         - tree: stable-rc
 
+# stable-rc kernel build failures
+stable-rc-build-failures:
+  test:
+    - kind: kbuild
+      repos:
+        - tree: stable-rc
+
 # stable-rc kernel boot regressions
-stable-rc-boot:
+stable-rc-boot-regressions:
   regression:
+    - group__re: baseline
+      repos:
+        - tree: stable-rc
+
+# stable-rc kernel boot failures
+stable-rc-boot-failures:
+  test:
     - group__re: baseline
       repos:
         - tree: stable-rc
