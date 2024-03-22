@@ -150,12 +150,15 @@ platforms:
     <<: *arm64-chromebook-device
     base_name: trogdor
     mach: qcom
-    dtb: dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
+    dtb:
+      - dtbs/qcom/sc7180-trogdor-kingoftown.dtb
+      - dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
     params:
       <<: *arm64-chromebook-device-params
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm
         image: 'kernel/Image'
+        dtb: 'dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
 
   sc7180-trogdor-lazor-limozeen:
     <<: *trogdor-chromebook-device
