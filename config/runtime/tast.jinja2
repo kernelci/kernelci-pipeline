@@ -8,8 +8,8 @@
 
 {%- set kernel_url = base_kurl ~ '/' ~ platform_config.params.flash_kernel.image %}
 {%- set modules_url = base_kurl ~ '/' ~ flash_modules %}
-{%- if platform_config.dtb %}
-{%-   set dtb_url = base_kurl ~ '/' ~ platform_config.dtb %}
+{%- if device_dtb %}
+{%-   set dtb_url = base_kurl ~ '/' ~ device_dtb %}
 {%- endif %}
 {%- set nfsroot = platform_config.params.nfsroot %}
 
