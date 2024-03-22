@@ -23,7 +23,7 @@ builds. It expects the following input parameters:
     }
 #}
 
-stable-rc build regressions between {{ from_date }} and {{ to_date }}
+stable-rc new build regressions between {{ from_date }} and {{ to_date }}
 {% if results_per_branch | count == 0 %}
 No build regressions found.
 {% else -%}

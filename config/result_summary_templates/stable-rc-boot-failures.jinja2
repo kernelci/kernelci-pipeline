@@ -1,0 +1,60 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{#
+Template to generate a text-based test failure summary for stable-rc
+boot failures. It expects the following input parameters:
+  - from_date: start date of the results query
+  - to_date: end date of the results query
+  - results_per_branch: a dict containing the test result nodes
+    grouped by tree and branch like this:
+
+    results_per_branch = {
+        <tree_1>: {
+            <branch_1>: [
+                failure_1,
+                ...
+                failure_n
+            ],
+            ...,
+            <branch_n>: ...
+        },
+        ...,
+        <tree_n>: ...
+    }
+#}
+
+stable-rc boot failures between {{ from_date }} and {{ to_date }}
+{% if results_per_branch | count == 0 %}
+No failures found.
+{% else -%}
+  {% for tree in results_per_branch %}
+    {% for branch in results_per_branch[tree] %}
+## Boot failures found in {{ tree }}/{{ branch }}:
+      {% for test in results_per_branch[tree][branch] -%}
+        {% set kernel_version = test['data']['kernel_revision'] %}
+    KernelCI node id: {{ test['id'] }}
+    Test name: {{ test['name'] }} ({{ test['group'] }})
+    Date: {{ test['created'] }}
+    Tree: {{ kernel_version['tree'] }}
+    Branch: {{ kernel_version['branch'] }}
+    Kernel version: {{ kernel_version['describe'] }}
+    Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})
+    Arch : {{ test['data']['arch'] }}
+    Config: {{ test['data']['config_full'] }}
+    Compiler: {{ test['data']['compiler'] }}
+    Error code: {{ test['data']['error_code'] }}
+    Error message: {{ test['data']['error_msg'] }}
+    {% if test['logs'] | count > 0 -%}
+    Logs:
+      {% for log in test['logs'] -%}
+      - {{ log }}: {{ test['logs'][log]['url'] }}
+      {% endfor %}
+    {% else -%}
+    No logs available
+    {% endif %}
+      {%- endfor %}
+    {%- endfor %}
+  {%- endfor %}
+{%- endif %}
+
+Tested-by: kernelci.org bot <bot@kernelci.org>
