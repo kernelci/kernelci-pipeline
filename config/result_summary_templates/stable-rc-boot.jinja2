@@ -48,7 +48,7 @@ No regressions found.
     {% if regression['logs'] | count > 0 -%}
     Logs:
       {% for log in regression['logs'] -%}
-      - {{ log }}: {{ regression['logs'][log] }}
+      - {{ log }}: {{ regression['logs'][log]['url'] }}
       {% endfor %}
     {% else -%}
     No logs available
