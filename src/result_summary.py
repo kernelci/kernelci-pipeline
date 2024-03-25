@@ -144,10 +144,14 @@ class ResultSummary(Service):
         (self._preset) and returns the list of query parameters, where
         each list item is a complete set of query parameters.
         """
+        metadata = {}
         params = []
-        for block_name, body in self._preset.items():
+        if 'metadata' in self._preset:
+            metadata = self._preset['metadata']
+            self._preset
+        for block_name, body in self._preset['preset'].items():
             params.extend(self._parse_block_config(body, block_name, 'done'))
-        return params
+        return metadata, params
 
     def _get_log(self, url, snippet_lines=0):
         """Fetches a text log given its url.
@@ -199,7 +203,7 @@ class ResultSummary(Service):
             loader=jinja2.FileSystemLoader(TEMPLATES_DIR)
         )
         template = template_env.get_template(f"{self._preset_name}.jinja2")
-        params = self._parse_config()
+        metadata, params = self._parse_config()
 
         # Collect results
         nodes = []
@@ -250,6 +254,7 @@ class ResultSummary(Service):
                     results_per_branch[tree][branch].append(node)
 
         # Data provided to the templates:
+        # - metadata: preset-specific metadata
         # - from_date: start date of the results query
         # - to_date: end date of the results query
         # - results_per_branch: a dict containing the result nodes
@@ -269,6 +274,7 @@ class ResultSummary(Service):
         #       <tree_n>: ...
         #   }
         template_params = {
+            'metadata': metadata,
             'results_per_branch': results_per_branch,
             'from_date': self._from_date,
             'to_date': self._to_date,
