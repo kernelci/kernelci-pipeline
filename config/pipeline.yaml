@@ -101,6 +101,22 @@ storage:
 
 runtimes:
 
+  lab-kontron:
+    lab_type: legacy.lava_rest
+    url: 'https://lavalab.kontron.com/'
+    filters:
+      - passlist:
+          plan:
+            - baseline
+
+  lab-pengutronix:
+    lab_type: legacy.lava_rest
+    url: 'https://hekla.openlab.pengutronix.de/'
+    filters:
+      - passlist:
+          plan:
+            - baseline
+
   docker:
     lab_type: docker
     env_file: '/home/kernelci/.docker-env'
@@ -259,6 +275,9 @@ trees:
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
 
+  android:
+    url: 'https://android.googlesource.com/kernel/common'
+
 platforms:
 
   docker:
@@ -342,8 +361,90 @@ platforms:
 
   shell:
 
+  kontron-kswitch-d10-mmt-6g-2gs:
+    mach: at91
+    class: arm-dtb
+    dtb: 'lan966x-kontron-kswitch-d10-mmt-6g-2gs.dtb'
+    boot_method: uboot
+
+  kontron-kswitch-d10-mmt-8g:
+    mach: at91
+    class: arm-dtb
+    dtb: 'lan966x-kontron-kswitch-d10-mmt-8g.dtb'
+    boot_method: uboot
+
+  imx6dl-riotboard:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blocklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
+
+  imx6qp-wandboard-revd1:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    flags: ['fastboot']
+    filters:
+      - blocklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
+
+  dove-cubox:
+    mach: mvebu
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blocklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'tinyconfig'
+            - '-chromebook'
 
 scheduler:
+
+  - job: baseline-armel-kontron-android_mainline
+    event:
+      channel: node
+      name: android-mainline
+      result: pass
+    runtime:
+      type: legacy.lava_rest
+      name: lab-kontron
+    platforms:
+      - kontron-kswitch-d10-mmt-6g-2gs
+      - kontron-kswitch-d10-mmt-8g
+
+  - job: baseline-armel-pengutronix-android_mainline
+    event:
+      channel: node
+      name: android-mainline
+      result: pass
+    runtime:
+      type: legacy.lava_rest
+      name: lab-pengutronix
+    platforms:
+      - imx6dl-riotboard
+      - imx6qp-wandboard-revd1
+
+  - job: baseline-armel-android_mainline_imx
+    event:
+      channel: node
+      name: android-mainline-imx
+      result: pass
+    runtime:
+      type: legacy.lava_rest
+      name: lab-kontron
+    platforms:
+      - imx6dl-riotboard
+      - imx6qp-wandboard-revd1
 
   - job: baseline-arm64
     event:
@@ -552,3 +653,21 @@ build_configs:
     tree: mediatek
     branch: 'for-next'
     variants: *build-variants
+
+  android_mainline:
+    tree: android
+    branch: 'android-mainline'
+    build_environment: gcc-10
+    arch: armel
+    defconfig: multi_v7_defconfig
+    filters:
+      - regex: { defconfig: 'multi_v7_defconfig' }
+
+  android_mainline_imx:
+    tree: android
+    branch: 'android-mainline'
+    build_environment: gcc-10
+    arch: armel
+    defconfig: imx_v6_v7_defconfig
+    filters:
+      - regex: { defconfig: 'imx_v6_v7_defconfig' }
