@@ -1,0 +1,19 @@
+25 March 2024
+	Add support for a "metadata" section in the preset definitions. Each
+	preset now contains a "metadata" section and a "preset" section,
+	which contains the query parameters.
+
+	All current examples now use the same set of generic templates.
+
+	Preset-specific customizations, such as the report title, are now
+	defined in the "metadata" sections.
+
+	Preset-template association is no longer done via soft-links. Each
+	preset defines the template it uses in its "metadata.template"
+	field.
+
+	Each preset may now define its default output file name in the
+	"metadata.output" field. This can be overriden with the --output
+	command line option.
+
+	Documentation updated and this CHANGELOG file added.
