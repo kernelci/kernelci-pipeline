@@ -3,9 +3,10 @@
 {#
 Template to generate a generic text-based regression summary. It expects
 the following input parameters:
+  - metadata: summary preset metadata
   - from_date: start date of the results query
   - to_date: end date of the results query
-  - results_per_branch: a dict containing the result regression nodes
+  - results_per_branch: a dict containing the regression nodes
     grouped by tree and branch like this:
 
     results_per_branch = {
@@ -23,7 +24,11 @@ the following input parameters:
     }
 #}
 
-Regressions between {{ from_date }} and {{ to_date }}
+{% if 'title' in metadata -%}
+{{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
+{% else -%}
+Regressions from {{ from_date }} to {{ to_date }}
+{% endif -%}
 {% if results_per_branch | count == 0 %}
 No regressions found.
 {% else -%}
