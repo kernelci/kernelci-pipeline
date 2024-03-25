@@ -25,7 +25,7 @@
 
 
 # TODO:
-# - HTML templates
+# - Refactor liberally
 # - Implement loop mode
 # - Send email reports
 # - Do we want to focus on regressions only or on any kind of result?
@@ -141,7 +141,8 @@ class ResultSummary(Service):
 
     def _parse_config(self):
         """Processes and parses the selected preset configuration
-        (self._preset) and returns the list of query parameters, where
+        (self._preset) and returns the a tuple containing the metadata
+        dict and a list of query parameters, where
         each list item is a complete set of query parameters.
         """
         metadata = {}
@@ -202,8 +203,13 @@ class ResultSummary(Service):
         template_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(TEMPLATES_DIR)
         )
-        template = template_env.get_template(f"{self._preset_name}.jinja2")
+
+        # Load presets
         metadata, params = self._parse_config()
+        if 'template' not in metadata:
+            self.log.error(f"No template defined for preset {self._preset_name}")
+            sys.exit(1)
+        template = template_env.get_template(metadata['template'])
 
         # Collect results
         nodes = []
@@ -281,11 +287,14 @@ class ResultSummary(Service):
         }
         output_text = template.render(template_params)
         if not self._output:
-            self.log.info(output_text)
-        else:
+            if 'output' in metadata:
+                self._output = metadata['output']
+        if self._output:
             with open(os.path.join(OUTPUT_DIR, self._output), 'w') as output_file:
                 output_file.write(output_text)
             shutil.copy(os.path.join(TEMPLATES_DIR, 'main.css'), OUTPUT_DIR)
+        else:
+            self.log.info(output_text)
         return True
 
 
@@ -315,7 +324,7 @@ class cmd_run(Command):
         },
         {
             'name': '--output',
-            'help': "Save the generated output to the specified file"
+            'help': "Override the 'output' preset parameter"
         },
         Args.verbose,
     ]

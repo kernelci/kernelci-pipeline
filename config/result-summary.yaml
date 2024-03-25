@@ -6,7 +6,17 @@
 # parameters and values. The output for the preset will be formatted
 # using the template in config/reports/<preset-name>.jinja2
 
-# Inside each preset definition, top level blocks define the 'kind' of
+# Each report preset must include a "metadata" section and a "preset"
+# section. The "metadata" section is expected to contain at least the
+# "template" file used for the summary generation. Other optional fields
+# are supported:
+#  - "output": name of the file where the output will be stored (in
+#    data/output)
+#  - "title": title for the report
+#
+# The "preset" section contains the query definition.
+
+# Inside each preset section, top level blocks define the 'kind' of
 # result to search for, ie. test, kbuild, regression.
 # The dict of items in each block specifies the query parameters:
 #     {query_parameter: value}
@@ -19,28 +29,31 @@
 # contains "mytest":
 #
 # default-test:
-#
-#   test:
-#     # Query by group, name, arch and list of repos
-#     - group__re: baseline
-#       name: dmesg
-#       data.arch: arm64
-#       repos:
-#         - tree: stable-rc
-#           branch: linux-5.4.y
-#         - tree: stable-rc
-#           branch: linux-5.15.y
-#         - tree: mytree
-#     # Query by name
-#     - name_re: mytest
-
-
+#   metadata:
+#     title: "Example test report"
+#     template: "mytemplate.jinja2"
+#  preset:
+#    test:
+#      # Query by group, name, arch and list of repos
+#      - group__re: baseline
+#        name: dmesg
+#        data.arch: arm64
+#        repos:
+#          - tree: stable-rc
+#            branch: linux-5.4.y
+#          - tree: stable-rc
+#            branch: linux-5.15.y
+#          - tree: mytree
+#      # Query by name
+#      - name_re: mytest
 
 
 # stable-rc kernel build regressions
 stable-rc-build-regressions:
   metadata:
     title: "stable-rc kernel build regressions"
+    template: "generic-regressions.html.jinja2"
+    output: "stable-rc-build-regressions.html"
   preset:
     regression:
       - name__re: kbuild
@@ -51,6 +64,8 @@ stable-rc-build-regressions:
 stable-rc-build-failures:
   metadata:
     title: "stable-rc kernel build failures"
+    template: "generic-test-failures.html.jinja2"
+    output: "stable-rc-build-failures.html"
   preset:
     test:
       - kind: kbuild
@@ -61,6 +76,8 @@ stable-rc-build-failures:
 stable-rc-boot-regressions:
   metadata:
     title: "stable-rc kernel boot regressions"
+    template: "generic-regressions.html.jinja2"
+    output: "stable-rc-boot-regressions.html"
   preset:
     regression:
       - group__re: baseline
@@ -71,6 +88,8 @@ stable-rc-boot-regressions:
 stable-rc-boot-failures:
   metadata:
     title: "stable-rc kernel boot failures"
+    template: "generic-test-failures.html.jinja2"
+    output: "stable-rc-boot-failures.html"
   preset:
     test:
       - group__re: baseline
@@ -81,6 +100,8 @@ stable-rc-boot-failures:
 tast-failures:
   metadata:
     title: "General Tast test failures"
+    template: "generic-test-failures.html.jinja2"
+    output: "tast-failures.html"
   preset:
     test:
       - group__re: tast
@@ -92,6 +113,8 @@ tast-failures:
 mainline-next-regressions:
   metadata:
     title: "Regressions found in mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output: "mainline-next-regressions.html"
   preset:
     regression:
       - data.error_code: null
@@ -104,6 +127,8 @@ mainline-next-regressions:
 mainline-next-regressions__runtime_errors:
   metadata:
     title: "'Regressions' found in mainline and next due to runtime errors"
+    template: "generic-regressions.html.jinja2"
+    output: "mainline-next-regressions__runtime_errors.html"
   preset:
     regression:
       - data.error_code__ne: null
@@ -113,9 +138,11 @@ mainline-next-regressions__runtime_errors:
 
 # tast tests regressions for x86_64 targets
 # Collect only regressions that aren't caused by runtime errors
-tast-regressions-x86_64-html:
+tast-regressions-x86_64:
   metadata:
     title: "Regressions found on Tast tests for x86_64"
+    template: "generic-regressions.html.jinja2"
+    output: "tast-regressions-x86_64.html"
   preset:
     regression:
       - group__re: tast
@@ -128,6 +155,8 @@ tast-regressions-x86_64-html:
 tast-regressions-x86_64__runtime_errors:
   metadata:
     title: "'Regressions' found on Tast tests for x86_64 due to runtime errors"
+    template: "generic-regressions.html.jinja2"
+    output: "tast-regressions-x86_64__runtime_errors.html"
   preset:
     regression:
       - group__re: tast

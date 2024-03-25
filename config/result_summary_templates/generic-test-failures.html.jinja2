@@ -61,7 +61,7 @@ expects the following input parameters:
         </h2>
         <div id="result-list">
           {% for test in results_per_branch[tree][branch] -%}
-            {% set kernel_version = test['data']['kernel_version'] %}
+            {% set kernel_version = test['data']['kernel_revision'] %}
             <h3>
               {{ test['name'] }} ({{ test['group'] }})
             </h3>
