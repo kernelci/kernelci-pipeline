@@ -32,6 +32,14 @@ _anchors:
     template: kbuild.jinja2
     kind: kbuild
 
+  kbuild-clang-17-x86: &kbuild-clang-17-x86-job
+    <<: *kbuild-job
+    image: kernelci/staging-clang-17:x86-kselftest-kernelci
+    params: &kbuild-clang-17-x86-params
+      arch: x86_64
+      compiler: clang-17
+      defconfig: x86_64_defconfig
+
   kbuild-gcc-10-arm64: &kbuild-gcc-10-arm64-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
@@ -216,6 +224,9 @@ jobs:
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
 
+  kbuild-clang-17-x86:
+    <<: *kbuild-clang-17-x86-job
+
   kbuild-gcc-10-x86:
     <<: *kbuild-gcc-10-x86-job
 
@@ -398,6 +409,9 @@ scheduler:
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
+
+  - job: kbuild-clang-17-x86
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-10-arm64
     <<: *build-k8s-all
