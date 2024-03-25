@@ -3,13 +3,13 @@
 # List of report presets
 #
 # Each item defines a report preset containing a set of search
-# parameters and values. The output for the preset will be formatted
-# using the template in config/reports/<preset-name>.jinja2
+# parameters and values.
 
 # Each report preset must include a "metadata" section and a "preset"
 # section. The "metadata" section is expected to contain at least the
-# "template" file used for the summary generation. Other optional fields
-# are supported:
+# "template" file used for the summary generation. This template must be
+# a file in config/result_summary_templates. Other optional fields are
+# supported:
 #  - "output": name of the file where the output will be stored (in
 #    data/output)
 #  - "title": title for the report
