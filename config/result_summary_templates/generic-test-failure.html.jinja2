@@ -1,20 +1,20 @@
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
 {#
-Template to generate a generic html regression summary. It
+Template to generate a generic html test failure summary. It
 expects the following input parameters:
   - metadata: summary preset metadata
   - from_date: start date of the results query
   - to_date: end date of the results query
-  - results_per_branch: a dict containing the regression nodes
+  - results_per_branch: a dict containing the test nodes
     grouped by tree and branch like this:
 
     results_per_branch = {
         <tree_1>: {
             <branch_1>: [
-                regression_1,
+                failure_1,
                 ...
-                regression_n
+                failure_n
             ],
             ...,
             <branch_n>: ...
@@ -29,7 +29,7 @@ expects the following input parameters:
   {% if 'title' in metadata %}
     {{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
   {% else %}
-    Regression summary from {{ from_date }} to {{ to_date }}
+    Test failures from {{ from_date }} to {{ to_date }}
   {% endif %}
 {% endblock %}
 
@@ -38,11 +38,11 @@ expects the following input parameters:
     {% if 'title' in metadata %}
       {{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
     {% else %}
-      Regression summary from {{ from_date }} to {{ to_date }}
+      Test failures from {{ from_date }} to {{ to_date }}
     {% endif %}
   </h1>
   {% if results_per_branch | count == 0 %}
-    No regressions found.
+    No failures found.
   {% else -%}
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
             data-bs-target="#logSnippet" aria-expanded="false"
@@ -57,41 +57,41 @@ expects the following input parameters:
     {% for tree in results_per_branch %}
       {% for branch in results_per_branch[tree] %}
         <h2 class="text-bg-light p-3 rounded">
-          Regressions found in {{ tree }}/{{ branch }}:
+          Test failures found in {{ tree }}/{{ branch }}:
         </h2>
         <div id="result-list">
-          {% for regression in results_per_branch[tree][branch] -%}
-            {% set kernel_version = regression['data']['failed_kernel_version'] %}
+          {% for test in results_per_branch[tree][branch] -%}
+            {% set kernel_version = test['data']['kernel_version'] %}
             <h3>
-              {{ regression['name'] }} ({{ regression['group'] }})
+              {{ test['name'] }} ({{ test['group'] }})
             </h3>
             <ul>
-              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['id'] }}">
-                  {{ regression['id'] }}</a></li>
-                  <li>Date: {{ regression['created'] }}</li>
+              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ test['id'] }}">
+                  {{ test['id'] }}</a></li>
+                  <li>Date: {{ test['created'] }}</li>
               <li>Tree: {{ kernel_version['tree'] }}</li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
               <li>Kernel version: {{ kernel_version['describe'] }}</li>
               <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})</li>
-              <li>Arch : {{ regression['data']['arch'] }}</li>
-              <li>Config: {{ regression['data']['config_full'] }}</li>
-              <li>Compiler: {{ regression['data']['compiler'] }}</li>
-              {% if regression['data']['error_code'] -%}
-                <li>Error code: {{ regression['data']['error_code'] }}</li>
+              <li>Arch : {{ test['data']['arch'] }}</li>
+              <li>Config: {{ test['data']['config_full'] }}</li>
+              <li>Compiler: {{ test['data']['compiler'] }}</li>
+              {% if test['data']['error_code'] -%}
+                <li>Error code: {{ test['data']['error_code'] }}</li>
               {% endif -%}
-              {% if regression['data']['error_msg'] -%}
-                <li>Error message: {{ regression['data']['error_msg'] }}</li>
+              {% if test['data']['error_msg'] -%}
+                <li>Error message: {{ test['data']['error_msg'] }}</li>
               {% endif -%}
-              {% if regression['logs'] | count > 0 -%}
+              {% if test['logs'] | count > 0 -%}
                 <li>Logs:
                   <ul>
-                    {% for log in regression['logs'] -%}
+                    {% for log in test['logs'] -%}
                       <li>
-                        <a href="{{ regression['logs'][log]['url'] }}">{{ log }}</a>
+                        <a href="{{ test['logs'][log]['url'] }}">{{ log }}</a>
                         <div class="collapse" id="logSnippet">
                           <div class="card card-body">
                             <pre>
-{{ regression['logs'][log]['text'] }}
+{{ test['logs'][log]['text'] }}
                             </pre>
                           </div>
                         </div>
