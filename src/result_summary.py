@@ -10,19 +10,19 @@
 #
 # How to use this (for now):
 #
-#        docker-compose run result_summary --preset=<result-preset> --output <file_name>
+#        docker-compose run result_summary --preset=<result-preset>
 #
 # where <result-preset> is defined as a query preset definition in
-# config/result-summary.yaml and as a template:
-# config/result_summary_templates/result-preset.jinja2
-#
+# config/result-summary.yaml.
+
 # You can specify a date range for the searh using the --date-from
 # (default: yesterday) and --date-to (default: now) options, formatted
 # as YYYY-MM-DD or YYYY-MM-DDTHH:mm:SS (UTC)
 #
-# The output will be generated in data/output/<file_name>. If the
-# --output flag is ommited, the output will be printed in stdout.
-
+# Each preset may define the name of the output file generated (in
+# data/output). This can be overriden with the --output option. If no
+# output file is defined, the output will be printed to stdout.
+#
 
 # TODO:
 # - Refactor liberally
