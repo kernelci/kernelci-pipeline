@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
 
 # List of report presets
 #
@@ -38,71 +39,98 @@
 
 # stable-rc kernel build regressions
 stable-rc-build-regressions:
-  regression:
-    - name__re: kbuild
-      repos:
-        - tree: stable-rc
+  metadata:
+    title: "stable-rc kernel build regressions"
+  preset:
+    regression:
+      - name__re: kbuild
+        repos:
+          - tree: stable-rc
 
 # stable-rc kernel build failures
 stable-rc-build-failures:
-  test:
-    - kind: kbuild
-      repos:
-        - tree: stable-rc
+  metadata:
+    title: "stable-rc kernel build failures"
+  preset:
+    test:
+      - kind: kbuild
+        repos:
+          - tree: stable-rc
 
 # stable-rc kernel boot regressions
 stable-rc-boot-regressions:
-  regression:
-    - group__re: baseline
-      repos:
-        - tree: stable-rc
+  metadata:
+    title: "stable-rc kernel boot regressions"
+  preset:
+    regression:
+      - group__re: baseline
+        repos:
+          - tree: stable-rc
 
 # stable-rc kernel boot failures
 stable-rc-boot-failures:
-  test:
-    - group__re: baseline
-      repos:
-        - tree: stable-rc
+  metadata:
+    title: "stable-rc kernel boot failures"
+  preset:
+    test:
+      - group__re: baseline
+        repos:
+          - tree: stable-rc
 
 # tast test failures
 tast-failures:
-  test:
-    - group__re: tast
-      name__ne: tast
-      result: fail
+  metadata:
+    title: "General Tast test failures"
+  preset:
+    test:
+      - group__re: tast
+        name__ne: tast
+        result: fail
 
 # General regressions (kbuilds and all tests) on mainline and next
 # excluding those triggered by runtime errors
 mainline-next-regressions:
-  regression:
-    - data.error_code: null
-      repos:
-        - tree: mainline
-        - tree: next
+  metadata:
+    title: "Regressions found in mainline and next"
+  preset:
+    regression:
+      - data.error_code: null
+        repos:
+          - tree: mainline
+          - tree: next
 
 # General regressions (kbuilds and all tests) on mainline and next
 # triggered by runtime errors
 mainline-next-regressions__runtime_errors:
-  regression:
-    - data.error_code__ne: null
-      repos:
-        - tree: mainline
-        - tree: next
+  metadata:
+    title: "'Regressions' found in mainline and next due to runtime errors"
+  preset:
+    regression:
+      - data.error_code__ne: null
+        repos:
+          - tree: mainline
+          - tree: next
 
 # tast tests regressions for x86_64 targets
 # Collect only regressions that aren't caused by runtime errors
 tast-regressions-x86_64-html:
-  regression:
-    - group__re: tast
-      name__ne: tast
-      data.arch: x86_64
-      # Get only the regressions from results with no runtime errors
-      data.error_code: null
+  metadata:
+    title: "Regressions found on Tast tests for x86_64"
+  preset:
+    regression:
+      - group__re: tast
+        name__ne: tast
+        data.arch: x86_64
+        # Get only the regressions from results with no runtime errors
+        data.error_code: null
 
 # tast tests regressions for x86_64 targets caused by runtime errors
 tast-regressions-x86_64__runtime_errors:
-  regression:
-    - group__re: tast
-      name__ne: tast
-      data.arch: x86_64
-      data.error_code__ne: null
+  metadata:
+    title: "'Regressions' found on Tast tests for x86_64 due to runtime errors"
+  preset:
+    regression:
+      - group__re: tast
+        name__ne: tast
+        data.arch: x86_64
+        data.error_code__ne: null
