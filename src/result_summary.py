@@ -23,6 +23,8 @@
 # data/output). This can be overriden with the --output option. If no
 # output file is defined, the output will be printed to stdout.
 #
+# For current status info, see the development changelog in
+# config/result_summary_templates/CHANGELOG
 
 # TODO:
 # - Refactor liberally
