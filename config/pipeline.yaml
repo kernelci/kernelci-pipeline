@@ -256,6 +256,10 @@ jobs:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{arch}'
       collections: dt
       job_timeout: 10
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 7
 
   # amd64-only temporary
   sleep:
