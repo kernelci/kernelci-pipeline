@@ -50,6 +50,18 @@ _anchors:
       type: lava
       name: lava-collabora
 
+  test-job-arm64-mediatek: &test-job-arm64-mediatek
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    platforms: *mediatek-platforms
+
+  test-job-arm64-qualcomm: &test-job-arm64-qualcomm
+    <<: *test-job-arm64-mediatek
+    platforms: *qualcomm-platforms
+
   test-job-chromeos-mediatek: &test-job-chromeos-mediatek
     <<: *lava-job-collabora
     event:
@@ -82,6 +94,18 @@ _anchors:
       result: pass
     platforms: *amd-platforms
 
+  test-job-x86-amd: &test-job-x86-amd
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    platforms: *amd-platforms
+
+  test-job-x86-intel: &test-job-x86-intel
+    <<: *test-job-x86-amd
+    platforms: *intel-platforms
+
 scheduler:
 
   - job: baseline-arm64-chromeos-mediatek
@@ -89,6 +113,18 @@ scheduler:
 
   - job: baseline-arm64-chromeos-qualcomm
     <<: *test-job-chromeos-qualcomm
+
+  - job: baseline-arm64-mediatek
+    <<: *test-job-arm64-mediatek
+
+  - job: baseline-arm64-qualcomm
+    <<: *test-job-arm64-qualcomm
+
+  - job: baseline-x86-amd
+    <<: *test-job-x86-amd
+
+  - job: baseline-x86-intel
+    <<: *test-job-x86-intel
 
   - job: baseline-x86-pineview
     <<: *test-job-chromeos-pineview
