@@ -90,65 +90,126 @@ class RegressionTracker(Service):
             'error_msg': error['error_msg'],
         }
         regression['artifacts'] = self._collect_logs(failed_node)
-        resp = self._api_helper.submit_regression(regression)
-        reg = json.loads(resp.text)
-        self.log.info(f"Regression submitted: {reg['id']}")
+        return regression
 
-    def _detect_regression(self, fail_node):
-        """Detects if <fail_node> (a failed job) produces a regression,
-        ie. if the previous job run with the same parameters passed"""
-        search_params = {
-            'name': fail_node['name'],
-            'group': fail_node['group'],
-            'path': fail_node['path'],
-            'data.kernel_revision.tree':
-                fail_node['data']['kernel_revision']['tree'],
-            'data.kernel_revision.branch':
-                fail_node['data']['kernel_revision']['branch'],
-            'data.kernel_revision.url':
-                fail_node['data']['kernel_revision']['url'],
-            'created__lt': fail_node['created'],
-            'state': 'done',
-            # Parameters that may be null in some test nodes
-            'data.arch': fail_node['data'].get('arch', 'null'),
-            'data.defconfig': fail_node['data'].get('defconfig', 'null'),
-            'data.config_full': fail_node['data'].get('config_full', 'null'),
-            'data.compiler': fail_node['data'].get('compiler', 'null'),
-            'data.platform': fail_node['data'].get('platform', 'null'),
-        }
-        previous_nodes = self._api.node.find(search_params)
-        if not previous_nodes:
-            return
-        previous_node = sorted(
-            previous_nodes,
+    def _get_last_matching_node(self, search_params):
+        """Returns the last (by creation date) occurrence of a node
+        matching a set of search parameters, or None if no nodes were
+        found.
+
+        TODO: Move this to core helpers.
+
+        """
+        nodes = self._api.node.find(search_params)
+        if not nodes:
+            return None
+        node = sorted(
+            nodes,
             key=lambda node: node['created'],
             reverse=True
         )[0]
-        if previous_node['result'] == 'pass':
-            self.log.info("Detected regression for node id: "
-                          f"{fail_node['id']}")
-            # Skip the regression generation if it was already in the
-            # DB. This may happen if a job was detected to generate a
-            # regression when it failed and then the same job was
-            # checked again after its parent job finished running and
-            # was updated.
-            existing_regression = self._api.node.find({
-                'kind': 'regression',
-                'data.fail_node': fail_node['id'],
-                'data.pass_node': previous_node['id']
-            })
-            if not existing_regression:
-                self._create_regression(fail_node, previous_node)
-            else:
-                self.log.info(f"Skipping regression: already exists")
+        return node
 
-    def _get_all_failed_child_nodes(self, failures, root_node):
-        """Method to get all failed nodes recursively from top-level node"""
-        child_nodes = self._api.node.find({'parent': root_node['id']})
-        for node in child_nodes:
-            if node['result'] == 'fail':
-                failures.append(node)
-            self._get_all_failed_child_nodes(failures, node)
+    def _get_related_regression(self, node):
+        """Returns the last active regression that points to the same job
+        run instance. Returns None if no active regression was found.
+
+        """
+        search_params = {
+            'kind': 'regression',
+            'result': 'fail',
+            'name': node['name'],
+            'group': node['group'],
+            'path': node['path'],
+            'data.failed_kernel_version.tree': node['data']['kernel_revision']['tree'],
+            'data.failed_kernel_version.branch': node['data']['kernel_revision']['branch'],
+            'data.failed_kernel_version.url': node['data']['kernel_revision']['url'],
+            'created__lt': node['created'],
+            # Parameters that may be null in some test nodes
+            'data.arch': node['data'].get('arch', 'null'),
+            'data.defconfig': node['data'].get('defconfig', 'null'),
+            'data.config_full': node['data'].get('config_full', 'null'),
+            'data.compiler': node['data'].get('compiler', 'null'),
+            'data.platform': node['data'].get('platform', 'null')
+        }
+        return self._get_last_matching_node(search_params)
+
+    def _get_previous_job_instance(self, node):
+        """Returns the previous job run instance of <node>, or None if
+        no one was found.
+
+        """
+        search_params = {
+            'kind': node['kind'],
+            'name': node['name'],
+            'group': node['group'],
+            'path': node['path'],
+            'data.kernel_revision.tree': node['data']['kernel_revision']['tree'],
+            'data.kernel_revision.branch': node['data']['kernel_revision']['branch'],
+            'data.kernel_revision.url': node['data']['kernel_revision']['url'],
+            'created__lt': node['created'],
+            'state': 'done',
+            # Parameters that may be null in some test nodes
+            'data.arch': node['data'].get('arch', 'null'),
+            'data.defconfig': node['data'].get('defconfig', 'null'),
+            'data.config_full': node['data'].get('config_full', 'null'),
+            'data.compiler': node['data'].get('compiler', 'null'),
+            'data.platform': node['data'].get('platform', 'null'),
+        }
+        return self._get_last_matching_node(search_params)
+
+    def _process_node(self, node):
+        if node['result'] == 'pass':
+            # Find existing active regression
+            regression = self._get_related_regression(node)
+            if regression:
+                # Set regression as inactive
+                regression['data']['node_sequence'].append(node['id'])
+                regression['result'] = 'pass'
+                self._api.node.update(regression)
+        elif node['result'] == 'fail':
+            previous = self._get_previous_job_instance(node)
+            if previous['result'] == 'pass':
+                self.log.info(f"Detected regression for node id: {node['id']}")
+                # Skip the regression generation if it was already in the
+                # DB. This may happen if a job was detected to generate a
+                # regression when it failed and then the same job was
+                # checked again after its parent job finished running and
+                # was updated.
+                existing_regression = self._api.node.find({
+                    'kind': 'regression',
+                    'result': 'fail',
+                    'data.fail_node': node['id'],
+                    'data.pass_node': previous['id']
+                })
+                if not existing_regression:
+                    regression = self._create_regression(node, previous)
+                    resp = self._api_helper.submit_regression(regression)
+                    reg = json.loads(resp.text)
+                    self.log.info(f"Regression submitted: {reg['id']}")
+                else:
+                    self.log.info(f"Skipping regression: already exists")
+            elif previous['result'] == 'fail':
+                # Find existing active regression
+                regression = self._get_related_regression(node)
+                if regression:
+                    if node['id'] in regression['data']['node_sequence']:
+                        # The node is already in an active
+                        # regression. This may happen if the job was
+                        # processed right after it finished and then
+                        # again after its parent job finished and was
+                        # updated
+                        return
+                    # Update active regression
+                    regression['data']['node_sequence'].append(node['id'])
+                    self._api.node.update(regression)
+        # Process children recursively:
+        # When a node hierarchy is submitted on a single operation,
+        # an event is generated only for the root node. Walk the
+        # children node tree to check for event-less finished jobs
+        child_nodes = self._api.node.find({'parent': node['id']})
+        for child_node in child_nodes:
+            self._process_node(child_node)
 
     def _run(self, sub_id):
         """Method to run regression detection and generation"""
@@ -157,18 +218,9 @@ class RegressionTracker(Service):
         sys.stdout.flush()
         while True:
             node = self._api_helper.receive_event_node(sub_id)
-            if node['kind'] == 'checkout':
+            if node['kind'] == 'checkout' or node['kind'] == 'regression':
                 continue
-            if node['result'] == 'fail':
-                self._detect_regression(node)
-            # When a node hierarchy is submitted on a single operation,
-            # an event is generated only for the root node. Walk the
-            # children node tree to check for event-less failed jobs
-            failures = []
-            self._get_all_failed_child_nodes(failures, node)
-            for node in failures:
-                self._detect_regression(node)
-            sys.stdout.flush()
+            self._process_node(node)
         return True
 
 
