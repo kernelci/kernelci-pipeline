@@ -358,6 +358,10 @@ jobs:
     kind: test
 
   baseline-arm64-chromeos-qualcomm: *baseline-job
+  baseline-arm64-mediatek: *baseline-job
+  baseline-arm64-qualcomm: *baseline-job
+  baseline-x86-amd: *baseline-job
+  baseline-x86-intel: *baseline-job
   baseline-x86-pineview: *baseline-job
   baseline-x86-stoneyridge: *baseline-job
   baseline-x86-stoneyridge-staging: *baseline-job
