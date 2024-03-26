@@ -39,6 +39,7 @@
 
 import sys
 from datetime import datetime, timedelta, timezone
+import gzip
 import logging
 import os
 import shutil
@@ -167,17 +168,22 @@ class ResultSummary(Service):
             If snippet_lines < 0: the last snippet_lines log lines
         """
         response = requests.get(url)
-        if not len(response.text):
+        if not len(response.content):
             return None
+        try:
+            raw_bytes = gzip.decompress(response.content)
+            text = raw_bytes.decode('utf-8')
+        except gzip.BadGzipFile:
+            text = response.text
         if snippet_lines > 0:
-            lines = response.text.splitlines()
+            lines = text.splitlines()
             return '\n'.join(lines[:snippet_lines])
         elif snippet_lines < 0:
-            lines = response.text.splitlines()
+            lines = text.splitlines()
             # self.log.info(f"Lines: {lines}")
             # self.log.info(f"Number of lines: {len(lines)}")
             return '\n'.join(lines[snippet_lines:])
-        return response.text
+        return text
 
     def _iterate_node_find(self, params):
         """Request a node search to the KernelCI API based on a set of
