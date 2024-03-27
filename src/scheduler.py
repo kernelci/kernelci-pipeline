@@ -150,6 +150,7 @@ class Scheduler(Service):
             node['state'] = 'done'
             node['result'] = 'incomplete'
             node['data']['error_code'] = 'submit_error'
+            node['data']['error_msg'] = str(e)
             try:
                 self._api.node.update(node)
             except requests.exceptions.HTTPError as err:
