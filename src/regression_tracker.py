@@ -187,6 +187,9 @@ class RegressionTracker(Service):
                     resp = self._api_helper.submit_regression(regression)
                     reg = json.loads(resp.text)
                     self.log.info(f"Regression submitted: {reg['id']}")
+                    # Update node
+                    node['data']['regression'] = reg['id']
+                    self._api.node.update(node)
                 else:
                     self.log.info(f"Skipping regression: already exists")
             elif previous['result'] == 'fail':
@@ -203,6 +206,9 @@ class RegressionTracker(Service):
                     # Update active regression
                     regression['data']['node_sequence'].append(node['id'])
                     self._api.node.update(regression)
+                    # Update node
+                    node['data']['regression'] = regression['id']
+                    self._api.node.update(node)
         # Process children recursively:
         # When a node hierarchy is submitted on a single operation,
         # an event is generated only for the root node. Walk the
