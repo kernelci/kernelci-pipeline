@@ -193,3 +193,18 @@ services:
       - '--mode=holdoff'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  patchset:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-patchset'
+    command:
+      - './pipeline/patchset.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/ssh:/home/kernelci/data/ssh'
+      - './data/src:/home/kernelci/data/src'
+      - './data/output:/home/kernelci/data/output'
+
