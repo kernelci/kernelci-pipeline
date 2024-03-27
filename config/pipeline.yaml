@@ -170,6 +170,19 @@ runtimes:
         token: kernelci-api-token-lava-staging
         url: https://staging.kernelci.org:9100
 
+  lava-baylibre:
+    lab_type: lava
+    url: 'https://lava.baylibre.com/'
+    notify:
+      callback:
+        token: kernelci-new-api
+        url: https://staging.kernelci.org:9100
+    # rules:
+    #   tree:
+    #   - kernelci
+    #   - mainline
+    #   - next
+
   shell:
     lab_type: shell
 
@@ -187,6 +200,7 @@ jobs:
   baseline-arm64-broonie: *baseline-job
   baseline-armel: *baseline-job
   baseline-x86: *baseline-job
+  baseline-x86-baylibre: *baseline-job
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
@@ -421,6 +435,17 @@ scheduler:
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
+
+  - job: baseline-x86-baylibre
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    runtime:
+      type: lava
+      name: lava-baylibre
+    platforms:
+      - qemu-x86
 
   - job: kbuild-clang-17-x86
     <<: *build-k8s-all
