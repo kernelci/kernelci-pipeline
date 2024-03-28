@@ -170,6 +170,21 @@ runtimes:
         token: kernelci-api-token-lava-staging
         url: https://staging.kernelci.org:9100
 
+  lava-baylibre:
+    lab_type: lava
+    url: 'https://lava.baylibre.com/'
+    priority_min: 50
+    priority_max: 70
+    notify:
+      callback:
+        token: kernelci-new-api
+        url: https://staging.kernelci.org:9100
+    rules:
+      tree:
+      - kernelci
+      - mainline
+      - next
+
   shell:
     lab_type: shell
 
@@ -187,6 +202,8 @@ jobs:
   baseline-arm64-broonie: *baseline-job
   baseline-armel: *baseline-job
   baseline-x86: *baseline-job
+  baseline-x86-baylibre: *baseline-job
+  baseline-arm64-baylibre: *baseline-job
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
@@ -286,7 +303,7 @@ platforms:
 
   docker:
 
-  qemu-x86:
+  qemu-x86: &qemu-device
     base_name: qemu
     arch: x86_64
     boot_method: qemu
@@ -295,6 +312,8 @@ platforms:
       arch: x86_64
       cpu: qemu64
       guestfs_interface: ide
+
+  qemu: *qemu-device
 
   minnowboard-turbot-E3826: *x86_64-device
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
@@ -318,6 +337,11 @@ platforms:
     <<: *arm64-device
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
+
+  sun7i-a20-cubieboard2:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun7i-a20-cubieboard2.dtb
 
   meson-g12b-a311d-khadas-vim3:
     <<: *arm64-device
@@ -395,6 +419,17 @@ scheduler:
     platforms:
       - sun50i-h5-libretech-all-h3-cc
 
+  - job: baseline-arm64-baylibre
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-baylibre
+    platforms:
+      - sun7i-a20-cubieboard2
+
   - job: baseline-armel
     event:
       channel: node
@@ -421,6 +456,17 @@ scheduler:
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
+
+  - job: baseline-x86-baylibre
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    runtime:
+      type: lava
+      name: lava-baylibre
+    platforms:
+      - qemu
 
   - job: kbuild-clang-17-x86
     <<: *build-k8s-all
