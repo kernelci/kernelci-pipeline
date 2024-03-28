@@ -203,6 +203,7 @@ jobs:
   baseline-armel: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
+  baseline-arm64-baylibre: *baseline-job
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
@@ -337,6 +338,11 @@ platforms:
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
 
+  sun7i-a20-cubieboard2:
+    <<: *arm64-device
+    mach: allwinner
+    # dtb: dtbs/sun7i-a20-cubieboard2.dtb
+
   meson-g12b-a311d-khadas-vim3:
     <<: *arm64-device
     mach: amlogic
@@ -412,6 +418,17 @@ scheduler:
       name: lava-broonie
     platforms:
       - sun50i-h5-libretech-all-h3-cc
+
+  - job: baseline-arm64-baylibre
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-baylibre
+    platforms:
+      - sun7i-a20-cubieboard2
 
   - job: baseline-armel
     event:
