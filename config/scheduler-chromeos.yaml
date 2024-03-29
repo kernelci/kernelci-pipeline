@@ -62,37 +62,35 @@ _anchors:
     <<: *test-job-arm64-mediatek
     platforms: *qualcomm-platforms
 
-  test-job-chromeos-mediatek: &test-job-chromeos-mediatek
+  test-job-chromeos-amd: &test-job-chromeos-amd
     <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-chromeos-amd
+      result: pass
+    platforms: *amd-platforms
+
+  test-job-chromeos-intel: &test-job-chromeos-intel
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-chromeos-intel
+      result: pass
+    platforms: *intel-platforms
+
+  test-job-chromeos-mediatek: &test-job-chromeos-mediatek
+    <<: *test-job-arm64-mediatek
     event:
       channel: node
       name: kbuild-gcc-10-arm64-chromeos-mediatek
       result: pass
-    platforms: *mediatek-platforms
-
-  test-job-chromeos-pineview: &test-job-chromeos-pineview
-    <<: *lava-job-collabora
-    event:
-      channel: node
-      name: kbuild-gcc-10-x86-chromeos-pineview
-      result: pass
-    platforms: *intel-platforms
 
   test-job-chromeos-qualcomm: &test-job-chromeos-qualcomm
-    <<: *lava-job-collabora
+    <<: *test-job-arm64-qualcomm
     event:
       channel: node
       name: kbuild-gcc-10-arm64-chromeos-qualcomm
       result: pass
-    platforms: *qualcomm-platforms
-
-  test-job-chromeos-stoneyridge: &test-job-chromeos-stoneyridge
-    <<: *lava-job-collabora
-    event:
-      channel: node
-      name: kbuild-gcc-10-x86-chromeos-stoneyridge
-      result: pass
-    platforms: *amd-platforms
 
   test-job-x86-amd: &test-job-x86-amd
     <<: *lava-job-collabora
@@ -121,24 +119,24 @@ scheduler:
     <<: *test-job-arm64-qualcomm
 
   - job: baseline-x86-amd
-    <<: *test-job-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: baseline-x86-intel
-    <<: *test-job-x86-intel
-
-  - job: baseline-x86-pineview
-    <<: *test-job-chromeos-pineview
-
-  - job: baseline-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
-
-  - job: baseline-x86-stoneyridge-staging
-    <<: *test-job-chromeos-stoneyridge
+  - job: baseline-x86-amd-staging
+    <<: *test-job-chromeos-amd
     runtime:
       type: lava
       name: lava-collabora-staging
     platforms:
     - dell-latitude-3445-7520c-skyrim
+
+  - job: baseline-x86-amd
+    <<: *test-job-x86-amd
+
+  - job: baseline-x86-intel
+    <<: *test-job-chromeos-intel
+
+  - job: baseline-x86-intel
+    <<: *test-job-x86-intel
 
   - job: kbuild-gcc-10-arm64-chromebook
     <<: *build-k8s-all
@@ -149,10 +147,10 @@ scheduler:
   - job: kbuild-gcc-10-arm64-chromeos-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-chromeos-pineview
+  - job: kbuild-gcc-10-x86-chromeos-amd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-chromeos-stoneyridge
+  - job: kbuild-gcc-10-x86-chromeos-intel
     <<: *build-k8s-all
 
   - job: kselftest-dt
@@ -169,11 +167,11 @@ scheduler:
   - job: tast-basic-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-basic-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-basic-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-basic-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-basic-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-decoder-chromestack-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -184,11 +182,11 @@ scheduler:
   - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-decoder-chromestack-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-decoder-chromestack-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-decoder-chromestack-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-decoder-chromestack-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-decoder-v4l2-sl-av1-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -238,11 +236,11 @@ scheduler:
   - job: tast-hardware-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-hardware-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-hardware-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-hardware-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-hardware-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-kernel-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -250,11 +248,11 @@ scheduler:
   - job: tast-kernel-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-kernel-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-kernel-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-kernel-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-kernel-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-mm-decode-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -271,11 +269,11 @@ scheduler:
   - job: tast-mm-misc-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-mm-misc-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-mm-misc-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-mm-misc-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-mm-misc-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-perf-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -283,11 +281,11 @@ scheduler:
   - job: tast-perf-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-perf-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-perf-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-perf-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-perf-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-perf-long-duration-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -295,11 +293,11 @@ scheduler:
   - job: tast-perf-long-duration-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-perf-long-duration-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-perf-long-duration-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-perf-long-duration-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-perf-long-duration-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-platform-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -307,11 +305,11 @@ scheduler:
   - job: tast-platform-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-platform-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-platform-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-platform-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-platform-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-power-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -319,11 +317,11 @@ scheduler:
   - job: tast-power-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-power-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-power-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-power-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-power-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-sound-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -331,11 +329,11 @@ scheduler:
   - job: tast-sound-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-sound-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-sound-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-sound-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-sound-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-ui-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -343,8 +341,8 @@ scheduler:
   - job: tast-ui-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-ui-x86-pineview
-    <<: *test-job-chromeos-pineview
+  - job: tast-ui-x86-amd
+    <<: *test-job-chromeos-amd
 
-  - job: tast-ui-x86-stoneyridge
-    <<: *test-job-chromeos-stoneyridge
+  - job: tast-ui-x86-intel
+    <<: *test-job-chromeos-intel
