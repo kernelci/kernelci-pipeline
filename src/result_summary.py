@@ -38,6 +38,7 @@
 # - Other suggested improvements
 
 import sys
+import concurrent.futures
 from datetime import datetime, timedelta, timezone
 import gzip
 import logging
@@ -268,12 +269,14 @@ class ResultSummary(Service):
         self.log.info(f"Checking logs ...")
         progress_total = len(nodes)
         progress = 0
-        for node in nodes:
-            self._get_logs(node)
-            progress += 1
-            if progress >= progress_total / 10:
-                print('.', end='', flush=True)
-                progress = 0
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = {executor.submit(self._get_logs, node) for node in nodes}
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                progress += 1
+                if progress >= progress_total / 10:
+                    print('.', end='', flush=True)
+                    progress = 0
         print('', flush=True)
 
         # Group results by tree/branch

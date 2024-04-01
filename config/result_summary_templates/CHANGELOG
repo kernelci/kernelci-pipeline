@@ -1,3 +1,7 @@
+2 April 2024
+	Improve performance by fetching logs from each job in parallel with
+	ThreadPoolExecutor.
+
 25 March 2024
 	Add support for a "metadata" section in the preset definitions. Each
 	preset now contains a "metadata" section and a "preset" section,
