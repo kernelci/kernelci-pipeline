@@ -185,6 +185,40 @@ class ResultSummary(Service):
             return '\n'.join(lines[snippet_lines:])
         return text
 
+    def _get_logs(self, node):
+        """
+        Retrieves and processes logs from a specified node.
+
+        This method iterates over a node's 'artifacts', if present, to find log
+        files. It identifies log files based on their item names, either being
+        'log' or ending with '_log'. For each identified log file, it obtains
+        the content by calling the `_get_log` method with the last 10 lines of
+        the log. If the content is not empty, it then stores this log data in a
+        dictionary, which includes both the URL of the log and its text content.
+        Finally, it updates the 'logs' key of the input `node` with this
+        dictionary of log data.
+
+        Args:
+            node (dict): A dictionary representing a node, which should contain
+            an 'artifacts' key with log information.
+
+        Modifies:
+            The input `node` dictionary is modified in-place by adding a new key
+            'logs', which contains a dictionary of processed log data. Each key
+            in this 'logs' dictionary is a log name, and the corresponding value
+            is another dictionary with keys 'url' (the URL of the log file) and
+            'text' (the content of the log file).
+        """
+        logs = {}
+        if node.get('artifacts'):
+            all_logs = {item: url for item, url in node['artifacts'].items()
+                        if item == 'log' or item.endswith('_log')}
+            for log_name, url in all_logs.items():
+                text = self._get_log(url, snippet_lines=-10)
+                if text:
+                    logs[log_name] = {'url': url, 'text': text}
+        node['logs'] = logs
+
     def _iterate_node_find(self, params):
         """Request a node search to the KernelCI API based on a set of
         search parameters (a dict). The search is split into iterative
@@ -235,15 +269,7 @@ class ResultSummary(Service):
         progress_total = len(nodes)
         progress = 0
         for node in nodes:
-            logs = {}
-            if node.get('artifacts'):
-                all_logs = {item: url for item, url in node['artifacts'].items()
-                            if item == 'log' or item.endswith('_log')}
-                for log_name, url in all_logs.items():
-                    text = self._get_log(url, snippet_lines=-10)
-                    if text:
-                        logs[log_name] = {'url': url, 'text': text}
-            node['logs'] = logs
+            self._get_logs(node)
             progress += 1
             if progress >= progress_total / 10:
                 print('.', end='', flush=True)
