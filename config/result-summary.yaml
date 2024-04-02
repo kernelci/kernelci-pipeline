@@ -48,7 +48,7 @@
 #      - name_re: mytest
 
 
-# stable-rc kernel build regressions
+# New stable-rc kernel build regressions
 stable-rc-build-regressions:
   metadata:
     title: "stable-rc kernel build regressions"
@@ -57,6 +57,20 @@ stable-rc-build-regressions:
   preset:
     regression:
       - name__re: kbuild
+        repos:
+          - tree: stable-rc
+
+# All active stable-rc kernel build regressions
+stable-rc-build-active-regressions:
+  metadata:
+    title: "stable-rc kernel build regressions"
+    template: "generic-regressions.html.jinja2"
+    output: "stable-rc-build-regressions.html"
+  preset:
+    regression:
+      - name__re: kbuild
+        # Regressions with result = fail are "active", ie. still failing
+        result: fail
         repos:
           - tree: stable-rc
 
@@ -81,6 +95,20 @@ stable-rc-boot-regressions:
   preset:
     regression:
       - group__re: baseline
+        repos:
+          - tree: stable-rc
+
+# stable-rc kernel boot active regressions
+stable-rc-boot-active-regressions:
+  metadata:
+    title: "stable-rc kernel boot regressions"
+    template: "generic-regressions.html.jinja2"
+    output: "stable-rc-boot-regressions.html"
+  preset:
+    regression:
+      - group__re: baseline
+        # Regressions with result = fail are "active", ie. still failing
+        result: fail
         repos:
           - tree: stable-rc
 
@@ -118,6 +146,22 @@ mainline-next-regressions:
   preset:
     regression:
       - data.error_code: null
+        repos:
+          - tree: mainline
+          - tree: next
+
+# General regressions (kbuilds and all tests) on mainline and next
+# excluding those triggered by runtime errors
+mainline-next-active-regressions:
+  metadata:
+    title: "Regressions found in mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output: "mainline-next-active-regressions.html"
+  preset:
+    regression:
+      - data.error_code: null
+        # Regressions with result = fail are "active", ie. still failing
+        result: fail
         repos:
           - tree: mainline
           - tree: next
