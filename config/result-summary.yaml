@@ -83,6 +83,7 @@ stable-rc-build-failures:
   preset:
     test:
       - kind: kbuild
+        result: fail
         repos:
           - tree: stable-rc
 
@@ -121,6 +122,7 @@ stable-rc-boot-failures:
   preset:
     test:
       - group__re: baseline
+        result: fail
         repos:
           - tree: stable-rc
 
