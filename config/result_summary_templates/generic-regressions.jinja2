@@ -40,11 +40,25 @@ No regressions found.
         regression['data']['failed_kernel_version'] %}
     KernelCI node id: {{ regression['id'] }}
     Test name: {{ regression['name'] }} ({{ regression['group'] }})
-    Date: {{ regression['created'] }}
-    Tree: {{ kernel_version['tree'] }}
+    {% if regression['result'] == 'fail' -%}
+    Status: Active
+    {% elif regression['result'] == 'pass' -%}
+    Status: Inactive | Passed run: {{ regression['data']['node_sequence'][-1] }}
+    {% else -%}
+    Status: Unknown
+    {% endif -%}
+    Introduced in: {{ regression['created'] }} ({{ regression['data']['fail_node'] }})
+    Previous successful run: {{ regression['data']['pass_node'] }}
+    {% if regression['result'] == 'fail' and regression['data']['node_sequence'] -%}
+    Failed runs after detection:
+      {% for run in regression['data']['node_sequence'] -%}
+      - {{ run }}
+      {% endfor -%}
+    {% endif -%}
+    Tree: {{ kernel_version['tree'] }} ({{ kernel_version['url'] }})
     Branch: {{ kernel_version['branch'] }}
     Kernel version: {{ kernel_version['describe'] }}
-    Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})
+    Commit: {{ kernel_version['commit'] }}
     Arch : {{ regression['data']['arch'] }}
     Config: {{ regression['data']['config_full'] }}
     Compiler: {{ regression['data']['compiler'] }}

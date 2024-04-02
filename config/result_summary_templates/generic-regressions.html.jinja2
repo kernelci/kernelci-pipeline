@@ -66,21 +66,46 @@ expects the following input parameters:
               {{ regression['name'] }} ({{ regression['group'] }})
             </h3>
             <ul>
-              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['id'] }}">
-                  {{ regression['id'] }}</a></li>
-                  <li>Date: {{ regression['created'] }}</li>
-              <li>Tree: {{ kernel_version['tree'] }}</li>
+              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['id'] }}" target="_blank" rel="noopener noreferrer">{{ regression['id'] }}</a>
+              </li>
+              <li>Status:
+              {% if regression['result'] == 'fail' %}
+                <span class="badge text-bg-danger">ACTIVE</span>
+              {% elif regression['result'] == 'pass' %}
+                <span class="badge text-bg-success">INACTIVE</span> | Passed run: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['data']['node_sequence'][-1] }}" target="_blank" rel="noopener noreferrer">{{ regression['data']['node_sequence'][-1] }}</a>
+              {% else %}
+                Unknown
+              {% endif %}
+              <li>
+                Introduced in: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['data']['fail_node'] }}" target="_blank" rel="noopener noreferrer">{{ regression['created'] }}</a>
+              </li>
+              <li>
+                Previous successful run: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['data']['pass_node'] }}" target="_blank" rel="noopener noreferrer">{{ regression['data']['pass_node'] }}</a> 
+              </li>
+
+              {% if regression['result'] == 'fail' and regression['data']['node_sequence'] %}
+                <li>
+                  Failed runs after detection:
+                  <ul>
+                    {% for run in regression['data']['node_sequence'] %}
+                      <li>
+                        <a href="https://staging.kernelci.org:9000/viewer?node_id={{ run }}" target="_blank" rel="noopener noreferrer">{{ run }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              {% endif %}
+              <li>Tree: <a href="{{ kernel_version['url'] }}" target="_blank" rel="noopener noreferrer">{{ kernel_version['tree'] }}</a></li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
-              <li>Kernel version: {{ kernel_version['describe'] }}</li>
-              <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})</li>
+              <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['describe'] }})</li>
               <li>Arch : {{ regression['data']['arch'] }}</li>
               <li>Config: {{ regression['data']['config_full'] }}</li>
               <li>Compiler: {{ regression['data']['compiler'] }}</li>
               {% if regression['data']['error_code'] -%}
-                <li>Error code: {{ regression['data']['error_code'] }}</li>
+                <li>Error code: <code>{{ regression['data']['error_code'] }}</code></li>
               {% endif -%}
               {% if regression['data']['error_msg'] -%}
-                <li>Error message: {{ regression['data']['error_msg'] }}</li>
+                <li>Error message: <code>{{ regression['data']['error_msg'] }}</code></li>
               {% endif -%}
               {% if regression['logs'] | count > 0 -%}
                 <li>Logs:
