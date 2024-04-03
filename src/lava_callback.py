@@ -6,6 +6,7 @@
 import os
 import tempfile
 
+import gzip
 import requests
 from flask import Flask, request
 import toml
@@ -39,16 +40,15 @@ def _get_storage(storage_config_name):
 
 
 def _upload_log(log_parser, job_node, storage):
-    with tempfile.NamedTemporaryFile(mode='w') as log_txt:
-        log_parser.get_text_log(log_txt)
-        os.chmod(log_txt.name, 0o644)
+    # create temporary file to store log with gzip
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # open gzip in explicit text mode to avoid platform-dependent line endings
+        with gzip.open(os.path.join(tmp_dir, 'lava_log.txt.gz'), 'wt') as f:
+            log_parser.get_text_log(f)
         log_dir = '-'.join((job_node['name'], job_node['id']))
-        log_txt.flush()
-        # Check size of log file before uploading,
-        # if it's empty, don't upload
-        if os.path.getsize(log_txt.name) == 0:
-            return None
-        return storage.upload_single((log_txt.name, 'log.txt'), log_dir)
+        os.chdir(tmp_dir)
+        r = storage.upload_single(('lava_log.txt.gz', 'log.txt.gz'), log_dir)
+        return r
 
 
 @app.errorhandler(requests.exceptions.HTTPError)
