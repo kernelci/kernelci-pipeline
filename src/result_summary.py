@@ -43,6 +43,7 @@ from datetime import datetime, timedelta, timezone
 import gzip
 import logging
 import os
+import re
 import shutil
 
 import jinja2
@@ -60,12 +61,33 @@ TEMPLATES_DIR = './config/result_summary_templates/'
 OUTPUT_DIR = '/home/kernelci/data/output/'
 
 
+def split_query_params(query_string):
+    """Given a string input formatted like this:
+
+           parameter1=value1,parameter2=value2,...,parameterN=valueN
+
+       return a dict containing the string information where the
+       parameters are the dict keys:
+
+           {'parameter1': 'value1',
+            'parameter2': 'value2',
+            ...,
+            'parameterN': 'valueN'
+           }
+    """
+    query_dict = {}
+    matches = re.findall('([^ =,]+)\s*=\s*([^ =,]+)', query_string)  # noqa: W605
+    for operator, value in matches:
+        query_dict[operator] = value
+    return query_dict
+
+
 class ResultSummary(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, SERVICE_NAME)
         if args.verbose:
             self.log._logger.setLevel(logging.DEBUG)
-        ## Load and sanity check command line parameters
+        # Load and sanity check command line parameters
         # self._config: the complete config file contents
         # self._preset_name: name of the selected preset to use
         # self._preset: loaded config for the selected preset
@@ -79,6 +101,10 @@ class ResultSummary(Service):
             self.log.error(f"No {self._preset_name} preset found in {args.config}")
             sys.exit(1)
         self._preset = self._config[self._preset_name]
+        # Additional query parameters and date parameters
+        self._extra_query_params = {}
+        if args.query_params:
+            self._extra_query_params = split_query_params(args.query_params)
         self._created_from = args.created_from
         self._created_to = args.created_to
         self._last_updated_from = args.last_updated_from
@@ -266,10 +292,14 @@ class ResultSummary(Service):
             sys.exit(1)
         template = template_env.get_template(metadata['template'])
 
-        # Collect results
+        # Run queries and collect results
         nodes = []
+        metadata['queries'] = []
         for params_set in params:
+            # Apply extra query parameters from command line, if any
+            params_set.update(self._extra_query_params)
             self.log.debug(f"Query: {params_set}")
+            metadata['queries'].append(params_set)
             query_results = self._iterate_node_find(params_set)
             self.log.debug(f"Query matches found: {len(query_results)}")
             nodes.extend(query_results)
@@ -386,6 +416,11 @@ class cmd_run(Command):
         {
             'name': '--output',
             'help': "Override the 'output' preset parameter"
+        },
+        {
+            'name': '--query-params',
+            'help': ("Additional query parameters: "
+                     "'<paramX>=<valueX>,<paramY>=<valueY>'")
         },
         Args.verbose,
     ]
