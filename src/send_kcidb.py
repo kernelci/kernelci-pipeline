@@ -57,6 +57,24 @@ class KCIDBBridge(Service):
                 created_time.timestamp(), tz=tz_utc)
         return created_time.isoformat()
 
+    def _parse_build_nodes(self, origin, build_nodes):
+        parsed_build_nodes = []
+        for node in build_nodes:
+            parsed_node = {
+                'id': f"{origin}:{node['id']}",
+                'checkout_id': f"{origin}:{node['parent']}",
+                'comment': node['data']['kernel_revision'].get('describe'),
+                'origin': origin,
+                'architecture': node['data'].get('arch'),
+                'compiler': node['data'].get('compiler'),
+                'config_name': node['data'].get('config_full'),
+                'start_time': self._set_timezone(node['created']),
+                'log_url': node.get('artifacts', {}).get('build_log'),
+                'valid': node['result'] == 'pass',
+            }
+            parsed_build_nodes.append(parsed_node)
+        return parsed_build_nodes
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
@@ -65,8 +83,12 @@ class KCIDBBridge(Service):
             node = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {node['id']}")
 
+            build_nodes = self._api.node.find({
+                'parent': node['id'],
+                'kind': 'kbuild'
+            })
+
             revision = {
-                'builds': [],
                 'checkouts': [
                     {
                         'id': f"{context['origin']}:{node['id']}",
@@ -85,6 +107,7 @@ class KCIDBBridge(Service):
                         },
                     }
                 ],
+                'builds': self._parse_build_nodes(context['origin'], build_nodes),
                 'tests': [],
                 'version': {
                     'major': 4,
