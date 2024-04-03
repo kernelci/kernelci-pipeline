@@ -25,22 +25,39 @@ expects the following input parameters:
 #}
 
 {% extends "base.html" %}
+{% set title = metadata['title'] if 'title' in metadata else 'Test failures: ' %}
+
 {% block title %}
-  {% if 'title' in metadata %}
-    {{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
-  {% else %}
-    Test failures from {{ from_date }} to {{ to_date }}
-  {% endif %}
+  {{ title | striptags }}
 {% endblock %}
 
 {% block content %}
-  <h1 class="text-bg-light p-3 rounded">
-    {% if 'title' in metadata %}
-      {{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
-    {% else %}
-      Test failures from {{ from_date }} to {{ to_date }}
-    {% endif %}
+  {% if created_from and created_to %}
+    {% set created_string = 'Created between ' + created_from + ' and ' + created_to %}
+  {% elif created_from %}
+    {% set created_string = 'Created after ' + created_from %}
+  {% elif created_to %}
+    {% set created_string = 'Created before ' + created_to %}
+  {% endif %}
+  {% if last_updated_from and last_updated_to %}
+    {% set last_updated_string = 'Last updated between ' + last_updated_from + ' and ' + last_updated_to %}
+  {% elif last_updated_from %}
+    {% set last_updated_string = 'Last updated after ' + last_updated_from %}
+  {% elif last_updated_to %}
+    {% set last_updated_string = 'Last updated before ' + last_updated_to %}
+  {% endif %}
+
+  <h1 class="text-bg-light p-3 rounded">{{ title }}
+    <ul>
+      {% if created_string %}
+        <li>{{ created_string }}</li>
+      {% endif %}
+      {% if last_updated_string %}
+        <li>{{ last_updated_string }}</li>
+      {% endif %}
+    </ul>
   </h1>
+
   {% if results_per_branch | count == 0 %}
     No failures found.
   {% else -%}

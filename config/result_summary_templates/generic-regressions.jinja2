@@ -24,10 +24,26 @@ the following input parameters:
     }
 #}
 
-{% if 'title' in metadata -%}
-{{ metadata['title'] }} from {{ from_date }} to {{ to_date }}
-{% else -%}
-Regressions from {{ from_date }} to {{ to_date }}
+{% if created_from and created_to -%}
+  {% set created_string = 'Created between ' + created_from + ' and ' + created_to -%}
+{% elif created_from -%}
+  {% set created_string = 'Created after ' + created_from -%}
+{% elif created_to %}
+  {% set created_string = 'Created before ' + created_to -%}
+{% endif -%}
+{% if last_updated_from and last_updated_to -%}
+  {% set last_updated_string = 'Last updated between ' + last_updated_from + ' and ' + last_updated_to -%}
+{% elif last_updated_from -%}
+  {% set last_updated_string = 'Last updated after ' + last_updated_from -%}
+{% elif last_updated_to -%}
+  {% set last_updated_string = 'Last updated before ' + last_updated_to -%}
+{% endif -%}
+{{ metadata['title'] if 'title' in metadata else 'Regression summary: ' }}
+{% if created_string -%}
+  - {{ created_string }}
+{% endif -%}
+{% if last_updated_string -%}
+  - {{ last_updated_string }}
 {% endif -%}
 {% if results_per_branch | count == 0 %}
 No regressions found.
@@ -71,7 +87,7 @@ No regressions found.
     {% if regression['logs'] | count > 0 -%}
     Logs:
       {% for log in regression['logs'] -%}
-      - {{ log }}: {{ regression['logs'][log] }}
+      - {{ log }}: {{ regression['logs'][log]['url'] }}
       {% endfor %}
     {% else -%}
     No logs available
