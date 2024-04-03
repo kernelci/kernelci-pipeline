@@ -51,7 +51,7 @@
 # New stable-rc kernel build regressions
 stable-rc-build-regressions:
   metadata:
-    title: "stable-rc kernel build regressions"
+    title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-build-regressions.html"
   preset:
@@ -63,7 +63,7 @@ stable-rc-build-regressions:
 # All active stable-rc kernel build regressions
 stable-rc-build-active-regressions:
   metadata:
-    title: "stable-rc kernel build regressions"
+    title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-build-regressions.html"
   preset:
@@ -77,7 +77,7 @@ stable-rc-build-active-regressions:
 # stable-rc kernel build failures
 stable-rc-build-failures:
   metadata:
-    title: "stable-rc kernel build failures"
+    title: "<strong>stable-rc</strong> kernel build failures"
     template: "generic-test-failures.html.jinja2"
     output: "stable-rc-build-failures.html"
   preset:
@@ -90,7 +90,7 @@ stable-rc-build-failures:
 # stable-rc kernel boot regressions
 stable-rc-boot-regressions:
   metadata:
-    title: "stable-rc kernel boot regressions"
+    title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-boot-regressions.html"
   preset:
@@ -102,7 +102,7 @@ stable-rc-boot-regressions:
 # stable-rc kernel boot active regressions
 stable-rc-boot-active-regressions:
   metadata:
-    title: "stable-rc kernel boot regressions"
+    title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-boot-regressions.html"
   preset:
@@ -116,7 +116,7 @@ stable-rc-boot-active-regressions:
 # stable-rc kernel boot failures
 stable-rc-boot-failures:
   metadata:
-    title: "stable-rc kernel boot failures"
+    title: "<strong>stable-rc</strong> kernel boot failures"
     template: "generic-test-failures.html.jinja2"
     output: "stable-rc-boot-failures.html"
   preset:
