@@ -65,6 +65,7 @@ class ResultSummary(Service):
         super().__init__(configs, args, SERVICE_NAME)
         if args.verbose:
             self.log._logger.setLevel(logging.DEBUG)
+        ## Load and sanity check command line parameters
         # self._config: the complete config file contents
         # self._preset_name: name of the selected preset to use
         # self._preset: loaded config for the selected preset
@@ -78,16 +79,23 @@ class ResultSummary(Service):
             self.log.error(f"No {self._preset_name} preset found in {args.config}")
             sys.exit(1)
         self._preset = self._config[self._preset_name]
-        if args.from_date:
-            self._from_date = args.from_date
-        else:
-            date = datetime.now(timezone.utc) - timedelta(days=1)
-            self._from_date = date.strftime("%Y-%m-%dT%H:%M:%S")
-        if args.to_date:
-            self._to_date = args.to_date
-        else:
-            date = datetime.now(timezone.utc)
-            self._to_date = date.strftime("%Y-%m-%dT%H:%M:%S")
+        self._created_from = args.created_from
+        self._created_to = args.created_to
+        self._last_updated_from = args.last_updated_from
+        self._last_updated_to = args.last_updated_to
+        # Default if no dates are specified: created since yesterday
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
+        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        if not any([self._created_from,
+                    self._created_to,
+                    self._last_updated_from,
+                    self._last_updated_to]):
+            self._created_from = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
+        if not self._created_to and not self._last_updated_to:
+            if self._last_updated_from:
+                self._last_updated_to = now_str
+            else:
+                self._created_to = now_str
         self._output = None
         if args.output:
             self._output = args.output
@@ -118,10 +126,14 @@ class ResultSummary(Service):
         kernel_revision_field = 'data.kernel_revision'
         if kind == 'regression':
             kernel_revision_field = 'data.failed_kernel_version'
-        if self._from_date:
-            base_params['created__gt'] = self._from_date
-        if self._to_date:
-            base_params['created__lt'] = self._to_date
+        if self._created_from:
+            base_params['created__gt'] = self._created_from
+        if self._created_to:
+            base_params['created__lt'] = self._created_to
+        if self._last_updated_from:
+            base_params['updated__gt'] = self._last_updated_from
+        if self._last_updated_to:
+            base_params['updated__lt'] = self._last_updated_to
         if not block:
             return [{**base_params}]
         query_params = []
@@ -298,8 +310,8 @@ class ResultSummary(Service):
 
         # Data provided to the templates:
         # - metadata: preset-specific metadata
-        # - from_date: start date of the results query
-        # - to_date: end date of the results query
+        # - query date specifications and ranges:
+        #     created_to, created_from, last_updated_to, last_updated_from
         # - results_per_branch: a dict containing the result nodes
         #   grouped by tree and branch like this:
         #
@@ -319,8 +331,10 @@ class ResultSummary(Service):
         template_params = {
             'metadata': metadata,
             'results_per_branch': results_per_branch,
-            'from_date': self._from_date,
-            'to_date': self._to_date,
+            'created_from': self._created_from,
+            'created_to': self._created_to,
+            'last_updated_from': self._last_updated_from,
+            'last_updated_to': self._last_updated_to,
         }
         output_text = template.render(template_params)
         if not self._output:
@@ -350,14 +364,24 @@ class cmd_run(Command):
             'help': "Configuration preset to load ('default' if none)",
         },
         {
-            'name': '--from-date',
-            'help': ("Date from which to start collecting results "
-                     "(YYYY-MM-DD). Default: one day before"),
+            'name': '--created-from',
+            'help': ("Collect results created since this date and time"
+                     "(YYYY-mm-DDTHH:MM:SS). Default: since last 24 hours"),
         },
         {
-            'name': '--to-date',
-            'help': ("Collect results up to this date (YYYY-MM-DD). "
-                     "Default: now"),
+            'name': '--created-to',
+            'help': ("Collect results created up to this date and time "
+                     "(YYYY-mm-DDTHH:MM:SS). Default: until now"),
+        },
+        {
+            'name': '--last-updated-from',
+            'help': ("Collect results that were last updated since this date and time"
+                     "(YYYY-mm-DDTHH:MM:SS). Default: since last 24 hours"),
+        },
+        {
+            'name': '--last-updated-to',
+            'help': ("Collect results that were last updated up to this date and time "
+                     "(YYYY-mm-DDTHH:MM:SS). Default: until now"),
         },
         {
             'name': '--output',
