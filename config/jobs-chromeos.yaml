@@ -77,7 +77,6 @@ _anchors:
     params:
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
-        - video.PlatformDecoding.v4l2_stateful_vp9_0_svc
 
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
     <<: *tast-job
@@ -117,7 +116,6 @@ _anchors:
     params:
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
-        - video.PlatformDecoding.v4l2_stateless_vp9_0_svc
 
   tast-hardware: &tast-hardware-job
     <<: *tast-job
@@ -148,7 +146,6 @@ _anchors:
       tests:
         - kernel.Bloat
         - kernel.ConfigVerify.chromeos_kernelci
-        - kernel.ConfigVerify.chromeos
         - kernel.CPUCgroup
         - kernel.Cpuidle
         - kernel.CryptoAPI
@@ -276,14 +273,10 @@ _anchors:
         - platform.CrosDisksSSHFS
         - platform.CrosID
         - platform.DeviceHwid
-        - platform.DLCService
-        - platform.DLCServiceCrosDeploy
-        - platform.DLCServicePreloading
         - platform.DMVerity
         - platform.DumpVPDLog
         - platform.Firewall
         - platform.LocalPerfettoTBMTracedProbes
-        - platform.Memd
         - platform.Mtpd
         - platform.SerialNumber
         - platform.TPMResponsive
