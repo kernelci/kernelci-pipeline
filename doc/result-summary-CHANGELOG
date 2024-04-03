@@ -1,0 +1,57 @@
+3 April 2024
+	Rework the command-line options to specify the date parameters in
+	queries:
+	  * --created-from: results created since a specific date and time
+	  * --created-to: results created until a specific date and time
+	  * --last-updated-from: results last updated since a specific
+	    date and time
+	  * --last-updated-to: results last updated until a specific date
+	    and time
+	They all take a timestamp with format: YYYY-mm-DDTHH:MM:SS. Time
+	is optional.
+
+	New command-line option to allow the specification of extra query
+	parameters: --query-params. The parameters must be given in a
+	string formatted like this: "<paramX>=<valueX>,<paramY>=<valueY>..."
+	These parameters may override base parameters defined in the
+	presets.
+
+	This CHANGELOG moved to doc/result-summary-CHANGELOG
+
+2 April 2024
+	Improve performance by fetching logs from each job in parallel with
+	ThreadPoolExecutor.
+
+	A regression can now be "active" (when the test hasn't passed
+	since the regression was created) or "inactive" (when a test run
+	has passed since it was created). This is encoded in the "result"
+	field of a regression: result="fail" for "active" regressions and
+	"pass" for "inactive" ones.
+
+	Each regression now stores a list of test runs that ran after the
+	regression was detected. For inactive regressions, it stores up to
+	(and including) the first test run that passed after the
+	regression was created.
+
+	Generic regression templates updated to print this new
+	information.
+
+25 March 2024
+	Add support for a "metadata" section in the preset definitions. Each
+	preset now contains a "metadata" section and a "preset" section,
+	which contains the query parameters.
+
+	All current examples now use the same set of generic templates.
+
+	Preset-specific customizations, such as the report title, are now
+	defined in the "metadata" sections.
+
+	Preset-template association is no longer done via soft-links. Each
+	preset defines the template it uses in its "metadata.template"
+	field.
+
+	Each preset may now define its default output file name in the
+	"metadata.output" field. This can be overriden with the --output
+	command line option.
+
+	Documentation updated and this CHANGELOG file added.
