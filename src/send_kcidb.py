@@ -57,6 +57,34 @@ class KCIDBBridge(Service):
                 created_time.timestamp(), tz=tz_utc)
         return created_time.isoformat()
 
+    def _parse_checkout_node(self, origin, checkout_node):
+        result = checkout_node.get('result')
+        result_map = {
+            'pass': True,
+            'fail': False,
+            'incomplete': False,
+        }
+        valid = result_map[result] if result else None
+        return {
+            'id': f"{origin}:{checkout_node['id']}",
+            'origin': origin,
+            'tree_name': checkout_node['data']['kernel_revision']['tree'],
+            'git_repository_url':
+                checkout_node['data']['kernel_revision']['url'],
+            'git_commit_hash':
+                checkout_node['data']['kernel_revision']['commit'],
+            'git_commit_name':
+                checkout_node['data']['kernel_revision'].get('describe'),
+            'git_repository_branch':
+                checkout_node['data']['kernel_revision']['branch'],
+            'start_time': self._set_timezone(checkout_node['created']),
+            'patchset_hash': '',
+            'misc': {
+                'submitted_by': 'kernelci-pipeline'
+            },
+            'valid': valid,
+        }
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
@@ -68,22 +96,7 @@ class KCIDBBridge(Service):
             revision = {
                 'builds': [],
                 'checkouts': [
-                    {
-                        'id': f"{context['origin']}:{node['id']}",
-                        'origin': context['origin'],
-                        'tree_name': node['data']['kernel_revision']['tree'],
-                        'git_repository_url':
-                            node['data']['kernel_revision']['url'],
-                        'git_commit_hash':
-                            node['data']['kernel_revision']['commit'],
-                        'git_repository_branch':
-                            node['data']['kernel_revision']['branch'],
-                        'start_time': self._set_timezone(node['created']),
-                        'patchset_hash': '',
-                        'misc': {
-                            'submitted_by': 'kernelci-pipeline'
-                        },
-                    }
+                    self._parse_checkout_node(context['origin'], node)
                 ],
                 'tests': [],
                 'version': {
