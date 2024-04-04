@@ -145,6 +145,9 @@ scheduler:
   - job: tast-decoder-chromestack-arm64-qualcomm
     <<: *test-job-qualcomm
 
+  - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
+    <<: *test-job-qualcomm
+
   - job: tast-decoder-chromestack-x86-pineview
     <<: *test-job-pineview
 
@@ -192,7 +195,13 @@ scheduler:
   - job: tast-decoder-v4l2-sf-vp9-arm64-qualcomm
     <<: *test-job-qualcomm
 
+  - job: tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7
+    <<: *test-job-qualcomm
+
   - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm
+    <<: *test-job-qualcomm
+
+  - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7
     <<: *test-job-qualcomm
 
   - job: tast-hardware-arm64-mediatek
