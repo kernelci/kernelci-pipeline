@@ -163,11 +163,6 @@ scheduler:
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
-  - job: tast-decoder-v4l2-sl-hevc-arm64-mediatek
-    <<: *test-job-mediatek
-    platforms:
-      - mt8195-cherry-tomato-r2
-
   - job: tast-decoder-v4l2-sl-vp8-arm64-mediatek
     <<: *test-job-mediatek
     platforms:
@@ -181,9 +176,6 @@ scheduler:
       - mt8195-cherry-tomato-r2
 
   - job: tast-decoder-v4l2-sf-h264-arm64-qualcomm
-    <<: *test-job-qualcomm
-
-  - job: tast-decoder-v4l2-sf-hevc-arm64-qualcomm
     <<: *test-job-qualcomm
 
   - job: tast-decoder-v4l2-sf-vp8-arm64-qualcomm
