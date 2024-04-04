@@ -27,6 +27,16 @@ _anchors:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
 
+  min-6_7-rules: &min-6_7-rules
+    min_version:
+      version: 6
+      patchlevel: 7
+
+  max-6_6-rules: &max-6_6-rules
+    max_version:
+      version: 6
+      patchlevel: 6
+
   tast: &tast-job
     template: tast.jinja2
     kind: test
@@ -40,7 +50,7 @@ _anchors:
 
   tast-decoder-chromestack: &tast-decoder-chromestack-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-chromestack-params
       tests:
         - video.ChromeStackDecoder.*
         - video.ChromeStackDecoderVerification.*
@@ -69,7 +79,7 @@ _anchors:
 
   tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sf-vp9-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
@@ -81,7 +91,7 @@ _anchors:
 
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sf-vp9-extra-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
 
@@ -389,7 +399,24 @@ jobs:
   tast-basic-x86-stoneyridge: *tast-basic-job
 
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
-  tast-decoder-chromestack-arm64-qualcomm: *tast-decoder-chromestack-job
+
+  tast-decoder-chromestack-arm64-qualcomm:
+    <<: *tast-decoder-chromestack-job
+    rules: *min-6_7-rules
+
+  tast-decoder-chromestack-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-chromestack-job
+    params:
+      <<: *tast-decoder-chromestack-params
+      excluded_tests:
+        # Platform-independent excluded tests
+        - video.ChromeStackDecoderVerification.hevc_main
+        - video.ChromeStackDecoderVerification.vp9_0_svc
+        # Qualcomm-specific: those always fail with pre-6.7 kernels
+        - video.ChromeStackDecoderVerification.vp9_0_group1_frm_resize
+        - video.ChromeStackDecoderVerification.vp9_0_group1_sub8x8_sf
+    rules: *max-6_6-rules
+
   tast-decoder-chromestack-x86-pineview: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-stoneyridge: *tast-decoder-chromestack-job
 
@@ -402,8 +429,38 @@ jobs:
   tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
   tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
   tast-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-decoder-v4l2-sf-vp8-job
-  tast-decoder-v4l2-sf-vp9-arm64-qualcomm: *tast-decoder-v4l2-sf-vp9-job
-  tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm: *tast-decoder-v4l2-sf-vp9-extra-job
+
+  tast-decoder-v4l2-sf-vp9-arm64-qualcomm:
+    <<: *tast-decoder-v4l2-sf-vp9-job
+    rules: *min-6_7-rules
+
+  tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-v4l2-sf-vp9-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-params
+      excluded_tests:
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_frm_resize
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_sub8x8_sf
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_frm_resize
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_sub8x8_sf
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group3_frm_resize
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group3_sub8x8_sf
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_frm_resize
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_sub8x8_sf
+    rules: *max-6_6-rules
+
+  tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm:
+    <<: *tast-decoder-v4l2-sf-vp9-extra-job
+    rules: *min-6_7-rules
+
+  tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-v4l2-sf-vp9-extra-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-extra-params
+      excluded_tests:
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_0_frm_resize
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_0_sub8x8_sf
+    rules: *max-6_6-rules
 
   tast-hardware-arm64-mediatek: *tast-hardware-job
   tast-hardware-arm64-qualcomm: *tast-hardware-job
