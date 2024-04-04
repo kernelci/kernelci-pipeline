@@ -44,6 +44,10 @@ _anchors:
       tests:
         - video.ChromeStackDecoder.*
         - video.ChromeStackDecoderVerification.*
+      excluded_tests:
+        # Those always fail on all platforms
+        - video.ChromeStackDecoderVerification.hevc_main
+        - video.ChromeStackDecoderVerification.vp9_0_svc
 
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-job
@@ -71,6 +75,9 @@ _anchors:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group3_*
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_*
+      excluded_tests:
+        # Regression in ChromeOS R120, to be re-evaluated on next CrOS upgrade
+        - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_sub8x8_sf
 
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
     <<: *tast-job
