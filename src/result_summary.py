@@ -87,44 +87,9 @@ class ResultSummary(Service):
         super().__init__(configs, args, SERVICE_NAME)
         if args.verbose:
             self.log._logger.setLevel(logging.DEBUG)
-        # Load and sanity check command line parameters
-        # self._config: the complete config file contents
-        # self._preset_name: name of the selected preset to use
-        # self._preset: loaded config for the selected preset
-        with open(args.config, 'r') as config_file:
-            self._config = yaml.safe_load(config_file)
-        if args.preset:
-            self._preset_name = args.preset
-        else:
-            self._preset_name = 'default'
-        if self._preset_name not in self._config:
-            self.log.error(f"No {self._preset_name} preset found in {args.config}")
-            sys.exit(1)
-        self._preset = self._config[self._preset_name]
-        # Additional query parameters and date parameters
-        self._extra_query_params = {}
-        if args.query_params:
-            self._extra_query_params = split_query_params(args.query_params)
-        self._created_from = args.created_from
-        self._created_to = args.created_to
-        self._last_updated_from = args.last_updated_from
-        self._last_updated_to = args.last_updated_to
-        # Default if no dates are specified: created since yesterday
-        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
-        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-        if not any([self._created_from,
-                    self._created_to,
-                    self._last_updated_from,
-                    self._last_updated_to]):
-            self._created_from = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
-        if not self._created_to and not self._last_updated_to:
-            if self._last_updated_from:
-                self._last_updated_to = now_str
-            else:
-                self._created_to = now_str
-        self._output = None
-        if args.output:
-            self._output = args.output
+        self._template_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(TEMPLATES_DIR)
+        )
 
     def _parse_block_config(self, block, kind, state):
         """Parse a config block. Every block may define a set of
@@ -180,21 +145,6 @@ class ResultSummary(Service):
             else:
                 query_params.append(item_base_params)
         return query_params
-
-    def _parse_config(self):
-        """Processes and parses the selected preset configuration
-        (self._preset) and returns the a tuple containing the metadata
-        dict and a list of query parameters, where
-        each list item is a complete set of query parameters.
-        """
-        metadata = {}
-        params = []
-        if 'metadata' in self._preset:
-            metadata = self._preset['metadata']
-            self._preset
-        for block_name, body in self._preset['preset'].items():
-            params.extend(self._parse_block_config(body, block_name, 'done'))
-        return metadata, params
 
     def _get_log(self, url, snippet_lines=0):
         """Fetches a text log given its url.
@@ -280,26 +230,74 @@ class ResultSummary(Service):
         print("", flush=True)
         return nodes
 
-    def _run(self, ctx):
-        template_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(TEMPLATES_DIR)
-        )
+    def _setup(self, args):
+        # Load and sanity check command line parameters
+        # config: the complete config file contents
+        # preset_name: name of the selected preset to use
+        # preset: loaded config for the selected preset
+        with open(args.config, 'r') as config_file:
+            config = yaml.safe_load(config_file)
+        if args.preset:
+            preset_name = args.preset
+        else:
+            preset_name = 'default'
+        if preset_name not in config:
+            self.log.error(f"No {preset_name} preset found in {args.config}")
+            sys.exit(1)
+        preset = config[preset_name]
+        # Additional query parameters and date parameters
+        extra_query_params = {}
+        if args.query_params:
+            extra_query_params = split_query_params(args.query_params)
+        self._created_from = args.created_from
+        self._created_to = args.created_to
+        self._last_updated_from = args.last_updated_from
+        self._last_updated_to = args.last_updated_to
+        # Default if no dates are specified: created since yesterday
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
+        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        if not any([self._created_from,
+                    self._created_to,
+                    self._last_updated_from,
+                    self._last_updated_to]):
+            self._created_from = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
+        if not self._created_to and not self._last_updated_to:
+            if self._last_updated_from:
+                self._last_updated_to = now_str
+            else:
+                self._created_to = now_str
+        output = None
+        if args.output:
+            output = args.output
+        # End of command line argument loading and sanity checks
 
         # Load presets
-        metadata, params = self._parse_config()
+        metadata = {}
+        preset_params = []
+        if 'metadata' in preset:
+            metadata = preset['metadata']
+        for block_name, body in preset['preset'].items():
+            preset_params.extend(self._parse_block_config(body, block_name, 'done'))
         if 'template' not in metadata:
-            self.log.error(f"No template defined for preset {self._preset_name}")
+            self.log.error(f"No template defined for preset {preset_name}")
             sys.exit(1)
-        template = template_env.get_template(metadata['template'])
+        template = self._template_env.get_template(metadata['template'])
+        return {'metadata': metadata,
+                'preset_params': preset_params,
+                'extra_query_params': extra_query_params,
+                'template': template,
+                'output': output,
+                }
 
+    def _run(self, ctx):
         # Run queries and collect results
         nodes = []
-        metadata['queries'] = []
-        for params_set in params:
+        ctx['metadata']['queries'] = []
+        for params_set in ctx['preset_params']:
             # Apply extra query parameters from command line, if any
-            params_set.update(self._extra_query_params)
+            params_set.update(ctx['extra_query_params'])
             self.log.debug(f"Query: {params_set}")
-            metadata['queries'].append(params_set)
+            ctx['metadata']['queries'].append(params_set)
             query_results = self._iterate_node_find(params_set)
             self.log.debug(f"Query matches found: {len(query_results)}")
             nodes.extend(query_results)
@@ -359,19 +357,20 @@ class ResultSummary(Service):
         #       <tree_n>: ...
         #   }
         template_params = {
-            'metadata': metadata,
+            'metadata': ctx['metadata'],
             'results_per_branch': results_per_branch,
             'created_from': self._created_from,
             'created_to': self._created_to,
             'last_updated_from': self._last_updated_from,
             'last_updated_to': self._last_updated_to,
         }
-        output_text = template.render(template_params)
-        if not self._output:
-            if 'output' in metadata:
-                self._output = metadata['output']
-        if self._output:
-            with open(os.path.join(OUTPUT_DIR, self._output), 'w') as output_file:
+        output_text = ctx['template'].render(template_params)
+        output = ctx['output']
+        if not output:
+            if 'output' in ctx['metadata']:
+                output = ctx['metadata']['output']
+        if output:
+            with open(os.path.join(OUTPUT_DIR, output), 'w') as output_file:
                 output_file.write(output_text)
             shutil.copy(os.path.join(TEMPLATES_DIR, 'main.css'), OUTPUT_DIR)
         else:
