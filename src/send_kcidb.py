@@ -44,6 +44,7 @@ class KCIDBBridge(Service):
             self._api_helper.unsubscribe_filters(context['sub_id'])
 
     def _send_revision(self, client, revision):
+        self.log.debug(f"DEBUG: sending revision: {revision}")
         if kcidb.io.SCHEMA.is_valid(revision):
             return client.submit(revision)
         self.log.error("Aborting, invalid data")
@@ -95,11 +96,81 @@ class KCIDBBridge(Service):
             },
         }
 
+    def _parse_node_path(self, path):
+        """Parse and create KCIDB schema compatible node path
+
+        Convert node path list to dot-separated string and exclude
+        'checkout' from the path to make test suite the top level node
+        """
+        if isinstance(path, list):
+            path_str = '.'.join(path[1:])
+            # Replace whitespace with "_" to match the allowed pattern for
+            # test `path` i.e '^[.a-zA-Z0-9_-]*$'
+            return path_str.replace(" ", "_")
+        return None
+
+    def _parse_node_result(self, test_node):
+        if test_node['result'] == 'incomplete':
+            if test_node['data'].get('error_code') in ('submit_error', 'invalid_job_params'):
+                return 'MISS'
+            return 'ERROR'
+        return test_node['result'].upper()
+
+    def _parse_test_node(self, origin, test_node, build_id, parsed_test_nodes):
+        parsed_test_node = {
+            'id': f"{origin}:{test_node['id']}",
+            'origin': origin,
+            'build_id': f"{origin}:{build_id}",
+            'comment': f"{test_node['name']} on {test_node['data'].get('platform')} \
+in {test_node['data'].get('runtime')}",
+            'start_time': self._set_timezone(test_node['created']),
+            'environment': {
+                'comment': f"Runtime: {test_node['data'].get('runtime')}",
+                'misc': {
+                    'platform': test_node['data'].get('platform'),
+                    'job_id': test_node['data'].get('job_id'),
+                    'job_context': test_node['data'].get('job_context'),
+                }
+            },
+            'waived': False,
+            'path': self._parse_node_path(test_node['path']),
+        }
+        if test_node['result']:
+            parsed_test_node['status'] = self._parse_node_result(test_node)
+        parsed_test_nodes.append(parsed_test_node)
+
+    def _get_test_nodes(self, origin, parent_node_id, build_id, parsed_test_nodes):
+        child_nodes = self._api.node.find({
+            'parent': parent_node_id
+        })
+
+        for child_node in child_nodes:
+            if child_node['kind'] == 'test':
+                self._parse_test_node(origin, child_node, build_id,
+                                      parsed_test_nodes)
+            test_nodes = self._api.node.find({
+                'kind': 'test',
+                'parent': child_node['id']
+            })
+
+            for test_node in test_nodes:
+                self._parse_test_node(origin, test_node, build_id,
+                                      parsed_test_nodes)
+                self._get_test_nodes(origin, test_node['id'], build_id,
+                                     parsed_test_nodes)
+
+    def _get_tests_for_build(self, origin, build_nodes, parsed_test_nodes):
+        for build_node in build_nodes:
+            build_id = build_node['id']
+            self._get_test_nodes(origin, build_id, build_id,
+                                 parsed_test_nodes)
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
+
             checkout_node = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {checkout_node['id']}")
 
@@ -107,13 +178,17 @@ class KCIDBBridge(Service):
                 'parent': checkout_node['id'],
                 'kind': 'kbuild'
             })
+            parsed_test_nodes = []
+            if build_nodes:
+                self._get_tests_for_build(context['origin'], build_nodes,
+                                          parsed_test_nodes)
 
             revision = {
                 'checkouts': [
                     self._parse_checkout_node(context['origin'], checkout_node)
                 ],
-                'builds': self._parse_build_nodes(context['origin'], build_nodes),
-                'tests': [],
+                'builds':  self._parse_build_nodes(context['origin'], build_nodes),
+                'tests': parsed_test_nodes,
                 'version': {
                     'major': 4,
                     'minor': 0
