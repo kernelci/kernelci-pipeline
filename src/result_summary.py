@@ -117,14 +117,6 @@ class ResultSummary(Service):
         kernel_revision_field = 'data.kernel_revision'
         if kind == 'regression':
             kernel_revision_field = 'data.failed_kernel_version'
-        if self._created_from:
-            base_params['created__gt'] = self._created_from
-        if self._created_to:
-            base_params['created__lt'] = self._created_to
-        if self._last_updated_from:
-            base_params['updated__gt'] = self._last_updated_from
-        if self._last_updated_to:
-            base_params['updated__lt'] = self._last_updated_to
         if not block:
             return [{**base_params}]
         query_params = []
@@ -208,28 +200,6 @@ class ResultSummary(Service):
                     logs[log_name] = {'url': url, 'text': text}
         node['logs'] = logs
 
-    def _iterate_node_find(self, params):
-        """Request a node search to the KernelCI API based on a set of
-        search parameters (a dict). The search is split into iterative
-        limited searches.
-
-        Returns the list of nodes found, or an empty list if the search
-        didn't find any.
-        """
-        nodes = []
-        limit = 100
-        offset = 0
-        self.log.info("Searching")
-        while True:
-            search = self._api.node.find(params, limit=limit, offset=offset)
-            print(".", end='', flush=True)
-            if not search:
-                break
-            nodes.extend(search)
-            offset += limit
-        print("", flush=True)
-        return nodes
-
     def _setup(self, args):
         # Load and sanity check command line parameters
         # config: the complete config file contents
@@ -245,27 +215,10 @@ class ResultSummary(Service):
             self.log.error(f"No {preset_name} preset found in {args.config}")
             sys.exit(1)
         preset = config[preset_name]
-        # Additional query parameters and date parameters
+        # Additional query parameters
         extra_query_params = {}
         if args.query_params:
             extra_query_params = split_query_params(args.query_params)
-        self._created_from = args.created_from
-        self._created_to = args.created_to
-        self._last_updated_from = args.last_updated_from
-        self._last_updated_to = args.last_updated_to
-        # Default if no dates are specified: created since yesterday
-        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
-        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-        if not any([self._created_from,
-                    self._created_to,
-                    self._last_updated_from,
-                    self._last_updated_to]):
-            self._created_from = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
-        if not self._created_to and not self._last_updated_to:
-            if self._last_updated_from:
-                self._last_updated_to = now_str
-            else:
-                self._created_to = now_str
         output = None
         if args.output:
             output = args.output
@@ -289,11 +242,72 @@ class ResultSummary(Service):
                 'output': output,
                 }
 
+
+class ResultSummarySingle(ResultSummary):
+    _date_params = {
+        'created_from': 'created__gt',
+        'created_to': 'created__lt',
+        'last_updated_from': 'updated__gt',
+        'last_updated_to': 'updated__lt'
+    }
+
+    def _setup(self, args):
+        ctx = super()._setup(args)
+        # Additional date parameters
+        date_params = {}
+        if args.created_from:
+            date_params[self._date_params['created_from']] = args.created_from
+        if args.created_to:
+            date_params[self._date_params['created_to']] = args.created_to
+        if args.last_updated_from:
+            date_params[self._date_params['last_updated_to']] = args.last_updated_from
+        if args.last_updated_to:
+            date_params[self._date_params['last_updated_from']] = args.last_updated_to
+        # Default if no dates are specified: created since yesterday
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
+        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        if not any([args.created_from,
+                    args.created_to,
+                    args.last_updated_from,
+                    args.last_updated_to]):
+            date_params[self._date_params['created_from']] = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
+        if not args.created_to and not args.last_updated_to:
+            if args.last_updated_from:
+                date_params[self._date_params['last_updated_to']] = now_str
+            else:
+                date_params[self._date_params['created_to']] = now_str
+        ctx['date_params'] = date_params
+        return ctx
+
+    def _iterate_node_find(self, params):
+        """Request a node search to the KernelCI API based on a set of
+        search parameters (a dict). The search is split into iterative
+        limited searches.
+
+        Returns the list of nodes found, or an empty list if the search
+        didn't find any.
+        """
+        nodes = []
+        limit = 100
+        offset = 0
+        self.log.info("Searching")
+        while True:
+            search = self._api.node.find(params, limit=limit, offset=offset)
+            print(".", end='', flush=True)
+            if not search:
+                break
+            nodes.extend(search)
+            offset += limit
+        print("", flush=True)
+        return nodes
+
     def _run(self, ctx):
         # Run queries and collect results
         nodes = []
         ctx['metadata']['queries'] = []
         for params_set in ctx['preset_params']:
+            # Apply date range parameters, if defined
+            params_set.update(ctx['date_params'])
             # Apply extra query parameters from command line, if any
             params_set.update(ctx['extra_query_params'])
             self.log.debug(f"Query: {params_set}")
@@ -359,10 +373,11 @@ class ResultSummary(Service):
         template_params = {
             'metadata': ctx['metadata'],
             'results_per_branch': results_per_branch,
-            'created_from': self._created_from,
-            'created_to': self._created_to,
-            'last_updated_from': self._last_updated_from,
-            'last_updated_to': self._last_updated_to,
+            # Optional parameters
+            'created_from': ctx['date_params'].get(self._date_params['created_from']),
+            'created_to': ctx['date_params'].get(self._date_params['created_to']),
+            'last_updated_from': ctx['date_params'].get(self._date_params['last_updated_from']),
+            'last_updated_to': ctx['date_params'].get(self._date_params['last_updated_to']),
         }
         output_text = ctx['template'].render(template_params)
         output = ctx['output']
@@ -376,6 +391,11 @@ class ResultSummary(Service):
         else:
             self.log.info(output_text)
         return True
+
+
+class ResultSummaryLoop(ResultSummary):
+    def _run(self, ctx):
+        pass
 
 
 class cmd_run(Command):
@@ -425,6 +445,37 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
+        return ResultSummarySingle(configs, args).run(args)
+
+
+class cmd_loop(Command):
+    help = ("Checks for test results in a specific date range "
+            "and generates summary reports (single shot)")
+    args = [
+        {
+            'name': '--config',
+            'help': "Path to service-specific config yaml file",
+        },
+    ]
+    opt_args = [
+        {
+            'name': '--preset',
+            'help': "Configuration preset to load ('default' if none)",
+        },
+        {
+            'name': '--output',
+            'help': "Override the 'output' preset parameter"
+        },
+        {
+            'name': '--query-params',
+            'help': ("Additional query parameters: "
+                     "'<paramX>=<valueX>,<paramY>=<valueY>'")
+        },
+        Args.verbose,
+    ]
+
+    def __call__(self, configs, args):
+        args.cmd = 'loop'
         return ResultSummary(configs, args).run(args)
 
 
