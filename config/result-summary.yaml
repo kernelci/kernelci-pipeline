@@ -51,6 +51,7 @@
 # New stable-rc kernel build regressions
 stable-rc-build-regressions:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-build-regressions.html"
@@ -63,6 +64,7 @@ stable-rc-build-regressions:
 # All active stable-rc kernel build regressions
 stable-rc-build-active-regressions:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-build-regressions.html"
@@ -77,6 +79,7 @@ stable-rc-build-active-regressions:
 # stable-rc kernel build failures
 stable-rc-build-failures:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel build failures"
     template: "generic-test-failures.html.jinja2"
     output: "stable-rc-build-failures.html"
@@ -90,6 +93,7 @@ stable-rc-build-failures:
 # stable-rc kernel boot regressions
 stable-rc-boot-regressions:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-boot-regressions.html"
@@ -102,6 +106,7 @@ stable-rc-boot-regressions:
 # stable-rc kernel boot active regressions
 stable-rc-boot-active-regressions:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
     output: "stable-rc-boot-regressions.html"
@@ -116,6 +121,7 @@ stable-rc-boot-active-regressions:
 # stable-rc kernel boot failures
 stable-rc-boot-failures:
   metadata:
+    action: summary
     title: "<strong>stable-rc</strong> kernel boot failures"
     template: "generic-test-failures.html.jinja2"
     output: "stable-rc-boot-failures.html"
@@ -129,6 +135,7 @@ stable-rc-boot-failures:
 # tast test failures
 tast-failures:
   metadata:
+    action: summary
     title: "General Tast test failures"
     template: "generic-test-failures.html.jinja2"
     output: "tast-failures.html"
@@ -137,11 +144,27 @@ tast-failures:
       - group__re: tast
         name__ne: tast
         result: fail
+        data.error_code: null
+
+# tast test failures
+tast-failures__runtime_errors:
+  metadata:
+    action: summary
+    title: "General Tast test failures"
+    template: "generic-test-failures.html.jinja2"
+    output: "tast-failures.html"
+  preset:
+    test:
+      - group__re: tast
+        name__ne: tast
+        result: fail
+        data.error_code__ne: null
 
 # General regressions (kbuilds and all tests) on mainline and next
 # excluding those triggered by runtime errors
 mainline-next-regressions:
   metadata:
+    action: summary
     title: "Regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
     output: "mainline-next-regressions.html"
@@ -152,10 +175,25 @@ mainline-next-regressions:
           - tree: mainline
           - tree: next
 
+mainline-next-test-failures:
+  metadata:
+    action: summary
+    title: "Regressions found in mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output: "mainline-next-regressions.html"
+  preset:
+    test:
+      - result: fail
+        data.error_code: null
+        repos:
+          - tree: mainline
+          - tree: next
+
 # General regressions (kbuilds and all tests) on mainline and next
 # excluding those triggered by runtime errors
 mainline-next-active-regressions:
   metadata:
+    action: summary
     title: "Regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
     output: "mainline-next-active-regressions.html"
@@ -172,6 +210,7 @@ mainline-next-active-regressions:
 # triggered by runtime errors
 mainline-next-regressions__runtime_errors:
   metadata:
+    action: summary
     title: "'Regressions' found in mainline and next due to runtime errors"
     template: "generic-regressions.html.jinja2"
     output: "mainline-next-regressions__runtime_errors.html"
@@ -186,6 +225,7 @@ mainline-next-regressions__runtime_errors:
 # Collect only regressions that aren't caused by runtime errors
 tast-regressions-x86_64:
   metadata:
+    action: summary
     title: "Regressions found on Tast tests for x86_64"
     template: "generic-regressions.html.jinja2"
     output: "tast-regressions-x86_64.html"
@@ -200,6 +240,7 @@ tast-regressions-x86_64:
 # tast tests regressions for x86_64 targets caused by runtime errors
 tast-regressions-x86_64__runtime_errors:
   metadata:
+    action: summary
     title: "'Regressions' found on Tast tests for x86_64 due to runtime errors"
     template: "generic-regressions.html.jinja2"
     output: "tast-regressions-x86_64__runtime_errors.html"
@@ -209,3 +250,28 @@ tast-regressions-x86_64__runtime_errors:
         name__ne: tast
         data.arch: x86_64
         data.error_code__ne: null
+
+monitor-tast-regressions-x86_64__runtime_errors:
+  metadata:
+    action: monitor
+    title: "Regression found on Tast tests for x86_64 due to runtime errors"
+    template: "generic-regression-report.html.jinja2"
+    output: "tast-regressions-x86_64__runtime_error_report.html"
+  preset:
+    regression:
+      - group__re: tast
+        name__ne: tast
+        data.arch: x86_64
+        data.error_code__ne: null
+
+kunit-regressions:
+  metadata:
+    action: summary
+    title: "'Regressions' found on kunit tests"
+    template: "generic-regressions.html.jinja2"
+    output: "kunit-regressions.html"
+  preset:
+    regression:
+      - group__re: tast
+        name__ne: tast
+        data.error_code: null

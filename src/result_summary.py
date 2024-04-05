@@ -38,167 +38,29 @@
 # - Other suggested improvements
 
 import sys
-import concurrent.futures
-from datetime import datetime, timedelta, timezone
-import gzip
 import logging
-import os
-import re
-import shutil
 
 import jinja2
-import json
-import requests
 import yaml
 
 import kernelci
-import kernelci.api.models as models
 from kernelci.legacy.cli import Args, Command, parse_opts
 from base import Service
-
-SERVICE_NAME = 'result_summary'
-TEMPLATES_DIR = './config/result_summary_templates/'
-OUTPUT_DIR = '/home/kernelci/data/output/'
-
-
-def split_query_params(query_string):
-    """Given a string input formatted like this:
-
-           parameter1=value1,parameter2=value2,...,parameterN=valueN
-
-       return a dict containing the string information where the
-       parameters are the dict keys:
-
-           {'parameter1': 'value1',
-            'parameter2': 'value2',
-            ...,
-            'parameterN': 'valueN'
-           }
-    """
-    query_dict = {}
-    matches = re.findall('([^ =,]+)\s*=\s*([^ =,]+)', query_string)  # noqa: W605
-    for operator, value in matches:
-        query_dict[operator] = value
-    return query_dict
+import result_summary
+import result_summary.summary as summary
+import result_summary.monitor as monitor
+import result_summary.utils as utils
 
 
 class ResultSummary(Service):
     def __init__(self, configs, args):
-        super().__init__(configs, args, SERVICE_NAME)
+        super().__init__(configs, args, result_summary.SERVICE_NAME)
         if args.verbose:
             self.log._logger.setLevel(logging.DEBUG)
         self._template_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(TEMPLATES_DIR)
+            loader=jinja2.FileSystemLoader(result_summary.TEMPLATES_DIR)
         )
-
-    def _parse_block_config(self, block, kind, state):
-        """Parse a config block. Every block may define a set of
-        parameters, including a list of 'repos' (trees/branches). For
-        every 'repos' item, this method will generate a query parameter
-        set. All the query parameter sets will be based on the same base
-        params.
-
-        If the block doesn't define any repos, there'll be only one
-        query parameter set created.
-
-        If the block definition is empty, that is, if there aren't any
-        specific query parameters, just return the base query parameter
-        list.
-
-        Returns a list of query parameter sets.
-
-        """
-        # Base query parameters include the node kind and state and the
-        # date ranges if defined
-        base_params = {
-            'kind': kind,
-            'state': state,
-        }
-        kernel_revision_field = 'data.kernel_revision'
-        if kind == 'regression':
-            kernel_revision_field = 'data.failed_kernel_version'
-        if not block:
-            return [{**base_params}]
-        query_params = []
-        for item in block:
-            item_base_params = base_params.copy()
-            repos = []
-            if 'repos' in item:
-                for repo in item.pop('repos'):
-                    new_repo = {}
-                    for key, value in repo.items():
-                        new_repo[f'{kernel_revision_field}.{key}'] = value
-                    repos.append(new_repo)
-            for key, value in item.items():
-                item_base_params[key] = value if value else 'null'
-            if repos:
-                for repo in repos:
-                    query_params.append({**item_base_params, **repo})
-            else:
-                query_params.append(item_base_params)
-        return query_params
-
-    def _get_log(self, url, snippet_lines=0):
-        """Fetches a text log given its url.
-
-        Returns:
-          If the log file couldn't be retrieved by any reason: None
-          Otherwise:
-            If snippet_lines == 0: the full log
-            If snippet_lines > 0: the first snippet_lines log lines
-            If snippet_lines < 0: the last snippet_lines log lines
-        """
-        response = requests.get(url)
-        if not len(response.content):
-            return None
-        try:
-            raw_bytes = gzip.decompress(response.content)
-            text = raw_bytes.decode('utf-8')
-        except gzip.BadGzipFile:
-            text = response.text
-        if snippet_lines > 0:
-            lines = text.splitlines()
-            return '\n'.join(lines[:snippet_lines])
-        elif snippet_lines < 0:
-            lines = text.splitlines()
-            # self.log.info(f"Lines: {lines}")
-            # self.log.info(f"Number of lines: {len(lines)}")
-            return '\n'.join(lines[snippet_lines:])
-        return text
-
-    def _get_logs(self, node):
-        """
-        Retrieves and processes logs from a specified node.
-
-        This method iterates over a node's 'artifacts', if present, to find log
-        files. It identifies log files based on their item names, either being
-        'log' or ending with '_log'. For each identified log file, it obtains
-        the content by calling the `_get_log` method with the last 10 lines of
-        the log. If the content is not empty, it then stores this log data in a
-        dictionary, which includes both the URL of the log and its text content.
-        Finally, it updates the 'logs' key of the input `node` with this
-        dictionary of log data.
-
-        Args:
-            node (dict): A dictionary representing a node, which should contain
-            an 'artifacts' key with log information.
-
-        Modifies:
-            The input `node` dictionary is modified in-place by adding a new key
-            'logs', which contains a dictionary of processed log data. Each key
-            in this 'logs' dictionary is a log name, and the corresponding value
-            is another dictionary with keys 'url' (the URL of the log file) and
-            'text' (the content of the log file).
-        """
-        logs = {}
-        if node.get('artifacts'):
-            all_logs = {item: url for item, url in node['artifacts'].items()
-                        if item == 'log' or item.endswith('_log')}
-            for log_name, url in all_logs.items():
-                text = self._get_log(url, snippet_lines=-10)
-                if text:
-                    logs[log_name] = {'url': url, 'text': text}
-        node['logs'] = logs
+        result_summary.logger = self._logger
 
     def _setup(self, args):
         # Load and sanity check command line parameters
@@ -224,250 +86,54 @@ class ResultSummary(Service):
             output = args.output
         # End of command line argument loading and sanity checks
 
-        # Load presets
+        # Load presets and template
         metadata = {}
         preset_params = []
         if 'metadata' in preset:
             metadata = preset['metadata']
         for block_name, body in preset['preset'].items():
-            preset_params.extend(self._parse_block_config(body, block_name, 'done'))
+            preset_params.extend(utils.parse_block_config(body, block_name, 'done'))
         if 'template' not in metadata:
             self.log.error(f"No template defined for preset {preset_name}")
             sys.exit(1)
         template = self._template_env.get_template(metadata['template'])
-        return {'metadata': metadata,
-                'preset_params': preset_params,
-                'extra_query_params': extra_query_params,
-                'template': template,
-                'output': output,
-                }
 
-
-class ResultSummarySingle(ResultSummary):
-    _date_params = {
-        'created_from': 'created__gt',
-        'created_to': 'created__lt',
-        'last_updated_from': 'updated__gt',
-        'last_updated_to': 'updated__lt'
-    }
-
-    def _setup(self, args):
-        ctx = super()._setup(args)
-        # Additional date parameters
-        date_params = {}
-        if args.created_from:
-            date_params[self._date_params['created_from']] = args.created_from
-        if args.created_to:
-            date_params[self._date_params['created_to']] = args.created_to
-        if args.last_updated_from:
-            date_params[self._date_params['last_updated_to']] = args.last_updated_from
-        if args.last_updated_to:
-            date_params[self._date_params['last_updated_from']] = args.last_updated_to
-        # Default if no dates are specified: created since yesterday
-        yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
-        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-        if not any([args.created_from,
-                    args.created_to,
-                    args.last_updated_from,
-                    args.last_updated_to]):
-            date_params[self._date_params['created_from']] = yesterday.strftime("%Y-%m-%dT%H:%M:%S")
-        if not args.created_to and not args.last_updated_to:
-            if args.last_updated_from:
-                date_params[self._date_params['last_updated_to']] = now_str
-            else:
-                date_params[self._date_params['created_to']] = now_str
-        ctx['date_params'] = date_params
-        return ctx
-
-    def _iterate_node_find(self, params):
-        """Request a node search to the KernelCI API based on a set of
-        search parameters (a dict). The search is split into iterative
-        limited searches.
-
-        Returns the list of nodes found, or an empty list if the search
-        didn't find any.
-        """
-        nodes = []
-        limit = 100
-        offset = 0
-        self.log.info("Searching")
-        while True:
-            search = self._api.node.find(params, limit=limit, offset=offset)
-            print(".", end='', flush=True)
-            if not search:
-                break
-            nodes.extend(search)
-            offset += limit
-        print("", flush=True)
-        return nodes
-
-    def _run(self, ctx):
-        # Run queries and collect results
-        nodes = []
-        ctx['metadata']['queries'] = []
-        for params_set in ctx['preset_params']:
-            # Apply date range parameters, if defined
-            params_set.update(ctx['date_params'])
-            # Apply extra query parameters from command line, if any
-            params_set.update(ctx['extra_query_params'])
-            self.log.debug(f"Query: {params_set}")
-            ctx['metadata']['queries'].append(params_set)
-            query_results = self._iterate_node_find(params_set)
-            self.log.debug(f"Query matches found: {len(query_results)}")
-            nodes.extend(query_results)
-        self.log.info(f"Total nodes found: {len(nodes)}")
-
-        # Filter log files
-        # - remove empty files
-        # - collect log files in a 'logs' field
-        self.log.info(f"Checking logs ...")
-        progress_total = len(nodes)
-        progress = 0
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = {executor.submit(self._get_logs, node) for node in nodes}
-            for future in concurrent.futures.as_completed(futures):
-                result = future.result()
-                progress += 1
-                if progress >= progress_total / 10:
-                    print('.', end='', flush=True)
-                    progress = 0
-        print('', flush=True)
-
-        # Group results by tree/branch
-        results_per_branch = {}
-        for node in nodes:
-            if node['data'].get('failed_kernel_version'):
-                tree = node['data']['failed_kernel_version']['tree']
-                branch = node['data']['failed_kernel_version']['branch']
-            else:
-                tree = node['data']['kernel_revision']['tree']
-                branch = node['data']['kernel_revision']['branch']
-            if tree not in results_per_branch:
-                results_per_branch[tree] = {branch: [node]}
-            else:
-                if branch not in results_per_branch[tree]:
-                    results_per_branch[tree][branch] = [node]
-                else:
-                    results_per_branch[tree][branch].append(node)
-
-        # Data provided to the templates:
-        # - metadata: preset-specific metadata
-        # - query date specifications and ranges:
-        #     created_to, created_from, last_updated_to, last_updated_from
-        # - results_per_branch: a dict containing the result nodes
-        #   grouped by tree and branch like this:
-        #
-        #   results_per_branch = {
-        #       <tree_1>: {
-        #           <branch_1>: [
-        #               node_1,
-        #               ...
-        #               node_n
-        #           ],
-        #           ...,
-        #           <branch_n>: ...
-        #       },
-        #       ...,
-        #       <tree_n>: ...
-        #   }
-        template_params = {
-            'metadata': ctx['metadata'],
-            'results_per_branch': results_per_branch,
-            # Optional parameters
-            'created_from': ctx['date_params'].get(self._date_params['created_from']),
-            'created_to': ctx['date_params'].get(self._date_params['created_to']),
-            'last_updated_from': ctx['date_params'].get(self._date_params['last_updated_from']),
-            'last_updated_to': ctx['date_params'].get(self._date_params['last_updated_to']),
+        context = {
+            'metadata': metadata,
+            'preset_params': preset_params,
+            'extra_query_params': extra_query_params,
+            'template': template,
+            'output': output,
         }
-        output_text = ctx['template'].render(template_params)
-        output = ctx['output']
-        if not output:
-            if 'output' in ctx['metadata']:
-                output = ctx['metadata']['output']
-        if output:
-            with open(os.path.join(OUTPUT_DIR, output), 'w') as output_file:
-                output_file.write(output_text)
-            shutil.copy(os.path.join(TEMPLATES_DIR, 'main.css'), OUTPUT_DIR)
+        # Action-specific setup
+        if metadata.get('action') == 'summary':
+            extra_context = summary.setup(self, args, context)
+        elif metadata.get('action') == 'monitor':
+            extra_context = monitor.setup(self, args, context)
         else:
-            self.log.info(output_text)
-        return True
+            raise Exception("Undefined or unsupported preset action: "
+                            f"{metadata.get('action')}")
+        return {**context, **extra_context}
 
+    def _stop(self, context):
+        if not context or 'metadata' not in context:
+            return
+        if context['metadata']['action'] == 'summary':
+            summary.stop(self, context)
+        elif context['metadata']['action'] == 'monitor':
+            monitor.stop(self, context)
+        else:
+            raise Exception("Undefined or unsupported preset action: "
+                            f"{metadata.get('action')}")
 
-class ResultSummaryLoop(ResultSummary):
-    def _setup(self, args):
-        ctx = super()._setup(args)
-        self.log.info(f"preset_params: {ctx['preset_params']}")
-        base_filter = ctx['preset_params'][0]
-        sub_id = self._api_helper.subscribe_filters({
-            'kind': base_filter['kind'],
-            'state': base_filter['state'],
-        })
-        if not sub_id:
-            raise Exception("Error subscribing to event")
-        ctx['sub_id'] = sub_id
-        return ctx
-
-    def _stop(self, ctx):
-        if ctx:
-            self._api_helper.unsubscribe_filters(ctx['sub_id'])
-
-    def _run(self, ctx):
-        def get_item(dict, item, default=None):
-            """General form of dict.get() that supports the retrieval of
-            dot-separated fields in nested dicts.
-            """
-            if not dict:
-                return default
-            items = item.split('.')
-            if len(items) == 1:
-                return dict.get(items[0], default)
-            return get_item(dict.get(items[0], default), '.'.join(items[1:]), default)
-
-        def filter_node(node, params):
-            """Returns True if <node> matches the constraints defined in
-            the <params> dict, where each param is defined like:
-
-                node_field : value
-
-            with an optional operator (ne, gt, lt, re):
-
-                node_field__op : value
-
-            The value matching is done differently depending on the
-            operator (equal, not equal, greater than, lesser than,
-            regex)
-
-            If the node doesn't match the full set of parameter
-            constraints, it returns False.
-            """
-            for param_name, value in params.items():
-                field, _, cmd = param_name.partition('__')
-                node_value = get_item(node, field)
-                if cmd == 'ne':
-                    if node_value == value:
-                        return False
-                elif cmd == 'gt':
-                    if node_value <= value:
-                        return False
-                elif cmd == 'lt':
-                    if node_value >= value:
-                        return False
-                elif cmd == 're':
-                    if not re.search(value, node_value):
-                        return False
-                else:
-                    if node_value != value:
-                        return False
-            return True
-
-        while True:
-            node = self._api_helper.receive_event_node(ctx['sub_id'])
-            self.log.info(f"Node received: {node}")
-            preset_params = ctx['preset_params']
-            for param_set in ctx['preset_params']:
-                if filter_node(node, {**param_set, **ctx['extra_query_params']}):
-                    self.log.info(f"[TODO] Generate node report for {node}")
-        return True
+    def _run(self, context):
+        if context['metadata']['action'] == 'summary':
+            summary.run(self, context)
+        elif context['metadata']['action'] == 'monitor':
+            monitor.run(self, context)
+        else:
+            raise Exception("Undefined or unsupported preset action: "
+                            f"{metadata.get('action')}")
 
 
 class cmd_run(Command):
@@ -517,41 +183,11 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return ResultSummarySingle(configs, args).run(args)
-
-
-class cmd_loop(Command):
-    help = ("Checks for test results in a specific date range "
-            "and generates summary reports (single shot)")
-    args = [
-        {
-            'name': '--config',
-            'help': "Path to service-specific config yaml file",
-        },
-    ]
-    opt_args = [
-        {
-            'name': '--preset',
-            'help': "Configuration preset to load ('default' if none)",
-        },
-        {
-            'name': '--output',
-            'help': "Override the 'output' preset parameter"
-        },
-        {
-            'name': '--query-params',
-            'help': ("Additional query parameters: "
-                     "'<paramX>=<valueX>,<paramY>=<valueY>'")
-        },
-        Args.verbose,
-    ]
-
-    def __call__(self, configs, args):
-        return ResultSummaryLoop(configs, args).run(args)
+        return ResultSummary(configs, args).run(args)
 
 
 if __name__ == '__main__':
-    opts = parse_opts(SERVICE_NAME, globals())
+    opts = parse_opts(result_summary.SERVICE_NAME, globals())
     yaml_configs = opts.get_yaml_configs() or 'config/pipeline.yaml'
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
