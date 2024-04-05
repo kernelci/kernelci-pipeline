@@ -43,7 +43,17 @@ class KCIDBBridge(Service):
         if context['sub_id']:
             self._api_helper.unsubscribe_filters(context['sub_id'])
 
+    def _remove_none_fields(self, data):
+        """Remove all keys with `None` values as KCIDB doesn't allow it"""
+        if isinstance(data, dict):
+            return {key: self._remove_none_fields(val)
+                    for key, val in data.items() if val is not None}
+        if isinstance(data, list):
+            return [self._remove_none_fields(item) for item in data]
+        return data
+
     def _send_revision(self, client, revision):
+        revision = self._remove_none_fields(revision)
         self.log.debug(f"DEBUG: sending revision: {revision}")
         if kcidb.io.SCHEMA.is_valid(revision):
             return client.submit(revision)
