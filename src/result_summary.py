@@ -394,8 +394,80 @@ class ResultSummarySingle(ResultSummary):
 
 
 class ResultSummaryLoop(ResultSummary):
+    def _setup(self, args):
+        ctx = super()._setup(args)
+        self.log.info(f"preset_params: {ctx['preset_params']}")
+        base_filter = ctx['preset_params'][0]
+        sub_id = self._api_helper.subscribe_filters({
+            'kind': base_filter['kind'],
+            'state': base_filter['state'],
+        })
+        if not sub_id:
+            raise Exception("Error subscribing to event")
+        ctx['sub_id'] = sub_id
+        return ctx
+
+    def _stop(self, ctx):
+        if ctx:
+            self._api_helper.unsubscribe_filters(ctx['sub_id'])
+
     def _run(self, ctx):
-        pass
+        def get_item(dict, item, default=None):
+            """General form of dict.get() that supports the retrieval of
+            dot-separated fields in nested dicts.
+            """
+            if not dict:
+                return default
+            items = item.split('.')
+            if len(items) == 1:
+                return dict.get(items[0], default)
+            return get_item(dict.get(items[0], default), '.'.join(items[1:]), default)
+
+        def filter_node(node, params):
+            """Returns True if <node> matches the constraints defined in
+            the <params> dict, where each param is defined like:
+
+                node_field : value
+
+            with an optional operator (ne, gt, lt, re):
+
+                node_field__op : value
+
+            The value matching is done differently depending on the
+            operator (equal, not equal, greater than, lesser than,
+            regex)
+
+            If the node doesn't match the full set of parameter
+            constraints, it returns False.
+            """
+            for param_name, value in params.items():
+                field, _, cmd = param_name.partition('__')
+                node_value = get_item(node, field)
+                if cmd == 'ne':
+                    if node_value == value:
+                        return False
+                elif cmd == 'gt':
+                    if node_value <= value:
+                        return False
+                elif cmd == 'lt':
+                    if node_value >= value:
+                        return False
+                elif cmd == 're':
+                    if not re.search(value, node_value):
+                        return False
+                else:
+                    if node_value != value:
+                        return False
+            return True
+
+        while True:
+            node = self._api_helper.receive_event_node(ctx['sub_id'])
+            self.log.info(f"Node received: {node}")
+            preset_params = ctx['preset_params']
+            for param_set in ctx['preset_params']:
+                if filter_node(node, {**param_set, **ctx['extra_query_params']}):
+                    self.log.info(f"[TODO] Generate node report for {node}")
+        return True
 
 
 class cmd_run(Command):
@@ -475,8 +547,7 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        args.cmd = 'loop'
-        return ResultSummary(configs, args).run(args)
+        return ResultSummaryLoop(configs, args).run(args)
 
 
 if __name__ == '__main__':
