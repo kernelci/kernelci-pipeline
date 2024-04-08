@@ -83,9 +83,9 @@ expects the following input parameters:
               {{ test['name'] }} ({{ test['group'] }})
             </h3>
             <ul>
-              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ test['id'] }}">
-                  {{ test['id'] }}</a></li>
-                  <li>Date: {{ test['created'] }}</li>
+              <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ test['id'] }}" target="_blank" rel="noopener noreferrer">{{ test['id'] }}</a>
+              </li>
+              <li>Date: {{ test['created'] }}</li>
               <li>Tree: {{ kernel_version['tree'] }}</li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
               <li>Kernel version: {{ kernel_version['describe'] }}</li>
@@ -94,10 +94,10 @@ expects the following input parameters:
               <li>Config: {{ test['data']['config_full'] }}</li>
               <li>Compiler: {{ test['data']['compiler'] }}</li>
               {% if test['data']['error_code'] -%}
-                <li>Error code: {{ test['data']['error_code'] }}</li>
+                <li>Error code: <code>{{ test['data']['error_code'] }}</code></li>
               {% endif -%}
               {% if test['data']['error_msg'] -%}
-                <li>Error message: {{ test['data']['error_msg'] }}</li>
+                <li>Error message: <code>{{ test['data']['error_msg'] }}</code></li>
               {% endif -%}
               {% if test['logs'] | count > 0 -%}
                 <li>Logs:
