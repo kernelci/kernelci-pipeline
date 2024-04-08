@@ -1,0 +1,71 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{#
+Template to generate a generic html single test failure report. It expects
+the following input parameters:
+  - metadata: preset metadata
+  - node: the node to report
+#}
+
+{% extends "base.html" %}
+{% set title = metadata['title'] if 'title' in metadata else 'Failure report' %}
+
+{% block title %}
+  {{ title | striptags }}
+{% endblock %}
+
+{% block content %}
+  <h1 class="text-bg-light p-3 rounded">{{ title }}</h1>
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+          data-bs-target="#logSnippet" aria-expanded="false"
+          aria-controls="logSnippet">
+          Toggle log snippet
+  </button>
+  <div class="alert alert-danger" role="alert">
+    <strong>NOTE</strong>: The test snippet show the last lines of the
+    full test suite log and may not show relevant information about the
+    particular failed test case.
+  </div>
+
+  {% set kernel_version = node['data']['kernel_revision'] %}
+  <h3>
+    {{ node['name'] }} ({{ node['group'] }})
+  </h3>
+  <ul>
+    <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['id'] }}" target="_blank" rel="noopener noreferrer">{{ node['id'] }}</a>
+    </li>
+    <li>Date: {{ node['created'] }}</li>
+    <li>Tree: {{ kernel_version['tree'] }}</li>
+    <li>Branch: {{ kernel_version['branch'] }}</li>
+    <li>Kernel version: {{ kernel_version['describe'] }}</li>
+    <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})</li>
+    <li>Arch : {{ node['data']['arch'] }}</li>
+    <li>Config: {{ node['data']['config_full'] }}</li>
+    <li>Compiler: {{ node['data']['compiler'] }}</li>
+    {% if node['data']['error_code'] -%}
+      <li>Error code: <code>{{ node['data']['error_code'] }}</code></li>
+    {% endif -%}
+    {% if node['data']['error_msg'] -%}
+      <li>Error message: <code>{{ node['data']['error_msg'] }}</code></li>
+    {% endif -%}
+    {% if node['logs'] | count > 0 -%}
+      <li>Logs:
+        <ul>
+          {% for log in node['logs'] -%}
+            <li>
+              <a href="{{ node['logs'][log]['url'] }}">{{ log }}</a>
+              <div class="collapse" id="logSnippet">
+                <div class="card card-body">
+                  <pre>
+                    {{ node['logs'][log]['text'] }}
+                  </pre>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+      </ul></li>
+    {% else -%}
+      <li>No logs available</li>
+    {% endif %}
+  </ul>
+{% endblock %}
