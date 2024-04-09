@@ -72,6 +72,11 @@ class RegressionTracker(Service):
         """Method to create a regression"""
         regression = {}
         regression['kind'] = 'regression'
+        # Make regression "active" by default.
+        # TODO: 'result' is currently optional in the model, so we set
+        # it here. Remove this line if the field is set as mandatory in
+        # the future.
+        regression['result'] = 'fail'
         regression['name'] = failed_node['name']
         regression['path'] = failed_node['path']
         regression['group'] = failed_node['group']
