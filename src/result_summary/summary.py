@@ -29,9 +29,9 @@ def setup(service, args, context):
     if args.created_to:
         date_params[_date_params['created_to']] = args.created_to
     if args.last_updated_from:
-        date_params[_date_params['last_updated_to']] = args.last_updated_from
+        date_params[_date_params['last_updated_from']] = args.last_updated_from
     if args.last_updated_to:
-        date_params[_date_params['last_updated_from']] = args.last_updated_to
+        date_params[_date_params['last_updated_to']] = args.last_updated_to
     # Default if no dates are specified: created since yesterday
     yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
