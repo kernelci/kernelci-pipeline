@@ -1,3 +1,13 @@
+9 April 2024
+	Implement two working modes:
+	  * "summary": single-shot run that queries the API and generates
+	    a result summary (what we've been doing so far)
+	  * "monitor": permanent process that waits for API events of a
+	    certain type and characteristics and generates an individual
+	    report for every one of them.
+	Each preset defines in which mode it'll work in the
+	metadata['action'] parameter.
+
 3 April 2024
 	Rework the command-line options to specify the date parameters in
 	queries:
