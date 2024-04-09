@@ -19,22 +19,21 @@
 # (default: yesterday) and --date-to (default: now) options, formatted
 # as YYYY-MM-DD or YYYY-MM-DDTHH:mm:SS (UTC)
 #
-# Each preset may define the name of the output file generated (in
-# data/output). This can be overriden with the --output option. If no
-# output file is defined, the output will be printed to stdout.
+# Each preset may define the name and the directory of the output file
+# generated (in data/output). This can be overriden with the
+# --output-dir and --output-file options. If no output file is defined,
+# the output will be printed to stdout.
 #
 # For current status info, see the development changelog in
-# config/result_summary_templates/CHANGELOG
+# doc/result-summary-CHANGELOG
 
 # TODO:
 # - Refactor liberally
-# - Implement loop mode
 # - Send email reports
 # - Do we want to focus on regressions only or on any kind of result?
 #   If we want test results as well:
 #   - Provide logs for test leaf nodes
 # - Tweak output and templates according to user needs
-# - Parameterize/generalize templates to avoid duplication
 # - Other suggested improvements
 
 import sys
@@ -81,9 +80,12 @@ class ResultSummary(Service):
         extra_query_params = {}
         if args.query_params:
             extra_query_params = split_query_params(args.query_params)
-        output = None
-        if args.output:
-            output = args.output
+        output_dir = None
+        if args.output_dir:
+            output_dir = args.output_dir
+        output_file = None
+        if args.output_file:
+            output_file = args.output_file
         # End of command line argument loading and sanity checks
 
         # Load presets and template
@@ -103,7 +105,8 @@ class ResultSummary(Service):
             'preset_params': preset_params,
             'extra_query_params': extra_query_params,
             'template': template,
-            'output': output,
+            'output_file': output_file,
+            'output_dir': output_dir,
         }
         # Action-specific setup
         if metadata.get('action') == 'summary':
@@ -171,7 +174,11 @@ class cmd_run(Command):
                      "(YYYY-mm-DDTHH:MM:SS). Default: until now"),
         },
         {
-            'name': '--output',
+            'name': '--output-dir',
+            'help': "Override the 'output_dir' preset parameter"
+        },
+        {
+            'name': '--output-file',
             'help': "Override the 'output' preset parameter"
         },
         {
