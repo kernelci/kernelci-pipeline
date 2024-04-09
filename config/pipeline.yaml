@@ -301,6 +301,9 @@ trees:
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
 
+  android:
+    url: 'https://android.googlesource.com/kernel/common'
+
 platforms:
 
   docker:
@@ -636,4 +639,9 @@ build_configs:
   mediatek_for_next:
     tree: mediatek
     branch: 'for-next'
+    variants: *build-variants
+
+  android_mainline:
+    tree: android
+    branch: 'android-mainline'
     variants: *build-variants
