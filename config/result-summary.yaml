@@ -7,9 +7,10 @@
 
 # Each report preset must include a "metadata" section and a "preset"
 # section. The "metadata" section is expected to contain at least the
-# "template" file used for the summary generation. This template must be
-# a file in config/result_summary_templates. Other optional fields are
-# supported:
+# "action" to be performed ("summary" or "monitor") and the "template"
+# file used for the summary generation. This template must be a file in
+# config/result_summary_templates. Other optional fields are supported:
+#
 #  - "output": name of the file where the output will be stored (in
 #    data/output)
 #  - "title": title for the report
@@ -26,12 +27,14 @@
 
 # Example, <default-test> preset. Searches for dmesg baseline tests for
 # arm64 in two repo trees, and also for all results for tests whose name
-# contains "mytest":
+# contains "mytest", and generates a summary:
 #
 # default-test:
 #   metadata:
+#     action: summary
 #     title: "Example test report"
 #     template: "mytemplate.jinja2"
+#     output: "default-test.txt"
 #  preset:
 #    test:
 #      # Query by group, name, arch and list of repos
@@ -48,6 +51,76 @@
 #      - name_re: mytest
 
 
+### Monitor presets
+
+# Monitor active stable-rc kernel build regressions
+# This will generate a report each time a new regression is detected or
+# when an existing regression is updated (ie. the test case has failed
+# again)
+monitor-active-stable-rc-build-regressions:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rc</strong> kernel build regression"
+    template: "generic-regression-report.html.jinja2"
+    output: "stable-rc-build-regression-report.html"
+  preset:
+    regression:
+      - name__re: kbuild
+        # Regressions with result = fail are "active", ie. still failing
+        result: fail
+        repos:
+          - tree: stable-rc
+
+# Monitor all stable-rc kernel kbuild failures
+monitor-stable-rc-build-failures:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rc</strong> kernel build failure"
+    template: "generic-test-failure-report.html.jinja2"
+    output: "stable-rc-build-failure.html"
+  preset:
+    kbuild:
+      - result: fail
+        repos:
+          - tree: stable-rc
+
+# Monitor active stable-rc kernel boot regressions
+monitor-active-stable-rc-boot-regressions:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rc</strong> kernel boot regression"
+    template: "generic-regression-report.html.jinja2"
+    output: "stable-rc-boot-regression-report.html"
+  preset:
+    regression:
+      - group__re: baseline
+        # Regressions with result = fail are "active", ie. still failing
+        result: fail
+        repos:
+          - tree: stable-rc
+
+monitor-all-regressions:
+  metadata:
+    action: monitor
+    title: "KernelCI regression report"
+    template: "generic-regression-report.html.jinja2"
+    output: "regression-report.html"
+  preset:
+    regression:
+
+monitor-all-test-failures:
+  metadata:
+    action: monitor
+    title: "KernelCI test failure report"
+    template: "generic-test-failure-report.html.jinja2"
+    output: "test-failure-report.html"
+  preset:
+    test:
+      - result: fail
+
+
+### Summary presets
+
 # New stable-rc kernel build regressions
 stable-rc-build-regressions:
   metadata:
@@ -62,12 +135,12 @@ stable-rc-build-regressions:
           - tree: stable-rc
 
 # All active stable-rc kernel build regressions
-stable-rc-build-active-regressions:
+active-stable-rc-build-regressions:
   metadata:
     action: summary
     title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
-    output: "stable-rc-build-regressions.html"
+    output: "active-stable-rc-build-regressions.html"
   preset:
     regression:
       - name__re: kbuild
@@ -84,9 +157,8 @@ stable-rc-build-failures:
     template: "generic-test-failures.html.jinja2"
     output: "stable-rc-build-failures.html"
   preset:
-    test:
-      - kind: kbuild
-        result: fail
+    kbuild:
+      - result: fail
         repos:
           - tree: stable-rc
 
@@ -251,27 +323,28 @@ tast-regressions-x86_64__runtime_errors:
         data.arch: x86_64
         data.error_code__ne: null
 
-monitor-tast-regressions-x86_64__runtime_errors:
-  metadata:
-    action: monitor
-    title: "Regression found on Tast tests for x86_64 due to runtime errors"
-    template: "generic-regression-report.html.jinja2"
-    output: "tast-regressions-x86_64__runtime_error_report.html"
-  preset:
-    regression:
-      - group__re: tast
-        name__ne: tast
-        data.arch: x86_64
-        data.error_code__ne: null
-
-kunit-regressions:
+# All active kunit regressions
+active-kunit-regressions:
   metadata:
     action: summary
-    title: "'Regressions' found on kunit tests"
+    title: "Active regressions found on kunit tests"
     template: "generic-regressions.html.jinja2"
     output: "kunit-regressions.html"
   preset:
     regression:
-      - group__re: tast
-        name__ne: tast
+      - group__re: kunit
+        result: fail
+        data.error_code: null
+
+# All kunit test failures
+all-kunit-failures:
+  metadata:
+    action: summary
+    title: "All kunit test failures"
+    template: "generic-test-failures.html.jinja2"
+    output: "kunit-failures.html"
+  preset:
+    test:
+      - group__re: kunit
+        result: fail
         data.error_code: null
