@@ -8,6 +8,13 @@
 	Each preset defines in which mode it'll work in the
 	metadata['action'] parameter.
 
+	HTML output files now embed the css code and the original main.css
+	file is no longer deployed individually in the output dir.
+
+	New command-line option added: --config-dir.
+
+	--config option renamed as --config-file.
+
 3 April 2024
 	Rework the command-line options to specify the date parameters in
 	queries:
