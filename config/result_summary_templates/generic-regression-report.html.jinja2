@@ -27,7 +27,7 @@ the following input parameters:
     particular failed test case.
   </div>
 
-  {% set kernel_version = regression['data']['failed_kernel_version'] %}
+  {% set kernel_version = node['data']['failed_kernel_version'] %}
   <h3>
     {{ node['name'] }} ({{ node['group'] }})
   </h3>
