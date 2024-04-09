@@ -116,6 +116,13 @@ runtimes:
       tree:
       - 'android'
 
+  lava-pengutronix:
+    lab_type: lava
+    url: 'https://hekla.openlab.pengutronix.de/'
+    rules:
+      tree:
+      - 'android'
+
   docker:
     lab_type: docker
     env_file: '/home/kernelci/.docker-env'
