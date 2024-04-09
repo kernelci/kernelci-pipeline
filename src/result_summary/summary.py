@@ -130,13 +130,25 @@ def run(service, context):
         'last_updated_to': context['date_params'].get(_date_params['last_updated_to']),
     }
     output_text = context['template'].render(template_params)
-    output = context['output']
-    if not output:
-        if 'output' in context['metadata']:
-            output = context['metadata']['output']
-    if output:
-        with open(os.path.join(result_summary.OUTPUT_DIR, output), 'w') as output_file:
-            output_file.write(output_text)
+    # Setup output dir from base path and user-specified
+    # parameter (in preset metadata or cmdline)
+    output_dir = result_summary.BASE_OUTPUT_DIR
+    if context.get('output_dir'):
+        output_dir = os.path.join(output_dir, context['output_dir'])
+    elif 'output_dir' in context['metadata']:
+        output_dir = os.path.join(output_dir, context['metadata']['output_dir'])
+    os.makedirs(output_dir, exist_ok=True)
+    # Generate and dump output
+    # output_file specified in cmdline:
+    output_file = context['output_file']
+    if not output_file:
+        # Check if output_file is specified as a preset parameter
+        if 'output_file' in context['metadata']:
+            output_file = context['metadata']['output_file']
+    if output_file:
+        output_file = os.path.join(output_dir, output_file)
+        with open((output_file), 'w') as outfile:
+            outfile.write(output_text)
     else:
         result_summary.logger.info(output_text)
     return True

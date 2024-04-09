@@ -11,7 +11,7 @@
 # file used for the summary generation. This template must be a file in
 # config/result_summary_templates. Other optional fields are supported:
 #
-#  - "output": name of the file where the output will be stored (in
+#  - "output_file": name of the file where the output will be stored (in
 #    data/output)
 #  - "title": title for the report
 #
@@ -34,7 +34,7 @@
 #     action: summary
 #     title: "Example test report"
 #     template: "mytemplate.jinja2"
-#     output: "default-test.txt"
+#     output_file: "default-test.txt"
 #  preset:
 #    test:
 #      # Query by group, name, arch and list of repos
@@ -62,7 +62,7 @@ monitor-active-stable-rc-build-regressions:
     action: monitor
     title: "<strong>stable-rc</strong> kernel build regression"
     template: "generic-regression-report.html.jinja2"
-    output: "stable-rc-build-regression-report.html"
+    output_file: "stable-rc-build-regression-report.html"
   preset:
     regression:
       - name__re: kbuild
@@ -77,7 +77,7 @@ monitor-stable-rc-build-failures:
     action: monitor
     title: "<strong>stable-rc</strong> kernel build failure"
     template: "generic-test-failure-report.html.jinja2"
-    output: "stable-rc-build-failure.html"
+    output_file: "stable-rc-build-failure.html"
   preset:
     kbuild:
       - result: fail
@@ -90,7 +90,7 @@ monitor-active-stable-rc-boot-regressions:
     action: monitor
     title: "<strong>stable-rc</strong> kernel boot regression"
     template: "generic-regression-report.html.jinja2"
-    output: "stable-rc-boot-regression-report.html"
+    output_file: "stable-rc-boot-regression-report.html"
   preset:
     regression:
       - group__re: baseline
@@ -104,20 +104,53 @@ monitor-all-regressions:
     action: monitor
     title: "KernelCI regression report"
     template: "generic-regression-report.html.jinja2"
-    output: "regression-report.html"
+    output_file: "regression-report.html"
   preset:
     regression:
+
+monitor-all-test-failures__runtime_errors:
+  metadata:
+    action: monitor
+    title: "KernelCI test failure report"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "test-failure-report.html"
+  preset:
+    test:
+      - result: fail
+        data.error_code__ne: null
 
 monitor-all-test-failures:
   metadata:
     action: monitor
     title: "KernelCI test failure report"
     template: "generic-test-failure-report.html.jinja2"
-    output: "test-failure-report.html"
+    output_file: "test-failure-report.html"
   preset:
     test:
       - result: fail
+        data.error_code: null
 
+monitor-all-build-failures__runtime_errors:
+  metadata:
+    action: monitor
+    title: "KernelCI kbuild failure report"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "kbuild-failure-report.html"
+  preset:
+    kbuild:
+      - result: fail
+        data.error_code__ne: null
+
+monitor-all-build-failures:
+  metadata:
+    action: monitor
+    title: "KernelCI kbuild failure report"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "kbuild-failure-report.html"
+  preset:
+    kbuild:
+      - result: fail
+        data.error_code: null
 
 ### Summary presets
 
@@ -127,7 +160,7 @@ stable-rc-build-regressions:
     action: summary
     title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
-    output: "stable-rc-build-regressions.html"
+    output_file: "stable-rc-build-regressions.html"
   preset:
     regression:
       - name__re: kbuild
@@ -140,7 +173,7 @@ active-stable-rc-build-regressions:
     action: summary
     title: "<strong>stable-rc</strong> kernel build regressions"
     template: "generic-regressions.html.jinja2"
-    output: "active-stable-rc-build-regressions.html"
+    output_file: "active-stable-rc-build-regressions.html"
   preset:
     regression:
       - name__re: kbuild
@@ -155,7 +188,7 @@ stable-rc-build-failures:
     action: summary
     title: "<strong>stable-rc</strong> kernel build failures"
     template: "generic-test-failures.html.jinja2"
-    output: "stable-rc-build-failures.html"
+    output_file: "stable-rc-build-failures.html"
   preset:
     kbuild:
       - result: fail
@@ -168,7 +201,7 @@ stable-rc-boot-regressions:
     action: summary
     title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
-    output: "stable-rc-boot-regressions.html"
+    output_file: "stable-rc-boot-regressions.html"
   preset:
     regression:
       - group__re: baseline
@@ -181,7 +214,7 @@ stable-rc-boot-active-regressions:
     action: summary
     title: "<strong>stable-rc</strong> kernel boot regressions"
     template: "generic-regressions.html.jinja2"
-    output: "stable-rc-boot-regressions.html"
+    output_file: "stable-rc-boot-regressions.html"
   preset:
     regression:
       - group__re: baseline
@@ -196,7 +229,7 @@ stable-rc-boot-failures:
     action: summary
     title: "<strong>stable-rc</strong> kernel boot failures"
     template: "generic-test-failures.html.jinja2"
-    output: "stable-rc-boot-failures.html"
+    output_file: "stable-rc-boot-failures.html"
   preset:
     test:
       - group__re: baseline
@@ -210,7 +243,7 @@ tast-failures:
     action: summary
     title: "General Tast test failures"
     template: "generic-test-failures.html.jinja2"
-    output: "tast-failures.html"
+    output_file: "tast-failures.html"
   preset:
     test:
       - group__re: tast
@@ -224,7 +257,7 @@ tast-failures__runtime_errors:
     action: summary
     title: "General Tast test failures"
     template: "generic-test-failures.html.jinja2"
-    output: "tast-failures.html"
+    output_file: "tast-failures.html"
   preset:
     test:
       - group__re: tast
@@ -239,7 +272,7 @@ mainline-next-regressions:
     action: summary
     title: "Regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
-    output: "mainline-next-regressions.html"
+    output_file: "mainline-next-regressions.html"
   preset:
     regression:
       - data.error_code: null
@@ -252,7 +285,7 @@ mainline-next-test-failures:
     action: summary
     title: "Regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
-    output: "mainline-next-regressions.html"
+    output_file: "mainline-next-regressions.html"
   preset:
     test:
       - result: fail
@@ -268,7 +301,7 @@ mainline-next-active-regressions:
     action: summary
     title: "Regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
-    output: "mainline-next-active-regressions.html"
+    output_file: "mainline-next-active-regressions.html"
   preset:
     regression:
       - data.error_code: null
@@ -285,7 +318,7 @@ mainline-next-regressions__runtime_errors:
     action: summary
     title: "'Regressions' found in mainline and next due to runtime errors"
     template: "generic-regressions.html.jinja2"
-    output: "mainline-next-regressions__runtime_errors.html"
+    output_file: "mainline-next-regressions__runtime_errors.html"
   preset:
     regression:
       - data.error_code__ne: null
@@ -300,7 +333,7 @@ tast-regressions-x86_64:
     action: summary
     title: "Regressions found on Tast tests for x86_64"
     template: "generic-regressions.html.jinja2"
-    output: "tast-regressions-x86_64.html"
+    output_file: "tast-regressions-x86_64.html"
   preset:
     regression:
       - group__re: tast
@@ -315,7 +348,7 @@ tast-regressions-x86_64__runtime_errors:
     action: summary
     title: "'Regressions' found on Tast tests for x86_64 due to runtime errors"
     template: "generic-regressions.html.jinja2"
-    output: "tast-regressions-x86_64__runtime_errors.html"
+    output_file: "tast-regressions-x86_64__runtime_errors.html"
   preset:
     regression:
       - group__re: tast
@@ -329,7 +362,7 @@ active-kunit-regressions:
     action: summary
     title: "Active regressions found on kunit tests"
     template: "generic-regressions.html.jinja2"
-    output: "kunit-regressions.html"
+    output_file: "kunit-regressions.html"
   preset:
     regression:
       - group__re: kunit
@@ -342,7 +375,7 @@ all-kunit-failures:
     action: summary
     title: "All kunit test failures"
     template: "generic-test-failures.html.jinja2"
-    output: "kunit-failures.html"
+    output_file: "kunit-failures.html"
   preset:
     test:
       - group__re: kunit
