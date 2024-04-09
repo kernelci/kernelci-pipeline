@@ -89,6 +89,7 @@ services:
       - 'lava-collabora-staging'
       - 'lava-broonie'
       - 'lava-kontron'
+      - 'lava-pengutronix'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
