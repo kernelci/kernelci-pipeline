@@ -8,7 +8,6 @@
 import concurrent.futures
 from datetime import datetime, timedelta, timezone
 import os
-import shutil
 
 import result_summary
 import result_summary.utils as utils
@@ -138,8 +137,6 @@ def run(service, context):
     if output:
         with open(os.path.join(result_summary.OUTPUT_DIR, output), 'w') as output_file:
             output_file.write(output_text)
-        shutil.copy(os.path.join(result_summary.TEMPLATES_DIR, 'main.css'),
-                    result_summary.OUTPUT_DIR)
     else:
         result_summary.logger.info(output_text)
     return True

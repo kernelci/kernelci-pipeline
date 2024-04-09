@@ -8,7 +8,6 @@
 from datetime import datetime, timezone
 import os
 import re
-import shutil
 
 import result_summary
 
@@ -101,8 +100,6 @@ def run(service, context):
                 if output:
                     with open(os.path.join(result_summary.OUTPUT_DIR, output), 'w') as output_file:
                         output_file.write(output_text)
-                    shutil.copy(os.path.join(result_summary.TEMPLATES_DIR, 'main.css'),
-                                result_summary.OUTPUT_DIR)
                     service.log.info(f"Report generated in {output}")
                 else:
                     result_summary.logger.info(output_text)
