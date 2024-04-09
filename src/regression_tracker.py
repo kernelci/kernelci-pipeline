@@ -93,6 +93,7 @@ class RegressionTracker(Service):
             'failed_kernel_version': failed_node['data'].get('kernel_revision'),   # noqa
             'error_code': error['error_code'],
             'error_msg': error['error_msg'],
+            'node_sequence': [],
         }
         regression['artifacts'] = self._collect_logs(failed_node)
         return regression
