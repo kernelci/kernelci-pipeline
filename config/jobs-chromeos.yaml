@@ -422,6 +422,19 @@ jobs:
       <<: *kbuild-gcc-10-x86-chromeos-params
       flavour: amd-stoneyridge
 
+  kselftest-acpi:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      collections: acpi
+      job_timeout: 10
+    rules:
+      tree:
+        - collabora-next
+      branch:
+        - for-kernelci
+
   tast-basic-arm64-mediatek: *tast-basic-job
   tast-basic-arm64-qualcomm: *tast-basic-job
   tast-basic-x86-intel: *tast-basic-job
