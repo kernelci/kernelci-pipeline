@@ -198,14 +198,26 @@ jobs:
       <<: *kbuild-gcc-10-arm64-params
       dtbs_check: true
 
-  kbuild-gcc-10-armel:
+  kbuild-gcc-10-armel: &kbuild-gcc-10-armel-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
-    params:
+    params: &kbuild-gcc-10-armel-params
       arch: arm
       compiler: gcc-10
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
+
+  kbuild-gcc-10-armel-android-mainline: &kbuild-gcc-10-armel-android-mainline-job
+    <<: *kbuild-gcc-10-armel-job
+    rules:
+      tree:
+      - 'android'
+
+  kbuild-gcc-10-armel-android-mainline-imx: &kbuild-gcc-10-armel-android-mainline-imx-job
+    <<: *kbuild-gcc-10-armel-android-mainline-job
+    params:
+      <<: *kbuild-gcc-10-armel-params
+      defconfig: imx_v6_v7_defconfig
 
   kbuild-gcc-10-i386:
     <<: *kbuild-job
