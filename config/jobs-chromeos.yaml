@@ -353,12 +353,10 @@ _anchors:
 
 jobs:
 
-  baseline-arm64-chromeos-mediatek: &baseline-job
+  baseline-arm64-mediatek: &baseline-job
     template: baseline.jinja2
     kind: test
 
-  baseline-arm64-chromeos-qualcomm: *baseline-job
-  baseline-arm64-mediatek: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
   baseline-x86-amd: *baseline-job
   baseline-x86-amd-staging: *baseline-job

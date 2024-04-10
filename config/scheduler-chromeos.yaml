@@ -106,17 +106,17 @@ _anchors:
 
 scheduler:
 
-  - job: baseline-arm64-chromeos-mediatek
-    <<: *test-job-chromeos-mediatek
-
-  - job: baseline-arm64-chromeos-qualcomm
-    <<: *test-job-chromeos-qualcomm
-
   - job: baseline-arm64-mediatek
     <<: *test-job-arm64-mediatek
 
   - job: baseline-arm64-qualcomm
     <<: *test-job-arm64-qualcomm
+
+  - job: baseline-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
+
+  - job: baseline-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
 
   - job: baseline-x86-amd
     <<: *test-job-chromeos-amd
