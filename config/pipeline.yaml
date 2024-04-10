@@ -319,6 +319,9 @@ trees:
   android:
     url: 'https://android.googlesource.com/kernel/common'
 
+  collabora-next:
+    url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
+
 platforms:
 
   docker:
@@ -663,4 +666,9 @@ build_configs:
   android_mainline:
     tree: android
     branch: 'android-mainline'
+    variants: *build-variants
+
+  collabora-next_for-kernelci:
+    tree: collabora-next
+    branch: 'for-kernelci'
     variants: *build-variants
