@@ -88,7 +88,7 @@ class KCIDBBridge(Service):
                 'tests': [],
                 'version': {
                     'major': 4,
-                    'minor': 0
+                    'minor': 3
                 }
             }
             self._send_revision(context['client'], revision)
