@@ -14,6 +14,9 @@ _anchors:
       fragments:
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
+    rules: &kbuild-gcc-10-arm64-chromeos-rules
+      tree:
+      - '!android'
 
   kbuild-gcc-10-x86-chromeos: &kbuild-gcc-10-x86-chromeos-job
     <<: *kbuild-gcc-10-arm64-chromeos-job
@@ -26,6 +29,9 @@ _anchors:
       fragments:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
+    rules:
+      tree:
+      - '!android'
 
   tast: &tast-job
     template: tast.jinja2
@@ -364,6 +370,11 @@ jobs:
     params:
       <<: *kbuild-gcc-10-arm64-chromeos-params
       flavour: mediatek
+    rules:
+      <<: *kbuild-gcc-10-arm64-chromeos-rules
+      min_version:
+        version: 6
+        patchlevel: 1
 
   kbuild-gcc-10-arm64-chromeos-qualcomm:
     <<: *kbuild-gcc-10-arm64-chromeos-job
