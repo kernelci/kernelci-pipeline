@@ -109,6 +109,20 @@ storage:
 
 runtimes:
 
+  lava-kontron:
+    lab_type: lava
+    url: 'https://lavalab.kontron.com/'
+    rules:
+      tree:
+      - 'android'
+
+  lava-pengutronix:
+    lab_type: lava
+    url: 'https://hekla.openlab.pengutronix.de/'
+    rules:
+      tree:
+      - 'android'
+
   docker:
     lab_type: docker
     env_file: '/home/kernelci/.docker-env'
@@ -285,6 +299,9 @@ trees:
 
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
+
+  android:
+    url: 'https://android.googlesource.com/kernel/common'
 
 platforms:
 
@@ -592,4 +609,9 @@ build_configs:
   mediatek_for_next:
     tree: mediatek
     branch: 'for-next'
+    variants: *build-variants
+
+  android_mainline:
+    tree: android
+    branch: 'android-mainline'
     variants: *build-variants
