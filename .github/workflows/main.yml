@@ -40,3 +40,12 @@ jobs:
       - name: Run pycodestyle
         run: |
           pycodestyle src/*.py
+
+      - name: Install python yaml package
+        run: |
+          pip install pyyaml
+
+      - name: Run basic yaml validation
+        run: |
+          python tests/validate_yaml.py
+        
