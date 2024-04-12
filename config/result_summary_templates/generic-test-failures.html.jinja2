@@ -79,20 +79,44 @@ expects the following input parameters:
         <div id="result-list">
           {% for test in results_per_branch[tree][branch] -%}
             {% set kernel_version = test['data']['kernel_revision'] %}
-            <h3>
+            <h3 id="name">
               {{ test['name'] }} ({{ test['group'] }})
             </h3>
             <ul>
               <li>KernelCI node: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ test['id'] }}" target="_blank" rel="noopener noreferrer">{{ test['id'] }}</a>
+              </li>
+              <li>Result:
+                {% if test['result'] == 'fail' %}
+                  <span class="badge text-bg-danger">FAIL</span>
+                {% elif test['result'] == 'pass' %}
+                  <span class="badge text-bg-success">PASS</span>
+                {% else %}
+                  {{ node['result'] }}
+                {% endif %}
               </li>
               <li>Date: {{ test['created'] }}</li>
               <li>Tree: {{ kernel_version['tree'] }}</li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
               <li>Kernel version: {{ kernel_version['describe'] }}</li>
               <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['url'] }})</li>
-              <li>Arch : {{ test['data']['arch'] }}</li>
-              <li>Config: {{ test['data']['config_full'] }}</li>
-              <li>Compiler: {{ test['data']['compiler'] }}</li>
+              {% if test['data']['arch'] %}
+                <li>Arch : {{ test['data']['arch'] }}</li>
+              {% endif %}
+              {% if test['data']['platform'] %}
+                <li>Platform : {{ test['data']['platform'] }}</li>
+              {% endif %}
+              {% if test['data']['config_full'] %}
+                <li>Config: {{ test['data']['config_full'] }}</li>
+              {% endif %}
+              {% if test['data']['compiler'] %}
+                <li>Compiler: {{ test['data']['compiler'] }}</li>
+              {% endif %}
+              {% if test['data']['runtime'] %}
+                <li>Runtime: {{ test['data']['runtime'] }}</li>
+              {% endif %}
+              {% if test['data']['job_id'] %}
+                <li>Job ID: {{ test['data']['job_id'] }}</li>
+              {% endif %}
               {% if test['data']['error_code'] -%}
                 <li>Error code: <code>{{ test['data']['error_code'] }}</code></li>
               {% endif -%}

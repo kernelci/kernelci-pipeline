@@ -79,7 +79,7 @@ expects the following input parameters:
         <div id="result-list">
           {% for regression in results_per_branch[tree][branch] -%}
             {% set kernel_version = regression['data']['failed_kernel_version'] %}
-            <h3>
+            <h3 id="name">
               {{ regression['name'] }} ({{ regression['group'] }})
             </h3>
             <ul>
@@ -93,6 +93,7 @@ expects the following input parameters:
               {% else %}
                 Unknown
               {% endif %}
+              </li>
               <li>
                 Introduced in: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ regression['data']['fail_node'] }}" target="_blank" rel="noopener noreferrer">{{ regression['created'] }}</a>
               </li>
@@ -115,9 +116,18 @@ expects the following input parameters:
               <li>Tree: <a href="{{ kernel_version['url'] }}" target="_blank" rel="noopener noreferrer">{{ kernel_version['tree'] }}</a></li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
               <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['describe'] }})</li>
-              <li>Arch : {{ regression['data']['arch'] }}</li>
-              <li>Config: {{ regression['data']['config_full'] }}</li>
-              <li>Compiler: {{ regression['data']['compiler'] }}</li>
+              {% if regression['data']['arch'] %}
+                <li>Arch : {{ regression['data']['arch'] }}</li>
+              {% endif %}
+              {% if regression['data']['platform'] %}
+                <li>Platform: {{ regression['data']['platform'] }}</li>
+              {% endif %}
+              {% if regression['data']['config_full'] %}
+                <li>Config: {{ regression['data']['config_full'] }}</li>
+              {% endif %}
+              {% if regression['data']['compiler'] %}
+                <li>Compiler: {{ regression['data']['compiler'] }}</li>
+              {% endif %}
               {% if regression['data']['error_code'] -%}
                 <li>Error code: <code>{{ regression['data']['error_code'] }}</code></li>
               {% endif -%}
