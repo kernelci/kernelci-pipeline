@@ -175,7 +175,10 @@ class RegressionTracker(Service):
                 self._api.node.update(regression)
         elif node['result'] == 'fail':
             previous = self._get_previous_job_instance(node)
-            if previous['result'] == 'pass':
+            if not previous:
+                # Not a regression, since there's no previous test run
+                pass
+            elif previous['result'] == 'pass':
                 self.log.info(f"Detected regression for node id: {node['id']}")
                 # Skip the regression generation if it was already in the
                 # DB. This may happen if a job was detected to generate a
@@ -220,8 +223,9 @@ class RegressionTracker(Service):
         # an event is generated only for the root node. Walk the
         # children node tree to check for event-less finished jobs
         child_nodes = self._api.node.find({'parent': node['id']})
-        for child_node in child_nodes:
-            self._process_node(child_node)
+        if child_nodes:
+            for child_node in child_nodes:
+                self._process_node(child_node)
 
     def _run(self, sub_id):
         """Method to run regression detection and generation"""
