@@ -67,14 +67,15 @@ def run(service, context):
         nodes.extend(query_results)
     result_summary.logger.info(f"Total nodes found: {len(nodes)}")
 
+    # Post-process nodes
     # Filter log files
     # - remove empty files
     # - collect log files in a 'logs' field
-    result_summary.logger.info(f"Checking logs ...")
+    result_summary.logger.info(f"Post-processing nodes ...")
     progress_total = len(nodes)
     progress = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {executor.submit(utils.get_logs, node) for node in nodes}
+        futures = {executor.submit(utils.post_process_node, node, service._api) for node in nodes}
         for future in concurrent.futures.as_completed(futures):
             result = future.result()
             progress += 1
