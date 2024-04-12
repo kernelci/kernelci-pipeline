@@ -118,6 +118,30 @@ scheduler:
   - job: baseline-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
+  - job: baseline-nfs-arm64-mediatek
+    <<: *test-job-arm64-mediatek
+
+  - job: baseline-nfs-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
+
+  - job: baseline-nfs-arm64-qualcomm
+    <<: *test-job-arm64-qualcomm
+
+  - job: baseline-nfs-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
+
+  - job: baseline-nfs-x86-amd
+    <<: *test-job-chromeos-amd
+
+  - job: baseline-nfs-x86-amd
+    <<: *test-job-x86-amd
+
+  - job: baseline-nfs-x86-intel
+    <<: *test-job-chromeos-intel
+
+  - job: baseline-nfs-x86-intel
+    <<: *test-job-x86-intel
+
   - job: baseline-x86-amd
     <<: *test-job-chromeos-amd
 
