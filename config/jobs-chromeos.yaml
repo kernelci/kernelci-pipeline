@@ -357,6 +357,22 @@ jobs:
     template: baseline.jinja2
     kind: test
 
+  baseline-nfs-arm64-mediatek: &baseline-nfs-arm64-job
+    template: baseline.jinja2
+    kind: test
+    params: &baseline-nfs-arm64-job-params
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/arm64
+
+  baseline-nfs-arm64-qualcomm: *baseline-nfs-arm64-job
+
+  baseline-nfs-x86-amd: &baseline-nfs-x86-job
+    <<: *baseline-nfs-arm64-job
+    params: &baseline-nfs-x86-job-params
+      <<: *baseline-nfs-arm64-job-params
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/amd64
+
+  baseline-nfs-x86-intel: *baseline-nfs-x86-job
   baseline-arm64-qualcomm: *baseline-job
   baseline-x86-amd: *baseline-job
   baseline-x86-amd-staging: *baseline-job
