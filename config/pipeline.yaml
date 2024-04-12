@@ -34,6 +34,7 @@ _anchors:
     rules:
       tree:
       - '!android'
+      - '!mediatek'
 
   kbuild-clang-17-x86: &kbuild-clang-17-x86-job
     <<: *kbuild-job
@@ -208,6 +209,9 @@ jobs:
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
+    rules:
+      tree:
+        - '!android'
 
   kbuild-gcc-10-arm64-dtbscheck:
     <<: *kbuild-gcc-10-arm64-job
@@ -215,6 +219,9 @@ jobs:
     params:
       <<: *kbuild-gcc-10-arm64-params
       dtbs_check: true
+    rules:
+      tree:
+        - '!android'
 
   kbuild-gcc-10-arm: &kbuild-gcc-10-arm-job
     <<: *kbuild-job
@@ -224,6 +231,9 @@ jobs:
       compiler: gcc-10
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
+    rules:
+      tree:
+        - '!android'
 
   kbuild-gcc-10-arm-android-mainline: &kbuild-gcc-10-arm-android-mainline-job
     <<: *kbuild-gcc-10-arm-job
