@@ -1,3 +1,7 @@
+12 April 2024
+	Node post-processing code moved to utils.py and applied to both
+	"summary" and "monitor" modes
+
 9 April 2024
 	Implement two working modes:
 	  * "summary": single-shot run that queries the API and generates
