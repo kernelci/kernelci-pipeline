@@ -109,36 +109,89 @@ def get_log(url, snippet_lines=0):
     return text
 
 
-def get_logs(node):
-    """
-    Retrieves and processes logs from a specified node.
+def artifact_is_log(artifact_name):
+    """Returns True if artifact_name looks like a log artifact, False
+    otherwise"""
+    possible_log_names = [
+        'job_txt',
+    ]
+    if (artifact_name == 'log' or
+        artifact_name.endswith('_log') or
+        artifact_name in possible_log_names):
+        return True
+    return False
 
-    This method iterates over a node's 'artifacts', if present, to find log
-    files. It identifies log files based on their item names, either being
-    'log' or ending with '_log'. For each identified log file, it obtains
-    the content by calling the `_get_log` method with the last 10 lines of
-    the log. If the content is not empty, it then stores this log data in a
-    dictionary, which includes both the URL of the log and its text content.
-    Finally, it updates the 'logs' key of the input `node` with this
-    dictionary of log data.
+
+def get_logs(node):
+    """Retrieves and processes logs from a specified node.
+
+    This method iterates over a node's 'artifacts', if present, to find
+    log files. For each identified log file, it obtains the content by
+    calling the `_get_log` method with a number of context lines (10
+    last lines by default). If the content is not empty, it then stores
+    this log data in a dictionary, which includes both the URL of the
+    log and its text content.
+
+    If the node log points to an empty file, the dict will contain an
+    entry for the log with an empty value.
 
     Args:
         node (dict): A dictionary representing a node, which should contain
         an 'artifacts' key with log information.
 
-    Modifies:
-        The input `node` dictionary is modified in-place by adding a new key
-        'logs', which contains a dictionary of processed log data. Each key
-        in this 'logs' dictionary is a log name, and the corresponding value
-        is another dictionary with keys 'url' (the URL of the log file) and
-        'text' (the content of the log file).
+    Returns:
+        A dict with an entry per node log. If the node log points to an
+        empty file, the entry will have an emtpy value. Otherwise, the
+        value will be a dict containing the 'url' and collected 'text'
+        of the log (may be an excerpt)
+
+        None if no logs were found.
     """
-    logs = {}
+    snippet_lines = -10
     if node.get('artifacts'):
-        all_logs = {item: url for item, url in node['artifacts'].items()
-                    if item == 'log' or item.endswith('_log')}
-        for log_name, url in all_logs.items():
-            text = get_log(url, snippet_lines=-10)
+        logs = {}
+        log_fields = {}
+        for artifact, value in node['artifacts'].items():
+            if artifact_is_log(artifact):
+                log_fields[artifact] = value
+        for log_name, url in log_fields.items():
+            text = get_log(url, snippet_lines=snippet_lines)
             if text:
                 logs[log_name] = {'url': url, 'text': text}
-    node['logs'] = logs
+            else:
+                logs[log_name] = None
+        return logs
+    return None
+
+
+def post_process_node(node, api):
+    """Runs a set of operations to post-proces and extract additional
+    information for a node:
+
+    - Find/complete/process node logs
+
+    Modifies:
+        The input `node` dictionary is modified in-place by adding a new
+        key 'logs', which contains a dictionary of processed log
+        data (see get_logs()).
+    """
+
+    def find_node_logs(node, api):
+        """For an input node, use get_logs() to retrieve its log
+        artifacts. If no log artifacts were found in the node, search
+        upwards through parent links until finding one node in the chain
+        that contains logs.
+
+        Returns:
+            A dict as returned by get_logs, but without empty log entries.
+        """
+        logs = get_logs(node)
+        if not logs:
+            if node.get('parent'):
+                parent = api.node.get(node['parent'])
+                if parent:
+                    logs = find_node_logs(parent, api)
+        # Remove empty logs
+        return {k: v for k, v in logs.items() if v}
+
+    node['logs'] = find_node_logs(node, api)

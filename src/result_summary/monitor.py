@@ -10,6 +10,7 @@ import os
 import re
 
 import result_summary
+import result_summary.utils as utils
 
 
 def setup(service, args, context):
@@ -89,6 +90,9 @@ def run(service, context):
                     'metadata': context['metadata'],
                     'node': node,
                 }
+                # Post-process node
+                utils.post_process_node(node, service._api)
+
                 output_text = context['template'].render(template_params)
                 # Setup output dir from base path and user-specified
                 # parameter (in preset metadata or cmdline)
