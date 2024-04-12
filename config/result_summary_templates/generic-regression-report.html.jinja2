@@ -28,7 +28,7 @@ the following input parameters:
   </div>
 
   {% set kernel_version = node['data']['failed_kernel_version'] %}
-  <h3>
+  <h3 id="name">
     {{ node['name'] }} ({{ node['group'] }})
   </h3>
   <ul>
@@ -42,9 +42,10 @@ the following input parameters:
       {% else %}
         Unknown
       {% endif %}
-      <li>
-        Introduced in: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['data']['fail_node'] }}" target="_blank" rel="noopener noreferrer">{{ node['created'] }}</a>
-      </li>
+    </li>
+    <li>
+      Introduced in: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['data']['fail_node'] }}" target="_blank" rel="noopener noreferrer">{{ node['created'] }}</a>
+    </li>
     <li>
       Previous successful run: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['data']['pass_node'] }}" target="_blank" rel="noopener noreferrer">{{ node['data']['pass_node'] }}</a> 
     </li>
@@ -64,9 +65,18 @@ the following input parameters:
     <li>Tree: <a href="{{ kernel_version['url'] }}" target="_blank" rel="noopener noreferrer">{{ kernel_version['tree'] }}</a></li>
     <li>Branch: {{ kernel_version['branch'] }}</li>
     <li>Commit: {{ kernel_version['commit'] }} ({{ kernel_version['describe'] }})</li>
-    <li>Arch : {{ node['data']['arch'] }}</li>
-    <li>Config: {{ node['data']['config_full'] }}</li>
-    <li>Compiler: {{ node['data']['compiler'] }}</li>
+    {% if node['data']['arch'] %}
+      <li>Arch : {{ node['data']['arch'] }}</li>
+    {% endif %}
+    {% if node['data']['platform'] %}
+      <li>Platform : {{ node['data']['platform'] }}</li>
+    {% endif %}
+    {% if node['data']['config_full'] %}
+      <li>Config: {{ node['data']['config_full'] }}</li>
+    {% endif %}
+    {% if node['data']['compiler'] %}
+      <li>Compiler: {{ node['data']['compiler'] }}</li>
+    {% endif %}
     {% if node['data']['error_code'] -%}
       <li>Error code: <code>{{ node['data']['error_code'] }}</code></li>
     {% endif -%}
