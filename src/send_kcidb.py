@@ -16,7 +16,6 @@ import sys
 import kernelci
 import kernelci.config
 from kernelci.legacy.cli import Args, Command, parse_opts
-from kcidb import Client
 import kcidb
 
 from base import Service
@@ -28,7 +27,7 @@ class KCIDBBridge(Service):
 
     def _setup(self, args):
         return {
-            'client': Client(
+            'client': kcidb.Client(
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
