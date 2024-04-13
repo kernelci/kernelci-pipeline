@@ -178,12 +178,39 @@ in {test_node['data'].get('runtime')}",
             self._get_test_nodes(origin, build_id, build_id,
                                  parsed_test_nodes)
 
+    def _parse_tests_for_dummy_build(self, origin, parent_node_id, build_id,
+                                     parsed_test_nodes):
+        checkout_test_nodes = self._api.node.find({
+                'kind': 'test',
+                'parent': parent_node_id
+            })
+        for test_node in checkout_test_nodes:
+            self._parse_test_node(origin, test_node, build_id, parsed_test_nodes)
+            child_test_nodes = self._api.node.find({
+                'kind': 'test',
+                'parent': test_node['id']
+            })
+            for child_test_node in child_test_nodes:
+                self._parse_test_node(origin, child_test_node, build_id,
+                                      parsed_test_nodes)
+                self._parse_tests_for_dummy_build(origin, child_test_node['id'],
+                                                  build_id, parsed_test_nodes)
+
+    def _get_dummy_build_node(self, origin, checkout_node):
+        return {
+            'id': f"{origin}:dummy_{checkout_node['id']}",
+            'checkout_id': f"{origin}:{checkout_node['id']}",
+            'comment': checkout_node['data']['kernel_revision'].get('describe'),
+            'origin': origin,
+            'start_time': self._set_timezone(checkout_node['created']),
+            'valid': True,
+        }
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-
             checkout_node = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {checkout_node['id']}")
 
@@ -192,15 +219,33 @@ in {test_node['data'].get('runtime')}",
                 'kind': 'kbuild'
             })
             parsed_test_nodes = []
+            parsed_build_nodes = self._parse_build_nodes(context['origin'], build_nodes)
             if build_nodes:
                 self._get_tests_for_build(context['origin'], build_nodes,
                                           parsed_test_nodes)
+
+            checkout_test_nodes_count = self._api.node.count({
+                'parent': checkout_node['id'],
+                'kind': 'test'
+            })
+
+            if checkout_test_nodes_count:
+                # Create a dummy build node for tests hanging directly from
+                # checkout node and use it for the test nodes
+                dummy_build_node = self._get_dummy_build_node(context['origin'],
+                                                              checkout_node)
+                parsed_build_nodes.append(dummy_build_node)
+                build_id = dummy_build_node['id'].split(":")[1]
+                self._parse_tests_for_dummy_build(context['origin'],
+                                                  checkout_node['id'],
+                                                  build_id,
+                                                  parsed_test_nodes)
 
             revision = {
                 'checkouts': [
                     self._parse_checkout_node(context['origin'], checkout_node)
                 ],
-                'builds':  self._parse_build_nodes(context['origin'], build_nodes),
+                'builds': parsed_build_nodes,
                 'tests': parsed_test_nodes,
                 'version': {
                     'major': 4,
