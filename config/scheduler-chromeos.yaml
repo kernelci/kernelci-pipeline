@@ -3,7 +3,7 @@ _anchors:
   amd-platforms: &amd-platforms
     - acer-R721T-grunt
     - acer-cp514-3wh-r0qs-guybrush
-    - asus-CM1400CXA-dalboz_chromeos
+    - asus-CM1400CXA-dalboz
     - dell-latitude-3445-7520c-skyrim
     - hp-14-db0003na-grunt
     - hp-11A-G6-EE-grunt
