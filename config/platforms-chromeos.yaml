@@ -70,11 +70,9 @@ platforms:
     <<: *x86-chromebook-device
     base_name: coral
 
-  asus-CM1400CXA-dalboz_chromeos: &chromebook-zork-device
+  asus-CM1400CXA-dalboz: &chromebook-zork-device
     <<: *x86-chromebook-device
     base_name: zork
-
-
 
   dell-latitude-3445-7520c-skyrim:
     <<: *x86-chromebook-device
