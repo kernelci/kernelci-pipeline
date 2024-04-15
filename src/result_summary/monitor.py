@@ -79,6 +79,16 @@ def filter_node(node, params):
     return True
 
 
+def send_email_report(service, context, report_text):
+    if not service._email_sender:
+        return
+    if 'title' in context['metadata']:
+        title = context['metadata']['title']
+    else:
+        title = "KernelCI report"
+    service._email_sender.create_and_send_email(title, report_text)
+
+
 def run(service, context):
     while True:
         node = service._api_helper.receive_event_node(context['sub_id'])
@@ -119,6 +129,7 @@ def run(service, context):
                     service.log.info(f"Report generated in {output_file}")
                 else:
                     result_summary.logger.info(output_text)
+                send_email_report(service, context, output_text)
             else:
                 service.log.debug(f"Result received but filtered: {node['id']}")
     return True
