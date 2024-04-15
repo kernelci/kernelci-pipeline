@@ -6,7 +6,7 @@ verbose = true
 [trigger]
 poll_period = 0
 startup_delay = 3
-timeout = 60
+timeout = 180
 
 [tarball]
 kdir = "/home/kernelci/data/src/linux"
