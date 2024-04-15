@@ -70,7 +70,7 @@ def filter_node(node, params):
         elif cmd == 'lt':
             if node_value >= value:
                 return False
-        elif cmd == 're':
+        elif cmd == 're' and node_value:
             if not re.search(value, node_value):
                 return False
         else:
