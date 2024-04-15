@@ -77,7 +77,12 @@ class TimeoutService(Service):
                     node_update['result'] = 'incomplete'
                     node_update['data']['error_code'] = 'node_timeout'
                 else:
-                    node_update['result'] = 'pass'
+                    if node_update['state'] == 'running':
+                        node_update['result'] = 'fail'
+                    else:
+                        node_update['result'] = 'pass'
+            if node_id['kind'] == 'checkout' and mode == 'DONE':
+                node_update['result'] = 'pass'
 
             try:
                 self._api.node.update(node_update)
