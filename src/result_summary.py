@@ -45,6 +45,7 @@ import yaml
 import kernelci
 from kernelci.legacy.cli import Args, Command, parse_opts
 from base import Service
+from kernelci_pipeline.email_sender import EmailSender
 import result_summary
 import result_summary.summary as summary
 import result_summary.monitor as monitor
@@ -86,6 +87,11 @@ class ResultSummary(Service):
         output_file = None
         if args.output_file:
             output_file = args.output_file
+        self._email_sender = EmailSender(
+            args.smtp_host, args.smtp_port,
+            email_sender=args.email_sender,
+            email_recipient=args.email_recipient,
+        ) if args.smtp_host and args.smtp_port else None
         # End of command line argument loading and sanity checks
 
         # Load presets and template
@@ -185,6 +191,23 @@ class cmd_run(Command):
             'name': '--query-params',
             'help': ("Additional query parameters: "
                      "'<paramX>=<valueX>,<paramY>=<valueY>'")
+        },
+        {
+            'name': '--smtp-host',
+            'help': "SMTP server host name.  If omitted, emails won't be sent",
+        },
+        {
+            'name': '--smtp-port',
+            'help': "SMTP server port number",
+            'type': int,
+        },
+        {
+            'name': '--email-sender',
+            'help': "Email address of test report sender",
+        },
+        {
+            'name': '--email-recipient',
+            'help': "Email address of test report recipient",
         },
         Args.verbose,
     ]
