@@ -74,7 +74,7 @@ api:
     url: https://staging.kernelci.org:9000
 
   early-access:
-    url: https://kernelci-api.eastus.cloudapp.azure.com
+    url: https://kernelci-api.westus3.cloudapp.azure.com
 
   k8s-host:
     url: http://kernelci-api:8001
