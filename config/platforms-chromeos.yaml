@@ -92,11 +92,10 @@ platforms:
     <<: *x86-chromebook-device
     base_name: nami
 
-  hp-x360-12b-ca0010nr-n4020-octopus: &chromebook-octopus-device
+  hp-x360-12b-ca0010nr-n4020-octopus:
     <<: *x86-chromebook-device
     base_name: octopus
 
-  hp-x360-12b-ca0500na-n4000-octopus: *chromebook-octopus-device
   hp-x360-14a-cb0001xx-zork: *chromebook-zork-device
   lenovo-TPad-C13-Yoga-zork: *chromebook-zork-device
 

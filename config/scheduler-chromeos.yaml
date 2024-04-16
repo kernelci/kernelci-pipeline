@@ -25,7 +25,6 @@ _anchors:
     - dell-latitude-5400-8665U-sarien
     - hp-x360-14-G1-sona
     - hp-x360-12b-ca0010nr-n4020-octopus
-    - hp-x360-12b-ca0500na-n4000-octopus
 
   mediatek-platforms: &mediatek-platforms
     - mt8183-kukui-jacuzzi-juniper-sku16
