@@ -81,7 +81,7 @@ class TimeoutService(Service):
                         node_update['result'] = 'fail'
                     else:
                         node_update['result'] = 'pass'
-            if node_id['kind'] == 'checkout' and mode == 'DONE':
+            if node['kind'] == 'checkout' and mode == 'DONE':
                 node_update['result'] = 'pass'
 
             try:
