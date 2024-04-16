@@ -283,7 +283,7 @@ jobs:
     template: kselftest.jinja2
     kind: test
     params:
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{arch}'
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}'
       collections: dt
       job_timeout: 10
     rules:
@@ -296,7 +296,7 @@ jobs:
     template: sleep.jinja2
     kind: test
     params:
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{arch}
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}
       sleep_params: mem freeze
 
 trees:
