@@ -10,9 +10,9 @@ _anchors:
     arch: arm64
     boot_method: u-boot
 
-  armel-device: &armel-device
+  arm-device: &arm-device
     <<: *arm64-device
-    arch: armel
+    arch: arm
 
   baseline: &baseline-job
     template: baseline.jinja2
@@ -201,8 +201,8 @@ jobs:
 
   baseline-arm64: *baseline-job
   baseline-arm64-broonie: *baseline-job
-  baseline-armel: *baseline-job
-  baseline-armel-baylibre: *baseline-job
+  baseline-arm: *baseline-job
+  baseline-arm-baylibre: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
 
@@ -216,25 +216,25 @@ jobs:
       <<: *kbuild-gcc-10-arm64-params
       dtbs_check: true
 
-  kbuild-gcc-10-armel: &kbuild-gcc-10-armel-job
+  kbuild-gcc-10-arm: &kbuild-gcc-10-arm-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
-    params: &kbuild-gcc-10-armel-params
+    params: &kbuild-gcc-10-arm-params
       arch: arm
       compiler: gcc-10
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
-  kbuild-gcc-10-armel-android-mainline: &kbuild-gcc-10-armel-android-mainline-job
-    <<: *kbuild-gcc-10-armel-job
+  kbuild-gcc-10-arm-android-mainline: &kbuild-gcc-10-arm-android-mainline-job
+    <<: *kbuild-gcc-10-arm-job
     rules:
       tree:
       - 'android'
 
-  kbuild-gcc-10-armel-android-mainline-imx: &kbuild-gcc-10-armel-android-mainline-imx-job
-    <<: *kbuild-gcc-10-armel-android-mainline-job
+  kbuild-gcc-10-arm-android-mainline-imx: &kbuild-gcc-10-arm-android-mainline-imx-job
+    <<: *kbuild-gcc-10-arm-android-mainline-job
     params:
-      <<: *kbuild-gcc-10-armel-params
+      <<: *kbuild-gcc-10-arm-params
       defconfig: imx_v6_v7_defconfig
 
   kbuild-gcc-10-i386:
@@ -344,12 +344,12 @@ platforms:
     dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
 
   bcm2836-rpi-2-b:
-    <<: *armel-device
+    <<: *arm-device
     mach: broadcom
     dtb: dtbs/bcm2836-rpi-2-b.dtb
 
   imx6q-sabrelite:
-    <<: *armel-device
+    <<: *arm-device
     mach: imx
     dtb: dtbs/imx6q-sabrelite.dtb
 
@@ -359,7 +359,7 @@ platforms:
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
 
   sun7i-a20-cubieboard2:
-    <<: *armel-device
+    <<: *arm-device
     mach: allwinner
     dtb: dtbs/sun7i-a20-cubieboard2.dtb
 
@@ -369,17 +369,17 @@ platforms:
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
 
   odroid-xu3:
-    <<: *armel-device
+    <<: *arm-device
     mach: samsung
     dtb: dtbs/exynos5422-odroidxu3.dtb
 
   rk3288-rock2-square:
-    <<: *armel-device
+    <<: *arm-device
     mach: rockchip
     dtb: dtbs/rk3288-rock2-square.dtb
 
   rk3288-veyron-jaq:
-    <<: *armel-device
+    <<: *arm-device
     boot_method: depthcharge
     mach: rockchip
     dtb: dtbs/rk3288-veyron-jaq.dtb
@@ -439,10 +439,10 @@ scheduler:
     platforms:
       - sun50i-h5-libretech-all-h3-cc
 
-  - job: baseline-armel
+  - job: baseline-arm
     event:
       channel: node
-      name: kbuild-gcc-10-armel
+      name: kbuild-gcc-10-arm
       result: pass
     runtime:
       type: lava
@@ -454,10 +454,10 @@ scheduler:
       - rk3288-rock2-square
       - rk3288-veyron-jaq
 
-  - job: baseline-armel-baylibre
+  - job: baseline-arm-baylibre
     event:
       channel: node
-      name: kbuild-gcc-10-armel
+      name: kbuild-gcc-10-arm
       result: pass
     runtime:
       type: lava
@@ -511,13 +511,13 @@ scheduler:
 #      branch: 
 #        - staging-next
 
-  - job: kbuild-gcc-10-armel
+  - job: kbuild-gcc-10-arm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-armel-android-mainline
+  - job: kbuild-gcc-10-arm-android-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-armel-android-mainline-imx
+  - job: kbuild-gcc-10-arm-android-mainline-imx
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-i386
@@ -576,8 +576,6 @@ build_environments:
     cc: gcc
     cc_version: 10
     arch_params:
-      armel:
-        name: 'arm'
       x86_64:
         name: 'x86'
 
@@ -595,7 +593,7 @@ build_variants:
           base_defconfig: 'defconfig'
           filters:
             - regex: { defconfig: 'defconfig' }
-        armel:
+        arm:
           base_defconfig: 'multi_v7_defconfig'
           filters:
             - regex: { defconfig: 'multi_v7_defconfig' }
