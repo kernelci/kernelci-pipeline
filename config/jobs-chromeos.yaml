@@ -27,12 +27,18 @@ _anchors:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
 
+  min-5_4-rules: &min-5_4-rules
+    min_version:
+      version: 5
+      patchlevel: 4
+
   min-6_7-rules: &min-6_7-rules
     min_version:
       version: 6
       patchlevel: 7
 
   max-6_6-rules: &max-6_6-rules
+    <<: *min-5_4-rules
     max_version:
       version: 6
       patchlevel: 6
@@ -40,6 +46,7 @@ _anchors:
   tast: &tast-job
     template: tast.jinja2
     kind: test
+    rules: *min-5_4-rules
 
   tast-basic: &tast-basic-job
     <<: *tast-job
