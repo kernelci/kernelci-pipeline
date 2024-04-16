@@ -7,8 +7,8 @@ _anchors:
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-{mach}
         image: 'kernel/Image'
-      nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/arm64
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/arm64/tast.tgz
+      nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/{debarch}
+      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/{debarch}/tast.tgz
     rules: &arm64-chromebook-device-rules
       defconfig:
         - '!allnoconfig'
@@ -21,11 +21,10 @@ _anchors:
     boot_method: depthcharge
     mach: x86
     params:
+      <<: *arm64-chromebook-device-params
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/cros-20230815-amd64/clang-14
         image: 'kernel/bzImage'
-      nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/amd64
-      tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/amd64/tast.tgz
     rules:
       <<: *arm64-chromebook-device-rules
       fragments:

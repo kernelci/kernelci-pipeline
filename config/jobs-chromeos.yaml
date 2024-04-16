@@ -9,8 +9,8 @@ _anchors:
       compiler: gcc-10
       cross_compile: 'aarch64-linux-gnu-'
       cross_compile_compat: 'arm-linux-gnueabihf-'
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromiumos-{flavour}.flavour.config'
-      flavour: '{arch}-generic'
+      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
+      flavour: '{crosarch}-generic'
       fragments:
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
@@ -21,8 +21,8 @@ _anchors:
     params: &kbuild-gcc-10-x86-chromeos-params
       arch: x86_64
       compiler: gcc-10
-      defconfig: 'cros://chromeos-{krev}/{arch}/chromeos-{flavour}.flavour.config'
-      flavour: '{arch}-generic'
+      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromeos-{flavour}.flavour.config'
+      flavour: '{crosarch}-generic'
       fragments:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
@@ -357,23 +357,18 @@ jobs:
     template: baseline.jinja2
     kind: test
 
-  baseline-nfs-arm64-mediatek: &baseline-nfs-arm64-job
+  baseline-arm64-qualcomm: *baseline-job
+
+  baseline-nfs-arm64-mediatek: &baseline-nfs-job
     template: baseline.jinja2
     kind: test
-    params: &baseline-nfs-arm64-job-params
+    params:
       boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/arm64
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
 
-  baseline-nfs-arm64-qualcomm: *baseline-nfs-arm64-job
-
-  baseline-nfs-x86-amd: &baseline-nfs-x86-job
-    <<: *baseline-nfs-arm64-job
-    params: &baseline-nfs-x86-job-params
-      <<: *baseline-nfs-arm64-job-params
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/amd64
-
-  baseline-nfs-x86-intel: *baseline-nfs-x86-job
-  baseline-arm64-qualcomm: *baseline-job
+  baseline-nfs-arm64-qualcomm: *baseline-nfs-job
+  baseline-nfs-x86-amd: *baseline-nfs-job
+  baseline-nfs-x86-intel: *baseline-nfs-job
   baseline-x86-amd: *baseline-job
   baseline-x86-amd-staging: *baseline-job
   baseline-x86-intel: *baseline-job
