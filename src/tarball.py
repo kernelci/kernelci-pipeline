@@ -76,7 +76,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 self.log.error(err_msg)
                 raise Exception(err_msg)
             # cleanup the repo and return True, so we try again
-            kernelci.shell_cmd(f"rm -rf {self._kdir}")
+            kernelci.shell_cmd(f"rm -rf {self._service_config.kdir}")
             return True
 
         self.log.info("Repo updated")
