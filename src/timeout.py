@@ -77,8 +77,8 @@ class TimeoutService(Service):
                     node_update['result'] = 'incomplete'
                     node_update['data']['error_code'] = 'node_timeout'
                 else:
-                    if node_update['state'] == 'running':
-                        node_update['result'] = 'fail'
+                    if node['state'] == 'running':
+                        node_update['result'] = 'incomplete'
                     else:
                         node_update['result'] = 'pass'
             if node['kind'] == 'checkout' and mode == 'DONE':
