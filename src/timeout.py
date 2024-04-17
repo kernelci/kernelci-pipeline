@@ -55,6 +55,19 @@ class TimeoutService(Service):
             })
         return nodes_count
 
+    def _count_running_build_child_nodes(self, checkout_id):
+        nodes_count = 0
+        build_nodes = self._api.node.find({
+            'parent': checkout_id,
+            'kind': 'kbuild'
+        })
+        for build in build_nodes:
+            for state in self._pending_states:
+                nodes_count += self._api.node.count({
+                    'parent': build['id'], 'state': state
+                })
+        return nodes_count
+
     def _get_child_nodes_recursive(self, node, recursive, state_filter=None):
         child_nodes = self._get_pending_nodes({'parent': node['id']})
         for child_id, child in child_nodes.items():
