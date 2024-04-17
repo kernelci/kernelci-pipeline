@@ -70,16 +70,15 @@ class TimeoutService(Service):
             node_update['state'] = state
             self.log.debug(f"{node_id} {mode}")
             if mode == 'TIMEOUT':
-                if node['kind'] != 'checkout':
+                if node['kind'] == 'checkout' and node['state'] != 'running':
+                    node_update['result'] = 'pass'
+                else:
                     if 'data' not in node_update:
                         node_update['data'] = {}
                     node_update['result'] = 'incomplete'
                     node_update['data']['error_code'] = 'node_timeout'
-                else:
-                    if node_update['state'] == 'running':
-                        node_update['result'] = 'fail'
-                    else:
-                        node_update['result'] = 'pass'
+                    node_update['data']['error_msg'] = 'Node timed-out'
+
             if node['kind'] == 'checkout' and mode == 'DONE':
                 node_update['result'] = 'pass'
 
