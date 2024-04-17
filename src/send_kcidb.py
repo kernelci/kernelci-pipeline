@@ -12,6 +12,7 @@
 
 import datetime
 import sys
+import re
 
 import kernelci
 import kernelci.config
@@ -24,6 +25,7 @@ from base import Service
 class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
+        self._jobs = configs['jobs']
 
     def _setup(self, args):
         return {
@@ -32,8 +34,7 @@ class KCIDBBridge(Service):
                 topic_name=args.kcidb_topic_name
             ),
             'sub_id': self._api_helper.subscribe_filters({
-                'kind': 'checkout',
-                'state': 'done',
+                'state': ('done', 'available'),
             }),
             'origin': args.origin,
         }
@@ -79,7 +80,7 @@ class KCIDBBridge(Service):
             'incomplete': False,
         }
         valid = result_map[result] if result else None
-        return {
+        return [{
             'id': f"{origin}:{checkout_node['id']}",
             'origin': origin,
             'tree_name': checkout_node['data']['kernel_revision']['tree'],
@@ -97,22 +98,290 @@ class KCIDBBridge(Service):
                 'submitted_by': 'kernelci-pipeline'
             },
             'valid': valid,
+        }]
+
+    def _get_output_files(self, artifacts: dict, exclude_properties=None):
+        output_files = []
+        for name, url in artifacts.items():
+            if exclude_properties and name in exclude_properties:
+                continue
+            # Replace "/" with "_" to match with the allowed pattern
+            # for "name" property of "output_files" i.e. '^[^/]+$'
+            name = name.replace("/", "_")
+            output_files.append(
+                {
+                    'name': name,
+                    'url': url
+                }
+            )
+        return output_files
+
+    def _parse_build_node(self, origin, node):
+        parsed_build_node = {
+            'checkout_id': f"{origin}:{node['parent']}",
+            'id': f"{origin}:{node['id']}",
+            'origin': origin,
+            'comment': node['data']['kernel_revision'].get('describe'),
+            'start_time': self._set_timezone(node['created']),
+            'architecture': node['data'].get('arch'),
+            'compiler': node['data'].get('compiler'),
+            'config_name': node['data'].get('defconfig'),
+            'valid': node['result'] == 'pass',
+            'misc': {
+                'platform': node['data'].get('platform'),
+                'runtime': node['data'].get('runtime'),
+                'job_id': node['data'].get('job_id'),
+                'job_context': node['data'].get('job_context'),
+                'kernel_type': node['data'].get('kernel_type'),
+            }
         }
+        artifacts = node.get('artifacts')
+        if artifacts:
+            parsed_build_node['output_files'] = self._get_output_files(
+                artifacts=artifacts,
+                exclude_properties=('build_log', '_config')
+            )
+            parsed_build_node['config_url'] = artifacts.get('_config')
+            parsed_build_node['log_url'] = artifacts.get('build_log')
+
+        return [parsed_build_node]
+
+    def _replace_restricted_chars(self, path, pattern, replace_char='_'):
+        # Replace restricted characters with "_" to match the allowed pattern
+        new_path = ""
+        for char in path:
+            if not re.match(pattern, char):
+                new_path += replace_char
+            else:
+                new_path += char
+        return new_path
+
+    def _parse_node_path(self, path, is_checkout_child):
+        """Parse and create KCIDB schema compatible node path
+        Convert node path list to dot-separated string. Use unified
+        test suite name to exclude build and runtime information
+        from the test path.
+        For example, test path ['checkout', 'kbuild-gcc-10-x86', 'baseline-x86']
+        would be converted to "kernelci_baseline"
+        """
+        if isinstance(path, list):
+            if is_checkout_child:
+                # nodes with path such as ['checkout', 'kver']
+                parsed_path = path[1:]
+            else:
+                # nodes with path such as ['checkout', 'kbuild-gcc-10-x86', 'baseline-x86']
+                parsed_path = path[2:]
+                # Handle node with path ['checkout', 'kbuild-gcc-10-x86', 'sleep', 'sleep']
+                if len(parsed_path) >= 2:
+                    if parsed_path[0] == parsed_path[1]:
+                        parsed_path = parsed_path[1:]
+            new_path = []
+            for sub_path in parsed_path:
+                if sub_path in self._jobs:
+                    suite_name = self._jobs[sub_path].kcidb_test_suite
+                    if suite_name:
+                        new_path.append(suite_name)
+                else:
+                    new_path.append(sub_path)
+            # Handle path such as ['tast-ui-x86-intel', 'tast', 'os-release'] converted
+            # to ['tast', 'tast', 'os-release']
+            if len(new_path) >= 2:
+                if new_path[0] == new_path[1]:
+                    new_path = new_path[1:]
+            path_str = '.'.join(new_path)
+            # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
+            formatted_path_str = self._replace_restricted_chars(path_str, r'^[.a-zA-Z0-9_-]*$')
+            return formatted_path_str if formatted_path_str else None
+        return None
+
+    def _parse_node_result(self, test_node):
+        if test_node['result'] == 'incomplete':
+            if test_node['data'].get('error_code') in ('submit_error', 'invalid_job_params'):
+                return 'MISS'
+            return 'ERROR'
+        return test_node['result'].upper()
+
+    def _get_parent_build_node(self, node):
+        node = self._api.node.get(node['parent'])
+        if node['kind'] == 'kbuild' or node['kind'] == 'checkout':
+            return node
+        return self._get_parent_build_node(node)
+
+    def _create_dummy_build_node(self, origin, checkout_node, arch):
+        return {
+            'id': f"{origin}:dummy_{checkout_node['id']}_{arch}" if arch
+                  else f"{origin}:dummy_{checkout_node['id']}",
+            'checkout_id': f"{origin}:{checkout_node['id']}",
+            'comment': 'Dummy build for tests hanging from checkout',
+            'origin': origin,
+            'start_time': self._set_timezone(checkout_node['created']),
+            'valid': True,
+            'architecture': arch,
+        }
+
+    def _get_artifacts(self, node):
+        """Retrive artifacts
+        Get node artifacts. If the node doesn't have the artifacts,
+        it will search through parent nodes recursively until
+        it's found.
+        """
+        artifacts = node.get('artifacts')
+        if not artifacts:
+            if node.get('parent'):
+                parent = self._api.node.get(node['parent'])
+                if parent:
+                    artifacts = self._get_artifacts(parent)
+        return artifacts
+
+    def _get_job_metadata(self, node):
+        """Retrive job metadata
+        Get job metadata such as job ID and context. If the node doesn't
+        have the metadata, it will search through parent nodes recursively
+        until it's found.
+        """
+        data = node.get('data')
+        if not data.get('job_id'):
+            if node.get('parent'):
+                parent = self._api.node.get(node['parent'])
+                if parent:
+                    data = self._get_job_metadata(parent)
+        return data
+
+    def _get_error_metadata(self, node):
+        """Retrive error metadata for failed tests
+        Get error metadata such as error code and message for failed jobs.
+        If the node doesn't have the metadata, it will search through parent
+        nodes recursively until it's found.
+        """
+        data = node.get('data')
+        if not data.get('error_code'):
+            if node.get('parent'):
+                parent = self._api.node.get(node['parent'])
+                if parent:
+                    data = self._get_error_metadata(parent)
+        return data
+
+    def _parse_test_node(self, origin, test_node):
+        dummy_build = {}
+        is_checkout_child = False
+        build_node = self._get_parent_build_node(test_node)
+        # Create dummy build node if test is hanging directly from checkout
+        if build_node['kind'] == 'checkout':
+            is_checkout_child = True
+            dummy_build = self._create_dummy_build_node(origin, build_node,
+                                                        test_node['data'].get('arch'))
+            build_id = dummy_build['id']
+        else:
+            build_id = f"{origin}:{build_node['id']}"
+
+        parsed_test_node = {
+            'build_id': build_id,
+            'id': f"{origin}:{test_node['id']}",
+            'origin': origin,
+            'comment': f"{test_node['name']} on {test_node['data'].get('platform')} \
+in {test_node['data'].get('runtime')}",
+            'start_time': self._set_timezone(test_node['created']),
+            'environment': {
+                'comment': f"Runtime: {test_node['data'].get('runtime')}",
+                'misc': {
+                    'platform': test_node['data'].get('platform'),
+                }
+            },
+            'waived': False,
+            'path': self._parse_node_path(test_node['path'], is_checkout_child),
+            'misc': {
+                'test_source': test_node['data'].get('test_source'),
+                'test_revision': test_node['data'].get('test_revision'),
+                'compiler': test_node['data'].get('compiler'),
+                'kernel_type': test_node['data'].get('kernel_type'),
+                'arch': test_node['data'].get('arch'),
+            }
+        }
+
+        job_metadata = self._get_job_metadata(test_node)
+        if job_metadata:
+            parsed_test_node['environment']['misc']['job_id'] = job_metadata.get(
+                'job_id')
+            parsed_test_node['environment']['misc']['job_context'] = job_metadata.get(
+                'job_context')
+
+        artifacts = self._get_artifacts(test_node)
+        if artifacts:
+            parsed_test_node['output_files'] = self._get_output_files(
+                artifacts=artifacts,
+                exclude_properties=('lava_log', 'test_log')
+            )
+            if artifacts.get('lava_log'):
+                parsed_test_node['log_url'] = artifacts.get('lava_log')
+            else:
+                parsed_test_node['log_url'] = artifacts.get('test_log')
+
+        if test_node['result']:
+            parsed_test_node['status'] = self._parse_node_result(test_node)
+
+        if test_node['result'] == 'fail':
+            error_metadata = self._get_error_metadata(test_node)
+            if error_metadata:
+                parsed_test_node['misc']['error_code'] = error_metadata.get(
+                    'error_code')
+                parsed_test_node['misc']['error_msg'] = error_metadata.get(
+                    'error_msg')
+
+        return parsed_test_node, dummy_build
+
+    def _get_test_data(self, node, origin,
+                       parsed_test_node, parsed_build_node):
+        test_node, build_node = self._parse_test_node(
+            origin, node
+        )
+        parsed_test_node.append(test_node)
+        if build_node:
+            parsed_build_node.append(build_node)
+
+    def _get_test_data_recursively(self, node, origin, parsed_test_node, parsed_build_node):
+        child_nodes = self._api.node.find({'parent': node['id']})
+        if not child_nodes:
+            self._get_test_data(node, origin, parsed_test_node,
+                                parsed_build_node)
+        else:
+            for child in child_nodes:
+                self._get_test_data_recursively(child, origin, parsed_test_node,
+                                                parsed_build_node)
 
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            node = self._api_helper.receive_event_node(context['sub_id'])
+            node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Submitting node to KCIDB: {node['id']}")
 
+            parsed_checkout_node = []
+            parsed_build_node = []
+            parsed_test_node = []
+
+            if node['kind'] == 'checkout':
+                parsed_checkout_node = self._parse_checkout_node(
+                    context['origin'], node)
+
+            elif node['kind'] == 'kbuild':
+                parsed_build_node = self._parse_build_node(
+                    context['origin'], node
+                )
+
+            elif node['kind'] == 'test':
+                if is_hierarchy:
+                    self._get_test_data_recursively(node, context['origin'],
+                                                    parsed_test_node, parsed_build_node)
+
+                elif not self._api.node.count({'parent': node['id']}):
+                    self._get_test_data(node, context['origin'],
+                                        parsed_test_node, parsed_build_node)
+
             revision = {
-                'builds': [],
-                'checkouts': [
-                    self._parse_checkout_node(context['origin'], node)
-                ],
-                'tests': [],
+                'checkouts': parsed_checkout_node,
+                'builds': parsed_build_node,
+                'tests': parsed_test_node,
                 'version': {
                     'major': 4,
                     'minor': 3
