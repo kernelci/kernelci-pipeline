@@ -182,7 +182,13 @@ class Closing(TimeoutService):
             running = self._count_running_child_nodes(node_id)
             self.log.debug(f"{node_id} RUNNING: {running}")
             if not running:
-                done_nodes[node_id] = node
+                if node['kind'] == 'checkout':
+                    running = self._count_running_build_child_nodes(node['id'])
+                    self.log.debug(f"{node_id} RUNNING build child nodes: {running}")
+                    if not running:
+                        done_nodes[node_id] = node
+                else:
+                    done_nodes[node_id] = node
         self._submit_lapsed_nodes(done_nodes, 'done', 'DONE')
 
     def _run(self, ctx):
