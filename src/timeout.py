@@ -150,8 +150,15 @@ class Holdoff(TimeoutService):
                 closing_nodes[node_id] = node
                 self._get_child_nodes_recursive(node, closing_nodes, 'available')
             else:
-                timeout_nodes[node_id] = node
-                self._get_child_nodes_recursive(node, timeout_nodes)
+                if node['kind'] == 'checkout':
+                    running = self._count_running_build_child_nodes(node_id)
+                    self.log.debug(f"{node_id} RUNNING build child nodes: {running}")
+                    if not running:
+                        timeout_nodes[node_id] = node
+                        self._get_child_nodes_recursive(node, timeout_nodes)
+                else:
+                    timeout_nodes[node_id] = node
+                    self._get_child_nodes_recursive(node, timeout_nodes)
         self._submit_lapsed_nodes(closing_nodes, 'closing', 'HOLDOFF')
         self._submit_lapsed_nodes(timeout_nodes, 'done', 'DONE')
 
