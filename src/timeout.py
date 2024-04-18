@@ -55,15 +55,14 @@ class TimeoutService(Service):
             })
         return nodes_count
 
-    def _get_child_nodes_recursive(self, node, state_filter=None):
-        recursive = {}
+    def _get_child_nodes_recursive(self, node, recursive, state_filter=None):
         child_nodes = self._get_pending_nodes({'parent': node['id']})
         for child_id, child in child_nodes.items():
             if state_filter is None or child['state'] == state_filter:
-                recursive.update(self._get_child_nodes_recursive(
-                    child, state_filter
-                ))
-        return recursive
+                recursive.update({child_id: child})
+                self._get_child_nodes_recursive(
+                    child, recursive, state_filter
+                )
 
     def _submit_lapsed_nodes(self, lapsed_nodes, state, mode):
         for node_id, node in lapsed_nodes.items():
@@ -100,7 +99,7 @@ class Timeout(TimeoutService):
         timeout_nodes = {}
         for node_id, node in pending_nodes.items():
             timeout_nodes[node_id] = node
-            timeout_nodes.update(self._get_child_nodes_recursive(node))
+            self._get_child_nodes_recursive(node, timeout_nodes)
         self._submit_lapsed_nodes(timeout_nodes, 'done', 'TIMEOUT')
 
     def _run(self, ctx):
@@ -136,15 +135,11 @@ class Holdoff(TimeoutService):
         for node_id, node in available_nodes.items():
             running = self._count_running_child_nodes(node_id)
             if running:
-                closing_nodes.update(
-                    self._get_child_nodes_recursive(node, 'available')
-                )
                 closing_nodes[node_id] = node
+                self._get_child_nodes_recursive(node, closing_nodes, 'available')
             else:
-                timeout_nodes.update(
-                    self._get_child_nodes_recursive(node)
-                )
                 timeout_nodes[node_id] = node
+                self._get_child_nodes_recursive(node, timeout_nodes)
         self._submit_lapsed_nodes(closing_nodes, 'closing', 'HOLDOFF')
         self._submit_lapsed_nodes(timeout_nodes, 'done', 'DONE')
 
