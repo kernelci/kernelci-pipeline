@@ -136,6 +136,22 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
+    def _update_failed_checkout_node(self, checkout_node, error_code, error_msg):
+        node = checkout_node.copy()
+        node.update({
+            'state': 'done',
+            'result': 'fail',
+        })
+        if 'data' not in node:
+            node['data'] = {}
+        node['data']['error_code'] = error_code
+        node['data']['error_msg'] = error_msg
+        try:
+            self._api.node.update(node)
+        except requests.exceptions.HTTPError as err:
+            err_msg = json.loads(err.response.content).get("detail", [])
+            self.log.error(err_msg)
+
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
             'op': 'created',
@@ -163,6 +179,10 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 if self._update_repo(build_config):
                     # critical failure, something wrong with git
                     self.log.error("Failed to update repo again, exit")
+                    # Set checkout node result to fail
+                    self._update_failed_checkout_node(checkout_node,
+                                                      'git_checkout_failure',
+                                                      'Failed to init/update git repo')
                     os._exit(1)
 
             describe = kernelci.build.git_describe(
