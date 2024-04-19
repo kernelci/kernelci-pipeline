@@ -125,6 +125,7 @@ cd {src_path}
             'node': {
                 'result': step_results['exec'][0] or 'fail',
                 'artifacts': artifacts,
+                'data': {'arch': ARCH if ARCH else 'um'}
             },
             'child_nodes': [
                 {
