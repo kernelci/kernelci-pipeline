@@ -7,7 +7,7 @@ _anchors:
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-{mach}
         image: 'kernel/Image'
-      nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240215.0/{debarch}
+      nfsroot: https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-cros-flash/20240422.0/{debarch}
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240129.0/{debarch}/tast.tgz
     rules: &arm64-chromebook-device-rules
       defconfig:
