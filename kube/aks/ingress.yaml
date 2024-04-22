@@ -17,10 +17,10 @@ spec:
   ingressClassName: ingressclass-pipeline
   tls:
     - hosts:
-        - kernelci-pipeline.eastus.cloudapp.azure.com
+        - kernelci-pipeline.westus3.cloudapp.azure.com
       secretName: pipeline-tls
   rules:
-    - host: kernelci-pipeline.eastus.cloudapp.azure.com
+    - host: kernelci-pipeline.westus3.cloudapp.azure.com
       http:
         paths:
           - backend:

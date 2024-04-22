@@ -21,14 +21,16 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: kernelci/pipeline
+          image: kernelci/kernelci:pipeline@sha256:b3621bc61dca3cd8afad15d5b9b9d861ad2cb090c3118bba1f27f8c4c04f7940
           imagePullPolicy: Always
           command:
             - ./src/scheduler.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config
+            - --yaml-config=/config/pipeline.yaml
             - loop
-            - --runtimes=k8s-gke-eu-west4
+            - --runtimes
+            - k8s-gke-eu-west4
+            - k8s-all
           env:
             - name: KCI_API_TOKEN
               valueFrom:
@@ -52,21 +54,21 @@ spec:
               mountPath: /home/kernelci/.azure
               subPath: k8s-credentials/.azure
       initContainers:
-      - name: credentials
-        image: kernelci/pipeline
-        imagePullPolicy: Always
-        volumeMounts:
-        - name: tmpsecrets
-          mountPath: /tmp/secrets
-        - name: k8scredentials
-          mountPath: /tmp/k8s
-          readOnly: true
-        command:
-          - tar
-          - xzf
-          - /tmp/k8s/k8s-credentials.tgz
-          - -C
-          - /tmp/secrets
+        - name: credentials
+          image: denysfcollabora/pipeline
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tmpsecrets
+              mountPath: /tmp/secrets
+            - name: k8scredentials
+              mountPath: /tmp/k8s
+              readOnly: true
+          command:
+            - tar
+            - xzf
+            - /tmp/k8s/k8s-credentials.tgz
+            - -C
+            - /tmp/secrets
       volumes:
         - name: secrets
           secret:

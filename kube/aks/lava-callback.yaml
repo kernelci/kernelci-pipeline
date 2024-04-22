@@ -21,18 +21,38 @@ spec:
     spec:
       containers:
         - name: lava-callback
-          image: kernelci/pipeline-lava-callback
+          image: kernelci/kernelci:lava-callback@sha256:ee046b2b9648482a5281b9bb7224f9cf1e05a574b7ccbb47d074e1943fdc78c6
           imagePullPolicy: Always
           command:
-            - python3
-            - src/lava_callback.py
-            - --yaml-config=/config
+            - '/usr/local/bin/uwsgi'
+          args:
+            - '--master'
+            - '--http=:8000'
+            - '-p4'
+            - '--buffer-size=32768'
+            - '--enable-threads'
+            - '--wsgi-file=src/lava_callback.py'
+            - '--callable=app'
           env:
             - name: KCI_API_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: kernelci-api-token
                   key: token
+            - name: KCI_SETTINGS
+              value: /secrets/kernelci.toml
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
 ---
 apiVersion: v1
 kind: Service

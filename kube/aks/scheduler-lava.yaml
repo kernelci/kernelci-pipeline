@@ -21,14 +21,17 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: kernelci/pipeline:latest
+          image: kernelci/staging-kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
           imagePullPolicy: Always
           command:
             - ./src/scheduler.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config
+            - --yaml-config=/config/pipeline.yaml
             - loop
-            - --runtimes=lava-collabora-early-access
+            - --runtimes
+            - lava-collabora
+            - lava-broonie
+            - lava-baylibre
           env:
             - name: KCI_API_TOKEN
               valueFrom:
