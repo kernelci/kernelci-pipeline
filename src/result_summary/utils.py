@@ -6,9 +6,28 @@
 # Common utils for result-summary.
 
 import gzip
+import re
 import requests
 
 import result_summary
+
+
+def split_query_params(query_string):
+    """Given a string input formatted like this:
+           parameter1=value1,parameter2=value2,...,parameterN=valueN
+       return a dict containing the string information where the
+       parameters are the dict keys:
+           {'parameter1': 'value1',
+            'parameter2': 'value2',
+            ...,
+            'parameterN': 'valueN'
+           }
+    """
+    query_dict = {}
+    matches = re.findall('([^ =,]+)\s*=\s*([^ =,]+)', query_string)  # noqa: W605
+    for operator, value in matches:
+        query_dict[operator] = value
+    return query_dict
 
 
 def parse_block_config(block, kind, state):
