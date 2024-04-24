@@ -80,7 +80,7 @@ class ResultSummary(Service):
         # Additional query parameters
         extra_query_params = {}
         if args.query_params:
-            extra_query_params = split_query_params(args.query_params)
+            extra_query_params = utils.split_query_params(args.query_params)
         output_dir = None
         if args.output_dir:
             output_dir = args.output_dir
