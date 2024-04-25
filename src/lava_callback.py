@@ -45,6 +45,8 @@ def _upload_log(log_parser, job_node, storage):
         # open gzip in explicit text mode to avoid platform-dependent line endings
         with gzip.open(os.path.join(tmp_dir, 'lava_log.txt.gz'), 'wt') as f:
             log_parser.get_text_log(f)
+            if f.tell() == 0:
+                return None
         log_dir = '-'.join((job_node['name'], job_node['id']))
         os.chdir(tmp_dir)
         r = storage.upload_single(('lava_log.txt.gz', 'log.txt.gz'), log_dir)
