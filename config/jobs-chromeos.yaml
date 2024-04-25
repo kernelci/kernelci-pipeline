@@ -392,6 +392,11 @@ jobs:
       <<: *kbuild-gcc-10-arm64-chromeos-params
       cross_compile_compat:
       defconfig: defconfig
+      fragments:
+        - arm64-chromebook
+        - CONFIG_MODULE_COMPRESS=n
+        # Allows kernel ip-config. Prevents deferred probe timeout errors.
+        - CONFIG_USB_RTL8152=y
 
   kbuild-gcc-10-arm64-chromeos-mediatek:
     <<: *kbuild-gcc-10-arm64-chromeos-job
