@@ -174,6 +174,8 @@ aferraris-monitor-chromeos-errors:
       - result: fail
         data.error_msg__re: "(self_repair|cros-partition-corrupt)"
 
+#### Failures and regressions in mainline and next for x86_64
+
 monitor-build-regressions-x86_64-mainline-next:
   metadata:
     action: monitor
@@ -234,12 +236,15 @@ monitor-baseline-failures-x86_64-mainline-next:
           - tree: mainline
           - tree: next
 
+
+#### Failures and regressions in kselftest-acpi tests in collabora-next
+
 monitor-kselftest-acpi-regressions-collabora-next:
   metadata:
     action: monitor
-    title: "KernelCI kselftest-acpi regressions found on mainline and next"
+    title: "KernelCI kselftest-acpi regressions found on collabora-next"
     template: "generic-regression-report.html.jinja2"
-    output_file: "kselftest-acpi-regressions-mainline-next-x86_64.html"
+    output_file: "kselftest-acpi-regressions-collabora-next.html"
   preset:
     regression:
       - data.error_code: null
@@ -250,9 +255,9 @@ monitor-kselftest-acpi-regressions-collabora-next:
 monitor-kselftest-acpi-failures-collabora-next:
   metadata:
     action: monitor
-    title: "KernelCI kselftest-acpi failures found on mainline and next for"
+    title: "KernelCI kselftest-acpi failures found on collabora-next"
     template: "generic-regression-report.html.jinja2"
-    output_file: "kselftest-acpi-regressions-mainline-next-x86_64.html"
+    output_file: "kselftest-acpi-regressions-collabora-next.html"
   preset:
     test:
       - data.error_code: null
@@ -260,6 +265,119 @@ monitor-kselftest-acpi-failures-collabora-next:
         name: kselftest-acpi
         repos:
           - tree: collabora-next
+
+
+#### Failures and regressions in mainline and next for arm64
+
+monitor-build-regressions-arm64-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI build regressions found on mainline and next for arm64"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "build-regressions-mainline-next-arm64.html"
+  preset:
+    regression:
+      - data.error_code: null
+        arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-build-failures-arm64-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI build failures found on mainline and next for arm64"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "build-failures-mainline-next-arm64.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-baseline-regressions-arm64-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI baseline regressions found on mainline and next for arm64"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "baseline-regressions-mainline-next-arm64.html"
+  preset:
+    regression:
+      - data.error_code: null
+        group__re: baseline
+        arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-baseline-failures-arm64-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI baseline failures found on mainline and next for arm64"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "baseline-failures-mainline-next-arm64.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        group__re: baseline
+        arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+
+#### Failures and regressions in kselftest-dt tests in mainline and next
+
+monitor-kselftest-dt-regressions-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest-dt regressions found on mainline and next"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-dt-regressions-mainline-next.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name: kselftest-dt
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-kselftest-dt-failures-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest-dt failures found on mainline and next"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-dt-regressions-mainline-next.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name: kselftest-dt
+        repos:
+          - tree: mainline
+          - tree: next
+
+
+# All kunit test failures
+monitor-all-kunit-failures:
+  metadata:
+    action: monitor
+    title: "All kunit test failures not caused by runtime errors"
+    template: "generic-test-failures.html.jinja2"
+    output_file: "kunit-failures.html"
+    #template: "generic-test-failure-report.jinja2"
+    #output_file: "kunit-failures.txt"
+  preset:
+    test:
+      - group__re: kunit
+        result: fail
+        data.error_code: null
+
+
 ### Summary presets
 
 # New stable-rc kernel build regressions
