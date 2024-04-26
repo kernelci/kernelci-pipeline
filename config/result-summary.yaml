@@ -109,7 +109,7 @@ monitor-all-regressions:
     regression:
       - data.error_code: null
 
-monitor-all-regressions__runtime_errors:
+monitor-all-regressions__runtime-errors:
   metadata:
     action: monitor
     title: "KernelCI regression report"
@@ -119,7 +119,7 @@ monitor-all-regressions__runtime_errors:
     regression:
       - data.error_code__ne: null
 
-monitor-all-test-failures__runtime_errors:
+monitor-all-test-failures__runtime-errors:
   metadata:
     action: monitor
     title: "KernelCI test failure report"
@@ -141,7 +141,7 @@ monitor-all-test-failures:
       - result: fail
         data.error_code: null
 
-monitor-all-build-failures__runtime_errors:
+monitor-all-build-failures__runtime-errors:
   metadata:
     action: monitor
     title: "KernelCI kbuild failure report"
@@ -274,7 +274,7 @@ tast-failures:
         data.error_code: null
 
 # tast test failures
-tast-failures__runtime_errors:
+tast-failures__runtime-errors:
   metadata:
     action: summary
     title: "General Tast test failures"
@@ -335,12 +335,12 @@ mainline-next-active-regressions:
 
 # General regressions (kbuilds and all tests) on mainline and next
 # triggered by runtime errors
-mainline-next-regressions__runtime_errors:
+mainline-next-regressions__runtime-errors:
   metadata:
     action: summary
     title: "'Regressions' found in mainline and next due to runtime errors"
     template: "generic-regressions.html.jinja2"
-    output_file: "mainline-next-regressions__runtime_errors.html"
+    output_file: "mainline-next-regressions__runtime-errors.html"
   preset:
     regression:
       - data.error_code__ne: null
@@ -365,12 +365,12 @@ tast-regressions-x86_64:
         data.error_code: null
 
 # tast tests regressions for x86_64 targets caused by runtime errors
-tast-regressions-x86_64__runtime_errors:
+tast-regressions-x86_64__runtime-errors:
   metadata:
     action: summary
     title: "'Regressions' found on Tast tests for x86_64 due to runtime errors"
     template: "generic-regressions.html.jinja2"
-    output_file: "tast-regressions-x86_64__runtime_errors.html"
+    output_file: "tast-regressions-x86_64__runtime-errors.html"
   preset:
     regression:
       - group__re: tast
