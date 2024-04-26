@@ -81,6 +81,7 @@ def async_job_submit(api_helper, node_id, job_callback):
 
     log_parser = job_callback.get_log_parser()
     job_result = job_callback.get_job_status()
+    device_id = job_callback.get_device_id()
     storage_config_name = job_callback.get_meta('storage_config_name')
     storage = _get_storage(storage_config_name)
     log_txt_url = _upload_log(log_parser, job_node, storage)
@@ -90,6 +91,8 @@ def async_job_submit(api_helper, node_id, job_callback):
     # failed LAVA job should have result set to 'incomplete'
     job_node['result'] = job_result
     job_node['state'] = 'done'
+    if device_id:
+        job_node['data']['device'] = device_id
     hierarchy = job_callback.get_hierarchy(results, job_node)
     api_helper.submit_results(hierarchy, job_node)
 
