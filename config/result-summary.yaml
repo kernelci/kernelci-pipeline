@@ -185,6 +185,7 @@ monitor-build-regressions-x86_64-mainline-next:
   preset:
     regression:
       - data.error_code: null
+        name__re: kbuild
         data.arch: x86_64
         repos:
           - tree: mainline
@@ -197,7 +198,7 @@ monitor-build-failures-x86_64-mainline-next:
     template: "generic-test-failure-report.html.jinja2"
     output_file: "build-failures-mainline-next-x86_64.html"
   preset:
-    test:
+    kbuild:
       - data.error_code: null
         result: fail
         data.arch: x86_64
@@ -278,6 +279,7 @@ monitor-build-regressions-arm64-mainline-next:
   preset:
     regression:
       - data.error_code: null
+        name__re: kbuild
         data.arch: arm64
         repos:
           - tree: mainline
@@ -290,7 +292,7 @@ monitor-build-failures-arm64-mainline-next:
     template: "generic-test-failure-report.html.jinja2"
     output_file: "build-failures-mainline-next-arm64.html"
   preset:
-    test:
+    kbuild:
       - data.error_code: null
         result: fail
         data.arch: arm64
