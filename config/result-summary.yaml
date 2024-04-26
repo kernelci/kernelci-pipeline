@@ -172,7 +172,7 @@ aferraris-monitor-chromeos-errors:
   preset:
     test:
       - result: fail
-        data.error_msg__re: "(modules-install|self_repair|cros-partition-corrupt)"
+        data.error_msg__re: "(self_repair|cros-partition-corrupt)"
 
 ### Summary presets
 
