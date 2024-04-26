@@ -185,7 +185,7 @@ monitor-build-regressions-x86_64-mainline-next:
   preset:
     regression:
       - data.error_code: null
-        arch: x86_64
+        data.arch: x86_64
         repos:
           - tree: mainline
           - tree: next
@@ -200,7 +200,7 @@ monitor-build-failures-x86_64-mainline-next:
     test:
       - data.error_code: null
         result: fail
-        arch: x86_64
+        data.arch: x86_64
         repos:
           - tree: mainline
           - tree: next
@@ -215,7 +215,7 @@ monitor-baseline-regressions-x86_64-mainline-next:
     regression:
       - data.error_code: null
         group__re: baseline
-        arch: x86_64
+        data.arch: x86_64
         repos:
           - tree: mainline
           - tree: next
@@ -231,7 +231,7 @@ monitor-baseline-failures-x86_64-mainline-next:
       - data.error_code: null
         result: fail
         group__re: baseline
-        arch: x86_64
+        data.arch: x86_64
         repos:
           - tree: mainline
           - tree: next
@@ -278,7 +278,7 @@ monitor-build-regressions-arm64-mainline-next:
   preset:
     regression:
       - data.error_code: null
-        arch: arm64
+        data.arch: arm64
         repos:
           - tree: mainline
           - tree: next
@@ -293,7 +293,7 @@ monitor-build-failures-arm64-mainline-next:
     test:
       - data.error_code: null
         result: fail
-        arch: arm64
+        data.arch: arm64
         repos:
           - tree: mainline
           - tree: next
@@ -308,7 +308,7 @@ monitor-baseline-regressions-arm64-mainline-next:
     regression:
       - data.error_code: null
         group__re: baseline
-        arch: arm64
+        data.arch: arm64
         repos:
           - tree: mainline
           - tree: next
@@ -324,7 +324,7 @@ monitor-baseline-failures-arm64-mainline-next:
       - data.error_code: null
         result: fail
         group__re: baseline
-        arch: arm64
+        data.arch: arm64
         repos:
           - tree: mainline
           - tree: next
