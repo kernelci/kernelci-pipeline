@@ -14,6 +14,7 @@ _anchors:
       fragments:
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
     rules: &kbuild-gcc-10-arm64-chromeos-rules
       tree:
       - '!android'
@@ -29,6 +30,7 @@ _anchors:
       fragments:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
     rules:
       tree:
       - '!android'
