@@ -135,7 +135,7 @@ expects the following input parameters:
                         <div class="collapse" id="logSnippet">
                           <div class="card card-body">
                             <pre>
-{{ test['logs'][log]['text'] }}
+{{ test['logs'][log]['text'] | e }}
                             </pre>
                           </div>
                         </div>

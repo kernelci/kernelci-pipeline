@@ -143,7 +143,7 @@ expects the following input parameters:
                         <div class="collapse" id="logSnippet">
                           <div class="card card-body">
                             <pre>
-{{ regression['logs'][log]['text'] }}
+{{ regression['logs'][log]['text'] | e }}
                             </pre>
                           </div>
                         </div>
