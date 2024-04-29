@@ -84,7 +84,7 @@ the following input parameters:
               <div class="collapse" id="logSnippet">
                 <div class="card card-body">
                   <pre>
-                    {{ node['logs'][log]['text'] }}
+{{ node['logs'][log]['text'] | e }}
                   </pre>
                 </div>
               </div>
