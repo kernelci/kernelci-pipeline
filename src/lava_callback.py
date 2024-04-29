@@ -115,7 +115,10 @@ def async_job_submit(api_helper, node_id, job_callback):
     job_node['result'] = job_result
     job_node['state'] = 'done'
     if device_id:
+        print(f"DEBUG: Habemus device: {device_id}")
         job_node['data']['device'] = device_id
+    else:
+        print(f"DEBUG: Device ID: {callback_data.get('actual_device_id')} => {device_id}")
     hierarchy = job_callback.get_hierarchy(results, job_node)
     api_helper.submit_results(hierarchy, job_node)
 
