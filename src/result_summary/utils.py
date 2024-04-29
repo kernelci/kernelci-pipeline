@@ -210,6 +210,8 @@ def post_process_node(node, api):
                 parent = api.node.get(node['parent'])
                 if parent:
                     logs = find_node_logs(parent, api)
+        if not logs:
+            return {}
         # Remove empty logs
         return {k: v for k, v in logs.items() if v}
 
