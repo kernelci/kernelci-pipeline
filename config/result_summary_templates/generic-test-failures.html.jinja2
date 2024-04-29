@@ -91,11 +91,11 @@ expects the following input parameters:
                 {% elif test['result'] == 'pass' %}
                   <span class="badge text-bg-success">PASS</span>
                 {% else %}
-                  {{ node['result'] }}
+                  {{ test['result'] }}
                 {% endif %}
               </li>
-              {% if node['data']['regression'] %}
-                <li>Related to regression: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['data']['regression'] }}" target="_blank" rel="noopener noreferrer">{{ node['data']['regression'] }}</a></li>
+              {% if test['data']['regression'] %}
+                <li>Related to regression: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ test['data']['regression'] }}" target="_blank" rel="noopener noreferrer">{{ test['data']['regression'] }}</a></li>
               {% endif %}
               <li>Date: {{ test['created'] }}</li>
               <li>Tree: {{ kernel_version['tree'] }}</li>
