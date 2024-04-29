@@ -68,6 +68,7 @@ monitor-active-stable-rc-build-regressions:
       - name__re: kbuild
         # Regressions with result = fail are "active", ie. still failing
         result: fail
+        data.error_code: null
         repos:
           - tree: stable-rc
 
@@ -81,6 +82,7 @@ monitor-stable-rc-build-failures:
   preset:
     kbuild:
       - result: fail
+        data.error_code: null
         repos:
           - tree: stable-rc
 
@@ -96,6 +98,22 @@ monitor-active-stable-rc-boot-regressions:
       - group__re: baseline
         # Regressions with result = fail are "active", ie. still failing
         result: fail
+        data.error_code: null
+        repos:
+          - tree: stable-rc
+
+# Monitor all stable-rc kernel boot failures
+monitor-stable-rc-boot-failures:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rc</strong> kernel boot failures"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "stable-rc-boot-failure.html"
+  preset:
+    test:
+      - group__re: baseline
+        result: fail
+        data.error_code: null
         repos:
           - tree: stable-rc
 
