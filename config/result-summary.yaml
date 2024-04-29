@@ -627,3 +627,16 @@ all-kunit-failures:
       - group__re: kunit
         result: fail
         data.error_code: null
+
+# All android build results
+all-android-builds:
+  metadata:
+    action: summary
+    title: "Test results for Android branches"
+    template: "generic-test-results.html.jinja2"
+    output_file: "all-android-builds.html"
+  preset:
+    kbuild:
+      - data.error_code: null
+        repos:
+          - tree: android
