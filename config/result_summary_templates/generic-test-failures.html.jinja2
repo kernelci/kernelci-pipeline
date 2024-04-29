@@ -94,6 +94,9 @@ expects the following input parameters:
                   {{ node['result'] }}
                 {% endif %}
               </li>
+              {% if node['data']['regression'] %}
+                <li>Related to regression: <a href="https://staging.kernelci.org:9000/viewer?node_id={{ node['data']['regression'] }}" target="_blank" rel="noopener noreferrer">{{ node['data']['regression'] }}</a></li>
+              {% endif %}
               <li>Date: {{ test['created'] }}</li>
               <li>Tree: {{ kernel_version['tree'] }}</li>
               <li>Branch: {{ kernel_version['branch'] }}</li>
