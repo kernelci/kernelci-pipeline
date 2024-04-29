@@ -1,7 +1,7 @@
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
 {#
-Template to generate a generic text-based test failure summary. It
+Template to generate a generic text-based test results summary. It
 expects the following input parameters:
   - metadata: summary preset metadata
   - from_date: start date of the results query
@@ -38,7 +38,7 @@ expects the following input parameters:
 {% elif last_updated_to -%}
   {% set last_updated_string = 'Last updated before ' + last_updated_to -%}
 {% endif -%}
-{{ metadata['title'] if 'title' in metadata else 'Test failures: ' }}
+{{ metadata['title'] if 'title' in metadata else 'Test results: ' }}
 {% if created_string -%}
   - {{ created_string }}
 {% endif -%}
@@ -46,11 +46,11 @@ expects the following input parameters:
   - {{ last_updated_string }}
 {% endif -%}
 {% if results_per_branch | count == 0 %}
-No failures found.
+No results found.
 {% else -%}
   {% for tree in results_per_branch %}
     {% for branch in results_per_branch[tree] %}
-## Failures found in {{ tree }}/{{ branch }}:
+## Results found in {{ tree }}/{{ branch }}:
       {% for test in results_per_branch[tree][branch] -%}
         {% set kernel_version = test['data']['kernel_revision'] %}
     KernelCI node id: {{ test['id'] }}

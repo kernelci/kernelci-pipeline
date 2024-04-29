@@ -387,7 +387,7 @@ monitor-all-kunit-failures:
   metadata:
     action: monitor
     title: "All kunit test failures not caused by runtime errors"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "kunit-failures.html"
     #template: "generic-test-failure-report.jinja2"
     #output_file: "kunit-failures.txt"
@@ -433,7 +433,7 @@ stable-rc-build-failures:
   metadata:
     action: summary
     title: "<strong>stable-rc</strong> kernel build failures"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "stable-rc-build-failures.html"
   preset:
     kbuild:
@@ -474,7 +474,7 @@ stable-rc-boot-failures:
   metadata:
     action: summary
     title: "<strong>stable-rc</strong> kernel boot failures"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "stable-rc-boot-failures.html"
   preset:
     test:
@@ -488,7 +488,7 @@ tast-failures:
   metadata:
     action: summary
     title: "General Tast test failures"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "tast-failures.html"
   preset:
     test:
@@ -502,7 +502,7 @@ tast-failures__runtime-errors:
   metadata:
     action: summary
     title: "General Tast test failures"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "tast-failures.html"
   preset:
     test:
@@ -530,7 +530,7 @@ mainline-next-test-failures:
   metadata:
     action: summary
     title: "Test failures found in mainline and next"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "mainline-next-failures.html"
   preset:
     test:
@@ -620,7 +620,7 @@ all-kunit-failures:
   metadata:
     action: summary
     title: "All kunit test failures"
-    template: "generic-test-failures.html.jinja2"
+    template: "generic-test-results.html.jinja2"
     output_file: "kunit-failures.html"
   preset:
     test:
