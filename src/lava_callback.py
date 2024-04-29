@@ -7,6 +7,7 @@ import os
 import tempfile
 
 import gzip
+import json
 import requests
 from flask import Flask, request
 import toml
@@ -39,6 +40,25 @@ def _get_storage(storage_config_name):
     return kernelci.storage.get_storage(storage_config, storage_cred)
 
 
+def _upload_file(storage, job_node, source_name, destination_name=None):
+    if not destination_name:
+        destination_name = source_name
+    upload_dir = '-'.join((job_node['name'], job_node['id']))
+    r = storage.upload_single((source_name, destination_name), upload_dir)
+    return r
+
+
+def _upload_callback_data(data, job_node, storage):
+    # create temporary file to store callback data as JSON
+    filename = 'lava_callback.json'
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        with open(os.path.join(tmp_dir, filename), 'w') as f:
+            serjson = json.dumps(data, indent=4)
+            f.write(serjson)
+        os.chdir(tmp_dir)
+        return _upload_file(storage, job_node, filename)
+
+
 def _upload_log(log_parser, job_node, storage):
     # create temporary file to store log with gzip
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -47,10 +67,8 @@ def _upload_log(log_parser, job_node, storage):
             log_parser.get_text_log(f)
             if f.tell() == 0:
                 return None
-        log_dir = '-'.join((job_node['name'], job_node['id']))
         os.chdir(tmp_dir)
-        r = storage.upload_single(('lava_log.txt.gz', 'log.txt.gz'), log_dir)
-        return r
+        return _upload_file(storage, job_node, 'lava_log.txt.gz', 'log.txt.gz')
 
 
 @app.errorhandler(requests.exceptions.HTTPError)
@@ -79,6 +97,7 @@ def async_job_submit(api_helper, node_id, job_callback):
     # Also extract job_id and compare with node job_id (future)
     # Or at least first record job_id in node metadata
 
+    callback_data = job_callback.get_data()
     log_parser = job_callback.get_log_parser()
     job_result = job_callback.get_job_status()
     device_id = job_callback.get_device_id()
@@ -88,6 +107,10 @@ def async_job_submit(api_helper, node_id, job_callback):
     if log_txt_url:
         job_node['artifacts']['lava_log'] = log_txt_url
         print(f"Log uploaded to {log_txt_url}")
+    callback_json_url = _upload_callback_data(callback_data, job_node, storage)
+    if callback_json_url:
+        job_node['artifacts']['callback_data'] = callback_json_url
+        print(f"Callback data uploaded to {callback_json_url}")
     # failed LAVA job should have result set to 'incomplete'
     job_node['result'] = job_result
     job_node['state'] = 'done'
