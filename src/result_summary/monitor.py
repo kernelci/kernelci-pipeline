@@ -58,25 +58,35 @@ def filter_node(node, params):
     If the node doesn't match the full set of parameter
     constraints, it returns False.
     """
+    match = True
     for param_name, value in params.items():
+        if value == 'null':
+            value = None
         field, _, cmd = param_name.partition('__')
         node_value = get_item(node, field)
         if cmd == 'ne':
             if node_value == value:
-                return False
+                match = False
+                break
         elif cmd == 'gt':
             if node_value <= value:
-                return False
+                match = False
+                break
         elif cmd == 'lt':
             if node_value >= value:
-                return False
+                match = False
+                break
         elif cmd == 're' and node_value:
             if not re.search(value, node_value):
-                return False
+                match = False
+                break
         else:
             if node_value != value:
-                return False
-    return True
+                match = False
+                break
+    if not match:
+        return False, f"<{field} = {node_value}> doesn't match constraint '{param_name}: {value}'"
+    return True, "Ok"
 
 
 def send_email_report(service, context, report_text):
@@ -92,9 +102,12 @@ def send_email_report(service, context, report_text):
 def run(service, context):
     while True:
         node = service._api_helper.receive_event_node(context['sub_id'])
+        service.log.debug(f"Node event received: {node['id']}")
         preset_params = context['preset_params']
         for param_set in context['preset_params']:
-            if filter_node(node, {**param_set, **context['extra_query_params']}):
+            service.log.debug(f"Match check. param_set: {param_set}")
+            match, msg = filter_node(node, {**param_set, **context['extra_query_params']})
+            if match:
                 service.log.info(f"Result received: {node['id']}")
                 template_params = {
                     'metadata': context['metadata'],
@@ -126,10 +139,10 @@ def run(service, context):
                     output_file = os.path.join(output_dir, output_file)
                     with open(output_file, 'w') as outfile:
                         outfile.write(output_text)
-                    service.log.info(f"Report generated in {output_file}")
+                    service.log.info(f"Report generated in {output_file}\n")
                 else:
                     result_summary.logger.info(output_text)
                 send_email_report(service, context, output_text)
             else:
-                service.log.debug(f"Result received but filtered: {node['id']}")
+                service.log.debug(f"Result received but filtered: {node['id']}. {msg}\n")
     return True
