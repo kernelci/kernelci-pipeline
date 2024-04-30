@@ -57,6 +57,9 @@ the following input parameters:
     {% if node['data']['platform'] %}
       <li>Platform : {{ node['data']['platform'] }}</li>
     {% endif %}
+    {% if node['data']['device'] %}
+      <li>Device : {{ node['data']['device'] }}</li>
+    {% endif %}
     {% if node['data']['config_full'] %}
       <li>Config: {{ node['data']['config_full'] }}</li>
     {% endif %}

@@ -108,6 +108,9 @@ expects the following input parameters:
               {% if test['data']['platform'] %}
                 <li>Platform : {{ test['data']['platform'] }}</li>
               {% endif %}
+              {% if test['data']['device'] %}
+                <li>Device : {{ test['data']['device'] }}</li>
+              {% endif %}
               {% if test['data']['config_full'] %}
                 <li>Config: {{ test['data']['config_full'] }}</li>
               {% endif %}
