@@ -372,3 +372,8 @@ scheduler:
 
   - job: tast-ui-x86-intel
     <<: *test-job-chromeos-intel
+
+  - job: v4l2-decoder-conformance-av1
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2

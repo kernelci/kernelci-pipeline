@@ -366,6 +366,19 @@ _anchors:
         - ui.HotseatAnimation.shelf_with_navigation_widget_lacros
         - ui.WindowControl
 
+  v4l2-decoder-conformance: &v4l2-decoder-conformance-job
+    template: 'v4l2-decoder-conformance.jinja2'
+    kind: test
+    params: &v4l2-decoder-conformance-params
+      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-gst-fluster/20240430.0/{debarch}/'
+      job_timeout: 30
+      videodec_parallel_jobs: 1
+      videodec_timeout: 90
+    rules:
+      tree:
+        - mainline
+        - next
+
 jobs:
 
   baseline-arm64-mediatek: &baseline-job
@@ -553,3 +566,11 @@ jobs:
   tast-ui-arm64-qualcomm: *tast-ui-job
   tast-ui-x86-intel: *tast-ui-job
   tast-ui-x86-amd: *tast-ui-job
+
+  v4l2-decoder-conformance-av1:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
