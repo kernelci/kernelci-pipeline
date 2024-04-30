@@ -90,6 +90,7 @@ class RegressionTracker(Service):
             'config_full': failed_node['data'].get('config_full'),
             'compiler': failed_node['data'].get('compiler'),
             'platform': failed_node['data'].get('platform'),
+            'device': failed_node['data'].get('device'),
             'failed_kernel_version': failed_node['data'].get('kernel_revision'),   # noqa
             'error_code': error['error_code'],
             'error_msg': error['error_msg'],
