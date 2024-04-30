@@ -49,10 +49,13 @@ def _upload_file(storage, job_node, source_name, destination_name=None):
 
 
 def _upload_callback_data(data, job_node, storage):
-    # create temporary file to store callback data as JSON
-    filename = 'lava_callback.json'
+    filename = 'lava_callback.json.gz'
+    # We upload the log separately, no need to keep it in the saved data
+    data.pop('log', None)
+    # Create temporary file to store callback data as gzip'ed JSON
     with tempfile.TemporaryDirectory() as tmp_dir:
-        with open(os.path.join(tmp_dir, filename), 'w') as f:
+        # open gzip in explicit text mode to avoid platform-dependent line endings
+        with gzip.open(os.path.join(tmp_dir, filename), 'wt') as f:
             serjson = json.dumps(data, indent=4)
             f.write(serjson)
         os.chdir(tmp_dir)
