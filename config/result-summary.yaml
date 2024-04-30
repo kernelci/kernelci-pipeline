@@ -640,3 +640,34 @@ all-android-builds:
       - data.error_code: null
         repos:
           - tree: android
+
+#### Failures and regressions in v4l2-decoder-conformance tests in collabora-next
+
+monitor-v4l2-decoder-conformance-regressions-collabora-next:
+  metadata:
+    action: monitor
+    title: "KernelCI v4l2-decoder-conformance regressions found"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "v4l2-decoder-conformance-regressions.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-v4l2-decoder-conformance-failures-collabora-next:
+  metadata:
+    action: monitor
+    title: "KernelCI v4l2-decoder-conformance failures found"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "v4l2-decoder-conformance-failures.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
