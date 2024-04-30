@@ -1,0 +1,37 @@
+categories:
+
+- name: Test finished
+  tag: test
+  patterns:
+  - LAVA_SIGNAL_TESTCASE.*fail
+
+- name: Server error
+  tag: infra
+  patterns:
+  - .*Fault 404.*
+  - .*503 Service Temporarily Unavailable.*
+  - .*504 Gateway.*
+
+- name: Network
+  tag: infra
+  patterns:
+  - Job failed.*registry.*
+  - "ERROR:.*Docker.*"
+  - "ERROR:.*failed to pull image.*"
+  - ssh.*No route to host
+  - sync failed, giving up
+
+- name: LAVA Bug
+  tag: infra-lava
+  patterns:
+  - "LAVABug:"
+
+- name: Test finished
+  tag: test
+  patterns:
+  - 'make.* Error'
+
+- name: Unknown
+  tag: unknown
+  patterns:
+  - ".*"

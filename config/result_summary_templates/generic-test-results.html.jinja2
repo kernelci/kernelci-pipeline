@@ -129,6 +129,9 @@ expects the following input parameters:
               {% if test['data']['error_msg'] -%}
                 <li>Error message: <code>{{ test['data']['error_msg'] }}</code></li>
               {% endif -%}
+              {% if test['category'] -%}
+                <li>Error category: <code>{{ test['category']['tag'] }}: {{ test['category']['name'] }}</code></li>
+              {% endif -%}
               {% if test['logs'] | count > 0 -%}
                 <li>Logs:
                   <ul>
