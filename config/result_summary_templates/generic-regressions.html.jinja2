@@ -122,6 +122,9 @@ expects the following input parameters:
               {% if regression['data']['platform'] %}
                 <li>Platform: {{ regression['data']['platform'] }}</li>
               {% endif %}
+              {% if regression['data']['device'] %}
+                <li>Device : {{ regression['data']['device'] }}</li>
+              {% endif %}
               {% if regression['data']['config_full'] %}
                 <li>Config: {{ regression['data']['config_full'] }}</li>
               {% endif %}

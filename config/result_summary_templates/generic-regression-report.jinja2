@@ -35,6 +35,9 @@ Arch : {{ node['data']['arch'] }}
 {% if node['data']['platform'] -%}
 Platform : {{ node['data']['platform'] }}
 {% endif -%}
+{% if node['data']['device'] -%}
+Device : {{ node['data']['device'] }}
+{% endif -%}
 {% if node['data']['config_full'] -%}
 Config: {{ node['data']['config_full'] }}
 {% endif -%}
