@@ -8,8 +8,13 @@
 import gzip
 import re
 import requests
+import yaml
+from typing import Any, Dict
 
 import result_summary
+
+
+CONFIG_TRACES_FILE_PATH = './config/traces_config.yaml'
 
 
 def split_query_params(query_string):
@@ -101,6 +106,16 @@ def iterate_node_find(service, params):
     return nodes
 
 
+def get_err_category(trace: str, traces_config: Dict) -> Dict[str, Any]:
+    """Given a trace and a traces config, return its category"""
+    # sourcery skip: raise-specific-error
+    for category in traces_config["categories"]:
+        p = "|".join(category["patterns"])
+        if re.findall(p, trace or ""):
+            return category
+    raise Exception(f"No category found")
+
+
 def get_log(url, snippet_lines=0):
     """Fetches a text log given its url.
 
@@ -146,10 +161,10 @@ def get_logs(node):
 
     This method iterates over a node's 'artifacts', if present, to find
     log files. For each identified log file, it obtains the content by
-    calling the `_get_log` method with a number of context lines (10
-    last lines by default). If the content is not empty, it then stores
-    this log data in a dictionary, which includes both the URL of the
-    log and its text content.
+    calling the `_get_log` method.
+    If the content is not empty, it then stores this log data in a
+    dictionary, which includes both the URL of the log and its text
+    content.
 
     If the node log points to an empty file, the dict will contain an
     entry for the log with an empty value.
@@ -166,7 +181,6 @@ def get_logs(node):
 
         None if no logs were found.
     """
-    snippet_lines = -10
     if node.get('artifacts'):
         logs = {}
         log_fields = {}
@@ -174,7 +188,7 @@ def get_logs(node):
             if artifact_is_log(artifact):
                 log_fields[artifact] = value
         for log_name, url in log_fields.items():
-            text = get_log(url, snippet_lines=snippet_lines)
+            text = get_log(url)
             if text:
                 logs[log_name] = {'url': url, 'text': text}
             else:
@@ -215,4 +229,27 @@ def post_process_node(node, api):
         # Remove empty logs
         return {k: v for k, v in logs.items() if v}
 
+    def log_snippets_only(logs, snippet_lines):
+        for log in logs:
+            lines = logs[log]['text'].splitlines()
+            logs[log]['text'] = '\n'.join(lines[-snippet_lines:])
+        return logs
+
+    def concatenate_logs(logs):
+        concatenated_logs = ''
+        for log in logs:
+            concatenated_logs += logs[log]['text']
+        return concatenated_logs
+
     node['logs'] = find_node_logs(node, api)
+
+    if node['result'] != 'pass':
+        concatenated_logs = concatenate_logs(node['logs'])
+
+        with open(CONFIG_TRACES_FILE_PATH) as f:
+            traces_config: Dict[str, Any] = yaml.load(f, Loader=yaml.FullLoader)
+        node['category'] = get_err_category(concatenated_logs, traces_config)
+
+    # Only get the last 10 lines of the log
+    snippet_lines = 10
+    node['logs'] = log_snippets_only(node['logs'], snippet_lines)

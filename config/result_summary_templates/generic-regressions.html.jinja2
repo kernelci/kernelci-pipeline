@@ -137,6 +137,9 @@ expects the following input parameters:
               {% if regression['data']['error_msg'] -%}
                 <li>Error message: <code>{{ regression['data']['error_msg'] }}</code></li>
               {% endif -%}
+              {% if regression['category'] -%}
+                <li>Error category: <code>{{ regression['category']['tag'] }}: {{ regression['category']['name'] }}</code></li>
+              {% endif -%}
               {% if regression['logs'] | count > 0 -%}
                 <li>Logs:
                   <ul>
