@@ -52,6 +52,8 @@ def _upload_callback_data(data, job_node, storage):
     filename = 'lava_callback.json.gz'
     # We upload the log separately, no need to keep it in the saved data
     data.pop('log', None)
+    # Ensure we don't leak secrets
+    data.pop('token', None)
     # Create temporary file to store callback data as gzip'ed JSON
     with tempfile.TemporaryDirectory() as tmp_dir:
         # open gzip in explicit text mode to avoid platform-dependent line endings
