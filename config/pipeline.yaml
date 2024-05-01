@@ -17,6 +17,7 @@ _anchors:
   baseline: &baseline-job
     template: baseline.jinja2
     kind: test
+    kcidb_test_suite: kernelci_baseline
 
   checkout: &checkout-event
     channel: node
@@ -247,6 +248,7 @@ jobs:
     params:
       <<: *kbuild-gcc-10-arm64-params
       dtbs_check: true
+    kcidb_test_suite: dtbs_check
 
   kbuild-gcc-10-arm-imx_v6_v7_defconfig:
     <<: *kbuild-gcc-10-arm-job
@@ -410,6 +412,7 @@ jobs:
     template: kunit.jinja2
     kind: test
     image: kernelci/staging-gcc-10:x86-kunit-kernelci
+    kcidb_test_suite: kunit
 
   kunit-x86_64:
     <<: *kunit-job
@@ -420,6 +423,7 @@ jobs:
     template: kver.jinja2
     kind: test
     image: kernelci/staging-kernelci
+    kcidb_test_suite: kernelci_kver
 
   kselftest-cpufreq:
     template: kselftest.jinja2
@@ -441,6 +445,7 @@ jobs:
       min_version:
         version: 6
         patchlevel: 7
+    kcidb_test_suite: kselftest.dt
 
   # amd64-only temporary
   sleep:
@@ -449,6 +454,7 @@ jobs:
     params:
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}
       sleep_params: mem freeze
+    kcidb_test_suite: kernelci_sleep
 
 trees:
 
