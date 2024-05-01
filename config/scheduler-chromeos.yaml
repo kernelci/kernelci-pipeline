@@ -187,6 +187,18 @@ scheduler:
       result: pass
     platforms: *mediatek-platforms
 
+  - job: kselftest-cpufreq
+    <<: *test-job-x86-intel
+
+  - job: kselftest-cpufreq
+    <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-cpufreq
+    <<: *test-job-arm64-mediatek
+
   - job: tast-basic-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 

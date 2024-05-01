@@ -279,6 +279,15 @@ jobs:
     kind: test
     image: kernelci/staging-kernelci
 
+  kselftest-cpufreq:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      collections: cpufreq
+      job_timeout: 10
+    kcidb_test_suite: kselftest.cpufreq
+
   kselftest-dt:
     template: kselftest.jinja2
     kind: test
