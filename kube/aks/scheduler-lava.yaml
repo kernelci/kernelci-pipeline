@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: kernelci/staging-kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
+          image: kernelci/kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
           imagePullPolicy: Always
           command:
             - ./src/scheduler.py
@@ -38,6 +38,8 @@ spec:
                 secretKeyRef:
                   name: kernelci-api-token
                   key: token
+            - name: KCI_INSTANCE
+              value: prod
           volumeMounts:
             - name: secrets
               mountPath: /secrets
