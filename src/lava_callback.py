@@ -17,6 +17,7 @@ import kernelci.api.helper
 import kernelci.config
 import kernelci.runtime.lava
 import kernelci.storage
+from concurrent.futures import ThreadPoolExecutor
 
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
@@ -26,6 +27,7 @@ CONFIGS = kernelci.config.load(
 SETTINGS_PREFIX = 'runtime'
 
 app = Flask(__name__)
+executor = ThreadPoolExecutor(max_workers=10)
 
 
 def _get_api_helper(api_config_name, api_token):
@@ -120,6 +122,14 @@ def async_job_submit(api_helper, node_id, job_callback):
     api_helper.submit_results(hierarchy, job_node)
 
 
+def submit_job(api_helper, node_id, job_callback):
+    '''
+    Spawn a thread to do the job submission without blocking
+    the callback
+    '''
+    executor.submit(async_job_submit, api_helper, node_id, job_callback)
+
+
 @app.post('/node/<node_id>')
 def callback(node_id):
     tokens = SETTINGS.get(SETTINGS_PREFIX)
@@ -149,14 +159,7 @@ def callback(node_id):
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
 
-    # Spawn a thread to do the job submission without blocking
-    # the callback
-    thread = threading.Thread(
-        target=async_job_submit,
-        args=(api_helper, node_id, job_callback)
-    )
-    thread.setDaemon(True)
-    thread.start()
+    submit_job(api_helper, node_id, job_callback)
 
     return 'OK', 202
 
