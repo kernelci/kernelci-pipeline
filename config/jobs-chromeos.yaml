@@ -55,6 +55,7 @@ _anchors:
     template: tast.jinja2
     kind: test
     rules: *min-5_4-rules
+    kcidb_test_suite: tast
 
   tast-basic: &tast-basic-job
     <<: *tast-job
@@ -368,12 +369,14 @@ _anchors:
         - next
         - collabora-chromeos-kernel
         - media
+    kcidb_test_suite: fluster.v4l2
 
 jobs:
 
   baseline-arm64-mediatek: &baseline-job
     template: baseline.jinja2
     kind: test
+    kcidb_test_suite: kernelci_baseline
 
   baseline-arm64-qualcomm: *baseline-job
 
@@ -383,6 +386,7 @@ jobs:
     params:
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+    kcidb_test_suite: kernelci_baseline
 
   baseline-nfs-arm64-qualcomm: *baseline-nfs-job
   baseline-nfs-x86-amd: *baseline-nfs-job
@@ -439,6 +443,7 @@ jobs:
         - collabora-next
       branch:
         - for-kernelci
+    kcidb_test_suite: kselftest.acpi
 
   tast-basic-arm64-mediatek: *tast-basic-job
   tast-basic-arm64-qualcomm: *tast-basic-job
