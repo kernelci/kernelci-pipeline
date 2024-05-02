@@ -58,6 +58,21 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             if config.tree.name == tree and config.branch == branch:
                 return config
 
+    def _find_build_commit(self, node):
+        revision = node['data'].get('kernel_revision')
+        commit = revision.get('commit')
+        return commit
+
+    def _checkout_commitid(self, commitid):
+        self.log.info(f"Checking out commit {commitid}")
+        # i might need something from kernelci.build
+        # but i prefer to implement it myself
+        cwd = os.getcwd()
+        os.chdir(self._service_config.kdir)
+        kernelci.shell_cmd(f"git checkout {commitid}", self._service_config.kdir)
+        os.chdir(cwd)
+        self.log.info("Commit checked out")
+
     def _update_repo(self, config):
         '''
         Return True - if failed to update repo and need to retry
@@ -184,6 +199,15 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                                                       'git_checkout_failure',
                                                       'Failed to init/update git repo')
                     os._exit(1)
+
+            commitid = self._find_build_commit(checkout_node)
+            if commitid is None:
+                self.log.error("Failed to find commit id")
+                self._update_failed_checkout_node(checkout_node,
+                                                  'git_checkout_failure',
+                                                  'Failed to find commit id')
+                os._exit(1)
+            self._checkout_commitid(commitid)
 
             describe = kernelci.build.git_describe(
                 build_config.tree.name, self._service_config.kdir
