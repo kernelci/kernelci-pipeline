@@ -378,6 +378,7 @@ _anchors:
       tree:
         - mainline
         - next
+        - kernelci
 
 jobs:
 
