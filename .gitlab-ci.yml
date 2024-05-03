@@ -1,0 +1,82 @@
+image: kernelci/staging-kernelci
+
+stages:
+  - result-summary
+  - deploy
+
+run:
+  stage: result-summary
+  parallel:
+    matrix:
+      # TODO: see a way to get the list of presets from the pipeline
+      # TODO: monitors are raising 401 Client Error: Unauthorized for url
+      #- KCI_PRESET: "monitor-active-stable-rc-build-regressions"
+      #- KCI_PRESET: "monitor-stable-rc-build-failures"
+      #- KCI_PRESET: "monitor-active-stable-rc-boot-regressions"
+      #- KCI_PRESET: "monitor-stable-rc-boot-failures"
+      #- KCI_PRESET: "monitor-all-regressions"
+      #- KCI_PRESET: "monitor-all-regressions__runtime-errors"
+      #- KCI_PRESET: "monitor-all-test-failures__runtime-errors"
+      #- KCI_PRESET: "monitor-all-test-failures"
+      #- KCI_PRESET: "monitor-all-build-failures__runtime-errors"
+      #- KCI_PRESET: "monitor-all-build-failures"
+      #- KCI_PRESET: "aferraris-monitor-chromeos-errors"
+      #- KCI_PRESET: "monitor-build-regressions-x86_64-mainline-next"
+      #- KCI_PRESET: "monitor-build-failures-x86_64-mainline-next"
+      #- KCI_PRESET: "monitor-baseline-regressions-x86_64-mainline-next"
+      #- KCI_PRESET: "monitor-baseline-failures-x86_64-mainline-next"
+      #- KCI_PRESET: "monitor-kselftest-acpi-regressions-collabora-next"
+      #- KCI_PRESET: "monitor-kselftest-acpi-failures-collabora-next"
+      #- KCI_PRESET: "monitor-build-regressions-arm64-mainline-next"
+      #- KCI_PRESET: "monitor-build-failures-arm64-mainline-next"
+      #- KCI_PRESET: "monitor-baseline-regressions-arm64-mainline-next"
+      #- KCI_PRESET: "monitor-baseline-failures-arm64-mainline-next"
+      #- KCI_PRESET: "monitor-kselftest-dt-regressions-mainline-next"
+      #- KCI_PRESET: "monitor-kselftest-dt-failures-mainline-next"
+      #- KCI_PRESET: "monitor-all-kunit-failures"
+      - KCI_PRESET: "stable-rc-build-regressions"
+      - KCI_PRESET: "active-stable-rc-build-regressions"
+      - KCI_PRESET: "stable-rc-build-failures"
+      - KCI_PRESET: "stable-rc-boot-regressions"
+      - KCI_PRESET: "stable-rc-boot-active-regressions"
+      - KCI_PRESET: "stable-rc-boot-failures"
+      - KCI_PRESET: "tast-failures"
+      - KCI_PRESET: "tast-failures__runtime-errors"
+      - KCI_PRESET: "mainline-next-regressions"
+      - KCI_PRESET: "mainline-next-test-failures"
+      - KCI_PRESET: "mainline-next-active-regressions"
+      - KCI_PRESET: "mainline-next-regressions__runtime-errors"
+      - KCI_PRESET: "tast-regressions-x86_64"
+      - KCI_PRESET: "tast-regressions-x86_64__runtime-errors"
+      - KCI_PRESET: "active-kunit-regressions"
+      - KCI_PRESET: "all-kunit-failures"
+      - KCI_PRESET: "all-android-builds"
+  script:
+    - mkdir -p public
+    - sed -i 's/api_config = "docker-host"/api_config = "staging"/' config/kernelci.toml
+    # TODO: do not ignore error here
+    - python src/result_summary.py --settings=${KCI_SETTINGS:-config/kernelci.toml} run --config=${CONFIG:-config/result-summary.yaml} --preset=$KCI_PRESET || true
+    - cp -r /home/kernelci/data/output/* data/output/
+  artifacts:
+    paths:
+      - data/output/
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp -r data/output/* public/
+    - echo "Generating index.html with links to all HTML files..."
+    - echo "<html><head><title>Results Summary Presets</title></head><body><h1>Results Summary Presets - Pipeline created at $CI_PIPELINE_CREATED_AT</h1>" > public/index.html
+    - |
+      find public/ -type f -name '*.html' | while read file; do
+        PRESET="${file##*/}"
+        PRESET="${PRESET%.html}"
+        echo "<a href='${PRESET}.html'>${PRESET}</a><br>" >> public/index.html
+      done
+    - echo "</body></html>" >> public/index.html
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
