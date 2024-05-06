@@ -643,7 +643,7 @@ all-android-builds:
 
 #### Failures and regressions in v4l2-decoder-conformance tests in collabora-next
 
-monitor-v4l2-decoder-conformance-regressions-collabora-next:
+monitor-v4l2-decoder-conformance-regressions:
   metadata:
     action: monitor
     title: "KernelCI v4l2-decoder-conformance regressions found"
@@ -657,7 +657,7 @@ monitor-v4l2-decoder-conformance-regressions-collabora-next:
           - tree: mainline
           - tree: next
 
-monitor-v4l2-decoder-conformance-failures-collabora-next:
+monitor-v4l2-decoder-conformance-failures:
   metadata:
     action: monitor
     title: "KernelCI v4l2-decoder-conformance failures found"
