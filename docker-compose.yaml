@@ -209,3 +209,17 @@ services:
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
 
+  get-builds:
+    container_name: 'kernelci-pipeline-get-builds'
+    image: 'kernelci/staging-kernelci'
+    env_file: ['.env']
+    stop_signal: 'SIGINT'
+    command:
+      - './pipeline/get_builds.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+    volumes:
+      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
