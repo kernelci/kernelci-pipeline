@@ -397,17 +397,9 @@ scheduler:
 
   - job: v4l2-decoder-conformance-h264
     <<: *test-job-arm64-mediatek
-    platforms:
-      - mt8183-kukui-jacuzzi-juniper-sku16
-      - mt8186-corsola-steelix-sku131072
-      - mt8195-cherry-tomato-r2
 
   - job: v4l2-decoder-conformance-h264-frext
     <<: *test-job-arm64-mediatek
-    platforms:
-      - mt8183-kukui-jacuzzi-juniper-sku16
-      - mt8186-corsola-steelix-sku131072
-      - mt8195-cherry-tomato-r2
 
   - job: v4l2-decoder-conformance-h265
     <<: *test-job-arm64-mediatek
@@ -418,10 +410,12 @@ scheduler:
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: v4l2-decoder-conformance-vp9
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
