@@ -398,11 +398,13 @@ scheduler:
   - job: v4l2-decoder-conformance-h264
     <<: *test-job-arm64-mediatek
     platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8195-cherry-tomato-r2
 
   - job: v4l2-decoder-conformance-h264-frext
     <<: *test-job-arm64-mediatek
     platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8195-cherry-tomato-r2
 
   - job: v4l2-decoder-conformance-h265
