@@ -378,7 +378,8 @@ _anchors:
       tree:
         - mainline
         - next
-        - kernelci
+        - collabora-chromeos-kernel
+        - media
 
 jobs:
 
@@ -575,3 +576,56 @@ jobs:
       testsuite: 'AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-av1-chromium-10bit:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h264:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'JVT-AVC_V1'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h264-frext:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'JVT-FR-EXT'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h265:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'JCT-VC-HEVC_V1'
+      decoders:
+        - 'GStreamer-H.265-V4L2-Gst1.0'
+        - 'GStreamer-H.265-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-vp8:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'VP8-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP8-V4L2-Gst1.0'
+        - 'GStreamer-VP8-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-vp9:
+    <<: *v4l2-decoder-conformance-job
+    params:
+      <<: *v4l2-decoder-conformance-params
+      testsuite: 'VP9-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP9-V4L2-Gst1.0'
+        - 'GStreamer-VP9-V4L2SL-Gst1.0'

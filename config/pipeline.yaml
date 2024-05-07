@@ -331,6 +331,12 @@ trees:
   collabora-next:
     url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
 
+  collabora-chromeos-kernel:
+    url: 'https://gitlab.collabora.com/google/chromeos-kernel.git'
+
+  media:
+    url: 'https://git.linuxtv.org/media_tree.git'
+
 platforms:
 
   docker:
@@ -680,4 +686,19 @@ build_configs:
   collabora-next_for-kernelci:
     tree: collabora-next
     branch: 'for-kernelci'
+    variants: *build-variants
+
+  collabora-chromeos-kernel_for-kernelci:
+    tree: collabora-chromeos-kernel
+    branch: 'for-kernelci'
+    variants: *build-variants
+
+  media_master:
+    tree: media
+    branch: 'master'
+    variants: *build-variants
+
+  media_fixes:
+    tree: media
+    branch: 'fixes'
     variants: *build-variants
