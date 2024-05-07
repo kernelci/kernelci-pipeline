@@ -389,3 +389,33 @@ scheduler:
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-av1-chromium-10bit
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-h264
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-h264-frext
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-h265
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-vp8
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-vp9
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r2
