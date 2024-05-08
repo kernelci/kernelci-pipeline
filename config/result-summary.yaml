@@ -370,8 +370,8 @@ monitor-kselftest-dt-failures-mainline-next:
   metadata:
     action: monitor
     title: "KernelCI kselftest-dt failures found on mainline and next"
-    template: "generic-regression-report.html.jinja2"
-    output_file: "kselftest-dt-regressions-mainline-next.html"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "kselftest-dt-failures-mainline-next.html"
   preset:
     test:
       - data.error_code: null
