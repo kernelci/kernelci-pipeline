@@ -55,7 +55,7 @@ run:
     - mkdir -p public
     - sed -i 's/api_config = "docker-host"/api_config = "staging"/' config/kernelci.toml
     # TODO: do not ignore error here
-    - python src/result_summary.py --settings=${KCI_SETTINGS:-config/kernelci.toml} run --config=${CONFIG:-config/result-summary.yaml} --preset=$KCI_PRESET || true
+    - python src/result_summary.py --settings=${KCI_SETTINGS:-config/kernelci.toml} run --config=${CONFIG:-config/result-summary.yaml} --preset=$KCI_PRESET --last-updated-from=$(date -u -d "24 hours ago" +"%Y-%m-%dT%H:%M:%S") || true
     - cp -r /home/kernelci/data/output/* data/output/
   artifacts:
     paths:
