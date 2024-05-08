@@ -52,7 +52,6 @@ run:
       - KCI_PRESET: "all-kunit-failures"
       - KCI_PRESET: "all-android-builds"
   script:
-    - mkdir -p public
     - sed -i 's/api_config = "docker-host"/api_config = "staging"/' config/kernelci.toml
     # TODO: do not ignore error here
     - python src/result_summary.py --settings=${KCI_SETTINGS:-config/kernelci.toml} run --config=${CONFIG:-config/result-summary.yaml} --preset=$KCI_PRESET --last-updated-from=$(date -u -d "24 hours ago" +"%Y-%m-%dT%H:%M:%S") || true
@@ -65,16 +64,9 @@ pages:
   stage: deploy
   script:
     - mkdir -p public
+    - pip install bs4 beautifulsoup4 pyyaml jinja2
+    - python src/generate-index.py --reports_date $CI_PIPELINE_CREATED_AT
     - cp -r data/output/* public/
-    - echo "Generating index.html with links to all HTML files..."
-    - echo "<html><head><title>Results Summary Presets</title></head><body><h1>Results Summary Presets - Pipeline created at $CI_PIPELINE_CREATED_AT</h1>" > public/index.html
-    - |
-      find public/ -type f -name '*.html' | while read file; do
-        PRESET="${file##*/}"
-        PRESET="${PRESET%.html}"
-        echo "<a href='${PRESET}.html'>${PRESET}</a><br>" >> public/index.html
-      done
-    - echo "</body></html>" >> public/index.html
   artifacts:
     paths:
       - public

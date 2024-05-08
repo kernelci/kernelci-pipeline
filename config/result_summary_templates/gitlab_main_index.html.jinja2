@@ -1,0 +1,25 @@
+
+{% extends "base.html" %}
+
+{% set title = "KernelCI test and regression reports updated in the last 24 hours" %}
+{% block title %}
+  {{ title }}
+{% endblock %}
+
+{% block content %}
+  <h1 class="text-bg-light p-3 rounded">{{ title }}</h1>
+  {% if 'reports_date' %}
+    <p>Reports generated on {{ reports_date }} </p>
+  {% endif %}
+  <p>You can find previous reports checking previous pipelines <a href="https://gitlab.collabora.com/kernel/kernelci-pipeline/-/pipelines">here</a>.</p>
+  <ul>
+    {% for dir in dirs %}
+      <li>
+        <a href="{{ dir['path'] }}">{{ dir['title'] }}</a> ({{ dir['num_reports'] }} reports)
+        <!-- <ul>
+          <li>Last update: {{ dir['last_update'] }}</li>
+        </ul> !-->
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
