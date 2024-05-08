@@ -381,6 +381,31 @@ monitor-kselftest-dt-failures-mainline-next:
           - tree: mainline
           - tree: next
 
+#### Failures and regressions in kselftest-cpufreq tests
+
+monitor-kselftest-cpufreq-regressions:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest-cpufreq regressions"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-cpufreq-regressions.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name: kselftest-cpufreq
+
+monitor-kselftest-cpufreq-failures:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest-cpufreq failures"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-cpufreq-failures.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name: kselftest-cpufreq
+
 
 # All kunit test failures
 monitor-all-kunit-failures:
