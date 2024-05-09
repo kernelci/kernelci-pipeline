@@ -681,6 +681,8 @@ monitor-v4l2-decoder-conformance-regressions:
         repos:
           - tree: mainline
           - tree: next
+          - tree: collabora-chromeos-kernel
+          - tree: media
 
 monitor-v4l2-decoder-conformance-failures:
   metadata:
@@ -696,3 +698,5 @@ monitor-v4l2-decoder-conformance-failures:
         repos:
           - tree: mainline
           - tree: next
+          - tree: collabora-chromeos-kernel
+          - tree: media
