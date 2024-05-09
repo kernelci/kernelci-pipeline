@@ -1,5 +1,8 @@
 image: kernelci/staging-kernelci
 
+default:
+  retry: 1  # Retries all jobs up to 1 time by default
+
 stages:
   - result-summary
   - deploy
