@@ -31,6 +31,9 @@ KBUILD_PARAMS = {
 {%- if cross_compile_compat %}
     'cross_compile_compat': '{{ cross_compile_compat }}'
 {%- endif %}
+{%- if disable_modules %}
+    'disable_modules': {{ disable_modules }}
+{%- endif %}
 {%- if dtbs_check %}
     'dtbs_check': '{{ dtbs_check }}'
 {%- endif %}
