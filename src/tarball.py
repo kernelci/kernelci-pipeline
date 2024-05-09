@@ -183,7 +183,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            checkout_node = self._api_helper.receive_event_node(sub_id)
+            checkout_node, _ = self._api_helper.receive_event_node(sub_id)
 
             build_config = self._find_build_config(checkout_node)
             if build_config is None:

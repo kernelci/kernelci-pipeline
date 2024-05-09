@@ -101,7 +101,7 @@ def send_email_report(service, context, report_text):
 
 def run(service, context):
     while True:
-        node = service._api_helper.receive_event_node(context['sub_id'])
+        node, _ = service._api_helper.receive_event_node(context['sub_id'])
         service.log.debug(f"Node event received: {node['id']}")
         preset_params = context['preset_params']
         for param_set in context['preset_params']:

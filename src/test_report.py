@@ -151,7 +151,7 @@ class TestReportLoop(TestReport):
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            root_node = self._api_helper.receive_event_node(sub_id)
+            root_node, _ = self._api_helper.receive_event_node(sub_id)
             content, subject = self._get_report(root_node)
             self._dump_report(content)
             self._send_report(subject, content)
