@@ -442,7 +442,7 @@ stable-rc-build-regressions:
 active-stable-rc-build-regressions:
   metadata:
     action: summary
-    title: "<strong>stable-rc</strong> kernel build regressions"
+    title: "<strong>stable-rc</strong> kernel active build regressions"
     template: "generic-regressions.html.jinja2"
     output_file: "active-stable-rc-build-regressions.html"
   preset:
@@ -483,7 +483,7 @@ stable-rc-boot-regressions:
 stable-rc-boot-active-regressions:
   metadata:
     action: summary
-    title: "<strong>stable-rc</strong> kernel boot regressions"
+    title: "<strong>stable-rc</strong> kernel active boot regressions"
     template: "generic-regressions.html.jinja2"
     output_file: "stable-rc-boot-regressions.html"
   preset:
@@ -526,7 +526,7 @@ tast-failures:
 tast-failures__runtime-errors:
   metadata:
     action: summary
-    title: "General Tast test failures"
+    title: "General Tast test failures - runtime errors"
     template: "generic-test-results.html.jinja2"
     output_file: "tast-failures.html"
   preset:
@@ -570,7 +570,7 @@ mainline-next-test-failures:
 mainline-next-active-regressions:
   metadata:
     action: summary
-    title: "Regressions found in mainline and next"
+    title: "Active regressions found in mainline and next"
     template: "generic-regressions.html.jinja2"
     output_file: "mainline-next-active-regressions.html"
   preset:
