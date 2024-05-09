@@ -206,6 +206,28 @@ jobs:
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
 
+  kbuild-gcc-10-arc-haps_hs_smp_defconfig:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:arc-kselftest-kernelci
+    params:
+      arch: arc
+      compiler: gcc-10
+      cross_compile: 'arc-elf32-'
+      defconfig: haps_hs_smp_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-arm: &kbuild-gcc-10-arm-job
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params: &kbuild-gcc-10-arm-params
+      arch: arm
+      compiler: gcc-10
+      cross_compile: 'arm-linux-gnueabihf-'
+      defconfig: multi_v7_defconfig
+
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
 
@@ -216,14 +238,45 @@ jobs:
       <<: *kbuild-gcc-10-arm64-params
       dtbs_check: true
 
-  kbuild-gcc-10-arm: &kbuild-gcc-10-arm-job
-    <<: *kbuild-job
-    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
-    params: &kbuild-gcc-10-arm-params
-      arch: arm
-      compiler: gcc-10
-      cross_compile: 'arm-linux-gnueabihf-'
+  kbuild-gcc-10-arm-imx_v6_v7_defconfig:
+    <<: *kbuild-gcc-10-arm-job
+    params:
+      <<: *kbuild-gcc-10-arm-params
+      defconfig: imx_v6_v7_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-arm-multi_v5_defconfig:
+    <<: *kbuild-gcc-10-arm-job
+    params:
+      <<: *kbuild-gcc-10-arm-params
+      defconfig: multi_v5_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-arm-multi_v7_defconfig:
+    <<: *kbuild-gcc-10-arm-job
+    params:
+      <<: *kbuild-gcc-10-arm-params
       defconfig: multi_v7_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-arm-vexpress_defconfig:
+    <<: *kbuild-gcc-10-arm-job
+    params:
+      <<: *kbuild-gcc-10-arm-params
+      defconfig: vexpress_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
 
   kbuild-gcc-10-arm-android-mainline: &kbuild-gcc-10-arm-android-mainline-job
     <<: *kbuild-gcc-10-arm-job
@@ -237,22 +290,87 @@ jobs:
       <<: *kbuild-gcc-10-arm-params
       defconfig: imx_v6_v7_defconfig
 
-  kbuild-gcc-10-i386:
+  kbuild-gcc-10-arm-omap2plus_defconfig:
+    <<: *kbuild-gcc-10-arm-job
+    params:
+      <<: *kbuild-gcc-10-arm-params
+      defconfig: omap2plus_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-i386: &kbuild-gcc-10-i386-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
-    params:
+    params: &kbuild-gcc-10-i386-params
       arch: i386
       compiler: gcc-10
       defconfig: i386_defconfig
 
-  kbuild-gcc-10-riscv:
+  kbuild-gcc-10-i386-allnoconfig:
+    <<: *kbuild-gcc-10-i386-job
+    params:
+      <<: *kbuild-gcc-10-i386-params
+      defconfig: allnoconfig
+      disable_modules: true
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-i386-tinyconfig:
+    <<: *kbuild-gcc-10-i386-job
+    params:
+      <<: *kbuild-gcc-10-i386-params
+      defconfig: tinyconfig
+      disable_modules: true
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-mips-32r2el_defconfig:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:mips-kselftest-kernelci
+    params:
+      arch: mips
+      compiler: gcc-10
+      cross_compile: 'mips-linux-gnu-'
+      defconfig: 32r2el_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-riscv: &kbuild-gcc-10-riscv-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:riscv64-kselftest-kernelci
-    params:
+    params: &kbuild-gcc-10-riscv-params
       arch: riscv
       compiler: gcc-10
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
+
+  kbuild-gcc-10-riscv-nommu_k210_defconfig:
+    <<: *kbuild-gcc-10-riscv-job
+    params:
+      <<: *kbuild-gcc-10-riscv-params
+      defconfig: nommu_k210_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-riscv-rv32_defconfig:
+    <<: *kbuild-gcc-10-riscv-job
+    params:
+      <<: *kbuild-gcc-10-riscv-params
+      defconfig: rv32_defconfig
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
 
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
@@ -263,6 +381,28 @@ jobs:
       <<: *kbuild-gcc-10-x86-params
       fragments:
         - 'x86-board'
+
+  kbuild-gcc-10-x86-allnoconfig:
+    <<: *kbuild-gcc-10-x86-job
+    params:
+      <<: *kbuild-gcc-10-x86-params
+      defconfig: allnoconfig
+      disable_modules: true
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
+
+  kbuild-gcc-10-x86-tinyconfig:
+    <<: *kbuild-gcc-10-x86-job
+    params:
+      <<: *kbuild-gcc-10-x86-params
+      defconfig: tinyconfig
+      disable_modules: true
+    rules:
+      tree:
+      - 'stable-rc'
+      - 'kernelci'
 
   kunit: &kunit-job
     template: kunit.jinja2
@@ -545,6 +685,45 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86
+    <<: *build-k8s-all
+  
+  - job: kbuild-gcc-10-x86-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-x86-tinyconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-i386-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-i386-tinyconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-mips-32r2el_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-riscv-nommu_k210_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-riscv-rv32_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arc-haps_hs_smp_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm-imx_v6_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm-multi_v5_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm-multi_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm-vexpress_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-arm-omap2plus_defconfig
     <<: *build-k8s-all
 
   - job: kunit
