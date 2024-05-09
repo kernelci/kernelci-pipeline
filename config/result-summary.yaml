@@ -696,3 +696,230 @@ monitor-v4l2-decoder-conformance-failures:
         repos:
           - tree: mainline
           - tree: next
+
+
+# summaries equivalent to monitors
+aferraris-chromeos-errors:
+  metadata:
+    action: summary
+    title: "KernelCI test failure caused by ChromeOS boot errors"
+    template: "generic-test-results.html.jinja2"
+    output_file: "test-chromeos-boot-error-summary.html"
+  preset:
+    test:
+      - result: fail
+        data.error_msg__re: "(self_repair|cros-partition-corrupt)"
+
+all-test-failures:
+  metadata:
+    action: summary
+    title: "KernelCI test failure report"
+    template: "generic-test-results.html.jinja2"
+    output_file: "test-failure-summary.html"
+  preset:
+    test:
+      - result: fail
+        data.error_code: null
+
+all-test-failures__runtime-errors:
+  metadata:
+    action: summary
+    title: "KernelCI test failure report - runtime errors"
+    template: "generic-test-results.html.jinja2"
+    output_file: "test-failure-summary.html"
+  preset:
+    test:
+      - result: fail
+        data.error_code__ne: null
+
+all-build-failures:
+  metadata:
+    action: summary
+    title: "KernelCI kbuild failure report"
+    template: "generic-test-results.html.jinja2"
+    output_file: "kbuild-failure-summary.html"
+  preset:
+    kbuild:
+      - result: fail
+        data.error_code: null
+
+all-regressions:
+  metadata:
+    action: summary
+    title: "KernelCI regression report"
+    template: "generic-regressions.html.jinja2"
+    output_file: "regression-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+
+all-regressions__runtime-errors:
+  metadata:
+    action: summary
+    title: "KernelCI regression report runtime errors"
+    template: "generic-regressions.html.jinja2"
+    output_file: "regression-runtime-errors-summary.html"
+  preset:
+    regression:
+      - data.error_code__ne: null
+
+build-regressions-x86_64-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI build regressions found on mainline and next for x86_64"
+    template: "generic-regressions.html.jinja2"
+    output_file: "build-regressions-mainline-next-x86_64-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name__re: kbuild
+        data.arch: x86_64
+        repos:
+          - tree: mainline
+          - tree: next
+
+kselftest-acpi-regressions-collabora-next:
+  metadata:
+    action: summary
+    title: "KernelCI kselftest-acpi regressions found on collabora-next"
+    template: "generic-regressions.html.jinja2"
+    output_file: "kselftest-acpi-regressions-collabora-next-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name: kselftest-acpi
+        repos:
+          - tree: collabora-next
+
+kselftest-acpi-failures-collabora-next:
+  metadata:
+    action: summary
+    title: "KernelCI kselftest-acpi failures found on collabora-next"
+    template: "generic-regressions.html.jinja2"
+    output_file: "kselftest-acpi-regressions-collabora-next-summary.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name: kselftest-acpi
+        repos:
+          - tree: collabora-next
+
+build-regressions-arm64-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI build regressions found on mainline and next for arm64"
+    template: "generic-regressions.html.jinja2"
+    output_file: "build-regressions-mainline-next-arm64-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name__re: kbuild
+        data.arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+build-failures-arm64-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI build failures found on mainline and next for arm64"
+    template: "generic-test-results.html.jinja2"
+    output_file: "build-failures-mainline-next-arm64-summary.html"
+  preset:
+    kbuild:
+      - data.error_code: null
+        result: fail
+        data.arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+baseline-regressions-arm64-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI baseline regressions found on mainline and next for arm64"
+    template: "generic-regressions.html.jinja2"
+    output_file: "baseline-regressions-mainline-next-arm64-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        group__re: baseline
+        data.arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+baseline-failures-arm64-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI baseline failures found on mainline and next for arm64"
+    template: "generic-test-results.html.jinja2"
+    output_file: "baseline-failures-mainline-next-arm64-summary.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        group__re: baseline
+        data.arch: arm64
+        repos:
+          - tree: mainline
+          - tree: next
+
+kselftest-dt-regressions-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI kselftest-dt regressions found on mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output_file: "kselftest-dt-regressions-mainline-next-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name: kselftest-dt
+        repos:
+          - tree: mainline
+          - tree: next
+
+kselftest-dt-failures-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI kselftest-dt failures found on mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output_file: "kselftest-dt-regressions-mainline-next-summary.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name: kselftest-dt
+        repos:
+          - tree: mainline
+          - tree: next
+
+v4l2-decoder-conformance-regressions:
+  metadata:
+    action: summary
+    title: "KernelCI v4l2-decoder-conformance regressions found"
+    template: "generic-regressions.html.jinja2"
+    output_file: "v4l2-decoder-conformance-regressions-summary.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
+
+v4l2-decoder-conformance-failures:
+  metadata:
+    action: summary
+    title: "KernelCI v4l2-decoder-conformance failures found"
+    template: "generic-regressions.html.jinja2"
+    output_file: "v4l2-decoder-conformance-failures-summary.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
