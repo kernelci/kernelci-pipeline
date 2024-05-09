@@ -234,7 +234,7 @@ class RegressionTracker(Service):
         self.log.info("Press Ctrl-C to stop.")
         sys.stdout.flush()
         while True:
-            node = self._api_helper.receive_event_node(sub_id)
+            node, _ = self._api_helper.receive_event_node(sub_id)
             if node['kind'] == 'checkout' or node['kind'] == 'regression':
                 continue
             self._process_node(node)
