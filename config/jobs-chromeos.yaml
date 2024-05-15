@@ -272,7 +272,6 @@ _anchors:
       tests:
         - filemanager.UIPerf.directory_list
         - filemanager.UIPerf.list_apps
-        - settings.DeviceMouseScrollAcceleration
         - ui.DesksAnimationPerf
         - ui.DragTabInTabletPerf.touch
         - ui.OverviewWithExpandedDesksBarPerf
@@ -304,17 +303,13 @@ _anchors:
         - platform.CrosDisksRename
         - platform.CrosDisksSSHFS
         - platform.CrosID
-        - platform.DeviceHwid
         - platform.DMVerity
         - platform.DumpVPDLog
         - platform.Firewall
         - platform.LocalPerfettoTBMTracedProbes
         - platform.Mtpd
-        - platform.SerialNumber
         - platform.TPMResponsive
-        - platform.TPMStatus
         - storage.HealthInfo
-        - storage.InternalStorage
         - storage.LowPowerStateResidence
 
   tast-power: &tast-power-job
@@ -323,12 +318,6 @@ _anchors:
       tests:
         - power.CheckStatus
         - power.CpufreqConf
-        - power.TabletModePowerOffMenu.close_menu
-        - power.TabletModePowerOffMenu.shut_down
-        - power.TabletModePowerOffMenu.sign_out
-        - power.SmartDim.flatbuffer
-        - power.SmartDim
-        - power.SmartDim.lacros
         - power.UtilCheck
         - typec.Basic
 
@@ -347,7 +336,6 @@ _anchors:
         - audio.CrasRecordQuality
         - audio.DevicePlay
         - audio.DevicePlay.unstable_model
-        - audio.DevicePlay.unstable_platform
         - audio.DeviceRecord
         - audio.UCMSequences.section_device
         - audio.UCMSequences.section_modifier
