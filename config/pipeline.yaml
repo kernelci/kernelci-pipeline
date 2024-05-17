@@ -475,7 +475,7 @@ trees:
     url: 'https://gitlab.collabora.com/google/chromeos-kernel.git'
 
   media:
-    url: 'https://git.linuxtv.org/media_tree.git'
+    url: 'https://git.linuxtv.org/media_stage.git'
 
 platforms:
 
