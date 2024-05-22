@@ -357,16 +357,7 @@ jobs:
     params:
       <<: *kbuild-gcc-10-riscv-params
       defconfig: nommu_k210_defconfig
-    rules:
-      tree:
-      - 'stable-rc'
-      - 'kernelci'
-
-  kbuild-gcc-10-riscv-rv32_defconfig:
-    <<: *kbuild-gcc-10-riscv-job
-    params:
-      <<: *kbuild-gcc-10-riscv-params
-      defconfig: rv32_defconfig
+      disable_modules: true
     rules:
       tree:
       - 'stable-rc'
