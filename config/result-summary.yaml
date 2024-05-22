@@ -267,7 +267,7 @@ monitor-kselftest-acpi-regressions-collabora-next:
   preset:
     regression:
       - data.error_code: null
-        name: kselftest-acpi
+        group: kselftest-acpi
         repos:
           - tree: collabora-next
 
@@ -275,13 +275,13 @@ monitor-kselftest-acpi-failures-collabora-next:
   metadata:
     action: monitor
     title: "KernelCI kselftest-acpi failures found on collabora-next"
-    template: "generic-regression-report.html.jinja2"
+    template: "generic-test-failure-report.html.jinja2"
     output_file: "kselftest-acpi-regressions-collabora-next.html"
   preset:
     test:
       - data.error_code: null
         result: fail
-        name: kselftest-acpi
+        group: kselftest-acpi
         repos:
           - tree: collabora-next
 
