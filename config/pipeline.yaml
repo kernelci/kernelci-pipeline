@@ -209,6 +209,7 @@ jobs:
 
   baseline-arm64: *baseline-job
   baseline-arm64-broonie: *baseline-job
+  baseline-arm64-qualcomm: *baseline-job
   baseline-arm: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-x86: *baseline-job
@@ -605,6 +606,17 @@ scheduler:
       name: lava-broonie
     platforms:
       - sun50i-h5-libretech-all-h3-cc
+
+  - job: baseline-arm64-qualcomm
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64
+      result: pass
+    runtime:
+      type: lava
+      name: lava-qualcomm
+    platforms:
+      - bcm2711-rpi-4-b
 
   - job: baseline-arm
     event:
