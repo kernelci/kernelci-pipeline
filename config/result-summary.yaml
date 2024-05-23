@@ -700,3 +700,53 @@ monitor-v4l2-decoder-conformance-failures__runtime-errors:
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
+
+summary-v4l2-decoder-conformance-regressions:
+  metadata:
+    action: summary
+    title: "KernelCI v4l2-decoder-conformance regressions"
+    template: "generic-regressions.html.jinja2"
+    output_file: "v4l2-decoder-conformance-regressions.html"
+  preset:
+    regression:
+      - data.error_code: null
+        group__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
+          - tree: collabora-chromeos-kernel
+          - tree: media
+
+summary-v4l2-decoder-conformance-failures__runtime-errors:
+  metadata:
+    action: summary
+    title: "KernelCI v4l2-decoder-conformance failures due to runtime errors"
+    template: "generic-test-results.html.jinja2"
+    output_file: "v4l2-decoder-conformance-failures__runtime-errors.html"
+  preset:
+    test:
+      - data.error_code__ne: null
+        result: fail
+        name__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
+          - tree: collabora-chromeos-kernel
+          - tree: media
+
+summary-v4l2-decoder-conformance-failures:
+  metadata:
+    action: summary
+    title: "KernelCI v4l2-decoder-conformance failures"
+    template: "generic-test-results.html.jinja2"
+    output_file: "v4l2-decoder-conformance-failures.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        group__re: v4l2-decoder-conformance
+        repos:
+          - tree: mainline
+          - tree: next
+          - tree: collabora-chromeos-kernel
+          - tree: media
