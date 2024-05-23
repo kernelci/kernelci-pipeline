@@ -213,6 +213,7 @@ jobs:
   baseline-arm-baylibre: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
+  baseline-x86-qualcomm: *baseline-job
 
   kbuild-gcc-10-arc-haps_hs_smp_defconfig:
     <<: *kbuild-job
@@ -651,6 +652,17 @@ scheduler:
     runtime:
       type: lava
       name: lava-baylibre
+    platforms:
+      - qemu
+
+  - job: baseline-x86-qualcomm
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    runtime:
+      type: lava
+      name: lava-qualcomm
     platforms:
       - qemu
 
