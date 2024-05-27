@@ -121,6 +121,9 @@ def async_job_submit(api_helper, node_id, job_callback):
     # failed LAVA job should have result set to 'incomplete'
     job_node['result'] = job_result
     job_node['state'] = 'done'
+    if job_node.get('error_code') == 'node_timeout':
+        job_node['error_code'] = None
+        job_node['error_msg'] = None
     if device_id:
         job_node['data']['device'] = device_id
     hierarchy = job_callback.get_hierarchy(results, job_node)
