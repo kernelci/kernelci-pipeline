@@ -13,6 +13,9 @@
 import datetime
 import sys
 import re
+import io
+import gzip
+import requests
 
 import kernelci
 import kernelci.config
@@ -116,6 +119,17 @@ class KCIDBBridge(Service):
             )
         return output_files
 
+    def _get_log_excerpt(self, log_url):
+        """Parse compressed log file and return last 16*1024 characters as it's
+        the maximum allowed length for KCIDB `log_excerpt` field"""
+        res = requests.get(log_url, timeout=60)
+        if res.status_code != 200:
+            return None
+        buffer_data = io.BytesIO(res.content)
+        with gzip.open(buffer_data, mode='rt') as fp:
+            data = fp.read()
+            return data[-(16*1024):]
+
     def _parse_build_node(self, origin, node):
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
@@ -143,6 +157,10 @@ class KCIDBBridge(Service):
             )
             parsed_build_node['config_url'] = artifacts.get('_config')
             parsed_build_node['log_url'] = artifacts.get('build_log')
+            log_url = parsed_build_node['log_url']
+            if log_url:
+                parsed_build_node['log_excerpt'] = self._get_log_excerpt(
+                    log_url)
 
         return [parsed_build_node]
 
@@ -315,6 +333,11 @@ in {test_node['data'].get('runtime')}",
                 parsed_test_node['log_url'] = artifacts.get('lava_log')
             else:
                 parsed_test_node['log_url'] = artifacts.get('test_log')
+
+            log_url = parsed_test_node['log_url']
+            if log_url:
+                parsed_test_node['log_excerpt'] = self._get_log_excerpt(
+                    log_url)
 
         if test_node['result']:
             parsed_test_node['status'] = self._parse_node_result(test_node)
