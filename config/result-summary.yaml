@@ -361,7 +361,7 @@ monitor-kselftest-dt-regressions-mainline-next:
   preset:
     regression:
       - data.error_code: null
-        name: kselftest-dt
+        group: kselftest-dt
         repos:
           - tree: mainline
           - tree: next
@@ -376,7 +376,7 @@ monitor-kselftest-dt-failures-mainline-next:
     test:
       - data.error_code: null
         result: fail
-        name: kselftest-dt
+        group: kselftest-dt
         repos:
           - tree: mainline
           - tree: next
