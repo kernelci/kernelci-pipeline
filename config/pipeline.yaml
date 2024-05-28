@@ -195,6 +195,14 @@ runtimes:
         token: kernelci-lab-qualcomm
         url: https://staging.kernelci.org:9100
 
+  lava-cip:
+    lab_type: lava
+    url: 'https://lava.ciplatform.org/'
+    notify:
+      callback:
+        token: kernel-ci-new-api
+        url: https://staging.kernelci.org:9100
+
   shell:
     lab_type: shell
 
