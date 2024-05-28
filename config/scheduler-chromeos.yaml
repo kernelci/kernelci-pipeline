@@ -193,6 +193,14 @@ scheduler:
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
 
+  - job: kselftest-device-error-logs
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    platforms: *mediatek-platforms
+
   - job: kselftest-cpufreq
     <<: *test-job-x86-intel
 
