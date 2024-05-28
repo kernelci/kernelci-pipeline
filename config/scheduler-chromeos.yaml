@@ -434,3 +434,17 @@ scheduler:
 
   - job: v4l2-decoder-conformance-vp9
     <<: *test-job-arm64-qualcomm
+
+  - job: watchdog-reset-arm64-mediatek
+    <<: *test-job-arm64-mediatek
+
+  - job: watchdog-reset-arm64-qualcomm
+    <<: *test-job-arm64-qualcomm
+
+  - job: watchdog-reset-x86-amd
+    <<: *test-job-x86-amd
+
+  - job: watchdog-reset-x86-intel
+    <<: *test-job-x86-intel
+    platforms:
+      - hp-x360-12b-ca0010nr-n4020-octopus

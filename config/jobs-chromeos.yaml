@@ -371,6 +371,13 @@ _anchors:
         - collabora-chromeos-kernel
         - media
 
+  watchdog-reset: &watchdog-reset-job
+    template: watchdog-reset.jinja2
+    kind: test
+    params: &watchdog-reset-job-params
+      bl_message: 'coreboot-'
+      wdt_dev: 'watchdog0'
+
 jobs:
 
   baseline-arm64-mediatek: &baseline-job
@@ -619,3 +626,8 @@ jobs:
       decoders:
         - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
+
+  watchdog-reset-arm64-mediatek: *watchdog-reset-job
+  watchdog-reset-arm64-qualcomm: *watchdog-reset-job
+  watchdog-reset-x86-amd: *watchdog-reset-job
+  watchdog-reset-x86-intel: *watchdog-reset-job
