@@ -46,8 +46,8 @@ def _upload_file(storage, job_node, source_name, destination_name=None):
     if not destination_name:
         destination_name = source_name
     upload_dir = '-'.join((job_node['name'], job_node['id']))
-    r = storage.upload_single((source_name, destination_name), upload_dir)
-    return r
+    # remove GET parameters from destination_name
+    return storage.upload_single((source_name, destination_name), upload_dir)
 
 
 def _upload_callback_data(data, job_node, storage):
@@ -62,20 +62,22 @@ def _upload_callback_data(data, job_node, storage):
         with gzip.open(os.path.join(tmp_dir, filename), 'wt') as f:
             serjson = json.dumps(data, indent=4)
             f.write(serjson)
-        os.chdir(tmp_dir)
-        return _upload_file(storage, job_node, filename)
+        src = os.path.join(tmp_dir, filename)
+        return _upload_file(storage, job_node, src, filename)
 
 
 def _upload_log(log_parser, job_node, storage):
     # create temporary file to store log with gzip
-    with tempfile.TemporaryDirectory() as tmp_dir:
+    id = job_node['id']
+    with tempfile.TemporaryDirectory(suffix=id) as tmp_dir:
         # open gzip in explicit text mode to avoid platform-dependent line endings
         with gzip.open(os.path.join(tmp_dir, 'lava_log.txt.gz'), 'wt') as f:
-            log_parser.get_text_log(f)
-            if f.tell() == 0:
+            data = log_parser.get_text()
+            if not data or len(data) == 0:
                 return None
-        os.chdir(tmp_dir)
-        return _upload_file(storage, job_node, 'lava_log.txt.gz', 'log.txt.gz')
+            f.write(data)
+        src = os.path.join(tmp_dir, 'lava_log.txt.gz')
+        return _upload_file(storage, job_node, src, 'log.txt.gz')
 
 
 @app.errorhandler(requests.exceptions.HTTPError)
