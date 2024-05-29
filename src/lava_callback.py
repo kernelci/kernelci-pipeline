@@ -75,6 +75,12 @@ def _upload_log(log_parser, job_node, storage):
             data = log_parser.get_text()
             if not data or len(data) == 0:
                 return None
+            # Delete NULL characters from log data
+            data = data.replace('\x00', '')
+            # Sanitize log data from non-printable characters (except newline)
+            # replace them with '?', original still exists in cb data
+            data = ''.join([c if c.isprintable() or c == '\n' else
+                            '?' for c in data])
             f.write(data)
         src = os.path.join(tmp_dir, 'lava_log.txt.gz')
         return _upload_file(storage, job_node, src, 'log.txt.gz')
