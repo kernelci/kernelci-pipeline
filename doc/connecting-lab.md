@@ -1,8 +1,8 @@
 ---
 title: "Connecting LAVA Lab to the pipeline instance"
-date: 2024-02-19
+date: 2024-05-29
 description: "Connecting a LAVA lab to the KernelCI pipeline"
-weight: 2
+weight: 3
 ---
 
 As we are moving towards the new KernelCI API and pipeline, we need to make sure
