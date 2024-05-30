@@ -381,6 +381,7 @@ jobs:
     params:
       <<: *kbuild-gcc-10-x86-params
       fragments:
+        - lab-setup
         - 'x86-board'
 
   kbuild-gcc-10-x86-allnoconfig:
