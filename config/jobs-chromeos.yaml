@@ -12,6 +12,7 @@ _anchors:
       defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
       flavour: '{crosarch}-generic'
       fragments:
+        - lab-setup
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
@@ -28,6 +29,7 @@ _anchors:
       defconfig: 'cros://chromeos-{krev}/{crosarch}/chromeos-{flavour}.flavour.config'
       flavour: '{crosarch}-generic'
       fragments:
+        - lab-setup
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
