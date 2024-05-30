@@ -541,6 +541,12 @@ platforms:
     mach: samsung
     dtb: dtbs/exynos5422-odroidxu3.dtb
 
+  qcs6490-rb3gen2:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
+
   rk3288-rock2-square:
     <<: *arm-device
     mach: rockchip
@@ -617,6 +623,7 @@ scheduler:
       name: lava-qualcomm
     platforms:
       - bcm2711-rpi-4-b
+      - qcs6490-rb3gen2
 
   - job: baseline-arm
     event:
