@@ -55,7 +55,7 @@ _anchors:
 
   tast: &tast-job
     template: tast.jinja2
-    kind: test
+    kind: job
     rules: *min-5_4-rules
     kcidb_test_suite: tast
 
@@ -359,7 +359,7 @@ _anchors:
 
   v4l2-decoder-conformance: &v4l2-decoder-conformance-job
     template: 'v4l2-decoder-conformance.jinja2'
-    kind: test
+    kind: job
     params: &v4l2-decoder-conformance-params
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240521.0/{debarch}/'
       job_timeout: 30
@@ -375,7 +375,7 @@ _anchors:
 
   watchdog-reset: &watchdog-reset-job
     template: watchdog-reset.jinja2
-    kind: test
+    kind: job
     params: &watchdog-reset-job-params
       bl_message: 'coreboot-'
       wdt_dev: 'watchdog0'
@@ -385,14 +385,14 @@ jobs:
 
   baseline-arm64-mediatek: &baseline-job
     template: baseline.jinja2
-    kind: test
+    kind: job
     kcidb_test_suite: kernelci_baseline
 
   baseline-arm64-qualcomm: *baseline-job
 
   baseline-nfs-arm64-mediatek: &baseline-nfs-job
     template: baseline.jinja2
-    kind: test
+    kind: job
     params:
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
@@ -443,7 +443,7 @@ jobs:
 
   kselftest-acpi:
     template: kselftest.jinja2
-    kind: test
+    kind: job
     params:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: acpi
