@@ -36,11 +36,15 @@ class Job(BaseJob):
                 'node': {
                     'name': test_case['name'],
                     'result': RESULT_MAP[test_case['status']],
+                    'kind': 'test'
                 },
                 'child_nodes': [],
             })
         for sub_group in group.get('sub_groups', []):
             child_nodes.append(self._parse_results(sub_group))
+
+        node['kind'] = 'job' if child_nodes else 'test'
+
         return {
             'node': node,
             'child_nodes': child_nodes,
@@ -130,6 +134,7 @@ cd {src_path}
             'child_nodes': [
                 {
                     'node': {
+                        'kind': 'job' if child_nodes else 'test' ,
                         'name': name,
                         'result': result,
                     },
