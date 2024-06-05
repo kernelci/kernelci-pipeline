@@ -185,7 +185,13 @@ scheduler:
       channel: node
       name: kbuild-gcc-10-arm64-chromebook
       result: pass
-    platforms: *mediatek-platforms
+    platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
+      - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+      - sc7180-trogdor-kingoftown
+      - sc7180-trogdor-lazor-limozeen
 
   - job: kselftest-cpufreq
     <<: *test-job-x86-intel
