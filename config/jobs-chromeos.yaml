@@ -379,6 +379,7 @@ _anchors:
     params: &watchdog-reset-job-params
       bl_message: 'coreboot-'
       wdt_dev: 'watchdog0'
+    kcidb_test_suite: kernelci_watchdog_reset
 
 jobs:
 
