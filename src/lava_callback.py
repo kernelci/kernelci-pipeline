@@ -27,7 +27,7 @@ CONFIGS = kernelci.config.load(
 SETTINGS_PREFIX = 'runtime'
 
 app = Flask(__name__)
-executor = ThreadPoolExecutor(max_workers=10)
+executor = ThreadPoolExecutor(max_workers=16)
 
 
 def _get_api_helper(api_config_name, api_token):
