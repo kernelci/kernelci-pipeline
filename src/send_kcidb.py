@@ -199,6 +199,10 @@ class KCIDBBridge(Service):
                     suite_name = self._jobs[sub_path].kcidb_test_suite
                     if suite_name:
                         new_path.append(suite_name)
+                    else:
+                        self.log.error(f"KCIDB test suite mapping not found for \
+the test: {sub_path}")
+                        return None
                 else:
                     new_path.append(sub_path)
             # Handle path such as ['tast-ui-x86-intel', 'tast', 'os-release'] converted
@@ -357,6 +361,9 @@ in {test_node['data'].get('runtime')}",
         test_node, build_node = self._parse_test_node(
             origin, node
         )
+        if not test_node['path']:
+            self.log.info(f"Not sending test as path information is missing: {test_node['id']}")
+            return
         parsed_test_node.append(test_node)
         if build_node:
             parsed_build_node.append(build_node)
