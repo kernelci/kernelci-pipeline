@@ -147,6 +147,8 @@ class KCIDBBridge(Service):
                 'job_id': node['data'].get('job_id'),
                 'job_context': node['data'].get('job_context'),
                 'kernel_type': node['data'].get('kernel_type'),
+                'error_code': node['data'].get('error_code'),
+                'error_msg': node['data'].get('error_msg'),
             }
         }
         artifacts = node.get('artifacts')
