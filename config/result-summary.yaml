@@ -750,3 +750,61 @@ summary-v4l2-decoder-conformance-failures:
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
+
+#### Failures and regressions in watchdog reset test
+
+monitor-watchdog-reset-regressions-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI watchdog reset test regressions on mainline and next"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "watchdog-reset-regressions-mainline-next.html"
+  preset:
+    regression:
+      - data.error_code: null
+        group__re: watchdog-reset
+        repos:
+          - tree: mainline
+          - tree: next
+
+monitor-watchdog-reset-failures-mainline-next:
+  metadata:
+    action: monitor
+    title: "KernelCI watchdog reset test failures on mainline and next"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "watchdog-reset-failures-mainline-next.html"
+  preset:
+    test:
+      - result: fail
+        group__re: watchdog-reset
+        repos:
+          - tree: mainline
+          - tree: next
+
+summary-watchdog-reset-regressions-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI watchdog reset regressions on mainline and next"
+    template: "generic-regressions.html.jinja2"
+    output_file: "watchdog-reset-regressions-mainline-next.html"
+  preset:
+    regression:
+      - data.error_code: null
+        group__re: watchdog-reset
+        repos:
+          - tree: mainline
+          - tree: next
+
+summary-watchdog-reset-failures-mainline-next:
+  metadata:
+    action: summary
+    title: "KernelCI watchdog reset test failures on mainline and next"
+    template: "generic-test-results.html.jinja2"
+    output_file: "watchdog-reset-failures-mainline-next.html"
+  preset:
+    test:
+      - result: fail
+        group__re: watchdog-reset
+        repos:
+          - tree: mainline
+          - tree: next
