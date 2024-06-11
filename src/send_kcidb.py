@@ -344,7 +344,7 @@ in {test_node['data'].get('runtime')}",
         if test_node['result']:
             parsed_test_node['status'] = self._parse_node_result(test_node)
 
-        if test_node['result'] == 'fail':
+        if test_node['result'] != 'pass':
             error_metadata = self._get_error_metadata(test_node)
             if error_metadata:
                 parsed_test_node['misc']['error_code'] = error_metadata.get(
