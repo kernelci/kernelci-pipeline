@@ -447,6 +447,20 @@ jobs:
         patchlevel: 7
     kcidb_test_suite: kselftest.dt
 
+  kselftest-discoverable-devices-probe:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}' # TODO: update once new rootfs with platform-test-parameters is generated
+      collections: devices
+      job_timeout: 10
+      env: "KSELFTEST_TEST_DISCOVERABLE_DEVICES_PY_ARGS=--boards-dir=/opt/platform-test-parameters/kselftest/test_discoverable_devices/boards/"
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 7
+    kcidb_test_suite: kselftest.discoverable-devices-probe
+
   # amd64-only temporary
   sleep:
     template: sleep.jinja2
