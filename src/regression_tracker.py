@@ -83,6 +83,7 @@ class RegressionTracker(Service):
         regression['state'] = 'done'
         error = self._collect_errors(failed_node)
         regression['data'] = {
+            'fail_node_kind': failed_node['kind'],
             'fail_node': failed_node['id'],
             'pass_node': last_pass_node['id'],
             'arch': failed_node['data'].get('arch'),
