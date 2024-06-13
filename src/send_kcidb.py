@@ -120,14 +120,20 @@ class KCIDBBridge(Service):
         return output_files
 
     def _get_log_excerpt(self, log_url):
-        """Parse compressed log file and return last 16*1024 characters as it's
+        """Parse compressed(gzip) or text log file and return last 16*1024 characters as it's
         the maximum allowed length for KCIDB `log_excerpt` field"""
         res = requests.get(log_url, timeout=60)
         if res.status_code != 200:
             return None
-        buffer_data = io.BytesIO(res.content)
-        with gzip.open(buffer_data, mode='rt') as fp:
-            data = fp.read()
+        try:
+            # parse compressed file such as lava log files
+            buffer_data = io.BytesIO(res.content)
+            with gzip.open(buffer_data, mode='rt') as fp:
+                data = fp.read()
+                return data[-(16*1024):]
+        except gzip.BadGzipFile:
+            # parse text file such as kunit log file `test_log`
+            data = res.content.decode("utf-8")
             return data[-(16*1024):]
 
     def _parse_build_node(self, origin, node):
