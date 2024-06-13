@@ -107,9 +107,14 @@ class RegressionTracker(Service):
         TODO: Move this to core helpers.
 
         """
+        # Workaround: Don't use 'path' as a search parameter (we can't
+        # use lists as query parameter values). Instead, do the
+        # filtering in python code
+        path = search_params.pop('path')
         nodes = self._api.node.find(search_params)
         if not nodes:
             return None
+        nodes = [node for node in nodes if node['path'] == path]
         node = sorted(
             nodes,
             key=lambda node: node['created'],
