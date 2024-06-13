@@ -213,6 +213,42 @@ scheduler:
   - job: kselftest-cpufreq
     <<: *test-job-arm64-mediatek
 
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-x86-intel
+
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-x86-amd
+
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-arm64-mediatek
+
+  - job: kselftest-exec
+    <<: *test-job-x86-intel
+
+  - job: kselftest-exec
+    <<: *test-job-x86-amd
+
+  - job: kselftest-exec
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-exec
+    <<: *test-job-arm64-mediatek
+
+  - job: kselftest-iommu
+    <<: *test-job-x86-intel
+
+  - job: kselftest-iommu
+    <<: *test-job-x86-amd
+
+  - job: kselftest-iommu
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-iommu
+    <<: *test-job-arm64-mediatek
+
   - job: tast-basic-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 
