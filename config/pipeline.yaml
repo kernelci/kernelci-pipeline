@@ -525,6 +525,15 @@ jobs:
       job_timeout: 10
     kcidb_test_suite: kselftest.cpufreq
 
+  kselftest-dmabuf-heaps:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      collections: dmabuf-heaps
+      job_timeout: 10
+    kcidb_test_suite: kselftest.dmabuf-heaps
+
   kselftest-dt:
     template: kselftest.jinja2
     kind: job
@@ -537,6 +546,24 @@ jobs:
         version: 6
         patchlevel: 7
     kcidb_test_suite: kselftest.dt
+
+  kselftest-exec:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      collections: exec
+      job_timeout: 10
+    kcidb_test_suite: kselftest.exec
+
+  kselftest-iommu:
+    template: kselftest.jinja2
+    kind: test
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      collections: iommu
+      job_timeout: 10
+    kcidb_test_suite: kselftest.iommu
 
   # amd64-only temporary
   sleep:
