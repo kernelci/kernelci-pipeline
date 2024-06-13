@@ -413,13 +413,17 @@ in {test_node['data'].get('runtime')}",
                 )
 
             elif node['kind'] == 'test':
+                self._get_test_data(node, context['origin'],
+                                    parsed_test_node, parsed_build_node)
+
+            elif node['kind'] == 'job':
+                # Send only failed/incomplete job nodes
+                if node['result'] != 'pass':
+                    self._get_test_data(node, context['origin'],
+                                        parsed_test_node, parsed_build_node)
                 if is_hierarchy:
                     self._get_test_data_recursively(node, context['origin'],
                                                     parsed_test_node, parsed_build_node)
-
-                elif not self._api.node.count({'parent': node['id']}):
-                    self._get_test_data(node, context['origin'],
-                                        parsed_test_node, parsed_build_node)
 
             revision = {
                 'checkouts': parsed_checkout_node,
