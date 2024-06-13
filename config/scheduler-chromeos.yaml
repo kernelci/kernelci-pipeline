@@ -179,14 +179,6 @@ scheduler:
   - job: kselftest-acpi
     <<: *test-job-x86-intel
 
-  - job: kselftest-dt
-    <<: *lava-job-collabora
-    event:
-      channel: node
-      name: kbuild-gcc-10-arm64-chromebook
-      result: pass
-    platforms: *mediatek-platforms
-
   - job: kselftest-cpufreq
     <<: *test-job-x86-intel
 
@@ -198,6 +190,14 @@ scheduler:
 
   - job: kselftest-cpufreq
     <<: *test-job-arm64-mediatek
+
+  - job: kselftest-dt
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    platforms: *mediatek-platforms
 
   - job: kselftest-dmabuf-heaps
     <<: *test-job-x86-intel
