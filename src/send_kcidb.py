@@ -377,6 +377,11 @@ in {test_node['data'].get('runtime')}",
         if not test_node['path']:
             self.log.info(f"Not sending test as path information is missing: {test_node['id']}")
             return
+
+        if 'setup' in test_node.get('path'):
+            # do not send setup tests
+            return
+
         parsed_test_node.append(test_node)
         if build_node:
             parsed_build_node.append(build_node)
