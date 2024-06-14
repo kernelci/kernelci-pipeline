@@ -1380,3 +1380,7 @@ build_configs:
   stable-rt_v6.1-rt-next:
     tree: stable-rt
     branch: 'v6.1-rt-next'
+
+  stable-rt_v6.6-rt:
+    tree: stable-rt
+    branch: 'v6.6-rt'
