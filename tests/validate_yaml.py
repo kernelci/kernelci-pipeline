@@ -15,7 +15,16 @@ def validate_yaml():
         if file.endswith('.yaml'):
             with open('config/' + file, 'r') as stream:
                 try:
-                    yaml.safe_load(stream)
+                    data = yaml.safe_load(stream)
+                    jobs = data.get('jobs')
+                    if not jobs:
+                        continue
+                    for name, definition in jobs.items():
+                        if definition.get('kind') in ("test", "job"):
+                            if not definition.get('kcidb_test_suite'):
+                                raise yaml.YAMLError(
+                                    f"KCIDB test suite mapping not found for job: {name}'"
+                                )
                 except yaml.YAMLError as exc:
                     print(f'Error in {file}: {exc}')
                     sys.exit(1)
