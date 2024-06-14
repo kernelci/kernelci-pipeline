@@ -318,6 +318,29 @@ jobs:
       dtbs_check: true
     kcidb_test_suite: dtbs_check
 
+  kbuild-gcc-12-arm64-preempt_rt:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'preempt_rt'
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'stable-rt'
+
+  kbuild-gcc-12-arm64-preempt_rt_chromebook:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'preempt_rt'
+       - 'arm64-chromebook'
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'stable-rt'
+
   kbuild-gcc-12-arm-imx_v6_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
@@ -347,6 +370,17 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  kbuild-gcc-12-arm-preempt_rt:
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+       - 'preempt_rt'
+      defconfig: multi_v7_defconfig
+    rules:
+      tree:
+      - 'stable-rt'
 
   kbuild-gcc-12-arm-vexpress_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -499,6 +533,29 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
+  kbuild-gcc-12-x86-preempt_rt:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+       - 'preempt_rt'
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'stable-rt'
+
+  kbuild-gcc-12-x86-preempt_rt_x86_board:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+       - 'preempt_rt'
+       - 'x86-board'
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'stable-rt'
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
@@ -599,6 +656,9 @@ trees:
 
   stable-rc:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
+
+  stable-rt:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git'
 
   next:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
@@ -870,6 +930,12 @@ scheduler:
       branch: 
         - master
 
+  - job: kbuild-gcc-12-arm64-preempt_rt
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-preempt_rt_chromebook
+    <<: *build-k8s-all
+
 # Example of same job name to apply to different tree/branch
 #  - job: kbuild-gcc-12-arm64-dtbscheck
 #    <<: *build-k8s-all
@@ -912,6 +978,12 @@ scheduler:
   - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-preempt_rt
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-preempt_rt_x86_board
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-i386-allnoconfig
     <<: *build-k8s-all
 
@@ -937,6 +1009,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-vexpress_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-preempt_rt
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-omap2plus_defconfig
@@ -1257,3 +1332,51 @@ build_configs:
     tree: media
     branch: 'fixes'
     variants: *build-variants
+
+  stable-rt_v4.14-rt:
+    tree: stable-rt
+    branch: 'v4.14-rt'
+
+  stable-rt_v4.14-rt-next:
+    tree: stable-rt
+    branch: 'v4.14-rt-next'
+
+  stable-rt_v4.19-rt:
+    tree: stable-rt
+    branch: 'v4.19-rt'
+
+  stable-rt_v4.19-rt-next:
+    tree: stable-rt
+    branch: 'v4.19-rt-next'
+
+  stable-rt_v5.4-rt:
+    tree: stable-rt
+    branch: 'v5.4-rt'
+
+  stable-rt_v5.4-rt-next:
+    tree: stable-rt
+    branch: 'v5.4-rt-next'
+
+  stable-rt_v5.10-rt:
+    tree: stable-rt
+    branch: 'v5.10-rt'
+
+  stable-rt_v5.10-rt-next:
+    tree: stable-rt
+    branch: 'v5.10-rt-next'
+
+  stable-rt_v5.15-rt:
+    tree: stable-rt
+    branch: 'v5.15-rt'
+
+  stable-rt_v5.15-rt-next:
+    tree: stable-rt
+    branch: 'v5.15-rt-next'
+
+  stable-rt_v6.1-rt:
+    tree: stable-rt
+    branch: 'v6.1-rt'
+
+  stable-rt_v6.1-rt-next:
+    tree: stable-rt
+    branch: 'v6.1-rt-next'
