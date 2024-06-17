@@ -435,6 +435,18 @@ scheduler:
   - job: tast-ui-x86-intel
     <<: *test-job-chromeos-intel
 
+  - job: preempt-rt-cyclicdeadline
+    <<: *test-job-x86-intel
+
+  - job: preempt-rt-cyclicdeadline
+    <<: *test-job-x86-amd
+
+  - job: preempt-rt-cyclicdeadline
+    <<: *test-job-arm64-qualcomm
+
+  - job: preempt-rt-cyclicdeadline
+    <<: *test-job-arm64-mediatek
+
   - job: preempt-rt-cyclictest
     <<: *test-job-x86-intel
 
@@ -445,6 +457,30 @@ scheduler:
     <<: *test-job-arm64-qualcomm
 
   - job: preempt-rt-cyclictest
+    <<: *test-job-arm64-mediatek
+
+  - job: preempt-rt-rtla-osnoise
+    <<: *test-job-x86-intel
+
+  - job: preempt-rt-rtla-osnoise
+    <<: *test-job-x86-amd
+
+  - job: preempt-rt-rtla-osnoise
+    <<: *test-job-arm64-qualcomm
+
+  - job: preempt-rt-rtla-osnoise
+    <<: *test-job-arm64-mediatek
+
+  - job: preempt-rt-rtla-timerlat
+    <<: *test-job-x86-intel
+
+  - job: preempt-rt-rtla-timerlat
+    <<: *test-job-x86-amd
+
+  - job: preempt-rt-rtla-timerlat
+    <<: *test-job-arm64-qualcomm
+
+  - job: preempt-rt-rtla-timerlat
     <<: *test-job-arm64-mediatek
 
   - job: v4l2-decoder-conformance-av1
