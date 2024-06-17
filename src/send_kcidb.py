@@ -335,6 +335,12 @@ in {test_node['data'].get('runtime')}",
             }
         }
 
+        if test_node['result']:
+            parsed_test_node['status'] = self._parse_node_result(test_node)
+            if parsed_test_node['status'] == 'SKIP':
+                # No artifacts and metadata will be available for skipped tests
+                return parsed_test_node, dummy_build
+
         job_metadata = self._get_job_metadata(test_node)
         if job_metadata:
             parsed_test_node['environment']['misc']['job_id'] = job_metadata.get(
@@ -357,9 +363,6 @@ in {test_node['data'].get('runtime')}",
             if log_url:
                 parsed_test_node['log_excerpt'] = self._get_log_excerpt(
                     log_url)
-
-        if test_node['result']:
-            parsed_test_node['status'] = self._parse_node_result(test_node)
 
         if test_node['result'] != 'pass':
             error_metadata = self._get_error_metadata(test_node)
