@@ -122,9 +122,14 @@ class KCIDBBridge(Service):
     def _get_log_excerpt(self, log_url):
         """Parse compressed(gzip) or text log file and return last 16*1024 characters as it's
         the maximum allowed length for KCIDB `log_excerpt` field"""
-        res = requests.get(log_url, timeout=60)
-        if res.status_code != 200:
+        try:
+            res = requests.get(log_url, timeout=60)
+            if res.status_code != 200:
+                return None
+        except requests.exceptions.ConnectionError as exc:
+            self.log.error(f"{str(exc)}")
             return None
+
         try:
             # parse compressed file such as lava log files
             buffer_data = io.BytesIO(res.content)
