@@ -312,6 +312,17 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
+  kbuild-gcc-10-um:
+    <<: *kbuild-job
+    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    params:
+      arch: um
+      compiler: gcc-10
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'android'
+
   kbuild-gcc-10-i386: &kbuild-gcc-10-i386-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-10:x86-kselftest-kernelci
@@ -713,6 +724,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-arm-android-imx
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-um
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-i386
