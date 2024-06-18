@@ -12,6 +12,7 @@ import subprocess
 {%- block python_local_imports %}
 {{ super() }}
 import kernelci.api.helper
+import kernelci.runtime
 {%- endblock %}
 
 {%- block python_globals %}
@@ -44,6 +45,8 @@ class Job(BaseJob):
             child_nodes.append(self._parse_results(sub_group))
 
         node['kind'] = 'job' if child_nodes else 'test'
+        if node['kind'] == 'job':
+            node['result'] = kernelci.runtime.evaluate_test_suite_result(child_nodes)
 
         return {
             'node': node,
