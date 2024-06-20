@@ -386,6 +386,19 @@ _anchors:
       wdt_dev: 'watchdog0'
     kcidb_test_suite: kernelci_watchdog_reset
 
+  wifi-basic: &wifi-basic-job
+    template: generic.jinja2
+    kind: test
+    params: &wifi-basic-job-params
+      test_method: wifi-basic
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
+    rules:
+      tree:
+        - mainline
+        - next
+    kcidb_test_suite: kernelci_wifi_basic
+
 jobs:
 
   baseline-arm64-mediatek: &baseline-job
@@ -657,3 +670,7 @@ jobs:
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job
   watchdog-reset-x86-amd: *watchdog-reset-job
   watchdog-reset-x86-intel: *watchdog-reset-job
+
+  wifi-basic-arm64-mediatek: *wifi-basic-job
+  wifi-basic-x86-amd: *wifi-basic-job
+  wifi-basic-x86-intel: *wifi-basic-job
