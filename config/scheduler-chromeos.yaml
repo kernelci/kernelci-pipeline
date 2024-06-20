@@ -548,3 +548,12 @@ scheduler:
     <<: *test-job-x86-intel
     platforms:
       - hp-x360-12b-ca0010nr-n4020-octopus
+
+  - job: wifi-basic-arm64-mediatek
+    <<: *test-job-arm64-mediatek
+
+  - job: wifi-basic-x86-amd
+    <<: *test-job-x86-amd
+
+  - job: wifi-basic-x86-intel
+    <<: *test-job-x86-intel
