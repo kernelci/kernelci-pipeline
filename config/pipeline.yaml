@@ -66,6 +66,43 @@ _anchors:
     boot_method: grub
     mach: x86
 
+  amd-platforms: &amd-platforms
+    - acer-R721T-grunt
+    - acer-cp514-3wh-r0qs-guybrush
+    - asus-CM1400CXA-dalboz
+    - dell-latitude-3445-7520c-skyrim
+    - hp-14-db0003na-grunt
+    - hp-11A-G6-EE-grunt
+    - hp-14b-na0052xx-zork
+    - hp-x360-14a-cb0001xx-zork
+    - lenovo-TPad-C13-Yoga-zork
+
+  intel-platforms: &intel-platforms
+    - acer-cb317-1h-c3z6-dedede
+    - acer-cbv514-1h-34uz-brya
+    - acer-chromebox-cxi4-puff
+    - acer-cp514-2h-1130g7-volteer
+    - acer-cp514-2h-1160g7-volteer
+    - asus-C433TA-AJ0005-rammus
+    - asus-C436FA-Flip-hatch
+    - asus-C523NA-A20057-coral
+    - dell-latitude-5300-8145U-arcada
+    - dell-latitude-5400-4305U-sarien
+    - dell-latitude-5400-8665U-sarien
+    - hp-x360-14-G1-sona
+    - hp-x360-12b-ca0010nr-n4020-octopus
+
+  mediatek-platforms: &mediatek-platforms
+    - mt8183-kukui-jacuzzi-juniper-sku16
+    - mt8186-corsola-steelix-sku131072
+    - mt8192-asurada-spherion-r0
+    - mt8195-cherry-tomato-r2
+
+  qualcomm-platforms: &qualcomm-platforms
+    - sc7180-trogdor-kingoftown
+    - sc7180-trogdor-lazor-limozeen
+
+
 api:
 
   docker-host:
@@ -225,6 +262,10 @@ jobs:
   baseline-x86-baylibre: *baseline-job
   baseline-x86-qualcomm: *baseline-job
   baseline-x86-cip: *baseline-job
+  baseline-x86-kcidebug-amd: *baseline-job
+  baseline-x86-kcidebug-intel: *baseline-job
+  baseline-x86-kcidebug-mediatek: *baseline-job
+  baseline-x86-kcidebug-qualcomm: *baseline-job
 
   kbuild-gcc-10-arc-haps_hs_smp_defconfig:
     <<: *kbuild-job
@@ -250,6 +291,24 @@ jobs:
 
   kbuild-gcc-10-arm64:
     <<: *kbuild-gcc-10-arm64-job
+
+  kbuild-gcc-10-arm64-chromebook-kcidebug:
+    template: kbuild.jinja2
+    kind: kbuild
+    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    params:
+      arch: arm64
+      compiler: gcc-10
+      cross_compile: 'aarch64-linux-gnu-'
+      cross_compile_compat: 'arm-linux-gnueabihf-'
+      defconfig: defconfig
+      fragments:
+        - lab-setup
+        - arm64-chromebook
+        - kcidebug
+    rules:
+      tree:
+      - '!android'
 
   kbuild-gcc-10-arm64-dtbscheck:
     <<: *kbuild-gcc-10-arm64-job
@@ -416,6 +475,18 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  kbuild-gcc-10-x86-kcidebug:
+    <<: *kbuild-gcc-10-i386-job
+    params:
+      <<: *kbuild-gcc-10-i386-params
+      defconfig: defconfig
+      fragments:
+        - x86-board
+        - kcidebug
+    rules:
+      tree:
+      - '!android'
 
   kbuild-gcc-10-x86-tinyconfig:
     <<: *kbuild-gcc-10-x86-job
@@ -692,6 +763,46 @@ scheduler:
     platforms:
       - qemu
 
+  - job: baseline-x86-kcidebug-amd
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-kcidebug
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms: *amd-platforms
+
+  - job: baseline-x86-kcidebug-intel
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86-kcidebug
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms: *intel-platforms
+
+  - job: baseline-x86-kcidebug-mediatek
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook-kcidebug
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms: *mediatek-platforms
+
+  - job: baseline-x86-kcidebug-qualcomm
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook-kcidebug
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms: *qualcomm-platforms
+
   - job: baseline-x86-qualcomm
     event:
       channel: node
@@ -746,6 +857,9 @@ scheduler:
   - job: kbuild-gcc-10-arm-android-imx
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-10-arm64-chromebook-kcidebug
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-10-um
     <<: *build-k8s-all
 
@@ -759,6 +873,9 @@ scheduler:
     <<: *build-k8s-all
   
   - job: kbuild-gcc-10-x86-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-10-x86-kcidebug
     <<: *build-k8s-all
 
   - job: kbuild-gcc-10-x86-tinyconfig
