@@ -57,14 +57,16 @@ class KCIDBBridge(Service):
 
     def _send_revision(self, client, revision):
         revision = self._remove_none_fields(revision)
-        self.log.debug(f"DEBUG: sending revision: {revision}")
-        if kcidb.io.SCHEMA.is_valid(revision):
-            return client.submit(revision)
-        self.log.error("Aborting, invalid data")
-        try:
-            kcidb.io.SCHEMA.validate(revision)
-        except Exception as exc:
-            self.log.error(f"Validation error: {str(exc)}")
+        if any(value for key, value in revision.items() if key != 'version'):
+            self.log.debug(f"DEBUG: sending revision: {revision}")
+            if kcidb.io.SCHEMA.is_valid(revision):
+                client.submit(revision)
+            else:
+                self.log.error("Aborting, invalid data")
+                try:
+                    kcidb.io.SCHEMA.validate(revision)
+                except Exception as exc:
+                    self.log.error(f"Validation error: {str(exc)}")
 
     @staticmethod
     def _set_timezone(created_timestamp):
