@@ -404,7 +404,7 @@ in {test_node['data'].get('runtime')}",
 
         while True:
             node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
-            self.log.info(f"Submitting node to KCIDB: {node['id']}")
+            self.log.info(f"Received an event for node: {node['id']}")
 
             parsed_checkout_node = []
             parsed_build_node = []
