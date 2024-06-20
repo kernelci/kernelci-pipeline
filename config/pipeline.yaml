@@ -884,9 +884,11 @@ jobs:
       - 'stable-rc'
 
   kselftest-cpufreq: &kselftest-job
-    template: kselftest.jinja2
+    template: generic.jinja2
     kind: job
     params: &kselftest-params
+      test_method: kselftest
+      boot_commands: nfs
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: cpufreq
       job_timeout: 10
@@ -1161,9 +1163,10 @@ jobs:
 
   # amd64-only temporary
   sleep:
-    template: sleep.jinja2
+    template: generic.jinja2
     kind: job
     params:
+      test_method: sleep
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}
       sleep_params: mem freeze
     kcidb_test_suite: kernelci_sleep
