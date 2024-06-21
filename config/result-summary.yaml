@@ -691,7 +691,7 @@ monitor-v4l2-decoder-conformance-failures__runtime-errors:
     template: "generic-test-results.html.jinja2"
     output_file: "v4l2-decoder-conformance-failures__runtime-errors.html"
   preset:
-    test:
+    job:
       - data.error_code__ne: null
         result: fail
         name__re: v4l2-decoder-conformance
@@ -724,7 +724,7 @@ summary-v4l2-decoder-conformance-failures__runtime-errors:
     template: "generic-test-results.html.jinja2"
     output_file: "v4l2-decoder-conformance-failures__runtime-errors.html"
   preset:
-    test:
+    job:
       - data.error_code__ne: null
         result: fail
         name__re: v4l2-decoder-conformance
