@@ -25,6 +25,23 @@ import kcidb
 from base import Service
 
 
+MISSED_TEST_ERROR_CODES = (
+    'invalid_job_params',
+    'submit_error',
+    'Infrastructure',
+    'Canceled',
+    'Job',
+    'Bug',
+    'Test',
+    'Configuration',
+    'LAVATimeout',
+    'MultinodeTimeout',
+    'ObjectNotPersisted',
+    'Unexisting permission codename.',
+    'job_generation_error',
+)
+
+
 class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
@@ -233,9 +250,11 @@ the test: {sub_path}")
 
     def _parse_node_result(self, test_node):
         if test_node['result'] == 'incomplete':
-            if test_node['data'].get('error_code') in ('submit_error', 'invalid_job_params'):
+            error_code = test_node['data'].get('error_code')
+            if error_code == 'node_timeout':
+                return 'ERROR'
+            if error_code in MISSED_TEST_ERROR_CODES:
                 return 'MISS'
-            return 'ERROR'
         return test_node['result'].upper()
 
     def _get_parent_build_node(self, node):
