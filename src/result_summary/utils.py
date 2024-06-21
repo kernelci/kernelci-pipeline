@@ -126,7 +126,11 @@ def get_log(url, snippet_lines=0):
         If snippet_lines > 0: the first snippet_lines log lines
         If snippet_lines < 0: the last snippet_lines log lines
     """
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except:
+        # Bail out if there was any error fetching the log
+        return None
     if not len(response.content):
         return None
     try:
