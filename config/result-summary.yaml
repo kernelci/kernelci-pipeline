@@ -276,7 +276,7 @@ monitor-kselftest-acpi-failures-collabora-next:
     action: monitor
     title: "KernelCI kselftest-acpi failures found on collabora-next"
     template: "generic-test-failure-report.html.jinja2"
-    output_file: "kselftest-acpi-regressions-collabora-next.html"
+    output_file: "kselftest-acpi-failures-collabora-next.html"
   preset:
     test:
       - data.error_code: null
