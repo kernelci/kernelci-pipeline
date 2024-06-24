@@ -4,11 +4,11 @@ KernelCI Pipeline
 Modular pipeline based on the new [KernelCI
 API](https://github.com/kernelci/kernelci-api).
 
-Please refer to the [pipeline design documentation](https://kernelci.org/docs/api/overview/#pipeline-design) for more details.
+Please refer to the [pipeline design documentation](https://docs.kernelci.org/api_pipeline/api/design/#pipeline-design) for more details.
 
 To use it, first, start the API.  Then start the services in this repository on the same host.
 
-Follow instructions to [add a token and start the services](https://kernelci.org/docs/api/getting-started/#setting-up-a-pipeline-instance).
+Follow instructions to [add a token and start the services](https://docs.kernelci.org/api_pipeline/api/local-instance/#setting-up-a-pipeline-instance).
 
 > **Note** The `trigger` service was run only once as it's not currently configured to run periodically.
 
