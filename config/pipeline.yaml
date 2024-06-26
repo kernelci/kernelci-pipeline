@@ -803,17 +803,6 @@ scheduler:
       name: lava-collabora
     platforms: *qualcomm-platforms
 
-  - job: baseline-x86-qualcomm
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86
-      result: pass
-    runtime:
-      type: lava
-      name: lava-qualcomm
-    platforms:
-      - qemu
-
   - job: baseline-x86-cip
     event:
       channel: node
