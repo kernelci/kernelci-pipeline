@@ -53,7 +53,7 @@ _anchors:
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromebook
+      name: kbuild-gcc-12-arm64-chromebook
       result: pass
     platforms: *mediatek-platforms
 
@@ -65,7 +65,7 @@ _anchors:
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-x86-chromeos-amd
+      name: kbuild-gcc-12-x86-chromeos-amd
       result: pass
     platforms: *amd-platforms
 
@@ -73,7 +73,7 @@ _anchors:
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-x86-chromeos-intel
+      name: kbuild-gcc-12-x86-chromeos-intel
       result: pass
     platforms: *intel-platforms
 
@@ -81,21 +81,21 @@ _anchors:
     <<: *test-job-arm64-mediatek
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromeos-mediatek
+      name: kbuild-gcc-12-arm64-chromeos-mediatek
       result: pass
 
   test-job-chromeos-qualcomm: &test-job-chromeos-qualcomm
     <<: *test-job-arm64-qualcomm
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromeos-qualcomm
+      name: kbuild-gcc-12-arm64-chromeos-qualcomm
       result: pass
 
   test-job-x86-amd: &test-job-x86-amd
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     platforms: *amd-platforms
 
@@ -161,19 +161,19 @@ scheduler:
   - job: baseline-x86-intel
     <<: *test-job-x86-intel
 
-  - job: kbuild-gcc-10-arm64-chromebook
+  - job: kbuild-gcc-12-arm64-chromebook
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm64-chromeos-mediatek
+  - job: kbuild-gcc-12-arm64-chromeos-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm64-chromeos-qualcomm
+  - job: kbuild-gcc-12-arm64-chromeos-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-chromeos-amd
+  - job: kbuild-gcc-12-x86-chromeos-amd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-chromeos-intel
+  - job: kbuild-gcc-12-x86-chromeos-intel
     <<: *build-k8s-all
 
   - job: kselftest-acpi
@@ -183,7 +183,7 @@ scheduler:
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromebook
+      name: kbuild-gcc-12-arm64-chromebook
       result: pass
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
@@ -197,7 +197,7 @@ scheduler:
     <<: *lava-job-collabora
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromebook
+      name: kbuild-gcc-12-arm64-chromebook
       result: pass
     platforms: *mediatek-platforms
 
