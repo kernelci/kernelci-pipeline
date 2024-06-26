@@ -44,21 +44,21 @@ _anchors:
       compiler: clang-17
       defconfig: x86_64_defconfig
 
-  kbuild-gcc-10-arm64: &kbuild-gcc-10-arm64-job
+  kbuild-gcc-12-arm64: &kbuild-gcc-12-arm64-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
-    params: &kbuild-gcc-10-arm64-params
+    image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
+    params: &kbuild-gcc-12-arm64-params
       arch: arm64
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-gcc-10-x86: &kbuild-gcc-10-x86-job
+  kbuild-gcc-12-x86: &kbuild-gcc-12-x86-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
-    params: &kbuild-gcc-10-x86-params
+    image: kernelci/staging-gcc-12:x86-kselftest-kernelci
+    params: &kbuild-gcc-12-x86-params
       arch: x86_64
-      compiler: gcc-10
+      compiler: gcc-12
       defconfig: x86_64_defconfig
 
   x86_64-device: &x86_64-device
@@ -267,12 +267,12 @@ jobs:
   baseline-x86-kcidebug-mediatek: *baseline-job
   baseline-x86-kcidebug-qualcomm: *baseline-job
 
-  kbuild-gcc-10-arc-haps_hs_smp_defconfig:
+  kbuild-gcc-12-arc-haps_hs_smp_defconfig:
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:arc-kselftest-kernelci
+    image: kernelci/staging-gcc-12:arc-kselftest-kernelci
     params:
       arch: arc
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'arc-elf32-'
       defconfig: haps_hs_smp_defconfig
     rules:
@@ -280,25 +280,25 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-arm: &kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm: &kbuild-gcc-12-arm-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
-    params: &kbuild-gcc-10-arm-params
+    image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
+    params: &kbuild-gcc-12-arm-params
       arch: arm
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
-  kbuild-gcc-10-arm64:
-    <<: *kbuild-gcc-10-arm64-job
+  kbuild-gcc-12-arm64:
+    <<: *kbuild-gcc-12-arm64-job
 
-  kbuild-gcc-10-arm64-chromebook-kcidebug:
+  kbuild-gcc-12-arm64-chromebook-kcidebug:
     template: kbuild.jinja2
     kind: kbuild
-    image: kernelci/staging-gcc-10:arm64-kselftest-kernelci
+    image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
     params:
       arch: arm64
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'aarch64-linux-gnu-'
       cross_compile_compat: 'arm-linux-gnueabihf-'
       defconfig: defconfig
@@ -310,99 +310,99 @@ jobs:
       tree:
       - '!android'
 
-  kbuild-gcc-10-arm64-dtbscheck:
-    <<: *kbuild-gcc-10-arm64-job
+  kbuild-gcc-12-arm64-dtbscheck:
+    <<: *kbuild-gcc-12-arm64-job
     kind: job
     params:
-      <<: *kbuild-gcc-10-arm64-params
+      <<: *kbuild-gcc-12-arm64-params
       dtbs_check: true
     kcidb_test_suite: dtbs_check
 
-  kbuild-gcc-10-arm-imx_v6_v7_defconfig:
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-imx_v6_v7_defconfig:
+    <<: *kbuild-gcc-12-arm-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: imx_v6_v7_defconfig
     rules:
       tree:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-arm-multi_v5_defconfig:
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-multi_v5_defconfig:
+    <<: *kbuild-gcc-12-arm-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: multi_v5_defconfig
     rules:
       tree:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-arm-multi_v7_defconfig:
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-multi_v7_defconfig:
+    <<: *kbuild-gcc-12-arm-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: multi_v7_defconfig
     rules:
       tree:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-arm-vexpress_defconfig:
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-vexpress_defconfig:
+    <<: *kbuild-gcc-12-arm-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: vexpress_defconfig
     rules:
       tree:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-arm-android: &kbuild-gcc-10-arm-android-job
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-android: &kbuild-gcc-12-arm-android-job
+    <<: *kbuild-gcc-12-arm-job
     rules:
       tree:
       - 'android'
 
-  kbuild-gcc-10-arm-android-imx: &kbuild-gcc-10-arm-android-imx-job
-    <<: *kbuild-gcc-10-arm-android-job
+  kbuild-gcc-12-arm-android-imx: &kbuild-gcc-12-arm-android-imx-job
+    <<: *kbuild-gcc-12-arm-android-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: imx_v6_v7_defconfig
 
-  kbuild-gcc-10-arm-omap2plus_defconfig:
-    <<: *kbuild-gcc-10-arm-job
+  kbuild-gcc-12-arm-omap2plus_defconfig:
+    <<: *kbuild-gcc-12-arm-job
     params:
-      <<: *kbuild-gcc-10-arm-params
+      <<: *kbuild-gcc-12-arm-params
       defconfig: omap2plus_defconfig
     rules:
       tree:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-um:
+  kbuild-gcc-12-um:
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
+    image: kernelci/staging-gcc-12:x86-kselftest-kernelci
     params:
       arch: um
-      compiler: gcc-10
+      compiler: gcc-12
       defconfig: defconfig
     rules:
       tree:
       - 'android'
 
-  kbuild-gcc-10-i386: &kbuild-gcc-10-i386-job
+  kbuild-gcc-12-i386: &kbuild-gcc-12-i386-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:x86-kselftest-kernelci
-    params: &kbuild-gcc-10-i386-params
+    image: kernelci/staging-gcc-12:x86-kselftest-kernelci
+    params: &kbuild-gcc-12-i386-params
       arch: i386
-      compiler: gcc-10
+      compiler: gcc-12
       defconfig: i386_defconfig
 
-  kbuild-gcc-10-i386-allnoconfig:
-    <<: *kbuild-gcc-10-i386-job
+  kbuild-gcc-12-i386-allnoconfig:
+    <<: *kbuild-gcc-12-i386-job
     params:
-      <<: *kbuild-gcc-10-i386-params
+      <<: *kbuild-gcc-12-i386-params
       defconfig: allnoconfig
       disable_modules: true
     rules:
@@ -410,10 +410,10 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-i386-tinyconfig:
-    <<: *kbuild-gcc-10-i386-job
+  kbuild-gcc-12-i386-tinyconfig:
+    <<: *kbuild-gcc-12-i386-job
     params:
-      <<: *kbuild-gcc-10-i386-params
+      <<: *kbuild-gcc-12-i386-params
       defconfig: tinyconfig
       disable_modules: true
     rules:
@@ -421,12 +421,12 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-mips-32r2el_defconfig:
+  kbuild-gcc-12-mips-32r2el_defconfig:
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:mips-kselftest-kernelci
+    image: kernelci/staging-gcc-12:mips-kselftest-kernelci
     params:
       arch: mips
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'mips-linux-gnu-'
       defconfig: 32r2el_defconfig
     rules:
@@ -434,19 +434,19 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-riscv: &kbuild-gcc-10-riscv-job
+  kbuild-gcc-12-riscv: &kbuild-gcc-12-riscv-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-10:riscv64-kselftest-kernelci
-    params: &kbuild-gcc-10-riscv-params
+    image: kernelci/staging-gcc-12:riscv64-kselftest-kernelci
+    params: &kbuild-gcc-12-riscv-params
       arch: riscv
-      compiler: gcc-10
+      compiler: gcc-12
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-gcc-10-riscv-nommu_k210_defconfig:
-    <<: *kbuild-gcc-10-riscv-job
+  kbuild-gcc-12-riscv-nommu_k210_defconfig:
+    <<: *kbuild-gcc-12-riscv-job
     params:
-      <<: *kbuild-gcc-10-riscv-params
+      <<: *kbuild-gcc-12-riscv-params
       defconfig: nommu_k210_defconfig
       disable_modules: true
     rules:
@@ -457,18 +457,18 @@ jobs:
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
 
-  kbuild-gcc-10-x86:
-    <<: *kbuild-gcc-10-x86-job
+  kbuild-gcc-12-x86:
+    <<: *kbuild-gcc-12-x86-job
     params:
-      <<: *kbuild-gcc-10-x86-params
+      <<: *kbuild-gcc-12-x86-params
       fragments:
         - lab-setup
         - 'x86-board'
 
-  kbuild-gcc-10-x86-allnoconfig:
-    <<: *kbuild-gcc-10-x86-job
+  kbuild-gcc-12-x86-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job
     params:
-      <<: *kbuild-gcc-10-x86-params
+      <<: *kbuild-gcc-12-x86-params
       defconfig: allnoconfig
       disable_modules: true
     rules:
@@ -476,10 +476,10 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
-  kbuild-gcc-10-x86-kcidebug:
-    <<: *kbuild-gcc-10-i386-job
+  kbuild-gcc-12-x86-kcidebug:
+    <<: *kbuild-gcc-12-i386-job
     params:
-      <<: *kbuild-gcc-10-i386-params
+      <<: *kbuild-gcc-12-i386-params
       defconfig: defconfig
       fragments:
         - x86-board
@@ -488,10 +488,10 @@ jobs:
       tree:
       - '!android'
 
-  kbuild-gcc-10-x86-tinyconfig:
-    <<: *kbuild-gcc-10-x86-job
+  kbuild-gcc-12-x86-tinyconfig:
+    <<: *kbuild-gcc-12-x86-job
     params:
-      <<: *kbuild-gcc-10-x86-params
+      <<: *kbuild-gcc-12-x86-params
       defconfig: tinyconfig
       disable_modules: true
     rules:
@@ -502,7 +502,7 @@ jobs:
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
-    image: kernelci/staging-gcc-10:x86-kunit-kernelci
+    image: kernelci/staging-gcc-12:x86-kunit-kernelci
     kcidb_test_suite: kunit
 
   kunit-x86_64:
@@ -678,7 +678,7 @@ scheduler:
   - job: baseline-arm64
     event:
       channel: node
-      name: kbuild-gcc-10-arm64
+      name: kbuild-gcc-12-arm64
       result: pass
     runtime:
       type: lava
@@ -694,7 +694,7 @@ scheduler:
   - job: baseline-arm64-broonie
     event:
       channel: node
-      name: kbuild-gcc-10-arm64
+      name: kbuild-gcc-12-arm64
       result: pass
     runtime:
       type: lava
@@ -705,7 +705,7 @@ scheduler:
   - job: baseline-arm64-qualcomm
     event:
       channel: node
-      name: kbuild-gcc-10-arm64
+      name: kbuild-gcc-12-arm64
       result: pass
     runtime:
       type: lava
@@ -717,7 +717,7 @@ scheduler:
   - job: baseline-arm
     event:
       channel: node
-      name: kbuild-gcc-10-arm
+      name: kbuild-gcc-12-arm
       result: pass
     runtime:
       type: lava
@@ -732,7 +732,7 @@ scheduler:
   - job: baseline-arm-baylibre
     event:
       channel: node
-      name: kbuild-gcc-10-arm
+      name: kbuild-gcc-12-arm
       result: pass
     runtime:
       type: lava
@@ -743,7 +743,7 @@ scheduler:
   - job: baseline-x86
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     runtime:
       type: lava
@@ -755,7 +755,7 @@ scheduler:
   - job: baseline-x86-baylibre
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     runtime:
       type: lava
@@ -766,7 +766,7 @@ scheduler:
   - job: baseline-x86-kcidebug-amd
     event:
       channel: node
-      name: kbuild-gcc-10-x86-kcidebug
+      name: kbuild-gcc-12-x86-kcidebug
       result: pass
     runtime:
       type: lava
@@ -776,7 +776,7 @@ scheduler:
   - job: baseline-x86-kcidebug-intel
     event:
       channel: node
-      name: kbuild-gcc-10-x86-kcidebug
+      name: kbuild-gcc-12-x86-kcidebug
       result: pass
     runtime:
       type: lava
@@ -786,7 +786,7 @@ scheduler:
   - job: baseline-x86-kcidebug-mediatek
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromebook-kcidebug
+      name: kbuild-gcc-12-arm64-chromebook-kcidebug
       result: pass
     runtime:
       type: lava
@@ -796,7 +796,7 @@ scheduler:
   - job: baseline-x86-kcidebug-qualcomm
     event:
       channel: node
-      name: kbuild-gcc-10-arm64-chromebook-kcidebug
+      name: kbuild-gcc-12-arm64-chromebook-kcidebug
       result: pass
     runtime:
       type: lava
@@ -806,7 +806,7 @@ scheduler:
   - job: baseline-x86-qualcomm
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     runtime:
       type: lava
@@ -817,7 +817,7 @@ scheduler:
   - job: baseline-x86-cip
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     runtime:
       type: lava
@@ -828,10 +828,10 @@ scheduler:
   - job: kbuild-clang-17-x86
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm64
+  - job: kbuild-gcc-12-arm64
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm64-dtbscheck
+  - job: kbuild-gcc-12-arm64-dtbscheck
     <<: *build-k8s-all
     rules:
       tree: 
@@ -840,7 +840,7 @@ scheduler:
         - master
 
 # Example of same job name to apply to different tree/branch
-#  - job: kbuild-gcc-10-arm64-dtbscheck
+#  - job: kbuild-gcc-12-arm64-dtbscheck
 #    <<: *build-k8s-all
 #    rules:
 #      tree: 
@@ -848,70 +848,70 @@ scheduler:
 #      branch: 
 #        - staging-next
 
-  - job: kbuild-gcc-10-arm
+  - job: kbuild-gcc-12-arm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-android
+  - job: kbuild-gcc-12-arm-android
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-android-imx
+  - job: kbuild-gcc-12-arm-android-imx
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm64-chromebook-kcidebug
+  - job: kbuild-gcc-12-arm64-chromebook-kcidebug
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-um
+  - job: kbuild-gcc-12-um
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-i386
+  - job: kbuild-gcc-12-i386
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-riscv
+  - job: kbuild-gcc-12-riscv
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86
+  - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
   
-  - job: kbuild-gcc-10-x86-allnoconfig
+  - job: kbuild-gcc-12-x86-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-kcidebug
+  - job: kbuild-gcc-12-x86-kcidebug
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-x86-tinyconfig
+  - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-i386-allnoconfig
+  - job: kbuild-gcc-12-i386-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-i386-tinyconfig
+  - job: kbuild-gcc-12-i386-tinyconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-mips-32r2el_defconfig
+  - job: kbuild-gcc-12-mips-32r2el_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-riscv-nommu_k210_defconfig
+  - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-riscv-rv32_defconfig
+  - job: kbuild-gcc-12-riscv-rv32_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arc-haps_hs_smp_defconfig
+  - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-imx_v6_v7_defconfig
+  - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-multi_v5_defconfig
+  - job: kbuild-gcc-12-arm-multi_v5_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-multi_v7_defconfig
+  - job: kbuild-gcc-12-arm-multi_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-vexpress_defconfig
+  - job: kbuild-gcc-12-arm-vexpress_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-10-arm-omap2plus_defconfig
+  - job: kbuild-gcc-12-arm-omap2plus_defconfig
     <<: *build-k8s-all
 
   - job: kunit
@@ -932,7 +932,7 @@ scheduler:
   - job: kselftest-dt
     event:
       channel: node
-      name: kbuild-gcc-10-arm64
+      name: kbuild-gcc-12-arm64
       result: pass
     runtime:
       type: lava
@@ -943,7 +943,7 @@ scheduler:
   - job: sleep
     event:
       channel: node
-      name: kbuild-gcc-10-x86
+      name: kbuild-gcc-12-x86
       result: pass
     runtime:
       type: lava
@@ -957,7 +957,7 @@ scheduler:
 
 build_environments:
 
-  gcc-10:
+  gcc-12:
     cc: gcc
     cc_version: 10
     arch_params:
@@ -967,8 +967,8 @@ build_environments:
 
 build_variants:
   variants: &build-variants
-    gcc-10:
-      build_environment: gcc-10
+    gcc-12:
+      build_environment: gcc-12
       architectures:
         x86_64:
           base_defconfig: 'x86_64_defconfig'
