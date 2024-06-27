@@ -179,16 +179,6 @@ class KCIDBBridge(Service):
 
         return [parsed_build_node]
 
-    def _replace_restricted_chars(self, path, pattern, replace_char='_'):
-        # Replace restricted characters with "_" to match the allowed pattern
-        new_path = ""
-        for char in path:
-            if not re.match(pattern, char):
-                new_path += replace_char
-            else:
-                new_path += char
-        return new_path
-
     def _parse_node_path(self, path, is_checkout_child):
         """Parse and create KCIDB schema compatible node path
         Convert node path list to dot-separated string. Use unified
@@ -211,24 +201,28 @@ class KCIDBBridge(Service):
             new_path = []
             for sub_path in parsed_path:
                 if sub_path in self._jobs:
-                    suite_name = self._jobs[sub_path].kcidb_test_suite
-                    if suite_name:
-                        new_path.append(suite_name)
+                    kcidb_suite_name = self._jobs[sub_path].kcidb_test_suite
+                    if kcidb_suite_name:
+                        new_path.append(kcidb_suite_name)
                     else:
                         self.log.error(f"KCIDB test suite mapping not found for \
 the test: {sub_path}")
                         return None
                 else:
+                    # Allowed pattern for test name is ^[a-zA-Z0-9_-]*$'
+                    # Replace restricted characters with '_'
+                    # KCIDB test suite name should be kept as-is
+                    sub_path = re.sub(r'[^a-zA-Z0-9_-]', "_", sub_path)
                     new_path.append(sub_path)
+
             # Handle path such as ['tast-ui-x86-intel', 'tast', 'os-release'] converted
             # to ['tast', 'tast', 'os-release']
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
+
             path_str = '.'.join(new_path)
-            # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
-            formatted_path_str = self._replace_restricted_chars(path_str, r'^[.a-zA-Z0-9_-]*$')
-            return formatted_path_str if formatted_path_str else None
+            return path_str if path_str else None
         return None
 
     def _parse_node_result(self, test_node):
