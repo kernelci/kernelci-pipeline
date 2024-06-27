@@ -549,6 +549,21 @@ jobs:
 
 trees:
 
+  broonie-misc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
+
+  broonie-regmap:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git"
+
+  broonie-regulator:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git"
+
+  broonie-sound:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git"
+
+  broonie-spi:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -891,9 +906,6 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-riscv-rv32_defconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
