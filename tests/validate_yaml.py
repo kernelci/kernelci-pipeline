@@ -89,7 +89,7 @@ def validate_unused_trees(data):
         if tree not in build_trees:
             print(f"Warning: Tree {tree} is not used in build_configs")
 
-def validate_yaml(dir='config/'):
+def validate_yaml(dir='config'):
     '''
     Validate all yaml files in the config/ directory
     '''
