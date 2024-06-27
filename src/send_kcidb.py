@@ -242,6 +242,10 @@ the test: {sub_path}")
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
+
+            # Replace dots in test names with '_'
+            new_path = [path.replace('.', '_') for path in new_path]
+
             path_str = '.'.join(new_path)
             # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
             formatted_path_str = self._replace_restricted_chars(path_str, r'^[.a-zA-Z0-9_-]*$')
