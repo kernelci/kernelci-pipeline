@@ -549,6 +549,21 @@ jobs:
 
 trees:
 
+  broonie-misc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
+
+  broonie-regmap:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git"
+
+  broonie-regulator:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git"
+
+  broonie-sound:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git"
+
+  broonie-spi:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -971,6 +986,51 @@ build_variants:
 
 
 build_configs:
+
+  broonie-misc:
+    tree: broonie-misc
+    branch: 'for-kernelci'
+    variants: *build-variants
+
+  broonie-regmap:
+    tree: broonie-regmap
+    branch: 'for-next'
+    variants: *build-variants
+
+  broonie-regmap-fixes:
+    tree: broonie-regmap
+    branch: 'for-linus'
+    variants: *build-variants
+
+  broonie-regulator:
+    tree: broonie-regulator
+    branch: 'for-next'
+    variants: *build-variants
+
+  broonie-regulator-fixes:
+    tree: broonie-regulator
+    branch: 'for-linus'
+    variants: *build-variants
+
+  broonie-sound:
+    tree: broonie-sound
+    branch: 'for-next'
+    variants: *build-variants
+
+  broonie-sound-fixes:
+    tree: broonie-sound
+    branch: 'for-linus'
+    variants: *build-variants
+
+  broonie-spi:
+    tree: broonie-spi
+    branch: 'for-next'
+    variants: *build-variants
+
+  broonie-spi-fixes:
+    tree: broonie-spi
+    branch: 'for-linus'
+    variants: *build-variants
 
   kernelci_staging-mainline:
     tree: kernelci
