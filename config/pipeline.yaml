@@ -882,9 +882,6 @@ scheduler:
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-riscv-rv32_defconfig
-    <<: *build-k8s-all
-
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
     <<: *build-k8s-all
 
