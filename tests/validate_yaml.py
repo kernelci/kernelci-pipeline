@@ -46,9 +46,9 @@ def validate_scheduler_jobs(data):
     '''
     Each entry in scheduler have a job, that should be defined in jobs
     '''
-    sch_entries = data.get('scheduler')
+    schedules = data.get('scheduler')
     jobs = data.get('jobs')
-    for entry in sch_entries:
+    for entry in schedules:
         if entry.get('job') not in jobs.keys():
             raise yaml.YAMLError(
                 f"Job {entry.get('job')} not found in jobs"
@@ -58,9 +58,9 @@ def validate_unused_jobs(data):
     '''
     Check if all jobs are used in scheduler
     '''
-    sch_entries = data.get('scheduler')
+    schedules = data.get('scheduler')
     jobs = data.get('jobs')
-    sch_jobs = [entry.get('job') for entry in sch_entries]
+    sch_jobs = [entry.get('job') for entry in schedules]
     for job in jobs.keys():
         if job not in sch_jobs:
             print(f"Warning: Job {job} is not used in scheduler")
