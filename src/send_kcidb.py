@@ -198,13 +198,7 @@ class KCIDBBridge(Service):
 
     def _replace_restricted_chars(self, path, pattern, replace_char='_'):
         # Replace restricted characters with "_" to match the allowed pattern
-        new_path = ""
-        for char in path:
-            if not re.match(pattern, char):
-                new_path += replace_char
-            else:
-                new_path += char
-        return new_path
+        return re.sub(pattern, replace_char, path)
 
     def _parse_node_path(self, path, is_checkout_child):
         """Parse and create KCIDB schema compatible node path
@@ -242,10 +236,13 @@ the test: {sub_path}")
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
+
+            # Allowed pattern for test name is ^[a-zA-Z0-9_-]*$'
+            new_path = [self._replace_restricted_chars(path, r'[^a-zA-Z0-9_-]')
+                        for path in new_path]
+
             path_str = '.'.join(new_path)
-            # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
-            formatted_path_str = self._replace_restricted_chars(path_str, r'^[.a-zA-Z0-9_-]*$')
-            return formatted_path_str if formatted_path_str else None
+            return path_str if path_str else None
         return None
 
     def _parse_node_result(self, test_node):
