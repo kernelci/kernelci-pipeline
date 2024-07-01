@@ -117,6 +117,35 @@ monitor-stable-rc-boot-failures:
         repos:
           - tree: stable-rc
 
+# Monitor all stable-rt kernel kbuild regressions
+monitor-stable-rt-build-regressions:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rt</strong> kernel build regression"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "stable-rt-build-regression-report.html"
+  preset:
+    regression:
+      - name__re: kbuild
+        result: fail
+        data.error_code: null
+        repos:
+          - tree: stable-rt
+
+# Monitor all stable-rt kernel kbuild failures
+monitor-stable-rt-build-failures:
+  metadata:
+    action: monitor
+    title: "<strong>stable-rt</strong> kernel build failure"
+    template: "generic-test-failure-report.html.jinja2"
+    output_file: "stable-rt-build-failure.html"
+  preset:
+    kbuild:
+      - result: fail
+        data.error_code: null
+        repos:
+          - tree: stable-rt
+
 monitor-all-regressions:
   metadata:
     action: monitor
