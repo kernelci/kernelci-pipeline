@@ -201,6 +201,14 @@ scheduler:
       result: pass
     platforms: *mediatek-platforms
 
+  - job: kselftest-discoverable-devices-probe
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-10-arm64-chromebook
+      result: pass
+    platforms: *mediatek-platforms
+
   - job: kselftest-cpufreq
     <<: *test-job-x86-intel
 
