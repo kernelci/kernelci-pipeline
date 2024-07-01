@@ -179,6 +179,18 @@ scheduler:
   - job: kselftest-acpi
     <<: *test-job-x86-intel
 
+  - job: kselftest-cpufreq
+    <<: *test-job-x86-intel
+
+  - job: kselftest-cpufreq
+    <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-cpufreq
+    <<: *test-job-arm64-mediatek
+
   - job: kselftest-dt
     <<: *lava-job-collabora
     event:
@@ -201,16 +213,40 @@ scheduler:
       result: pass
     platforms: *mediatek-platforms
 
-  - job: kselftest-cpufreq
+  - job: kselftest-dmabuf-heaps
     <<: *test-job-x86-intel
 
-  - job: kselftest-cpufreq
+  - job: kselftest-dmabuf-heaps
     <<: *test-job-x86-amd
 
-  - job: kselftest-cpufreq
+  - job: kselftest-dmabuf-heaps
     <<: *test-job-arm64-qualcomm
 
-  - job: kselftest-cpufreq
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-arm64-mediatek
+
+  - job: kselftest-exec
+    <<: *test-job-x86-intel
+
+  - job: kselftest-exec
+    <<: *test-job-x86-amd
+
+  - job: kselftest-exec
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-exec
+    <<: *test-job-arm64-mediatek
+
+  - job: kselftest-iommu
+    <<: *test-job-x86-intel
+
+  - job: kselftest-iommu
+    <<: *test-job-x86-amd
+
+  - job: kselftest-iommu
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-iommu
     <<: *test-job-arm64-mediatek
 
   - job: tast-basic-arm64-mediatek

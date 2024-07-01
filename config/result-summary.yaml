@@ -406,6 +406,30 @@ monitor-kselftest-cpufreq-failures:
         result: fail
         name: kselftest-cpufreq
 
+#### Failures and regressions in all kselftest tests
+
+monitor-kselftest-regressions:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest regressions"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-regressions.html"
+  preset:
+    regression:
+      - data.error_code: null
+        name__re: kselftest
+
+monitor-kselftest-failures:
+  metadata:
+    action: monitor
+    title: "KernelCI kselftest failures"
+    template: "generic-regression-report.html.jinja2"
+    output_file: "kselftest-failures.html"
+  preset:
+    test:
+      - data.error_code: null
+        result: fail
+        name__re: kselftest
 
 # All kunit test failures
 monitor-all-kunit-failures:
