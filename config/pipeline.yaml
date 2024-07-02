@@ -341,6 +341,40 @@ jobs:
       tree:
       - 'stable-rt'
 
+  kbuild-gcc-12-arm64-android: &kbuild-gcc-12-arm64-android-job
+    <<: *kbuild-gcc-12-arm64-job
+    rules:
+      tree:
+      - 'android'
+
+  kbuild-gcc-12-arm64-android-allmodconfig:
+    <<: *kbuild-gcc-12-arm64-android-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'allmodconfig'
+
+  kbuild-gcc-12-arm64-android-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-android-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'allnoconfig'
+
+  kbuild-gcc-12-arm64-android-big_endian:
+    <<: *kbuild-gcc-12-arm64-android-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - CONFIG_CPU_BIG_ENDIAN=y
+
+  kbuild-gcc-12-arm64-android-randomize:
+    <<: *kbuild-gcc-12-arm64-android-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - CONFIG_RANDOMIZE_BASE=y
+
   kbuild-gcc-12-arm-imx_v6_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
@@ -398,11 +432,37 @@ jobs:
       tree:
       - 'android'
 
-  kbuild-gcc-12-arm-android-imx: &kbuild-gcc-12-arm-android-imx-job
+  kbuild-gcc-12-arm-android-allmodconfig:
     <<: *kbuild-gcc-12-arm-android-job
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig: imx_v6_v7_defconfig
+      fragments:
+        - 'allmodconfig'
+
+  kbuild-gcc-12-arm-android-multi_v5_defconfig:
+    <<: *kbuild-gcc-12-arm-android-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig: multi_v5_defconfig
+
+  kbuild-gcc-12-arm-android-imx_v6_v7_defconfig:
+    <<: *kbuild-gcc-12-arm-android-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig: imx_v6_v7_defconfig
+
+  kbuild-gcc-12-arm-android-omap2plus_defconfig:
+    <<: *kbuild-gcc-12-arm-android-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig: omap2plus_defconfig
+
+  kbuild-gcc-12-arm-android-vexpress_defconfig:
+    <<: *kbuild-gcc-12-arm-android-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig: vexpress_defconfig
 
   kbuild-gcc-12-arm-omap2plus_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -455,6 +515,16 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
+  kbuild-gcc-12-i386-android-allnoconfig:
+    <<: *kbuild-gcc-12-i386-job
+    params:
+      <<: *kbuild-gcc-12-i386-params
+      fragments:
+        - allnoconfig
+    rules:
+      tree:
+      - 'android'
+
   kbuild-gcc-12-mips-32r2el_defconfig:
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:mips-kselftest-kernelci
@@ -476,6 +546,16 @@ jobs:
       compiler: gcc-12
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
+
+  kbuild-gcc-12-riscv-android-defconfig:
+    <<: *kbuild-gcc-12-riscv-job
+    params:
+      <<: *kbuild-gcc-12-riscv-params
+      fragments:
+        - allnoconfig
+    rules:
+      tree:
+      - 'android'
 
   kbuild-gcc-12-riscv-nommu_k210_defconfig:
     <<: *kbuild-gcc-12-riscv-job
@@ -532,6 +612,26 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  kbuild-gcc-12-x86-android-allmodconfig:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+       - allmodconfig
+    rules:
+      tree:
+      - 'android'
+
+  kbuild-gcc-12-x86-android-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+       - allnoconfig
+    rules:
+      tree:
+      - 'android'
 
   kbuild-gcc-12-x86-preempt_rt:
     <<: *kbuild-gcc-12-x86-job
@@ -936,6 +1036,21 @@ scheduler:
   - job: kbuild-gcc-12-arm64-preempt_rt_chromebook
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-android
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-android-allmodconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-android-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-android-big_endian
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-android-randomize
+    <<: *build-k8s-all
+
 # Example of same job name to apply to different tree/branch
 #  - job: kbuild-gcc-12-arm64-dtbscheck
 #    <<: *build-k8s-all
@@ -951,7 +1066,19 @@ scheduler:
   - job: kbuild-gcc-12-arm-android
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-imx
+  - job: kbuild-gcc-12-arm-android-allmodconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-android-multi_v5_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-android-imx_v6_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-android-omap2plus_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-chromebook-kcidebug
@@ -966,6 +1093,9 @@ scheduler:
   - job: kbuild-gcc-12-riscv
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-riscv-android-defconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
   
@@ -978,6 +1108,12 @@ scheduler:
   - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-android-allmodconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-android-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86-preempt_rt
     <<: *build-k8s-all
 
@@ -988,6 +1124,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-i386-tinyconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-i386-android-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-mips-32r2el_defconfig
