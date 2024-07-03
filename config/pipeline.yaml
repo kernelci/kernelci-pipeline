@@ -253,7 +253,6 @@ runtimes:
     notify:
       callback:
         token: kernel-ci-callback
-        url: https://staging.kernelci.org:9100
 
   shell:
     lab_type: shell
@@ -271,6 +270,7 @@ jobs:
   baseline-arm64: *baseline-job
   baseline-arm64-broonie: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-android: *baseline-job
   baseline-arm64-mfd: *baseline-job
   baseline-arm-android: *baseline-job
@@ -1363,6 +1363,12 @@ platforms:
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
 
+  imx8mm-innocomm-wb15-evk:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/freescale/imx8mm-innocomm-wb15-evk.dtb
+
   kubernetes:
 
   shell:
@@ -1402,6 +1408,14 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
+
+  - job: baseline-arm64-pengutronix
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-pengutronix
+    platforms:
+      - imx8mm-innocomm-wb15-evk
 
   - job: baseline-arm64-android
     event:
