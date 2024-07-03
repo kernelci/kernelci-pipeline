@@ -21,13 +21,14 @@ spec:
     spec:
       containers:
         - name: trigger
-          image: kernelci/kernelci:pipeline@sha256:fdaf8c8a8806ef666af0f81e7cb1355caf2d7effd18dc39f564ae5771cd9590e
+          image: kernelci/kernelci:pipeline@sha256:cead9553cf5a0a17015f78e339a514a362d3c7e8753ee6923febf7f446032c52
           imagePullPolicy: Always
           command:
             - ./src/trigger.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
+            - --trees=!kernelci
             #            - --force
           env:
             - name: KCI_API_TOKEN
