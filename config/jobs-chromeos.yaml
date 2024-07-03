@@ -396,7 +396,7 @@ jobs:
     params:
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
-    kcidb_test_suite: kernelci_baseline
+    kcidb_test_suite: kernelci_baseline.nfs
 
   baseline-nfs-arm64-qualcomm: *baseline-nfs-job
   baseline-nfs-x86-amd: *baseline-nfs-job
