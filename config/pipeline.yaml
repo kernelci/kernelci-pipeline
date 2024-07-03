@@ -245,6 +245,16 @@ runtimes:
       callback:
         token: kernel-ci-new-api
 
+  lava-pengutronix:
+    lab_type: lava
+    url: 'https://hekla.openlab.pengutronix.de'
+    priority_min: 10
+    priority_max: 40
+    notify:
+      callback:
+        token: kernel-ci-callback
+        url: https://staging.kernelci.org:9100
+
   shell:
     lab_type: shell
 
