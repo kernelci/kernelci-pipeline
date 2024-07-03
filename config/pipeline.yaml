@@ -1620,6 +1620,10 @@ build_configs:
     tree: android
     branch: 'android15-6.6'
 
+  android15-6.6-lts:
+    tree: android
+    branch: 'android15-6.6-lts'
+
   collabora-next_for-kernelci:
     tree: collabora-next
     branch: 'for-kernelci'
