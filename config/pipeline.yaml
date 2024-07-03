@@ -256,6 +256,8 @@ jobs:
   baseline-arm64: *baseline-job
   baseline-arm64-broonie: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-android: *baseline-job
+  baseline-arm-android: *baseline-job
   baseline-arm: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-x86: *baseline-job
@@ -814,7 +816,38 @@ scheduler:
       name: lava-qualcomm
     platforms:
       - bcm2711-rpi-4-b
+      - meson-g12b-a311d-khadas-vim3
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
+
+  - job: baseline-arm64-android
+    event:
+      channel: node
+      name: kbuild-gcc-12-arm64-android-allmodconfig
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
+
+  - job: baseline-arm-android
+    event:
+      channel: node
+      name: kbuild-gcc-12-arm-android-allmodconfig
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2836-rpi-2-b
+      - imx6q-sabrelite
+      - odroid-xu3
+      - rk3288-rock2-square
+      - rk3288-veyron-jaq
 
   - job: baseline-arm
     event:
