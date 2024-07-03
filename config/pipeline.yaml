@@ -1527,122 +1527,98 @@ build_configs:
   android_4.9-p:
     tree: android
     branch: 'android-4.9-p'
-    variants: *build-variants
 
   android_4.9-q-release:
     tree: android
     branch: 'android-4.9-q-release'
-    variants: *build-variants
 
   android_4.14-p:
     tree: android
     branch: 'android-4.14-p'
-    variants: *build-variants
 
   android_4.14-q-release:
     tree: android
     branch: 'android-4.14-q-release'
-    variants: *build-variants
 
   android_4.14-stable:
     tree: android
     branch: 'android-4.14-stable'
-    variants: *build-variants
 
   android_4.19-q-release:
     tree: android
     branch: 'android-4.19-q-release'
-    variants: *build-variants
 
   android_4.19-stable:
     tree: android
     branch: 'android-4.19-stable'
-    variants: *build-variants
 
   android_mainline:
     tree: android
     branch: 'android-mainline'
-    variants: *build-variants
 
   android_mainline_tracking:
     tree: android
     branch: 'android-mainline-tracking'
-    variants: *build-variants
 
   android11-5.4:
     tree: android
     branch: 'android11-5.4'
-    variants: *build-variants
 
   android12-5.4:
     tree: android
     branch: 'android12-5.4'
-    variants: *build-variants
 
   android12-5.4-lts:
     tree: android
     branch: 'android12-5.4-lts'
-    variants: *build-variants
 
   android12-5.10:
     tree: android
     branch: 'android12-5.10'
-    variants: *build-variants
 
   android12-5.10-lts:
     tree: android
     branch: 'android12-5.10-lts'
-    variants: *build-variants
 
   android13-5.10:
     tree: android
     branch: 'android13-5.10'
-    variants: *build-variants
 
   android13-5.10-lts:
     tree: android
     branch: 'android13-5.10-lts'
-    variants: *build-variants
 
   android13-5.15:
     tree: android
     branch: 'android13-5.15'
-    variants: *build-variants
 
   android13-5.15-lts:
     tree: android
     branch: 'android13-5.15-lts'
-    variants: *build-variants
 
   android14-5.15:
     tree: android
     branch: 'android14-5.15'
-    variants: *build-variants
 
   android14-5.15-lts:
     tree: android
     branch: 'android14-5.15-lts'
-    variants: *build-variants
 
   android14-6.1:
     tree: android
     branch: 'android14-6.1'
-    variants: *build-variants
 
   android14-6.1-lts:
     tree: android
     branch: 'android14-6.1-lts'
-    variants: *build-variants
 
   android15-6.1:
     tree: android
     branch: 'android15-6.1'
-    variants: *build-variants
 
   android15-6.6:
     tree: android
     branch: 'android15-6.6'
-    variants: *build-variants
 
   collabora-next_for-kernelci:
     tree: collabora-next
