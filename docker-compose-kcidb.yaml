@@ -24,7 +24,7 @@ services:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
-
+      - './logs:/home/kernelci/logs'
 networks:
   kcidb:
     driver: bridge
