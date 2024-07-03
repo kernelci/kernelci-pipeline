@@ -1,0 +1,45 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pipeline-kcidb
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pipeline-kcidb
+  template:
+    metadata:
+      labels:
+        app: pipeline-kcidb
+    spec:
+      containers:
+        - name: pipeline-kcidb
+          image: kernelci/kernelci:pipeline@sha256:0c4a5ca55a7de6788dda0ac869210f8adfc169f1a0509b4c8e44335ac71488e2
+          imagePullPolicy: Always
+          command:
+            - ./src/send_kcidb.py
+            - --settings=/secrets/kernelci.toml
+            - run
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/kcidb-credentials.json
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
