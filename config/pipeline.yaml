@@ -293,6 +293,7 @@ jobs:
   baseline-arm64-kcidebug-mediatek: *baseline-job
   baseline-arm64-kcidebug-qualcomm: *baseline-job
   baseline-arm64-mfd: *baseline-job
+  baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
@@ -2075,6 +2076,13 @@ platforms:
     dtb: dtbs/imx6q-udoo.dtb
     compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
 
+  imx8mm-innocomm-wb15-evk:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/freescale/imx8mm-innocomm-wb15-evk.dtb
+    compatible: ['innocomm,wb15-evk', 'fsl,imx8mm']
+
   imx8mp-evk:
     <<: *arm64-device
     mach: imx
@@ -2347,6 +2355,14 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: baseline-arm64-pengutronix
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-pengutronix
+    platforms:
+      - imx8mm-innocomm-wb15-evk
 
   - job: baseline-arm64-qualcomm
     event: *kbuild-gcc-12-arm64-node-event
