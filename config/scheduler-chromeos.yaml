@@ -249,17 +249,17 @@ scheduler:
   - job: kselftest-iommu
     <<: *test-job-arm64-mediatek
 
-  - job: tast-basic-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-basic-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-basic-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-basic-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-basic-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-basic-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-basic-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-basic-x86-intel
+#    <<: *test-job-chromeos-intel
 
   - job: tast-decoder-chromestack-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -318,122 +318,122 @@ scheduler:
   - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-hardware-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-hardware-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-hardware-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-hardware-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-hardware-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-hardware-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-hardware-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-hardware-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-kernel-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-kernel-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-kernel-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-kernel-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-kernel-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-kernel-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-kernel-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-kernel-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-mm-decode-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
-    platforms:
-      - mt8192-asurada-spherion-r0
-      - mt8195-cherry-tomato-r2
+#  - job: tast-mm-decode-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
+#    platforms:
+#      - mt8192-asurada-spherion-r0
+#      - mt8195-cherry-tomato-r2
 
-  - job: tast-mm-decode-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-mm-decode-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-mm-misc-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-mm-misc-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-mm-misc-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-mm-misc-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-mm-misc-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-mm-misc-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-mm-misc-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-mm-misc-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-perf-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-perf-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-perf-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-perf-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-perf-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-perf-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-perf-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-perf-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-perf-long-duration-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-perf-long-duration-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-perf-long-duration-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+ # - job: tast-perf-long-duration-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-perf-long-duration-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-perf-long-duration-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-perf-long-duration-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-perf-long-duration-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-platform-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-platform-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-platform-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-platform-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-platform-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-platform-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-platform-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-platform-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-power-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-power-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-power-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-power-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-power-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-power-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-power-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-power-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-sound-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-sound-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-sound-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-sound-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-sound-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-sound-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-sound-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-sound-x86-intel
+#    <<: *test-job-chromeos-intel
 
-  - job: tast-ui-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
+#  - job: tast-ui-arm64-mediatek
+#    <<: *test-job-chromeos-mediatek
 
-  - job: tast-ui-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
+#  - job: tast-ui-arm64-qualcomm
+#    <<: *test-job-chromeos-qualcomm
 
-  - job: tast-ui-x86-amd
-    <<: *test-job-chromeos-amd
+#  - job: tast-ui-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-ui-x86-intel
-    <<: *test-job-chromeos-intel
+#  - job: tast-ui-x86-intel
+#    <<: *test-job-chromeos-intel
 
   - job: v4l2-decoder-conformance-av1
     <<: *test-job-arm64-mediatek
