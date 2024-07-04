@@ -361,7 +361,7 @@ _anchors:
     template: 'v4l2-decoder-conformance.jinja2'
     kind: job
     params: &v4l2-decoder-conformance-params
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240521.0/{debarch}/'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240703.0/{debarch}/'
       job_timeout: 30
       videodec_parallel_jobs: 1
       videodec_timeout: 90
