@@ -661,6 +661,9 @@ jobs:
       <<: *kbuild-clang-17-riscv-params
       fragments:
         - allnoconfig
+      filters:
+        - blocklist:
+            kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
     rules:
       tree:
       - 'android'
@@ -680,6 +683,9 @@ jobs:
       <<: *kbuild-gcc-12-riscv-params
       fragments:
         - allnoconfig
+      filters:
+        - blocklist:
+            kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
     rules:
       tree:
       - 'android'
