@@ -112,9 +112,9 @@ class RegressionTracker(Service):
         # filtering in python code
         path = search_params.pop('path')
         nodes = self._api.node.find(search_params)
+        nodes = [node for node in nodes if node['path'] == path]
         if not nodes:
             return None
-        nodes = [node for node in nodes if node['path'] == path]
         node = sorted(
             nodes,
             key=lambda node: node['created'],
