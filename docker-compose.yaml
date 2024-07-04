@@ -50,6 +50,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=shell'
+      - '--name=scheduler'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -71,6 +72,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=docker'
+      - '--name=scheduler_docker'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -88,6 +90,7 @@ services:
       - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
+      - '--name=scheduler_lava'
       - '--runtimes'
       - 'lava-collabora'
       - 'lava-collabora-staging'
@@ -106,6 +109,7 @@ services:
       - './pipeline/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
+      - '--name=scheduler_k8s'
       - '--runtimes'
       - 'k8s-gke-eu-west4'
       - 'k8s-all'

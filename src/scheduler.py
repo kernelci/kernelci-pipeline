@@ -27,7 +27,7 @@ class Scheduler(Service):
     """Service to schedule jobs that match received events"""
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'scheduler')
+        super().__init__(configs, args, args.name)
         self._api_config_yaml = yaml.dump(self._api_config)
         self._verbose = args.verbose
         self._output = args.output
@@ -208,6 +208,11 @@ class cmd_loop(Command):
             'name': '--runtimes',
             'nargs': '*',
             'help': "Runtime environments to use, all by default",
+        },
+        {
+            'name': '--name',
+            'help': "Service name used to create log file",
+            'required': True
         },
     ]
 
