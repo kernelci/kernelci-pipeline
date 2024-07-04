@@ -37,8 +37,8 @@ cd {target_dir}
 git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
 """
 
-    def __init__(self, global_configs, service_config):
-        super().__init__(global_configs, service_config, 'tarball')
+    def __init__(self, global_configs, service_config, name):
+        super().__init__(global_configs, service_config, name)
         self._service_config = service_config
         self._build_configs = global_configs['build_configs']
         if not os.path.exists(self._service_config.output):
@@ -237,7 +237,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return Tarball(configs, args).run(args)
+        return Tarball(configs, args, 'tarball').run(args)
 
 
 if __name__ == '__main__':
