@@ -319,7 +319,7 @@ class cmd_run(Command):
     ]
 
     def __call__(self, configs, args):
-        return Patchset(configs, args).run(args)
+        return Patchset(configs, args, 'patchset').run(args)
 
 
 if __name__ == "__main__":
