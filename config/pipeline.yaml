@@ -185,7 +185,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-new-api-callback
-        url: https://staging.kernelci.org:9100
     rules:
       tree:
       - '!android'
@@ -198,7 +197,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-api-token-staging
-        url: https://staging.kernelci.org:9100
     rules:
       tree:
       - '!android'
@@ -210,7 +208,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-api-token-early-access
-        url: https://staging.kernelci.org:9100
 
   lava-collabora-staging:
     <<: *lava-collabora-staging
@@ -218,7 +215,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-api-token-lava-staging
-        url: https://staging.kernelci.org:9100
 
   lava-baylibre:
     lab_type: lava
@@ -226,7 +222,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-new-api
-        url: https://staging.kernelci.org:9100
     rules:
       tree:
       - kernelci
@@ -239,7 +234,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-lab-qualcomm
-        url: https://staging.kernelci.org:9100
 
   lava-cip:
     lab_type: lava
@@ -247,7 +241,6 @@ runtimes:
     notify:
       callback:
         token: kernel-ci-new-api
-        url: https://staging.kernelci.org:9100
 
   shell:
     lab_type: shell
