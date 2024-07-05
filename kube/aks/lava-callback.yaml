@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: lava-callback
-          image: kernelci/kernelci:lava-callback@sha256:ee046b2b9648482a5281b9bb7224f9cf1e05a574b7ccbb47d074e1943fdc78c6
+          image: kernelci/kernelci:lava-callback@sha256:f5bcc965ae5ca891839f390e5ff7ef5f6bd2f99457e95c8fe8d25f096c22cadd
           imagePullPolicy: Always
           command:
             - '/usr/local/bin/uwsgi'

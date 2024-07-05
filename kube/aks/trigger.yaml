@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: trigger
-          image: kernelci/kernelci:pipeline@sha256:cead9553cf5a0a17015f78e339a514a362d3c7e8753ee6923febf7f446032c52
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
             - ./src/trigger.py
