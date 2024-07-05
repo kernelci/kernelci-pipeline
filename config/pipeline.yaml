@@ -584,7 +584,7 @@ jobs:
 
   kselftest-dmabuf-heaps:
     template: kselftest.jinja2
-    kind: test
+    kind: job
     params:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: dmabuf-heaps
@@ -606,7 +606,7 @@ jobs:
 
   kselftest-exec:
     template: kselftest.jinja2
-    kind: test
+    kind: job
     params:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: exec
@@ -615,7 +615,7 @@ jobs:
 
   kselftest-iommu:
     template: kselftest.jinja2
-    kind: test
+    kind: job
     params:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: iommu
