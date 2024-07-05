@@ -622,96 +622,96 @@ jobs:
       job_timeout: 10
     kcidb_test_suite: kselftest.iommu
 
-  preempt-rt: &preempt-rt
-    template: preempt-rt.jinja2
+  rt-tests: &rt-tests
+    template: rt-tests.jinja2
     kind: job
     # TODO: Update NFS root to correct one (debian_bookworm-rt_ramdisk)
     nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
     filters:
       - passlist: {defconfig: ['preempt_rt']}
-    params: &preempt-rt-params
+    params: &rt-tests-params
       job_timeout: '10'
       duration: '60s'
-    kcidb_test_suite: preempt-rt
+    kcidb_test_suite: rt-tests
 
-  preempt-rt-cyclicdeadline:
-    <<: *preempt-rt
+  rt-tests-cyclicdeadline:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'cyclicdeadline'
-    kcidb_test_suite: preempt-rt.cyclicdeadline
+    kcidb_test_suite: rt-tests.cyclicdeadline
 
-  preempt-rt-cyclictest:
-    <<: *preempt-rt
+  rt-tests-cyclictest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'cyclictest'
-    kcidb_test_suite: preempt-rt.cyclictest
+    kcidb_test_suite: rt-tests.cyclictest
 
-  preempt-rt-pi-stress:
-    <<: *preempt-rt
+  rt-tests-pi-stress:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'pi-stress'
-    kcidb_test_suite: preempt-rt.pi-params
+    kcidb_test_suite: rt-tests.pi-params
 
-  preempt-rt-pmqtest:
-    <<: *preempt-rt
+  rt-tests-pmqtest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'pmqtest'
-    kcidb_test_suite: preempt-rt.pmqtest
+    kcidb_test_suite: rt-tests.pmqtest
 
-  preempt-rt-ptsematest:
-    <<: *preempt-rt
+  rt-tests-ptsematest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'ptsematest'
-    kcidb_test_suite: preempt-rt.ptsematest
+    kcidb_test_suite: rt-tests.ptsematest
 
-  preempt-rt-rt-migrate-test:
-    <<: *preempt-rt
+  rt-tests-rt-migrate-test:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'rt-migrate-test'
-    kcidb_test_suite: preempt-rt.rt-migrate-test
+    kcidb_test_suite: rt-tests.rt-migrate-test
 
-  preempt-rt-rtla-osnoise:
-    <<: *preempt-rt
+  rt-tests-rtla-osnoise:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'rtla-osnoise'
       tst_group: 'rtla'
-    kcidb_test_suite: preempt-rt.rtla-osnoise
+    kcidb_test_suite: rt-tests.rtla-osnoise
 
-  preempt-rt-rtla-timerlat:
-    <<: *preempt-rt
+  rt-tests-rtla-timerlat:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'rtla-timerlat'
       tst_group: 'rtla'
-    kcidb_test_suite: preempt-rt.rtla-timerlat
+    kcidb_test_suite: rt-tests.rtla-timerlat
 
-  preempt-rt-signaltest:
-    <<: *preempt-rt
+  rt-tests-signaltest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'signaltest'
-    kcidb_test_suite: preempt-rt.signaltest
+    kcidb_test_suite: rt-tests.signaltest
 
-  preempt-rt-sigwaittest:
-    <<: *preempt-rt
+  rt-tests-sigwaittest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'sigwaittest'
-    kcidb_test_suite: preempt-rt.sigwaittest
+    kcidb_test_suite: rt-tests.sigwaittest
 
-  preempt-rt-svsematest:
-    <<: *preempt-rt
+  rt-tests-svsematest:
+    <<: *rt-tests
     params:
-      <<: *preempt-rt-params
+      <<: *rt-tests-params
       tst_cmd: 'svsematest'
-    kcidb_test_suite: preempt-rt.svsematest
+    kcidb_test_suite: rt-tests.svsematest
 
   # amd64-only temporary
   sleep:

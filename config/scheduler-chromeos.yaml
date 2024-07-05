@@ -435,52 +435,52 @@ scheduler:
   - job: tast-ui-x86-intel
     <<: *test-job-chromeos-intel
 
-  - job: preempt-rt-cyclicdeadline
+  - job: rt-tests-cyclicdeadline
     <<: *test-job-x86-intel
 
-  - job: preempt-rt-cyclicdeadline
+  - job: rt-tests-cyclicdeadline
     <<: *test-job-x86-amd
 
-  - job: preempt-rt-cyclicdeadline
+  - job: rt-tests-cyclicdeadline
     <<: *test-job-arm64-qualcomm
 
-  - job: preempt-rt-cyclicdeadline
+  - job: rt-tests-cyclicdeadline
     <<: *test-job-arm64-mediatek
 
-  - job: preempt-rt-cyclictest
+  - job: rt-tests-cyclictest
     <<: *test-job-x86-intel
 
-  - job: preempt-rt-cyclictest
+  - job: rt-tests-cyclictest
     <<: *test-job-x86-amd
 
-  - job: preempt-rt-cyclictest
+  - job: rt-tests-cyclictest
     <<: *test-job-arm64-qualcomm
 
-  - job: preempt-rt-cyclictest
+  - job: rt-tests-cyclictest
     <<: *test-job-arm64-mediatek
 
-  - job: preempt-rt-rtla-osnoise
+  - job: rt-tests-rtla-osnoise
     <<: *test-job-x86-intel
 
-  - job: preempt-rt-rtla-osnoise
+  - job: rt-tests-rtla-osnoise
     <<: *test-job-x86-amd
 
-  - job: preempt-rt-rtla-osnoise
+  - job: rt-tests-rtla-osnoise
     <<: *test-job-arm64-qualcomm
 
-  - job: preempt-rt-rtla-osnoise
+  - job: rt-tests-rtla-osnoise
     <<: *test-job-arm64-mediatek
 
-  - job: preempt-rt-rtla-timerlat
+  - job: rt-tests-rtla-timerlat
     <<: *test-job-x86-intel
 
-  - job: preempt-rt-rtla-timerlat
+  - job: rt-tests-rtla-timerlat
     <<: *test-job-x86-amd
 
-  - job: preempt-rt-rtla-timerlat
+  - job: rt-tests-rtla-timerlat
     <<: *test-job-arm64-qualcomm
 
-  - job: preempt-rt-rtla-timerlat
+  - job: rt-tests-rtla-timerlat
     <<: *test-job-arm64-mediatek
 
   - job: v4l2-decoder-conformance-av1
