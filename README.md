@@ -25,15 +25,14 @@ Runtime is configured in yaml file following way, for example:
     notify:
       callback:
         token: kernelci-api-token-staging
-        url: https://staging.kernelci.org:9100
 ```
 
 - url is endpoint of LAVA lab API where job will be submitted.
-- notify.callback.url is endpoint of lava-callback service where LAVA will send results.
 - notify.callback.token is token DESCRIPTION used in LAVA job definition. This part is a little bit tricky: https://docs.lavasoftware.org/lava/user-notifications.html#notification-callbacks
 If you specify token name that does not exist in LAVA under user submitting job, callback will return token secret set to description. If following example it will be "kernelci-api-token-staging".
 If you specify token name that matches existing token in LAVA, callback will return token value (secret) from LAVA, which is usually long alphanumeric string.
 Tokens generated in LAVA in "API -> Tokens" section. Token name is "DESCRIPTION" and token value (secret) can be shown by clicking on green eye icon named "View token hash".
+Callback URL is set in pipeline instance environment variable KCI_INSTANCE_CALLBACK.
 
 The `lava-callback` service is used to receive notifications from LAVA after a job has finished.  It is configured to listen on port 8000 by default and expects in header "Authorization" token value(secret) from LAVA. Mapping of token value to lab name is done over toml file. Example:
 ```
