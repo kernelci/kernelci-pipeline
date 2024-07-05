@@ -217,7 +217,7 @@ class KCIDBBridge(Service):
         test suite name to exclude build and runtime information
         from the test path.
         For example, test path ['checkout', 'kbuild-gcc-10-x86', 'baseline-x86']
-        would be converted to "kernelci_baseline"
+        would be converted to "boot"
         """
         if isinstance(path, list):
             if is_checkout_child:
