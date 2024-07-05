@@ -21,12 +21,12 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: kernelci/kernelci:pipeline@sha256:b3621bc61dca3cd8afad15d5b9b9d861ad2cb090c3118bba1f27f8c4c04f7940
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
             - ./src/scheduler.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - loop
             - --runtimes
             - k8s-gke-eu-west4

@@ -21,12 +21,12 @@ spec:
     spec:
       containers:
         - name: timeout
-          image: kernelci/staging-kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=timeout
           env:
@@ -65,12 +65,12 @@ spec:
     spec:
       containers:
         - name: timeout
-          image: kernelci/staging-kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=closing
           env:
@@ -109,12 +109,12 @@ spec:
     spec:
       containers:
         - name: timeout
-          image: kernelci/staging-kernelci:pipeline-69d6c64dff00241a2a554adcb14a3917617f10f1
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
             - ./src/timeout.py
             - --settings=/secrets/kernelci.toml
-            - --yaml-config=/config/pipeline.yaml
+            - --yaml-config=/config
             - run
             - --mode=holdoff
           env:
