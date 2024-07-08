@@ -422,6 +422,14 @@ jobs:
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
 
+  kbuild-gcc-12-arm64-mfd:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+    rules:
+      tree:
+      - 'lee-mfd'
+
   kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
     <<: *kbuild-clang-17-arm-job
     rules:
@@ -489,6 +497,14 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  kbuild-gcc-12-arm-mfd:
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+    rules:
+      tree:
+      - 'lee-mfd'
 
   kbuild-gcc-12-arm-preempt_rt:
     <<: *kbuild-gcc-12-arm-job
@@ -628,6 +644,14 @@ jobs:
       tree:
       - 'android'
 
+  kbuild-gcc-12-i386-mfd:
+    <<: *kbuild-gcc-12-i386-job
+    params:
+      <<: *kbuild-gcc-12-i386-params
+    rules:
+      tree:
+      - 'lee-mfd'
+
   kbuild-gcc-12-mips-32r2el_defconfig:
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:mips-kselftest-kernelci
@@ -695,6 +719,14 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  kbuild-gcc-12-riscv-mfd:
+    <<: *kbuild-gcc-12-riscv-job
+    params:
+      <<: *kbuild-gcc-12-riscv-params
+    rules:
+      tree:
+      - 'lee-mfd'
 
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
@@ -804,6 +836,14 @@ jobs:
       tree:
       - 'stable-rt'
 
+  kbuild-gcc-12-x86-mfd:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+    rules:
+      tree:
+      - 'lee-mfd'
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
@@ -907,6 +947,9 @@ trees:
 
   stable-rt:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git'
+
+  lee-mfd:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git"
 
   next:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
@@ -1251,6 +1294,9 @@ scheduler:
   - job: kbuild-gcc-12-arm64-android-randomize
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-mfd
+    <<: *build-k8s-all
+
 # Example of same job name to apply to different tree/branch
 #  - job: kbuild-gcc-12-arm64-dtbscheck
 #    <<: *build-k8s-all
@@ -1341,6 +1387,9 @@ scheduler:
   - job: kbuild-gcc-12-x86-preempt_rt_x86_board
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-mfd
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-i386-android-allnoconfig
     <<: *build-k8s-all
 
@@ -1353,10 +1402,16 @@ scheduler:
   - job: kbuild-gcc-12-i386-android-allnoconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-i386-mfd
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-mips-32r2el_defconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-riscv-mfd
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
@@ -1369,6 +1424,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-multi_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mfd
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-vexpress_defconfig
@@ -1665,6 +1723,10 @@ build_configs:
     tree: collabora-chromeos-kernel
     branch: 'for-kernelci'
     variants: *build-variants
+
+  lee_mfd:
+    tree: lee-mfd
+    branch: 'for-mfd-next'
 
   media_master:
     tree: media
