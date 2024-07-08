@@ -259,7 +259,9 @@ jobs:
   baseline-arm64-broonie: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
   baseline-arm64-android: *baseline-job
+  baseline-arm64-mfd: *baseline-job
   baseline-arm-android: *baseline-job
+  baseline-arm-mfd: *baseline-job
   baseline-arm: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-x86: *baseline-job
@@ -270,6 +272,7 @@ jobs:
   baseline-x86-kcidebug-intel: *baseline-job
   baseline-x86-kcidebug-mediatek: *baseline-job
   baseline-x86-kcidebug-qualcomm: *baseline-job
+  baseline-x86-mfd: *baseline-job
 
   kbuild-gcc-12-arc-haps_hs_smp_defconfig:
     <<: *kbuild-job
@@ -1123,6 +1126,17 @@ scheduler:
       - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
 
+  - job: baseline-arm64-mfd
+    event:
+      channel: node
+      name: kbuild-gcc-12-arm64-mfd
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+
   - job: baseline-arm-android
     event:
       channel: node
@@ -1137,6 +1151,17 @@ scheduler:
       - odroid-xu3
       - rk3288-rock2-square
       - rk3288-veyron-jaq
+
+  - job: baseline-arm-mfd
+    event:
+      channel: node
+      name: kbuild-gcc-12-arm-mfd
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - bcm2836-rpi-2-b
 
   - job: baseline-arm
     event:
@@ -1237,6 +1262,17 @@ scheduler:
       name: lava-cip
     platforms:
       - qemu
+
+  - job: baseline-x86-mfd
+    event:
+      channel: node
+      name: kbuild-gcc-12-x86-mfd
+      result: pass
+    runtime:
+      type: lava
+      name: lava-collabora
+    platforms:
+      - minnowboard-turbot-E3826
 
   - job: kbuild-clang-17-x86
     <<: *build-k8s-all
