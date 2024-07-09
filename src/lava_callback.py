@@ -9,9 +9,10 @@ import tempfile
 import gzip
 import json
 import requests
-from flask import Flask, request
 import toml
 import threading
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request
 
 import kernelci.api.helper
 import kernelci.config
@@ -26,7 +27,7 @@ CONFIGS = kernelci.config.load(
 )
 SETTINGS_PREFIX = 'runtime'
 
-app = Flask(__name__)
+app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
 
 
@@ -86,15 +87,20 @@ def _upload_log(log_parser, job_node, storage):
         return _upload_file(storage, job_node, src, 'log.txt.gz')
 
 
-@app.errorhandler(requests.exceptions.HTTPError)
-def handle_http_error(ex):
-    detail = ex.response.json().get('detail') or str(ex)
-    return detail, ex.response.status_code
-
-
-@app.route('/')
-def hello():
-    return "KernelCI API & Pipeline LAVA callback handler"
+@app.get('/')
+async def read_root():
+    page = '''
+    <html>
+    <head>
+    <title>KernelCI Pipeline Callback</title>
+    </head>
+    <body>
+    <h1>KernelCI Pipeline Callback</h1>
+    <p>This is a callback endpoint for the KernelCI pipeline.</p>
+    </body>
+    </html>
+    '''
+    return page
 
 
 def async_job_submit(api_helper, node_id, job_callback):
@@ -146,8 +152,9 @@ def submit_job(api_helper, node_id, job_callback):
     executor.submit(async_job_submit, api_helper, node_id, job_callback)
 
 
-@app.post('/node/<node_id>')
-def callback(node_id):
+# POST /node/<node_id>
+@app.post('/node/{node_id}')
+async def callback(node_id: str, request: Request):
     tokens = SETTINGS.get(SETTINGS_PREFIX)
     if not tokens:
         return 'Unauthorized', 401
@@ -169,7 +176,7 @@ def callback(node_id):
     if not lab_name:
         return 'Unauthorized', 401
 
-    data = request.get_json()
+    data = await request.json()
     job_callback = kernelci.runtime.lava.Callback(data)
     api_config_name = job_callback.get_meta('api_config_name')
     api_token = os.getenv('KCI_API_TOKEN')
@@ -185,4 +192,4 @@ if __name__ == '__main__':
     tokens = SETTINGS.get(SETTINGS_PREFIX)
     if not tokens:
         print('No tokens configured in toml file')
-    app.run(host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=8000)
