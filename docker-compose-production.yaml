@@ -9,15 +9,16 @@ services:
 
   lava-callback:
     # With uWSGI in socket mode, to use with reverse proxy e.g. Nginx and SSL
-    command:
-      - '/usr/local/bin/uwsgi'
-      - '--master'
-      - '--socket=:8000'
-      - '--buffer-size=32768'
-      - '-p${NPROC:-4}'
-      - '--enable-threads'
-      - '--wsgi-file=/home/kernelci/pipeline/lava_callback.py'
-      - '--callable=app'
+    command: uvicorn lava_callback:app --host 0.0.0.0 --port 8000 --app-dir /home/kernelci/pipeline/
+    #command:
+    #  - '/usr/local/bin/uwsgi'
+    #  - '--master'
+    #  - '--socket=:8000'
+    #  - '--buffer-size=32768'
+    #  - '-p${NPROC:-4}'
+    #  - '--enable-threads'
+    #  - '--wsgi-file=/home/kernelci/pipeline/lava_callback.py'
+    #  - '--callable=app'
 
     # With uWSGI HTTP server, suitable for a public instance but no SSL
     # command:
