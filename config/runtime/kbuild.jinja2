@@ -19,7 +19,17 @@ import sys
 KBUILD_PARAMS = {
     'arch': '{{ arch }}',
     'compiler': '{{ compiler }}',
-    'defconfig': '{{ defconfig }}',
+    'defconfig': 
+{%- if defconfig is string %}
+    '{{ defconfig }}'
+{%- elif defconfig %}
+    [
+    {%- for item in defconfig %}
+        '{{ item }}'
+        {%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+    ]   
+{%- endif %},
 {%- if fragments %}
     'fragments': {{ fragments }},
 {%- else %}
