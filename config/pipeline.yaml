@@ -312,15 +312,17 @@ jobs:
     <<: *kbuild-clang-17-arm64-android-job
     params:
       <<: *kbuild-clang-17-arm64-params
-      fragments:
-       - 'allmodconfig'
+      defconfig:
+        - defconfig
+        - allmodconfig
 
   kbuild-clang-17-arm64-android-allnoconfig:
     <<: *kbuild-clang-17-arm64-android-job
     params:
       <<: *kbuild-clang-17-arm64-params
-      fragments:
-       - 'allnoconfig'
+      defconfig:
+        - defconfig
+        - allnoconfig
 
   kbuild-clang-17-arm64-android-big_endian:
     <<: *kbuild-clang-17-arm64-android-job
@@ -398,15 +400,17 @@ jobs:
     <<: *kbuild-gcc-12-arm64-android-job
     params:
       <<: *kbuild-gcc-12-arm64-params
-      fragments:
-       - 'allmodconfig'
+      defconfig:
+        - defconfig
+        - allmodconfig
 
   kbuild-gcc-12-arm64-android-allnoconfig:
     <<: *kbuild-gcc-12-arm64-android-job
     params:
       <<: *kbuild-gcc-12-arm64-params
-      fragments:
-       - 'allnoconfig'
+      defconfig:
+        - defconfig
+        - allnoconfig
 
   kbuild-gcc-12-arm64-android-big_endian:
     <<: *kbuild-gcc-12-arm64-android-job
@@ -432,8 +436,8 @@ jobs:
     <<: *kbuild-clang-17-arm-android-job
     params:
       <<: *kbuild-clang-17-arm-params
-      defconfig: imx_v6_v7_defconfig
-      fragments:
+      defconfig:
+        - imx_v6_v7_defconfig
         - 'allmodconfig'
 
   kbuild-clang-17-arm-android-multi_v5_defconfig:
@@ -521,9 +525,9 @@ jobs:
     <<: *kbuild-gcc-12-arm-android-job
     params:
       <<: *kbuild-gcc-12-arm-params
-      defconfig: imx_v6_v7_defconfig
-      fragments:
-        - 'allmodconfig'
+      defconfig:
+        - imx_v6_v7_defconfig
+        - allmodconfig
 
   kbuild-gcc-12-arm-android-multi_v5_defconfig:
     <<: *kbuild-gcc-12-arm-android-job
@@ -582,7 +586,8 @@ jobs:
     <<: *kbuild-clang-17-i386-job
     params:
       <<: *kbuild-clang-17-i386-params
-      fragments:
+      defconfig:
+        - i386_defconfig
         - allnoconfig
     rules:
       tree:
@@ -622,7 +627,8 @@ jobs:
     <<: *kbuild-gcc-12-i386-job
     params:
       <<: *kbuild-gcc-12-i386-params
-      fragments:
+      defconfig:
+        - i386_defconfig
         - allnoconfig
     rules:
       tree:
@@ -654,7 +660,8 @@ jobs:
     <<: *kbuild-clang-17-riscv-job
     params:
       <<: *kbuild-clang-17-riscv-params
-      fragments:
+      defconfig:
+        - defconfig
         - allnoconfig
       filters:
         - blocklist:
@@ -676,7 +683,8 @@ jobs:
     <<: *kbuild-gcc-12-riscv-job
     params:
       <<: *kbuild-gcc-12-riscv-params
-      fragments:
+      defconfig:
+        - defconfig
         - allnoconfig
       filters:
         - blocklist:
@@ -703,8 +711,9 @@ jobs:
     <<: *kbuild-clang-17-x86-job
     params:
       <<: *kbuild-clang-17-x86-params
-      fragments:
-       - allmodconfig
+      defconfig:
+        - x86_64_defconfig
+        - allmodconfig
     rules:
       tree:
       - 'android'
@@ -713,8 +722,9 @@ jobs:
     <<: *kbuild-clang-17-x86-job
     params:
       <<: *kbuild-clang-17-x86-params
-      fragments:
-       - allnoconfig
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
     rules:
       tree:
       - 'android'
@@ -765,8 +775,9 @@ jobs:
     <<: *kbuild-gcc-12-x86-job
     params:
       <<: *kbuild-gcc-12-x86-params
-      fragments:
-       - allmodconfig
+      defconfig:
+        - x86_64_defconfig
+        - allmodconfig
     rules:
       tree:
       - 'android'
@@ -775,8 +786,9 @@ jobs:
     <<: *kbuild-gcc-12-x86-job
     params:
       <<: *kbuild-gcc-12-x86-params
-      fragments:
-       - allnoconfig
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
     rules:
       tree:
       - 'android'
