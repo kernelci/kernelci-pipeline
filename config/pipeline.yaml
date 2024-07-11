@@ -1120,11 +1120,7 @@ scheduler:
       name: lava-qualcomm
     platforms:
       - bcm2711-rpi-4-b
-      - meson-g12b-a311d-khadas-vim3
-      - rk3399-gru-kevin
-      - rk3399-rock-pi-4b
-      - rk3588-rock-5b
-      - sun50i-h6-pine-h64
+      - qcs6490-rb3gen2
 
   - job: baseline-arm64-android
     event:
@@ -1136,7 +1132,11 @@ scheduler:
       name: lava-collabora
     platforms:
       - bcm2711-rpi-4-b
-      - qcs6490-rb3gen2
+      - meson-g12b-a311d-khadas-vim3
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
 
   - job: baseline-arm64-mfd
     event:
