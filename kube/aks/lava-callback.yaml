@@ -21,18 +21,16 @@ spec:
     spec:
       containers:
         - name: lava-callback
-          image: kernelci/kernelci:lava-callback@sha256:f5bcc965ae5ca891839f390e5ff7ef5f6bd2f99457e95c8fe8d25f096c22cadd
+          image: kernelci/kernelci:lava-callback@sha256:0037ee6df605a49938f61e11e071a9d730d1702a042dec4c3baa36beaa9b3262
           imagePullPolicy: Always
           command:
-            - '/usr/local/bin/uwsgi'
+            - 'uvicorn'
           args:
-            - '--master'
-            - '--http=:8000'
-            - '-p4'
-            - '--buffer-size=32768'
-            - '--enable-threads'
-            - '--wsgi-file=src/lava_callback.py'
-            - '--callable=app'
+            - 'src.lava_callback:app'
+            - '--host=0.0.0.0'
+            - '--port=8000'
+            - '--proxy-headers'
+            - '--forwarded-allow-ips=*'
           env:
             - name: KCI_API_TOKEN
               valueFrom:
