@@ -625,8 +625,7 @@ jobs:
   rt-tests: &rt-tests
     template: rt-tests.jinja2
     kind: job
-    # TODO: Update NFS root to correct one (debian_bookworm-rt_ramdisk)
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240313.0/{debarch}'
     filters:
       - passlist: {defconfig: ['preempt_rt']}
     params: &rt-tests-params
