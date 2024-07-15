@@ -197,9 +197,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-api-token-staging
-    rules:
-      tree:
-      - '!android'
 
   # ToDo: avoid creating a separate Runtime entry
   # https://github.com/kernelci/kernelci-core/issues/2088
