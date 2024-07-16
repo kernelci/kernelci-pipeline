@@ -1403,10 +1403,8 @@ scheduler:
   - job: kbuild-gcc-12-arm64-dtbscheck
     <<: *build-k8s-all
     rules:
-      tree: 
-        - next
-      branch: 
-        - master
+      tree:
+        - next:master
 
   - job: kbuild-gcc-12-arm64-preempt_rt
     <<: *build-k8s-all
@@ -1436,10 +1434,8 @@ scheduler:
 #  - job: kbuild-gcc-12-arm64-dtbscheck
 #    <<: *build-k8s-all
 #    rules:
-#      tree: 
-#        - kernelci
-#      branch: 
-#        - staging-next
+#      tree:
+#        - kernelci:staging-next
 
   - job: kbuild-clang-17-arm-android
     <<: *build-k8s-all

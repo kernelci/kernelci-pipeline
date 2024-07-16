@@ -450,9 +450,7 @@ jobs:
       job_timeout: 10
     rules:
       tree:
-        - collabora-next
-      branch:
-        - for-kernelci
+        - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.acpi
 
   kselftest-device-error-logs:
@@ -464,9 +462,7 @@ jobs:
       job_timeout: 10
     rules:
       tree:
-        - collabora-next
-      branch:
-        - for-kernelci
+        - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.device_error_logs
 
   tast-basic-arm64-mediatek: *tast-basic-job
