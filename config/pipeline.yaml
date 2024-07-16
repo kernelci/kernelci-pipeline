@@ -1125,7 +1125,7 @@ scheduler:
   - job: baseline-arm64-android
     event:
       channel: node
-      name: kbuild-gcc-12-arm64-android-allmodconfig
+      name: kbuild-gcc-12-arm64-android
       result: pass
     runtime:
       type: lava
@@ -1152,7 +1152,7 @@ scheduler:
   - job: baseline-arm-android
     event:
       channel: node
-      name: kbuild-gcc-12-arm-android-allmodconfig
+      name: kbuild-gcc-12-arm-android
       result: pass
     runtime:
       type: lava
