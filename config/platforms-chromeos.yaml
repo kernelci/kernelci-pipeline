@@ -103,6 +103,8 @@ platforms:
     base_name: jacuzzi
     mach: mediatek
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
+    context:
+      test_character_delay: 10
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -118,8 +120,6 @@ platforms:
       flash_kernel:
         url: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240514.0/arm64
         image: 'Image'
-    context:
-      test_character_delay: 10
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -130,8 +130,6 @@ platforms:
     <<: *mediatek-chromebook-device
     base_name: asurada
     dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
-    context:
-      test_character_delay: 10
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -142,8 +140,6 @@ platforms:
     <<: *mediatek-chromebook-device
     base_name: cherry
     dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
-    context:
-      test_character_delay: 10
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
