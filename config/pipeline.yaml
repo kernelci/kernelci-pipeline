@@ -267,8 +267,8 @@ jobs:
   baseline-x86-cip: *baseline-job
   baseline-x86-kcidebug-amd: *baseline-job
   baseline-x86-kcidebug-intel: *baseline-job
-  baseline-x86-kcidebug-mediatek: *baseline-job
-  baseline-x86-kcidebug-qualcomm: *baseline-job
+  baseline-arm64-kcidebug-mediatek: *baseline-job
+  baseline-arm64-kcidebug-qualcomm: *baseline-job
   baseline-x86-mfd: *baseline-job
 
   kbuild-gcc-12-arc-haps_hs_smp_defconfig:
@@ -1328,7 +1328,7 @@ scheduler:
       name: lava-collabora
     platforms: *intel-platforms
 
-  - job: baseline-x86-kcidebug-mediatek
+  - job: baseline-arm64-kcidebug-mediatek
     event:
       channel: node
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
@@ -1338,7 +1338,7 @@ scheduler:
       name: lava-collabora
     platforms: *mediatek-platforms
 
-  - job: baseline-x86-kcidebug-qualcomm
+  - job: baseline-arm64-kcidebug-qualcomm
     event:
       channel: node
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
