@@ -1091,7 +1091,7 @@ jobs:
     kind: job
     params: &rt-tests-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240313.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240806.0/{debarch}'
       job_timeout: 10
       duration: '60s'
     kcidb_test_suite: rt-tests
