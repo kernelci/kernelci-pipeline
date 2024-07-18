@@ -163,3 +163,124 @@ Here, `node` refers to the name of API PubSub channel where node events are publ
 - **`platforms`**: Includes a list of device types on which the test should run. These should match entries defined in the `platforms` section, such as `qemu-x86`, `bcm2711-rpi-4-b`, and others.
 
 After following these steps, run your pipeline instance to activate your newly added test configuration.
+
+
+## Test hierarchy
+
+Once you enable tests for your desired Kernel tree, maestro will start
+running tests and storing results in maestro DB. This section explains  how maestro structures test results hierarchy.
+
+### Job vs Test
+
+We can have a test suite or a single test case running in maestro.
+Conceptually, we use the term `job` for test suites and `test` for a single test case.
+
+For instance, Kernel version check i.e. `kver` test is a single test
+returning directly `pass` or `fail` result. Hence, `kver` would directly
+represent the result and won't have any child tests running. That's why we use node kind `test` for such tests.
+
+Whereas we also have different test suites running. For example, `kunit`, `kselftest`, `rt-tests`, `baseline` (boot tests). These suites will have
+child tests or child jobs. All the nodes with child jobs or test cases would be represented with node kind `job`.
+
+Please check the [configuration](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) file for various job and test definitions.
+Jobs will have `kind: job` and test cases will have `kind: test` respectively.
+
+
+### Visualize hierarchy
+
+Here is a visual representation of test hierarchy in maestro.
+As mentioned earlier, nodes with child jobs or tests will have `kind=job`
+and test cases without any child node will have `kind=test`.
+
+For example, `kunit` test hierarchy would look like below:
+
+```mermaid
+graph TD
+    A["kunit <br> (kind: job)"] --> B("config <br> (kind: test)")
+    A --> C["build <br> (kind: test)"]
+    A -->  D["exec <br> (kind: job)"]
+    D --> E["input_core <br> (kind: job)"]
+    E --> F["input_test_polling <br> (kind: test)"]
+```
+
+In the above example, the job node `kunit` is created first. It has a child
+job and a test node. `exec` is a job node as it contains child test cases, whereas `build` and `config` are test cases without any sub-tests.
+
+
+#### LAVA job hierarchy
+
+As stated earlier, maestro supports different runtimes for tests, such as
+docker, kubernetes, and LAVA.
+
+We treat LAVA jobs a bit differently with respect to other jobs. All the
+LAVA job nodes will have a `setup` test suite that runs pre-condition checks (e.g. test device login or generate tarball for `tast` test) before running the actual test definition.
+
+Here is the test hierarchy for `kselftest-cpufreq` job:
+
+```mermaid
+graph TD
+    A["kselftest-cpufreq <br> (kind: job)"] --> B("setup <br> (kind: job)")
+    A --> C("kselftest-cpufreq <br> (kind: job)")
+    C --> D["cpufreq_main_sh <br> (kind: test)"]
+    C --> E["shardfile-cpufreq <br> (kind: test)"]
+    B --> F["login <br> (kind: test)"]
+    B --> G["kernelmsg <br> (kind: test)"]
+```
+
+In the above example, root node `kselftest-cpufreq` is the main job node.
+It has two child nodes. One is a `setup` test suite as mentioned above, and another is a job node with the same name i.e. `kselftest-cpufreq` which is the actual test definition.
+`kselftest-cpufreq` (child job node) will be executed only after `setup` test suite's successful execution.
+
+
+## Test result evaluation
+
+This section is intended to explain how results are evaluated in maestro.
+For test cases (job nodes with `kind: test`), it directly uses test results
+i.e. `pass`, `fail`, or `skip` from the data received from the respective job.
+
+In case of a test suite (job node with `kind: job`), maestro evaluates result based on child test suites and tests.
+
+Let's take an example of a `job_node` with the following hierarchy:
+```mermaid
+graph TD
+    A[job_node] --> B(test_case_1)
+    A --> C(test_case_2)
+    A --> D(test_suite_1)
+    D --> E(test_case_3)
+    D --> F(test_case_4)
+```
+
+Here is the visual representation of the result evaluation of the `job_node`:
+```mermaid
+graph TD
+    A(test_case_1)
+    B(test_case_2)
+    C(test_case_3)
+    D(test_case_4)
+    C --> E{All tests passed?}
+    D --> E
+    E --> |Yes|F('test_suite_1' result <br> set to 'pass')
+    E --> |No|G{One of the tests failed?}
+    G --> |Yes|H('test_suite_1' result <br> set to 'fail')
+    G --> |No|I{All tests skipped?}
+    I --> |Yes|J('test_suite_1' result <br> set to 'skip')
+    A --> K{All tests and test suites passed?}
+    B --> K
+    F --> K
+    H --> K
+    J --> K
+    K --> |Yes|L('job_node' result <br> set to 'pass')
+    K --> |No|M{One of immediate <br> child suite or test failed?}
+    M --> |Yes|N{'setup' test suite exists <br> and failed?}
+    M --> |No|Q{All immediate <br> child suites or tests skipped?}
+    N --> |Yes|O('job_node' result <br> set to 'incomplete')
+    N --> |No|P('job_node' result <br> set to 'fail')
+    Q --> |Yes|R('job_node' result <br> set to 'skip')
+```
+
+The summary of how the result evaluated is:
+A job node result will be set to
+- `pass` if all its tests/test suites passed
+- `fail` if one of its tests/test suites failed
+- `skip` if all tests/test suites are skipped
+- `incomplete` if setup test suite failed
