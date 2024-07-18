@@ -5,7 +5,7 @@ description: "KernelCI Pipeline developer manual"
 weight: 4
 ---
 
-## Enabling a new Kernel tree
+## Enabling new Kernel trees, builds, and tests
 
 We can monitor different kernel trees in KernelCI. The builds and test jobs are triggered whenever the specified branches are updated.
 This manual describes how to enable trees in [`kernelci-pipeline`](https://github.com/kernelci/kernelci-pipeline.git).
