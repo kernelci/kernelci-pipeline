@@ -106,6 +106,7 @@ The test job example is:
 Please have a look at [config/pipeline.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) and [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) files to check currently added job definitions for reference.
 
 We need to specify which branch to monitor of a particular tree for trigering jobs in `build_configs`.
+
 ```yaml
 build_configs:
   <name-of-variant0>:
@@ -115,6 +116,8 @@ build_configs:
   <name-of-variant1>:
     tree: <tree-name>
     branch: <branch-name1>
+```
+
 That's it! The tree is enabled now. All the jobs defined under `jobs` section of [config file](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) would run on the specified branched for this tree.
 
 ### Schedule the job
