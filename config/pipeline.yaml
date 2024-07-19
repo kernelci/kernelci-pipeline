@@ -428,8 +428,6 @@ jobs:
 
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
-    params:
-      <<: *kbuild-gcc-12-arm64-params
     rules:
       tree:
       - 'lee-mfd'
@@ -504,8 +502,6 @@ jobs:
 
   kbuild-gcc-12-arm-mfd:
     <<: *kbuild-gcc-12-arm-job
-    params:
-      <<: *kbuild-gcc-12-arm-params
     rules:
       tree:
       - 'lee-mfd'
@@ -652,8 +648,6 @@ jobs:
 
   kbuild-gcc-12-i386-mfd:
     <<: *kbuild-gcc-12-i386-job
-    params:
-      <<: *kbuild-gcc-12-i386-params
     rules:
       tree:
       - 'lee-mfd'
@@ -726,8 +720,6 @@ jobs:
 
   kbuild-gcc-12-riscv-mfd:
     <<: *kbuild-gcc-12-riscv-job
-    params:
-      <<: *kbuild-gcc-12-riscv-params
     rules:
       tree:
       - 'lee-mfd'
@@ -846,8 +838,6 @@ jobs:
 
   kbuild-gcc-12-x86-mfd:
     <<: *kbuild-gcc-12-x86-job
-    params:
-      <<: *kbuild-gcc-12-x86-params
     rules:
       tree:
       - 'lee-mfd'
