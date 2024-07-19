@@ -383,7 +383,10 @@ _anchors:
       videodec_timeout: 90
     rules:
       tree:
+        - mainline
+        - next
         - collabora-chromeos-kernel
+        - media
     kcidb_test_suite: fluster.v4l2
 
   watchdog-reset: &watchdog-reset-job
