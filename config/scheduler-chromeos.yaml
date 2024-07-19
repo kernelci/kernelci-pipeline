@@ -539,6 +539,9 @@ scheduler:
     platforms:
       - mt8195-cherry-tomato-r2
 
+  - job: v4l2-decoder-conformance-chromeos-h265
+    <<: *test-job-arm64-qualcomm
+
   - job: v4l2-decoder-conformance-chromeos-vp8
     <<: *test-job-arm64-mediatek
     platforms:
@@ -546,12 +549,18 @@ scheduler:
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
+  - job: v4l2-decoder-conformance-chromeos-vp8
+    <<: *test-job-arm64-qualcomm
+
   - job: v4l2-decoder-conformance-chromeos-vp9
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
+
+  - job: v4l2-decoder-conformance-chromeos-vp9
+    <<: *test-job-arm64-qualcomm
 
   - job: v4l2-decoder-conformance-h264
     <<: *test-job-arm64-qualcomm
