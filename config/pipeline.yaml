@@ -281,6 +281,7 @@ jobs:
       defconfig: haps_hs_smp_defconfig
     rules:
       tree:
+      - 'arnd'
       - 'stable-rc'
       - 'kernelci'
 
@@ -340,6 +341,13 @@ jobs:
 
   kbuild-gcc-12-arm64:
     <<: *kbuild-gcc-12-arm64-job
+
+  # Default config and build only job
+  kbuild-gcc-12-arm64-build-only:
+    <<: *kbuild-gcc-12-arm64-job
+    rules:
+      tree:
+      - 'arnd'
 
   kbuild-gcc-12-arm64-chromebook-kcidebug:
     template: kbuild.jinja2
@@ -492,6 +500,7 @@ jobs:
       - 'stable-rc'
       - 'kernelci'
 
+  # Default config and build only
   kbuild-gcc-12-arm-multi_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
@@ -499,6 +508,7 @@ jobs:
       defconfig: multi_v7_defconfig
     rules:
       tree:
+      - 'arnd'
       - 'stable-rc'
       - 'kernelci'
 
@@ -650,6 +660,13 @@ jobs:
       tree:
       - 'android'
 
+  # Default config and build only job
+  kbuild-gcc-12-i386-build-only:
+    <<: *kbuild-gcc-12-i386-job
+    rules:
+      tree:
+      - 'arnd'
+
   kbuild-gcc-12-i386-mfd:
     <<: *kbuild-gcc-12-i386-job
     params:
@@ -668,6 +685,7 @@ jobs:
       defconfig: 32r2el_defconfig
     rules:
       tree:
+      - 'arnd'
       - 'stable-rc'
       - 'kernelci'
 
@@ -712,6 +730,13 @@ jobs:
         - allnoconfig
     rules:
       <<: *kbuild-riscv-android-rules
+
+  # Default config and build only
+  kbuild-gcc-12-riscv-build-only:
+    <<: *kbuild-gcc-12-riscv-job
+    rules:
+      tree:
+      - 'arnd'
 
   kbuild-gcc-12-riscv-nommu_k210_defconfig:
     <<: *kbuild-gcc-12-riscv-job
@@ -820,6 +845,13 @@ jobs:
     rules:
       tree:
       - 'android'
+
+  # Default config and build only
+  kbuild-gcc-12-x86-build-only:
+    <<: *kbuild-gcc-12-x86-job
+    rules:
+      tree:
+      - 'arnd'
 
   kbuild-gcc-12-x86-preempt_rt:
     <<: *kbuild-gcc-12-x86-job
@@ -1019,6 +1051,9 @@ jobs:
     kcidb_test_suite: kernelci_sleep
 
 trees:
+
+  arnd:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
   broonie-misc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
@@ -1473,6 +1508,9 @@ scheduler:
   - job: kbuild-gcc-12-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-chromebook-kcidebug
     <<: *build-k8s-all
 
@@ -1491,6 +1529,9 @@ scheduler:
   - job: kbuild-gcc-12-riscv-android-defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-riscv-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
   
@@ -1507,6 +1548,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-android-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-preempt_rt
@@ -1528,6 +1572,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-i386-android-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-i386-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-i386-mfd
@@ -1637,6 +1684,10 @@ build_variants:
 
 
 build_configs:
+
+  arnd:
+    tree: arnd
+    branch: 'to-build'
 
   broonie-misc:
     tree: broonie-misc
