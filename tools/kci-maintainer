@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2024 Collabora Limited
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
+'''
+Tool to send checkout and jobretry requests to kernelci.org API server
+Intended to be used by Linux kernel maintainers to trigger kernelci.org jobs
+You need to have a valid Maestro API token to use this tool
+'''
+
+import requests
+import json
+import os
+import argparse
+
+API_ADDR = ['https://staging.kernelci.org:9100/',
+            'https://kernelci-pipeline.westus3.cloudapp.azure.com/']
+API_DESC = ['staging', 'production']
+API_URL = API_ADDR[0]
+
+
+def get_token():
+    # Two places to try get the token
+    # environment variable KCI_TOKEN
+    if 'KCI_TOKEN' in os.environ:
+        return os.environ['KCI_TOKEN']
+    # .token file
+    if os.path.exists('.kci_token'):
+        with open('.kci_token', 'r') as f:
+            return f.read().strip()
+
+
+def send_checkout_request(token, nodeid, commit):
+    url = API_URL + 'api/checkout'
+    headers = {'Authorization': token, 'Content-Type': 'application/json'}
+    data = {'nodeid': nodeid, 'commit': commit}
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.text)
+
+
+def send_jobretry_request(token, nodeid):
+    url = API_URL + 'api/jobretry'
+    headers = {'Authorization': token, 'Content-Type': 'application/json'}
+    data = {'nodeid': nodeid}
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.text)
+
+
+def main():
+    global API_URL
+    ap = argparse.ArgumentParser()
+    token = get_token()
+    if not token:
+        ap.add_argument('-t', '--token', required=True, help='API token')
+
+    ap.add_argument('--api', type=int, choices=[0, 1], default=0,
+                    help='API server to use, 0 for staging, 1 for production, default is 0')
+    ap.add_argument('--checkout', action='store_true', help='Send checkout request')
+    ap.add_argument('--jobretry', action='store_true', help='Retry job(test) request')
+    ap.add_argument('-n', '--nodeid', help='Node ID')
+    ap.add_argument('-c', '--commit', help='Commit ID')
+
+    args = ap.parse_args()
+
+    if args.api:
+        API_URL = API_ADDR.get(args.api)
+        if not API_URL:
+            print('Invalid API server')
+            return
+
+    if not token and args.token:
+        token = args.token
+
+    if not token:
+        print('API token is required')
+        return
+
+    if args.jobretry:
+        if not args.nodeid:
+            print('Node ID is required')
+            return
+        send_jobretry_request(token, args.nodeid)
+
+    if args.checkout:
+        if not args.nodeid:
+            print('Node ID is required')
+            return
+        if not args.commit:
+            print('Commit ID is required')
+            return
+        send_checkout_request(token, args.nodeid, args.commit)
+
+
+if __name__ == '__main__':
+    main()
