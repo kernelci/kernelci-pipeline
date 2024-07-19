@@ -111,6 +111,10 @@ _anchors:
     - sc7180-trogdor-kingoftown
     - sc7180-trogdor-lazor-limozeen
 
+  build-only-trees: &build-only-trees-rules
+    rules:
+      tree:
+      - 'arnd'
 
 api:
 
@@ -271,7 +275,7 @@ jobs:
   baseline-arm64-kcidebug-qualcomm: *baseline-job
   baseline-x86-mfd: *baseline-job
 
-  kbuild-gcc-12-arc-haps_hs_smp_defconfig:
+  kbuild-gcc-12-arc-haps_hs_smp_defconfig: &kbuild-gcc-12-arc-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:arc-kselftest-kernelci
     params:
@@ -283,6 +287,11 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  # Default config and build only job
+  kbuild-gcc-12-arc-build-only:
+    <<: *kbuild-gcc-12-arc-job
+    rules: *build-only-trees-rules
 
   kbuild-clang-17-arm: &kbuild-clang-17-arm-job
     <<: *kbuild-job
@@ -340,6 +349,11 @@ jobs:
 
   kbuild-gcc-12-arm64:
     <<: *kbuild-gcc-12-arm64-job
+
+  # Default config and build only job
+  kbuild-gcc-12-arm64-build-only:
+    <<: *kbuild-gcc-12-arm64-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-12-arm64-chromebook-kcidebug:
     template: kbuild.jinja2
@@ -471,6 +485,11 @@ jobs:
     params:
       <<: *kbuild-clang-17-arm-params
       defconfig: vexpress_defconfig
+
+  # Default config and build only job
+  kbuild-gcc-12-arm-build-only:
+    <<: *kbuild-gcc-12-arm-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-12-arm-imx_v6_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -650,6 +669,11 @@ jobs:
       tree:
       - 'android'
 
+  # Default config and build only job
+  kbuild-gcc-12-i386-build-only:
+    <<: *kbuild-gcc-12-i386-job
+    rules: *build-only-trees-rules
+
   kbuild-gcc-12-i386-mfd:
     <<: *kbuild-gcc-12-i386-job
     params:
@@ -658,7 +682,7 @@ jobs:
       tree:
       - 'lee-mfd'
 
-  kbuild-gcc-12-mips-32r2el_defconfig:
+  kbuild-gcc-12-mips-32r2el_defconfig: &kbuild-gcc-12-mips-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:mips-kselftest-kernelci
     params:
@@ -670,6 +694,11 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+
+  # Default config and build only job
+  kbuild-gcc-12-mips-build-only:
+    <<: *kbuild-gcc-12-mips-job
+    rules: *build-only-trees-rules
 
   kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
     <<: *kbuild-job
@@ -712,6 +741,11 @@ jobs:
         - allnoconfig
     rules:
       <<: *kbuild-riscv-android-rules
+
+  # Default config and build only
+  kbuild-gcc-12-riscv-build-only:
+    <<: *kbuild-gcc-12-riscv-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-12-riscv-nommu_k210_defconfig:
     <<: *kbuild-gcc-12-riscv-job
@@ -820,6 +854,11 @@ jobs:
     rules:
       tree:
       - 'android'
+
+  # Default config and build only
+  kbuild-gcc-12-x86-build-only:
+    <<: *kbuild-gcc-12-x86-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-12-x86-preempt_rt:
     <<: *kbuild-gcc-12-x86-job
@@ -1019,6 +1058,9 @@ jobs:
     kcidb_test_suite: kernelci_sleep
 
 trees:
+
+  arnd:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
   broonie-misc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
@@ -1449,6 +1491,9 @@ scheduler:
   - job: kbuild-clang-17-arm-android-omap2plus_defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
@@ -1473,6 +1518,9 @@ scheduler:
   - job: kbuild-gcc-12-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-chromebook-kcidebug
     <<: *build-k8s-all
 
@@ -1491,6 +1539,9 @@ scheduler:
   - job: kbuild-gcc-12-riscv-android-defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-riscv-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
   
@@ -1507,6 +1558,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-android-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-preempt_rt
@@ -1530,10 +1584,16 @@ scheduler:
   - job: kbuild-gcc-12-i386-android-allnoconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-i386-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-i386-mfd
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-mips-32r2el_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-mips-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
@@ -1543,6 +1603,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arc-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
@@ -1637,6 +1700,10 @@ build_variants:
 
 
 build_configs:
+
+  arnd:
+    tree: arnd
+    branch: 'to-build'
 
   broonie-misc:
     tree: broonie-misc
