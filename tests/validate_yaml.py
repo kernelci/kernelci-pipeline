@@ -41,6 +41,11 @@ def validate_jobs(jobs):
                 raise yaml.YAMLError(
                     f"KCIDB test suite mapping not found for job: {name}'"
                 )
+        if definition.get('kind') == "job":
+            if not definition.get('template'):
+                raise yaml.YAMLError(
+                    f"Template not found for job: {name}'"
+                )
 
 def validate_scheduler_jobs(data):
     '''
