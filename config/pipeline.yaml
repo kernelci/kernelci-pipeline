@@ -949,149 +949,144 @@ jobs:
       job_timeout: 10
     kcidb_test_suite: kselftest.iommu
 
-  ltp: &ltp
-    rootfs: debian_bookworm-ltp_nfs
-    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
+  ltp: &ltp-job
+    template: ltp.jinja2
+    kind: job
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20240313.0/{debarch}'
     params: &ltp-params
       skip_install: "true"
-      tst_cmdfiles: ""
-      job_timeout: '15'
       skipfile: skipfile-lkft.yaml
+    kcidb_test_suite: ltp
+    rules:
+      fragments:
+        - '!kselftest'
 
   ltp-cap-bounds:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "cap_bounds"
 
   ltp-cpuhotplug:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "cpuhotplug"
 
   ltp-crypto:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "crypto"
-    filters:
-      - passlist:
-          defconfig:
-            - '+crypto'
+    rules:
+      fragments:
+        - 'crypto'
+        - '!kselftest'
 
   ltp-dio:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "dio"
 
   ltp-fcntl-locktests:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "fcntl-locktests"
 
   ltp-filecaps:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "filecaps"
 
   ltp-fsx:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "fsx"
 
   ltp-hugetlb:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "hugetlb"
 
   ltp-ima:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "ima"
-    filters:
-      - passlist:
-          defconfig:
-            - '+ima'
+    rules:
+      fragments:
+        - 'ima'
+        - '!kselftest'
 
   ltp-io:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "io"
 
   ltp-ipc:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "ipc"
 
   ltp-mm:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "mm"
-      job_timeout: '30'
+      job_timeout: 30
 
   ltp-pty:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "pty"
-      job_timeout: '25'
-      priority: 0
+      job_timeout: 25
 
   ltp-sched:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "sched"
 
   ltp-smoketest:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "smoketest"
 
   ltp-syscalls:
-    <<: *ltp
+    <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "syscalls"
-      job_timeout: '120'
-      priority: 0
+      job_timeout: 120
 
   ltp-timers:
-    <<: *ltp
-    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    <<: *ltp-job
     params:
       <<: *ltp-params
       grp_test: "TMR"
-      job_timeout: '30'
-      priority: 0
+      job_timeout: 30
 
   ltp-timers_qemu:
-    <<: *ltp
+    <<: *ltp-job
     base_name: ltp-timers
-    rootfs: debian_bookworm-ltp_ramdisk
-    pattern: 'ltp/{category}-{method}-{rootfs}-ltp-open-posix-template.jinja2'
     params:
       <<: *ltp-params
       grp_test: "TMR"
-      job_timeout: '30'
-      priority: 0
-    filters:
-      - combination: *arch_defconfig_filter
-      - blocklist: *kselftest_defconfig_filter
-      - passlist: *qemu_labs_filter
+      job_timeout: 30
+    rules:
+      defconfig:
+        - 'defconfig'
+      fragments:
+        - '!kselftest'
 
   rt-tests: &rt-tests
     template: rt-tests.jinja2
