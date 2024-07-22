@@ -53,6 +53,8 @@ jobs:
       tree:
         - <tree-name>
         - !<tree-name2>
+      branch:
+        - <branch-name>
 
   <test-job-name>:
     template: <template-name>
@@ -69,13 +71,15 @@ jobs:
       tree:
         - <tree-name>
         - !<tree-name2>
+        - <tree-name3>:<branch-name>
 ```
 Here is the description of each field:
 - **`template`**: A `jinja2` template should be added to the [`config/runtime`](https://github.com/kernelci/kernelci-pipeline/tree/main/config/runtime) directory. This template will be used to generate the test definition.
 - **`kind`**: The `kind` field specifies the type of job. It should be `kbuild` for build jobs, `job` for a test suite, and `test` for a single test case.
 - **`image`**: The `image` field specifies the Docker image used for building and running the test. This field is optional. For example, LAVA test jobs use an image defined in the test definition template instead.
 - **`params`**: The `params` field includes parameters for building the kernel (for `kbuild` jobs) or running the test. These parameters can include architecture, compiler, defconfig options, job timeout, etc.
-- **`rules`**: The `rules` field defines job rules. If a test should be scheduled for a specific kernel tree, branch, or version, these rules can be specified here. The rules prefixed with `!` exclude the specified condition from job scheduling. For example, in the given scenario, the scheduler does not schedule a job if an event is received for the kernel tree `tree-name2`.
+- **`rules`**: The `rules` field defines job rules. If a test should be scheduled for a specific kernel tree, branch, or version, these rules can be specified here. The rules prefixed with `!` exclude the specified condition from job scheduling. For example, in the given scenario, the scheduler does not schedule a job if an event is received for the kernel tree `tree-name2`. It is also possible to schedule job for a specific branch of a tree. For example, a rule `tree:branch` can be mentioned under
+`tree` or `branch` section to define that.
 - **`kcidb_test_suite`**: The `kcidb_test_suite` field maps the KernelCI test suite name with the KCIDB test. This field is not required for build jobs (`kind: kbuild`). When adding new tests, ensure their definition is present in the `tests.yaml` file in [KCIDB](https://github.com/kernelci/kcidb/blob/main/tests.yaml).
 
 Common patterns are often defined using YAML anchors and aliases. This approach allows for concise job definitions by reusing existing configurations. For example, a kbuild job can be defined as follows:
