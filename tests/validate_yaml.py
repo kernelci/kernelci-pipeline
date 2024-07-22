@@ -36,6 +36,10 @@ def validate_jobs(jobs):
     Validate jobs, they must have a kcidb_test_suite mapping
     '''
     for name, definition in jobs.items():
+        if not definition.get('kind'):
+            raise yaml.YAMLError(
+                f"Kind not found for job: {name}'"
+            )
         if definition.get('kind') in ("test", "job"):
             if not definition.get('kcidb_test_suite'):
                 raise yaml.YAMLError(
