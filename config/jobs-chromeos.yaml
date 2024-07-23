@@ -76,6 +76,8 @@ _anchors:
         # Those always fail on all platforms
         - video.ChromeStackDecoderVerification.hevc_main
         - video.ChromeStackDecoderVerification.vp9_0_svc
+      # Those jobs can run for a very long time, so we need a very large timeout
+      job_timeout: 180
 
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-job
