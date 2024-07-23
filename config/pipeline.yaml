@@ -1297,11 +1297,11 @@ platforms:
 scheduler:
 
   - job: baseline-arm64
-    event:
+    event: &kbuild-gcc-12-arm64-node-event
       channel: node
       name: kbuild-gcc-12-arm64
       result: pass
-    runtime:
+    runtime: &runtime-lava-collabora
       type: lava
       name: lava-collabora
     platforms:
@@ -1313,10 +1313,7 @@ scheduler:
       - sun50i-h6-pine-h64
 
   - job: baseline-arm64-broonie
-    event:
-      channel: node
-      name: kbuild-gcc-12-arm64
-      result: pass
+    event: *kbuild-gcc-12-arm64-node-event
     runtime:
       type: lava
       name: lava-broonie
@@ -1324,10 +1321,7 @@ scheduler:
       - sun50i-h5-libretech-all-h3-cc
 
   - job: baseline-arm64-qualcomm
-    event:
-      channel: node
-      name: kbuild-gcc-12-arm64
-      result: pass
+    event: *kbuild-gcc-12-arm64-node-event
     runtime:
       type: lava
       name: lava-qualcomm
@@ -1340,9 +1334,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm64-android
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
@@ -1356,9 +1348,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm64-mfd
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2711-rpi-4-b
 
@@ -1367,9 +1357,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm-android
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2836-rpi-2-b
       - imx6q-sabrelite
@@ -1382,20 +1370,16 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm-mfd
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2836-rpi-2-b
 
   - job: baseline-arm
-    event:
+    event: &kbuild-gcc-12-arm-node-event
       channel: node
       name: kbuild-gcc-12-arm
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2836-rpi-2-b
       - imx6q-sabrelite
@@ -1404,10 +1388,7 @@ scheduler:
       - rk3288-veyron-jaq
 
   - job: baseline-arm-baylibre
-    event:
-      channel: node
-      name: kbuild-gcc-12-arm
-      result: pass
+    event: *kbuild-gcc-12-arm-node-event
     runtime:
       type: lava
       name: lava-baylibre
@@ -1419,9 +1400,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-x86
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - qemu-x86
       - minnowboard-turbot-E3826
@@ -1442,9 +1421,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-x86-kcidebug
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms: *amd-platforms
 
   - job: baseline-x86-kcidebug-intel
@@ -1452,9 +1429,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-x86-kcidebug
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms: *intel-platforms
 
   - job: baseline-arm64-kcidebug-mediatek
@@ -1462,9 +1437,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms: *mediatek-platforms
 
   - job: baseline-arm64-kcidebug-qualcomm
@@ -1472,9 +1445,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms: *qualcomm-platforms
 
   - job: baseline-x86-cip
@@ -1493,9 +1464,7 @@ scheduler:
       channel: node
       name: kbuild-gcc-12-x86-mfd
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - minnowboard-turbot-E3826
 
@@ -1711,24 +1680,69 @@ scheduler:
       type: shell
 
   - job: kselftest-dt
-    event:
-      channel: node
-      name: kbuild-gcc-12-arm64
-      result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: ltp-crypto
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2836-rpi-2-b
+
+  - job: ltp-dio
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2836-rpi-2-b
+
+  - job: ltp-fcntl-locktests
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - rk3399-gru-kevin
+
+  - job: ltp-fsx
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+
+  - job: ltp-pty
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - rk3399-gru-kevin
+  
+  - job: ltp-smoketest
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+  
+  - job: ltp-timers
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+      - rk3399-gru-kevin
+
+  - job: ltp-timers_qemu
+    event:
+      channel: node
+      name: kbuild-gcc-12-x86
+      result: pass
+    runtime: *runtime-lava-collabora
+    platforms:
+      - qemu-x86
 
   - job: sleep
     event:
       channel: node
       name: kbuild-gcc-12-x86
       result: pass
-    runtime:
-      type: lava
-      name: lava-collabora
+    runtime: *runtime-lava-collabora
     platforms:
       - acer-chromebox-cxi4-puff
 

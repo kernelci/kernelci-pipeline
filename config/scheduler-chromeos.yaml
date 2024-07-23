@@ -91,16 +91,19 @@ _anchors:
       name: kbuild-gcc-12-arm64-chromeos-qualcomm
       result: pass
 
-  test-job-x86-amd: &test-job-x86-amd
+  test-job-x86: &test-job-x86
     <<: *lava-job-collabora
     event:
       channel: node
       name: kbuild-gcc-12-x86
       result: pass
+
+  test-job-x86-amd: &test-job-x86-amd
+    <<: *test-job-x86
     platforms: *amd-platforms
 
   test-job-x86-intel: &test-job-x86-intel
-    <<: *test-job-x86-amd
+    <<: *test-job-x86
     platforms: *intel-platforms
 
 scheduler:
@@ -248,6 +251,55 @@ scheduler:
 
   - job: kselftest-iommu
     <<: *test-job-arm64-mediatek
+
+  - job: ltp-crypto
+    <<: *test-job-x86
+    platforms:
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
+  - job: ltp-fcntl-locktests
+    <<: *test-job-x86
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+
+  - job: ltp-ima
+    <<: *test-job-x86
+    platforms:
+      - asus-C523NA-A20057-coral
+
+  - job: ltp-ipc
+    <<: *test-job-x86
+    platforms:
+      - acer-cp514-2h-1130g7-volteer
+      - asus-C436FA-Flip-hatch
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
+  - job: ltp-mm
+    <<: *test-job-x86
+    platforms:
+      - asus-C436FA-Flip-hatch
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
+  - job: ltp-pty
+    <<: *test-job-x86
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+
+  - job: ltp-timers 
+    <<: *test-job-x86
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C436FA-Flip-hatch
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
 
 #  - job: tast-basic-arm64-mediatek
 #    <<: *test-job-chromeos-mediatek
