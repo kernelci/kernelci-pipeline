@@ -281,6 +281,7 @@ jobs:
       defconfig: haps_hs_smp_defconfig
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
       - 'stable-rc'
@@ -348,6 +349,7 @@ jobs:
     <<: *kbuild-gcc-12-arm64-job
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
 
@@ -510,6 +512,7 @@ jobs:
       defconfig: multi_v7_defconfig
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
       - 'stable-rc'
@@ -668,6 +671,7 @@ jobs:
     <<: *kbuild-gcc-12-i386-job
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
 
@@ -689,6 +693,7 @@ jobs:
       defconfig: 32r2el_defconfig
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
       - 'stable-rc'
@@ -741,6 +746,7 @@ jobs:
     <<: *kbuild-gcc-12-riscv-job
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
 
@@ -857,6 +863,7 @@ jobs:
     <<: *kbuild-gcc-12-x86-job
     rules:
       tree:
+      - 'amlogic'
       - 'ardb'
       - 'arnd'
 
@@ -1058,6 +1065,9 @@ jobs:
     kcidb_test_suite: kernelci_sleep
 
 trees:
+
+  amlogic:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
   ardb:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
@@ -1694,6 +1704,14 @@ build_variants:
 
 
 build_configs:
+
+  amlogic:
+    tree: amlogic
+    branch: 'for-next'
+
+  amlogic_integ:
+    tree: amlogic
+    branch: 'integ'
 
   ardb:
     tree: ardb
