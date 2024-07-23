@@ -335,20 +335,18 @@ scheduler:
 
   - job: tast-decoder-v4l2-sl-h264-arm64-mediatek
     <<: *test-job-chromeos-mediatek
-    platforms:
-      - mt8183-kukui-jacuzzi-juniper-sku16
-      - mt8192-asurada-spherion-r0
-      - mt8195-cherry-tomato-r2
 
   - job: tast-decoder-v4l2-sl-vp8-arm64-mediatek
     <<: *test-job-chromeos-mediatek
     platforms:
+      - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: tast-decoder-v4l2-sl-vp9-arm64-mediatek
     <<: *test-job-chromeos-mediatek
     platforms:
+      - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
