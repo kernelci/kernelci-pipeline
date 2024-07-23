@@ -426,6 +426,16 @@ jobs:
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
 
+  kbuild-gcc-12-arm64-chrome:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'arm64-chromebook'
+    rules:
+      tree:
+      - 'chrome-platform'
+
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
     rules:
@@ -499,6 +509,7 @@ jobs:
       tree:
       - 'stable-rc'
       - 'kernelci'
+      - 'chrome-platform'
 
   kbuild-gcc-12-arm-mfd:
     <<: *kbuild-gcc-12-arm-job
@@ -1025,6 +1036,9 @@ trees:
   broonie-spi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
 
+  chrome-platform:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -1414,6 +1428,9 @@ scheduler:
   - job: kbuild-gcc-12-arm64-android-randomize
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-chrome
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-mfd
     <<: *build-k8s-all
 
@@ -1672,6 +1689,14 @@ build_configs:
     tree: broonie-spi
     branch: 'for-linus'
     variants: *build-variants
+
+  chrome-platform:
+    tree: chrome-platform
+    branch: 'for-next'
+
+  chrome-platform-firmware:
+    tree: chrome-platform
+    branch: 'for-firmware-next'
 
   kernelci_staging-mainline:
     tree: kernelci
