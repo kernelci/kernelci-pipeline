@@ -54,6 +54,7 @@ jobs:
     needs: check
     permissions:
       contents: read
+      issues: write
       pull-requests: write    
     steps:
       - name: Add label to PR
