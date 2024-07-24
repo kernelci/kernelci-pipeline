@@ -1726,6 +1726,10 @@ build_configs:
     <<: *stable-rc
     branch: 'linux-6.9.y'
 
+  stable-rc_6.10:
+    <<: *stable-rc
+    branch: 'linux-6.10.y'
+
   next_master:
     tree: next
     branch: 'master'
