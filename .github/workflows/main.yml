@@ -48,19 +48,4 @@ jobs:
       - name: Run basic yaml validation
         run: |
           python tests/validate_yaml.py
-  on-fail:
-    if: failure() && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    needs: check
-    steps:
-      - name: Add label to PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const label = 'staging-skip';
-            github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: [label]
-            });
+        
