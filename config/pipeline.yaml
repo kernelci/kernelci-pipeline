@@ -29,6 +29,10 @@ _anchors:
     runtime:
       name: k8s-all
 
+  node-event: &node-event
+    channel: node
+    result: pass
+
   kbuild: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -75,41 +79,6 @@ _anchors:
     boot_method: grub
     mach: x86
 
-  amd-platforms: &amd-platforms
-    - acer-R721T-grunt
-    - acer-cp514-3wh-r0qs-guybrush
-    - asus-CM1400CXA-dalboz
-    - dell-latitude-3445-7520c-skyrim
-    - hp-14-db0003na-grunt
-    - hp-11A-G6-EE-grunt
-    - hp-14b-na0052xx-zork
-    - hp-x360-14a-cb0001xx-zork
-    - lenovo-TPad-C13-Yoga-zork
-
-  intel-platforms: &intel-platforms
-    - acer-cb317-1h-c3z6-dedede
-    - acer-cbv514-1h-34uz-brya
-    - acer-chromebox-cxi4-puff
-    - acer-cp514-2h-1130g7-volteer
-    - acer-cp514-2h-1160g7-volteer
-    - asus-C433TA-AJ0005-rammus
-    - asus-C436FA-Flip-hatch
-    - asus-C523NA-A20057-coral
-    - dell-latitude-5300-8145U-arcada
-    - dell-latitude-5400-4305U-sarien
-    - dell-latitude-5400-8665U-sarien
-    - hp-x360-14-G1-sona
-    - hp-x360-12b-ca0010nr-n4020-octopus
-
-  mediatek-platforms: &mediatek-platforms
-    - mt8183-kukui-jacuzzi-juniper-sku16
-    - mt8186-corsola-steelix-sku131072
-    - mt8192-asurada-spherion-r0
-    - mt8195-cherry-tomato-r2
-
-  qualcomm-platforms: &qualcomm-platforms
-    - sc7180-trogdor-kingoftown
-    - sc7180-trogdor-lazor-limozeen
 
   build-only-trees: &build-only-trees-rules
     rules:
@@ -352,8 +321,7 @@ jobs:
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
 
-  kbuild-gcc-12-arm64:
-    <<: *kbuild-gcc-12-arm64-job
+  kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
 
   kbuild-gcc-12-arm64-allnoconfig:
     <<: *kbuild-gcc-12-arm64-job
@@ -371,22 +339,14 @@ jobs:
     rules: *build-only-trees-rules
 
   kbuild-gcc-12-arm64-chromebook-kcidebug:
-    template: kbuild.jinja2
-    kind: kbuild
-    image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
+    <<: *kbuild-gcc-12-arm64-job
     params:
-      arch: arm64
-      compiler: gcc-12
-      cross_compile: 'aarch64-linux-gnu-'
+      <<: *kbuild-gcc-12-arm64-params
       cross_compile_compat: 'arm-linux-gnueabihf-'
-      defconfig: defconfig
       fragments:
         - lab-setup
         - arm64-chromebook
         - kcidebug
-    rules:
-      tree:
-      - '!android'
 
   kbuild-gcc-12-arm64-dtbscheck:
     <<: *kbuild-gcc-12-arm64-job
@@ -924,31 +884,27 @@ jobs:
     image: kernelci/staging-kernelci
     kcidb_test_suite: kernelci_kver
 
-  kselftest-cpufreq:
+  kselftest-cpufreq: &kselftest-job
     template: kselftest.jinja2
     kind: job
-    params:
+    params: &kselftest-params
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: cpufreq
       job_timeout: 10
     kcidb_test_suite: kselftest.cpufreq
 
   kselftest-dmabuf-heaps:
-    template: kselftest.jinja2
-    kind: job
+    <<: *kselftest-job
     params:
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      <<: *kselftest-params
       collections: dmabuf-heaps
-      job_timeout: 10
     kcidb_test_suite: kselftest.dmabuf-heaps
 
   kselftest-dt:
-    template: kselftest.jinja2
-    kind: job
+    <<: *kselftest-job
     params:
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}'
+      <<: *kselftest-params
       collections: dt
-      job_timeout: 10
     rules:
       min_version:
         version: 6
@@ -956,21 +912,17 @@ jobs:
     kcidb_test_suite: kselftest.dt
 
   kselftest-exec:
-    template: kselftest.jinja2
-    kind: job
+    <<: *kselftest-job
     params:
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      <<: *kselftest-params
       collections: exec
-      job_timeout: 10
     kcidb_test_suite: kselftest.exec
 
   kselftest-iommu:
-    template: kselftest.jinja2
-    kind: job
+    <<: *kselftest-job
     params:
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      <<: *kselftest-params
       collections: iommu
-      job_timeout: 10
     kcidb_test_suite: kselftest.iommu
 
   ltp: &ltp-job
@@ -1387,13 +1339,12 @@ scheduler:
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm64
-      result: pass
-    runtime: &runtime-lava-collabora
+    runtime: &lava-collabora-runtime
       type: lava
       name: lava-collabora
-    platforms:
+    platforms: &collabora-arm64-platforms
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
       - rk3399-gru-kevin
@@ -1420,34 +1371,25 @@ scheduler:
 
   - job: baseline-arm64-android
     event:
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm64-android
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms:
-      - bcm2711-rpi-4-b
-      - meson-g12b-a311d-khadas-vim3
-      - rk3399-gru-kevin
-      - rk3399-rock-pi-4b
-      - rk3588-rock-5b
-      - sun50i-h6-pine-h64
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
 
   - job: baseline-arm64-mfd
     event:
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm64-mfd
-      result: pass
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: baseline-arm-android
     event:
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm-android
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms:
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm-platforms
       - bcm2836-rpi-2-b
       - imx6q-sabrelite
       - odroid-xu3
@@ -1456,92 +1398,96 @@ scheduler:
 
   - job: baseline-arm-mfd
     event:
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm-mfd
-      result: pass
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2836-rpi-2-b
 
   - job: baseline-arm
     event: &kbuild-gcc-12-arm-node-event
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms:
-      - bcm2836-rpi-2-b
-      - imx6q-sabrelite
-      - odroid-xu3
-      - rk3288-rock2-square
-      - rk3288-veyron-jaq
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-platforms
 
   - job: baseline-arm-baylibre
     event: *kbuild-gcc-12-arm-node-event
-    runtime:
+    runtime: &lava-baylibre-runtime
       type: lava
       name: lava-baylibre
     platforms:
       - sun7i-a20-cubieboard2
 
   - job: baseline-x86
-    event:
-      channel: node
+    event: &kbuild-gcc-12-x86-node-event
+      <<: *node-event
       name: kbuild-gcc-12-x86
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms:
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-x86-platforms
       - qemu-x86
       - minnowboard-turbot-E3826
 
   - job: baseline-x86-baylibre
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86
-      result: pass
-    runtime:
-      type: lava
-      name: lava-baylibre
+    event: *kbuild-gcc-12-x86-node-event
+    runtime: *lava-baylibre-runtime
     platforms:
       - qemu
 
   - job: baseline-x86-kcidebug-amd
-    event:
-      channel: node
+    event: &kbuild-gcc-12-x86-kcidebug-node-event
+      <<: *node-event
       name: kbuild-gcc-12-x86-kcidebug
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: *amd-platforms
+    runtime: *lava-collabora-runtime
+    platforms:
+      - acer-R721T-grunt
+      - acer-cp514-3wh-r0qs-guybrush
+      - asus-CM1400CXA-dalboz
+      - dell-latitude-3445-7520c-skyrim
+      - hp-14-db0003na-grunt
+      - hp-11A-G6-EE-grunt
+      - hp-14b-na0052xx-zork
+      - hp-x360-14a-cb0001xx-zork
+      - lenovo-TPad-C13-Yoga-zork
 
   - job: baseline-x86-kcidebug-intel
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86-kcidebug
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: *intel-platforms
+    event: *kbuild-gcc-12-x86-kcidebug-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - acer-cb317-1h-c3z6-dedede
+      - acer-cbv514-1h-34uz-brya
+      - acer-chromebox-cxi4-puff
+      - acer-cp514-2h-1130g7-volteer
+      - acer-cp514-2h-1160g7-volteer
+      - asus-C433TA-AJ0005-rammus
+      - asus-C436FA-Flip-hatch
+      - asus-C523NA-A20057-coral
+      - dell-latitude-5300-8145U-arcada
+      - dell-latitude-5400-4305U-sarien
+      - dell-latitude-5400-8665U-sarien
+      - hp-x360-14-G1-sona
+      - hp-x360-12b-ca0010nr-n4020-octopus
 
   - job: baseline-arm64-kcidebug-mediatek
-    event:
-      channel: node
+    event: &kbuild-gcc-12-arm64-chromebook-kcidebug-node-event
+      <<: *node-event
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: *mediatek-platforms
+    runtime: *lava-collabora-runtime
+    platforms:
+      - mt8183-kukui-jacuzzi-juniper-sku16
+      - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
 
   - job: baseline-arm64-kcidebug-qualcomm
-    event:
-      channel: node
-      name: kbuild-gcc-12-arm64-chromebook-kcidebug
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: *qualcomm-platforms
+    event: *kbuild-gcc-12-arm64-chromebook-kcidebug-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - sc7180-trogdor-kingoftown
+      - sc7180-trogdor-lazor-limozeen
 
   - job: baseline-x86-cip
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86
-      result: pass
+    event: *kbuild-gcc-12-x86-node-event
     runtime:
       type: lava
       name: lava-cip
@@ -1550,10 +1496,9 @@ scheduler:
 
   - job: baseline-x86-mfd
     event:
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-x86-mfd
-      result: pass
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - minnowboard-turbot-E3826
 
@@ -1809,82 +1754,72 @@ scheduler:
 
   - job: kselftest-dt
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-crypto
     event: *kbuild-gcc-12-arm-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2836-rpi-2-b
 
   - job: ltp-dio
     event: *kbuild-gcc-12-arm-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2836-rpi-2-b
 
   - job: ltp-fcntl-locktests
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
 
   - job: ltp-fsx
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-pty
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
   
   - job: ltp-smoketest
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
   
   - job: ltp-timers
     event: *kbuild-gcc-12-arm64-node-event
-    runtime: *runtime-lava-collabora
+    runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
       - rk3399-gru-kevin
 
   - job: ltp-timers_qemu
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86
-      result: pass
-    runtime: *runtime-lava-collabora
+    event: *kbuild-gcc-12-x86-node-event
+    runtime: *lava-collabora-runtime
     platforms:
       - qemu-x86
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt-node-event
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm64-preempt_rt
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: &arm64-preempt_rt-platforms
-      - bcm2711-rpi-4-b
-      - meson-g12b-a311d-khadas-vim3
-      - rk3399-gru-kevin
-      - rk3399-rock-pi-4b
-      - rk3588-rock-5b
-      - sun50i-h6-pine-h64
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
-      <<: *kbuild-gcc-12-arm64-preempt_rt-node-event
+      <<: *node-event
       name: kbuild-gcc-12-arm64-preempt_rt_chromebook
-    runtime: *runtime-lava-collabora
-    platforms: &arm64-preempt_rt_chromebook-platforms
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm64-chromebook-platforms
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
@@ -1894,20 +1829,17 @@ scheduler:
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-x86-preempt_rt-node-event
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-x86-preempt_rt
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: &x86-preempt_rt-platforms
-      - qemu-x86
-      - minnowboard-turbot-E3826
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-x86-preempt_rt_chromebook-node-event
-      <<: *kbuild-gcc-12-x86-preempt_rt-node-event
-      name: kbuild-gcc-12-x86-preempt_rt_chromebook
-    runtime: *runtime-lava-collabora
-    platforms: &x86-preempt_rt_chromebook-platforms
+    event: &kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+      <<: *node-event
+      name: kbuild-gcc-12-x86-preempt_rt_x86_board
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-x86-rt-chromebook-platforms
       - acer-cb317-1h-c3z6-dedede
       - acer-cbv514-1h-34uz-brya
       - acer-R721T-grunt
@@ -1919,95 +1851,91 @@ scheduler:
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm-preempt_rt-node-event
-      channel: node
+      <<: *node-event
       name: kbuild-gcc-12-arm-preempt_rt
-      result: pass
-    runtime: *runtime-lava-collabora
-    platforms: &arm-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm-preempt_rt-platforms
       - bcm2836-rpi-2-b
       - imx6q-sabrelite
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-12-arm64-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt_chromebook-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-12-x86-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-x86-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt_chromebook-platforms
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-12-arm-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-12-arm64-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt_chromebook-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-12-x86-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-x86-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt_chromebook-platforms
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-12-arm-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-12-arm64-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm64-preempt_rt_chromebook-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-12-x86-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-x86-preempt_rt_chromebook-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *x86-preempt_rt_chromebook-platforms
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-12-arm-preempt_rt-node-event
-    runtime: *runtime-lava-collabora
-    platforms: *arm-preempt_rt-platforms
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
 
   - job: sleep
-    event:
-      channel: node
-      name: kbuild-gcc-12-x86
-      result: pass
-    runtime: *runtime-lava-collabora
+    event: *kbuild-gcc-12-x86-node-event
+    runtime: *lava-collabora-runtime
     platforms:
       - acer-chromebox-cxi4-puff
 
