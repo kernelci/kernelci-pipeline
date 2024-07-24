@@ -79,7 +79,9 @@ Here is the description of each field:
 - **`image`**: The `image` field specifies the Docker image used for building and running the test. This field is optional. For example, LAVA test jobs use an image defined in the test definition template instead.
 - **`params`**: The `params` field includes parameters for building the kernel (for `kbuild` jobs) or running the test. These parameters can include architecture, compiler, defconfig options, job timeout, etc.
 - **`rules`**: The `rules` field defines job rules. If a test should be scheduled for a specific kernel tree, branch, or version, these rules can be specified here. The rules prefixed with `!` exclude the specified condition from job scheduling. For example, in the given scenario, the scheduler does not schedule a job if an event is received for the kernel tree `tree-name2`. It is also possible to schedule job for a specific branch of a tree. For example, a rule `tree:branch` can be mentioned under
-`tree` or `branch` section to define that.
+`tree` or `branch` section to define that, still accepting the `!` prefix to ensure jobs can be scheduled on all branches from a given tree, except a few select ones.
+Rules can be defined in relation to any attribute present in the parent node (such as `defconfig` or `fragments` or even `arch` for test jobs having a parent node of `kbuild` type).
+`min_version` and `max_version` are special cases to allow jobs to run only on given kernel versions.
 - **`kcidb_test_suite`**: The `kcidb_test_suite` field maps the KernelCI test suite name with the KCIDB test. This field is not required for build jobs (`kind: kbuild`). When adding new tests, ensure their definition is present in the `tests.yaml` file in [KCIDB](https://github.com/kernelci/kcidb/blob/main/tests.yaml).
 
 Common patterns are often defined using YAML anchors and aliases. This approach allows for concise job definitions by reusing existing configurations. For example, a kbuild job can be defined as follows:
