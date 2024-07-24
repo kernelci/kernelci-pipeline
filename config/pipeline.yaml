@@ -30,7 +30,6 @@ _anchors:
       name: k8s-all
 
   kbuild: &kbuild-job
-    template: kbuild.jinja2
     kind: kbuild
     rules:
       tree:
