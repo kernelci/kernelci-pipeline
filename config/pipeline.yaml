@@ -14,12 +14,12 @@ _anchors:
     <<: *arm64-device
     arch: arm
 
-  baseline: &baseline-job
+  baseline-job: &baseline-job
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
 
-  checkout: &checkout-event
+  checkout-event: &checkout-event
     channel: node
     name: checkout
     state: available
@@ -33,14 +33,14 @@ _anchors:
     channel: node
     result: pass
 
-  kbuild: &kbuild-job
+  kbuild-job: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
     rules:
       tree:
       - '!android'
 
-  kbuild-clang-17-x86: &kbuild-clang-17-x86-job
+  kbuild-clang-17-x86-job: &kbuild-clang-17-x86-job
     <<: *kbuild-job
     image: kernelci/staging-clang-17:x86-kselftest-kernelci
     params: &kbuild-clang-17-x86-params
@@ -48,7 +48,7 @@ _anchors:
       compiler: clang-17
       defconfig: x86_64_defconfig
 
-  kbuild-clang-12-arm64: &kbuild-clang-17-arm64-job
+  kbuild-clang-17-arm64-job: &kbuild-clang-17-arm64-job
     <<: *kbuild-job
     image: kernelci/staging-clang-17:arm64-kselftest-kernelci
     params: &kbuild-clang-17-arm64-params
@@ -57,7 +57,7 @@ _anchors:
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-gcc-12-arm64: &kbuild-gcc-12-arm64-job
+  kbuild-gcc-12-arm64-job: &kbuild-gcc-12-arm64-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
     params: &kbuild-gcc-12-arm64-params
@@ -66,7 +66,7 @@ _anchors:
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-gcc-12-x86: &kbuild-gcc-12-x86-job
+  kbuild-gcc-12-x86-job: &kbuild-gcc-12-x86-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:x86-kselftest-kernelci
     params: &kbuild-gcc-12-x86-params
@@ -1069,7 +1069,7 @@ jobs:
     kind: job
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240313.0/{debarch}'
     params: &rt-tests-params
-      job_timeout: '10'
+      job_timeout: 10
       duration: '60s'
     kcidb_test_suite: rt-tests
     rules:
