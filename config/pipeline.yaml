@@ -114,6 +114,8 @@ _anchors:
   build-only-trees: &build-only-trees-rules
     rules:
       tree:
+      - 'amlogic'
+      - 'ardb'
       - 'arnd'
 
 api:
@@ -1049,6 +1051,12 @@ jobs:
 
 trees:
 
+  amlogic:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
+
+  ardb:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
+
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
@@ -1690,6 +1698,18 @@ build_variants:
 
 
 build_configs:
+
+  amlogic:
+    tree: amlogic
+    branch: 'for-next'
+
+  amlogic_integ:
+    tree: amlogic
+    branch: 'integ'
+
+  ardb:
+    tree: ardb
+    branch: 'for-kernelci'
 
   arnd:
     tree: arnd
