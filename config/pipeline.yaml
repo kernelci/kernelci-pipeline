@@ -352,6 +352,16 @@ jobs:
   kbuild-gcc-12-arm64:
     <<: *kbuild-gcc-12-arm64-job
 
+  kbuild-gcc-12-arm64-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'allnoconfig'
+    rules:
+      tree:
+      - 'arm64'
+
   # Default config and build only job
   kbuild-gcc-12-arm64-build-only:
     <<: *kbuild-gcc-12-arm64-job
@@ -1207,6 +1217,9 @@ trees:
   ardb:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
 
+  arm64:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
+
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
@@ -1641,6 +1654,9 @@ scheduler:
   - job: kbuild-gcc-12-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-build-only
     <<: *build-k8s-all
 
@@ -1879,6 +1895,10 @@ build_configs:
 
   ardb:
     tree: ardb
+    branch: 'for-kernelci'
+
+  arm64:
+    tree: arm64
     branch: 'for-kernelci'
 
   arnd:
