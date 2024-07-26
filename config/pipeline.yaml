@@ -1627,10 +1627,10 @@ scheduler:
   - job: kbuild-gcc-12-arm-omap2plus_defconfig
     <<: *build-k8s-all
 
-  - job: kunit
-    event: *checkout-event
-    runtime:
-      type: docker
+#  - job: kunit
+#    event: *checkout-event
+#    runtime:
+#      type: docker
 
   - job: kunit-x86_64
     event: *checkout-event
