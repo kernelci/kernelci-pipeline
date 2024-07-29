@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2024 Collabora Limited
+# Copyright (C) 2023,2024 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Denys Fedoryshchenko <denys.fedoryshchenko@collabora.com>
 
@@ -268,7 +268,11 @@ async def jobretry(data: JobRetry, request: Request,
         return 'No default API name set', 500
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
-    node = api_helper.api.node.get(data.nodeid)
+    try:
+        node = api_helper.api.node.get(data.nodeid)
+    except Exception as e:
+        logging.error(f'Error getting node {data.nodeid}: {e}')
+        return 'Error getting node', 500
     if not node:
         return 'Node not found', 404
     if node['kind'] != 'job':

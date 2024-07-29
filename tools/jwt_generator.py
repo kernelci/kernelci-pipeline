@@ -47,9 +47,9 @@ def main():
 
     # if comma separated permissions are provided, split them into a list
     permissions = args.permissions.split(',')
-    jsdict = {}
-    jsdict['permissions'] = permissions
-    jsdict['email'] = args.email
+    payload = {}
+    payload['permissions'] = permissions
+    payload['email'] = args.email
 
     if args.secret is None:
         if args.toml is None:
@@ -58,7 +58,7 @@ def main():
         secret = read_secret(args.toml)
     else:
         secret = args.secret
-    token = generate_jwt(jsdict, secret)
+    token = generate_jwt(payload, secret)
     print(f"JWT token: {token}")
     print("WARNING: Please store the token securely. This is confidential information")
 

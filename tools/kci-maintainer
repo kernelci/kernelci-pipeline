@@ -13,12 +13,14 @@ import requests
 import json
 import os
 import argparse
+import sys
 
-API_ADDR = ['https://staging.kernelci.org:9100/',
-            'https://kernelci-pipeline.westus3.cloudapp.azure.com/']
-API_DESC = ['staging', 'production']
-API_URL = API_ADDR[0]
 
+API_ENDPOINTS = {
+    'staging': 'https://staging.kernelci.org:9100/',
+    'production': 'https://kernelci-pipeline.westus3.cloudapp.azure.com/'
+}
+API_URL = API_ENDPOINTS['staging']
 
 def get_token():
     # Two places to try get the token
@@ -54,8 +56,7 @@ def main():
     if not token:
         ap.add_argument('-t', '--token', required=True, help='API token')
 
-    ap.add_argument('--api', type=int, choices=[0, 1], default=0,
-                    help='API server to use, 0 for staging, 1 for production, default is 0')
+    ap.add_argument('--api', help='API server to use', choices=API_ENDPOINTS.keys())
     ap.add_argument('--checkout', action='store_true', help='Send checkout request')
     ap.add_argument('--jobretry', action='store_true', help='Retry job(test) request')
     ap.add_argument('-n', '--nodeid', help='Node ID')
@@ -64,7 +65,7 @@ def main():
     args = ap.parse_args()
 
     if args.api:
-        API_URL = API_ADDR.get(args.api)
+        API_URL = API_ENDPOINTS[args.api]
         if not API_URL:
             print('Invalid API server')
             return
@@ -81,6 +82,7 @@ def main():
             print('Node ID is required')
             return
         send_jobretry_request(token, args.nodeid)
+        sys.exit(0)
 
     if args.checkout:
         if not args.nodeid:
@@ -90,6 +92,9 @@ def main():
             print('Commit ID is required')
             return
         send_checkout_request(token, args.nodeid, args.commit)
+        sys.exit(0)
+
+    ap.print_help()
 
 
 if __name__ == '__main__':
