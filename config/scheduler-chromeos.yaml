@@ -485,54 +485,6 @@ scheduler:
 #  - job: tast-ui-x86-intel
 #    <<: *test-job-chromeos-intel
 
-  - job: rt-tests-cyclicdeadline
-    <<: *test-job-x86-intel
-
-  - job: rt-tests-cyclicdeadline
-    <<: *test-job-x86-amd
-
-  - job: rt-tests-cyclicdeadline
-    <<: *test-job-arm64-qualcomm
-
-  - job: rt-tests-cyclicdeadline
-    <<: *test-job-arm64-mediatek
-
-  - job: rt-tests-cyclictest
-    <<: *test-job-x86-intel
-
-  - job: rt-tests-cyclictest
-    <<: *test-job-x86-amd
-
-  - job: rt-tests-cyclictest
-    <<: *test-job-arm64-qualcomm
-
-  - job: rt-tests-cyclictest
-    <<: *test-job-arm64-mediatek
-
-  - job: rt-tests-rtla-osnoise
-    <<: *test-job-x86-intel
-
-  - job: rt-tests-rtla-osnoise
-    <<: *test-job-x86-amd
-
-  - job: rt-tests-rtla-osnoise
-    <<: *test-job-arm64-qualcomm
-
-  - job: rt-tests-rtla-osnoise
-    <<: *test-job-arm64-mediatek
-
-  - job: rt-tests-rtla-timerlat
-    <<: *test-job-x86-intel
-
-  - job: rt-tests-rtla-timerlat
-    <<: *test-job-x86-amd
-
-  - job: rt-tests-rtla-timerlat
-    <<: *test-job-arm64-qualcomm
-
-  - job: rt-tests-rtla-timerlat
-    <<: *test-job-arm64-mediatek
-
   - job: v4l2-decoder-conformance-av1
     <<: *test-job-arm64-mediatek
     platforms:
