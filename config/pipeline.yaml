@@ -297,7 +297,7 @@ jobs:
 
   kbuild-clang-17-arm: &kbuild-clang-17-arm-job
     <<: *kbuild-job
-    image: kernelci/staging-clang-17:arm64-kselftest-kernelci
+    image: kernelci/staging-clang-17:arm-kselftest-kernelci
     params: &kbuild-clang-17-arm-params
       arch: arm
       compiler: clang-17
