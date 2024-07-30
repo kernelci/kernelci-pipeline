@@ -306,7 +306,7 @@ jobs:
 
   kbuild-gcc-12-arm: &kbuild-gcc-12-arm-job
     <<: *kbuild-job
-    image: kernelci/staging-gcc-12:arm64-kselftest-kernelci
+    image: kernelci/staging-gcc-12:arm-kselftest-kernelci
     params: &kbuild-gcc-12-arm-params
       arch: arm
       compiler: gcc-12
