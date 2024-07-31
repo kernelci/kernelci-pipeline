@@ -23,7 +23,7 @@ class Logger:
 
     def __init__(self, config_path, name='root'):
         """Returns logger object using configurations and logger name"""
-        log_file_name = f'{name}_{time.strftime("%Y_%m_%d-%H:%M:%S")}.log'
+        log_file_name = f'{name}.log'
         logging.config.fileConfig(config_path,
                                   defaults={'log_file': log_file_name})
         self._logger = logging.getLogger(name)
