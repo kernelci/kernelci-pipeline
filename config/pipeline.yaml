@@ -117,6 +117,8 @@ _anchors:
       - 'amlogic'
       - 'ardb'
       - 'arnd'
+      - 'clk'
+      - 'peterz'
 
 api:
 
@@ -1228,6 +1230,9 @@ trees:
   chrome-platform:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
 
+  clk:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -1248,6 +1253,9 @@ trees:
 
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
+
+  peterz:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git"
 
   android:
     url: 'https://android.googlesource.com/kernel/common'
@@ -1938,6 +1946,10 @@ build_configs:
     tree: chrome-platform
     branch: 'for-firmware-next'
 
+  clk:
+    tree: clk
+    branch: 'clk-next'
+
   kernelci_staging-mainline:
     tree: kernelci
     branch: 'staging-mainline'
@@ -2104,6 +2116,10 @@ build_configs:
     tree: media
     branch: 'fixes'
     variants: *build-variants
+
+  peterz:
+    tree: peterz
+    branch: 'kernelci'
 
   stable-rt_v4.14-rt:
     tree: stable-rt
