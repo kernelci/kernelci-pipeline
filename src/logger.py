@@ -10,7 +10,7 @@
 import logging
 import logging.config
 import traceback
-import time
+import sys
 
 
 class Logger:
@@ -23,9 +23,16 @@ class Logger:
 
     def __init__(self, config_path, name='root'):
         """Returns logger object using configurations and logger name"""
-        log_file_name = f'{name}.log'
-        logging.config.fileConfig(config_path,
-                                  defaults={'log_file': log_file_name})
+        try:
+            log_file_name = f'{name}.log'
+            logging.config.fileConfig(config_path,
+                                      defaults={'log_file': log_file_name})
+        except FileNotFoundError as exc:
+            print("Exception: Not able to dump logs to file:", str(exc))
+            logging.basicConfig(format="%(asctime)s [%(levelname)s] %(message)s",
+                                datefmt="%m/%d/%Y %I:%M:%S %p %Z",
+                                level=logging.DEBUG,
+                                handlers=[logging.StreamHandler(sys.stdout)])
         self._logger = logging.getLogger(name)
 
     def log_message(self, log_level, msg):
