@@ -18,6 +18,7 @@ import logging
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Request, Header
 from pydantic import BaseModel
+from typing import Optional
 import kernelci.api.helper
 import kernelci.config
 import kernelci.runtime.lava
@@ -38,8 +39,12 @@ executor = ThreadPoolExecutor(max_workers=16)
 
 
 class ManualCheckout(BaseModel):
-    nodeid: str
     commit: str
+    nodeid: Optional[str] = None
+    url: Optional[str] = None
+    branch: Optional[str] = None
+    commit: Optional[str] = None
+    jobfilter: Optional[list] = None
 
 
 class JobRetry(BaseModel):
@@ -237,6 +242,9 @@ def validate_permissions(jwtoken, permission):
 
 
 def find_parent_kind(node, api_helper, kind):
+    '''
+    Find parent node of a specific "kind" value
+    '''
     parent_id = node.get('parent')
     if not parent_id:
         return None
@@ -246,6 +254,27 @@ def find_parent_kind(node, api_helper, kind):
     if parent_node.get('kind') == kind:
         return parent_node
     return find_parent_kind(parent_node, api_helper, kind)
+
+
+def find_tree(url, branch):
+    '''
+    Find tree name from the URL and branch
+    '''
+    treename = None
+    for tree in YAMLCFG['trees']:
+        data = YAMLCFG['trees'].get(tree)
+        if data.get('url') == url:
+            treename = tree
+
+    if not treename:
+        return None
+
+    for bconfig in YAMLCFG['build_configs']:
+        data = YAMLCFG['build_configs'].get(bconfig)
+        if data.get('tree') == treename and data.get('branch') == branch:
+            return treename
+
+    return None
 
 
 @app.post('/api/jobretry')
@@ -306,6 +335,51 @@ async def jobretry(data: JobRetry, request: Request,
     return 'OK', 200
 
 
+def get_jobfilter(node, api_helper):
+    jobfilter = []
+    if node['kind'] != 'job':
+        jobnode = find_parent_kind(node, api_helper, 'job')
+        if not jobnode:
+            return 'Job not found', 404
+    else:
+        jobnode = node
+
+    kbuildnode = find_parent_kind(node, api_helper, 'kbuild')
+    if not kbuildnode:
+        return 'Kernel build not found', 404
+
+    kbuildname = kbuildnode['name']
+    testname = jobnode['name']
+    jobfilter = [kbuildname, testname]
+    return jobfilter
+
+
+def is_valid_commit_string(commit):
+    '''
+    Validate commit string format
+    '''
+    if not commit:
+        return False
+    if len(commit) < 7:
+        return False
+    if len(commit) > 40:
+        return False
+    if not all(c in '0123456789abcdef' for c in commit):
+        return False
+    return True
+
+
+def is_job_exist(jobname):
+    '''
+    Check if job exists in the config
+    '''
+    for job in YAMLCFG['jobs']:
+        data = YAMLCFG['jobs'].get(job)
+        if data.get('name') == jobname:
+            return True
+    return False
+
+
 @app.post('/api/checkout')
 async def checkout(data: ManualCheckout, request: Request,
                    Authorization: str = Header(None)):
@@ -313,6 +387,10 @@ async def checkout(data: ManualCheckout, request: Request,
     API call to assist in regression bisecting by manually checking out
     a specific commit on a specific branch of a specific tree, retrieved
     from test results.
+
+    User either supplies a node ID to checkout, or a tree URL, branch and
+    commit hash. In the latter case, the tree name is looked up in the
+    configuration file.
     '''
     # Validate JWT token from Authorization header
     jwtoken = Authorization
@@ -330,30 +408,47 @@ async def checkout(data: ManualCheckout, request: Request,
         return 'No default API name set', 500
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
-    node = api_helper.api.node.get(data.nodeid)
-    if not node:
-        return 'Node not found', 404
-    try:
-        treename = node['data']['kernel_revision']['tree']
-        treeurl = node['data']['kernel_revision']['url']
-        branch = node['data']['kernel_revision']['branch']
-        commit = node['data']['kernel_revision']['commit']
-    except KeyError:
-        return 'Node does not have kernel revision data', 400
 
-    if node['kind'] != 'job':
-        jobnode = find_parent_kind(node, api_helper, 'job')
-        if not jobnode:
-            return 'Job not found', 404
+    # if user set node - we retrieve all the tree data from it
+    if data.nodeid:
+        node = api_helper.api.node.get(data.nodeid)
+        # validate commit string
+        if not is_valid_commit_string(data.commit):
+            return 'Invalid commit format', 400
+        if not node:
+            return 'Node not found', 404
+        try:
+            treename = node['data']['kernel_revision']['tree']
+            treeurl = node['data']['kernel_revision']['url']
+            branch = node['data']['kernel_revision']['branch']
+            commit = data.commit
+        except KeyError:
+            return 'Node does not have kernel revision data', 400
+
+        jobfilter = get_jobfilter(node, api_helper)
     else:
-        jobnode = node
+        if not data.url or not data.branch or not data.commit:
+            return 'Missing tree URL, branch or commit', 400
+        if not is_valid_commit_string(data.commit):
+            return 'Invalid commit format', 400
+        treename = find_tree(data.url, data.branch)
+        if not treename:
+            return 'Tree not found', 404
+        treeurl = data.url
+        branch = data.branch
+        commit = data.commit
 
-    kbuildnode = find_parent_kind(node, api_helper, 'kbuild')
-    if not kbuildnode:
-        return 'Kernel build not found', 404
-
-    kbuildname = kbuildnode['name']
-    testname = jobnode['name']
+        # validate jobfilter list
+        if data.jobfilter:
+            # to be on safe side restrict length of jobfilter to 8
+            if len(data.jobfilter) > 8:
+                return 'Too many jobs in jobfilter', 400
+            for jobname in data.jobfilter:
+                if not is_job_exist(jobname):
+                    return f'Job {jobname} not found', 404
+            jobfilter = data.jobfilter
+        else:
+            jobfilter = None
 
     # Now we can submit custom checkout node to the API
     # Maybe add field who requested the checkout?
@@ -372,11 +467,11 @@ async def checkout(data: ManualCheckout, request: Request,
             }
         },
         "timeout": checkout_timeout.isoformat(),
-        "jobfilter": [
-            kbuildname,
-            testname
-        ],
     }
+
+    if jobfilter:
+        node['jobfilter'] = jobfilter
+
     r = api_helper.api.node.add(node)
     if not r:
         return 'Failed to submit checkout node', 500
