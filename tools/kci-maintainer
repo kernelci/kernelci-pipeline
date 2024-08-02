@@ -16,10 +16,19 @@ import argparse
 import sys
 
 
-API_ENDPOINTS = {
+PIPELINE_ENDPOINTS = {
     'staging': 'https://staging.kernelci.org:9100/',
-    'production': 'https://kernelci-pipeline.westus3.cloudapp.azure.com/'
+    'production': 'https://kernelci-pipeline.westus3.cloudapp.azure.com/',
+    'local': 'http://localhost:8000/'
 }
+
+API_ENDPOINTS = {
+    'staging': 'https://staging.kernelci.org:9000/',
+    'production': 'https://kernelci-api.westus3.cloudapp.azure.com/',
+    'local': 'http://localhost:9000/'
+}
+
+PIPELINE_URL = PIPELINE_ENDPOINTS['staging']
 API_URL = API_ENDPOINTS['staging']
 
 def get_token():
@@ -33,24 +42,107 @@ def get_token():
             return f.read().strip()
 
 
-def send_checkout_request(token, nodeid, commit):
-    url = API_URL + 'api/checkout'
+def send_checkout_request1(token, nodeid, commit):
+    '''
+    1st way of sending checkout request
+    nodeid + commit
+    '''
+    url = PIPELINE_URL + 'api/checkout'
     headers = {'Authorization': token, 'Content-Type': 'application/json'}
     data = {'nodeid': nodeid, 'commit': commit}
     response = requests.post(url, headers=headers, data=json.dumps(data))
+    response.raise_for_status()
     print(response.text)
+    return response.text
 
+
+def send_checkout_request2(token, giturl, branch, commit, jobfilter):
+    '''
+    2nd way of sending checkout request
+    repourl + branch + commit + jobfilter
+    '''
+    url = PIPELINE_URL + 'api/checkout'
+    headers = {'Authorization': token, 'Content-Type': 'application/json'}
+    data = {'url': giturl, 'branch': branch, 'commit': commit, 'jobfilter': jobfilter}
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response.raise_for_status()
+    print(response.text)
+    return response.text
 
 def send_jobretry_request(token, nodeid):
-    url = API_URL + 'api/jobretry'
+    url = PIPELINE_URL + 'api/jobretry'
     headers = {'Authorization': token, 'Content-Type': 'application/json'}
     data = {'nodeid': nodeid}
     response = requests.post(url, headers=headers, data=json.dumps(data))
     print(response.text)
 
 
+def get_repo_info(repodir):
+    if not os.path.exists(repodir):
+        print('Repository directory does not exist')
+        return
+
+    os.chdir(repodir)
+    repoinfo = {}
+    try:
+        repoinfo['url'] = os.popen('git config --get remote.origin.url').read().strip()
+        repoinfo['commit'] = os.popen('git rev-parse HEAD').read().strip()
+        repoinfo['branch'] = os.popen('git rev-parse --abbrev-ref HEAD').read().strip()
+    except Exception as e:
+        print('Failed to get repository info: %s' % e)
+        return
+
+    return repoinfo
+
+def prepare_checkout(args):
+    token = get_token()
+    if not token:
+        print('API token is required')
+        return
+
+    # Developer have several ways to provide checkout data
+    # Always require commit ID
+    # If node ID is not provided, we will try to get it:
+    # 1. From repository developer pointed to
+    #    (commit ID then can be also taken from there)
+    # 2. From cli parameters
+
+    if args.nodeid:
+        if not args.commit:
+            print('Commit ID is required')
+            return
+        return send_checkout_request1(token, args.nodeid, args.commit)
+
+    if not args.commit:
+        print('Commit ID is required')
+        return
+
+    if args.repodir:
+        repoinfo = get_repo_info(args.repodir)
+
+    if args.repourl:
+        if not args.branch:
+            print('Branch name is required')
+            return
+        repoinfo = {'url': args.repourl, 'branch': args.branch}
+
+    if not repoinfo:
+        print('Failed to get repository info')
+        return
+
+    if not args.jobfilter:
+        # Just show warning, that lack of jobfilter will trigger all jobs
+        print('Warning: jobfilter is not provided, all jobs will be triggered, this will'
+              ' consume a lot of resources on kernelci.org')
+
+    if args.verbose:
+        print(f'Repository info: {repoinfo}')
+        print(f'Job filter: {args.jobfilter}')
+
+    send_checkout_request2(token, repoinfo['url'], repoinfo['branch'], args.commit, args.jobfilter)
+
 def main():
-    global API_URL
+    global PIPELINE_URL, API_URL
     ap = argparse.ArgumentParser()
     token = get_token()
     if not token:
@@ -59,14 +151,20 @@ def main():
     ap.add_argument('--api', help='API server to use', choices=API_ENDPOINTS.keys())
     ap.add_argument('--checkout', action='store_true', help='Send checkout request')
     ap.add_argument('--jobretry', action='store_true', help='Retry job(test) request')
+    ap.add_argument('-r', '--repodir', help='Local repository directory')
+    ap.add_argument('-u', '--repourl', help='Repository URL')
+    ap.add_argument('-b', '--branch', help='Branch name')
+    ap.add_argument('-f', '--jobfilter', help='Job filter')
     ap.add_argument('-n', '--nodeid', help='Node ID')
     ap.add_argument('-c', '--commit', help='Commit ID')
+    ap.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
 
     args = ap.parse_args()
 
     if args.api:
+        PIPELINE_URL = PIPELINE_ENDPOINTS[args.api]
         API_URL = API_ENDPOINTS[args.api]
-        if not API_URL:
+        if not PIPELINE_URL or not API_URL:
             print('Invalid API server')
             return
 
@@ -85,13 +183,7 @@ def main():
         sys.exit(0)
 
     if args.checkout:
-        if not args.nodeid:
-            print('Node ID is required')
-            return
-        if not args.commit:
-            print('Commit ID is required')
-            return
-        send_checkout_request(token, args.nodeid, args.commit)
+        prepare_checkout(args)
         sys.exit(0)
 
     ap.print_help()
