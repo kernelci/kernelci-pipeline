@@ -25,6 +25,7 @@ services:
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
       - './logs:/home/kernelci/logs'
+    restart: on-failure
 networks:
   kcidb:
     driver: bridge
