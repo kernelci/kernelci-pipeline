@@ -98,6 +98,7 @@ services:
       - 'lava-baylibre'
       - 'lava-qualcomm'
       - 'lava-cip'
+      - 'lava-pengutronix'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
