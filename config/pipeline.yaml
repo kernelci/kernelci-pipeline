@@ -86,7 +86,7 @@ _anchors:
   build-k8s-all: &build-k8s-all
     event: &checkout-event
       channel: node
-      name: checkout
+      kind: checkout
       state: available
     runtime:
       name: k8s-all
