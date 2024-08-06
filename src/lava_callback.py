@@ -47,6 +47,13 @@ class ManualCheckout(BaseModel):
     jobfilter: Optional[list] = None
 
 
+class PatchSet(BaseModel):
+    nodeid: str
+    patchurl: Optional[list] = None
+    patch: Optional[list] = None
+    jobfilter: Optional[list] = None
+
+
 class JobRetry(BaseModel):
     nodeid: str
 
@@ -477,6 +484,104 @@ async def checkout(data: ManualCheckout, request: Request,
         return 'Failed to submit checkout node', 500
     else:
         logging.info(f"Checkout node {r['id']} submitted")
+        return r, 200
+
+
+def validate_patch_url(patchurl):
+    '''
+    Validate patch URL
+    '''
+    if not patchurl:
+        return False
+    if not patchurl.startswith('http'):
+        return False
+    try:
+        r = requests.get(patchurl)
+        if r.status_code != 200:
+            return False
+    except Exception as e:
+        logging.error(f'Error fetching patch URL: {e}')
+        return False
+    return True
+
+
+@app.post('/api/patchset')
+async def checkout(data: PatchSet, request: Request,
+                   Authorization: str = Header(None)):
+    '''
+    API call to test existing checkout with a patch(set)
+    Patch can be supplied as a URL or within the request body
+    '''
+    # Validate JWT token from Authorization header
+    jwtoken = Authorization
+    decoded = validate_permissions(jwtoken, 'patchset')
+    if not decoded:
+        return 'Unauthorized', 401
+
+    email = decoded.get('email')
+    if not email:
+        return 'Unauthorized', 401
+    logging.info(f"User {email} is testing patchset on {data.nodeid}")
+
+    api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
+    if not api_config_name:
+        return 'No default API name set', 500
+    api_token = os.getenv('KCI_API_TOKEN')
+    api_helper = _get_api_helper(api_config_name, api_token)
+
+    node = api_helper.api.node.get(data.nodeid)
+    if not node:
+        return 'Node not found', 404
+    if node['kind'] != 'checkout':
+        return 'Node is not a checkout', 400
+
+    # validate patch URL
+    if data.patchurl:
+        if isinstance(data.patchurl, list):
+            for patchurl in data.patchurl:
+                if not isinstance(patchurl, str):
+                    return 'Invalid patch URL element type', 400
+                if not validate_patch_url(patchurl):
+                    return 'Invalid patch URL', 400
+        else:
+            return 'Invalid patch URL type', 400
+    elif data.patch:
+        # We need to implement upload to storage and return URL
+        return 'Not implemented', 501
+    else:
+        return 'Missing patch URL or patch', 400
+
+    # Now we can submit custom patchset node to the API
+    # Maybe add field who requested the patchset?
+    timeout = 300
+    patchset_timeout = datetime.utcnow() + timedelta(minutes=timeout)
+    # copy node to newnode
+    newnode = node.copy()
+    # delete some fields, like id, created, updated, timeout
+    newnode.pop('id', None)
+    newnode.pop('created', None)
+    newnode.pop('updated', None)
+    newnode.pop('timeout', None)
+    newnode.pop('result', None)
+    newnode.pop('owner', None)
+    newnode['name'] = 'patchset'
+    newnode['path'] = ['checkout', 'patchset']
+    newnode['group'] = 'patchset'
+    newnode['state'] = 'running'
+    newnode['parent'] = node['id']
+    newnode['artifacts'] = {}
+    newnode['timeout'] = patchset_timeout.isoformat()
+    if data.patchurl:
+        for i, patchurl in enumerate(data.patchurl):
+            newnode['artifacts'][f'patch{i}'] = patchurl
+    if data.jobfilter:
+        newnode['jobfilter'] = data.jobfilter
+
+    r = api_helper.api.node.add(newnode)
+    if not r:
+        return 'Failed to submit patchset node', 500
+    else:
+        logging.info(f"Patchset node {r['id']} submitted")
         return r, 200
 
 
