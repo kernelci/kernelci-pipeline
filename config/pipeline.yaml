@@ -97,15 +97,14 @@ _anchors:
 
 ### Frequently used rules
 
-  build-only-trees: &build-only-trees-rules
-    rules:
-      tree:
-      - 'amlogic'
-      - 'ardb'
-      - 'arnd'
-      - 'clk'
-      - 'efi'
-      - 'peterz'
+  build-only-trees-rules: &build-only-trees-rules
+    tree:
+    - 'amlogic'
+    - 'ardb'
+    - 'arnd'
+    - 'clk'
+    - 'efi'
+    - 'peterz'
 
 api:
 
