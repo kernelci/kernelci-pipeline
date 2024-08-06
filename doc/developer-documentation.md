@@ -170,6 +170,34 @@ Here, `node` refers to the name of API PubSub channel where node events are publ
 
 After following these steps, run your pipeline instance to activate your newly added test configuration.
 
+### An example of enabling a new job
+
+Here is an example of enabling `kselftest` (found in `<linux_kernel>/tools/testing/selftests`) job. Most parameters are already set for other kselftests. Those must be reused while enabling new kselftests which makes enabling new tests pretty straight forward. The `dt` kselftest suite can be enabled by:
+
+1. Create a job definition in `jobs` section.
+```
+  kselftest-dt:
+    template: kselftest.jinja2
+    kind: job
+    params:
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}'
+      collections: dt
+      job_timeout: 10
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 7
+    kcidb_test_suite: kselftest.dt
+```
+2. Create a `scheduler` entry for `kselftest-dt` job. Let's schedule this suite in `lava-collabora` lab at `kbuild-gcc-12-arm64` build completion event. The entry by using already defined anchors would be:
+```
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *runtime-lava-collabora
+    platforms:
+      - bcm2711-rpi-4-b
+```
+There can be multiple entries for a suite in `scheduler` section with different `events`, `runtime` or `platform`.
 
 ## Test hierarchy
 
