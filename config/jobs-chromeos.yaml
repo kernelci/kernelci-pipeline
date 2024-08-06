@@ -360,9 +360,11 @@ _anchors:
         - ui.WindowControl
 
   v4l2-decoder-conformance: &v4l2-decoder-conformance-job
-    template: 'v4l2-decoder-conformance.jinja2'
+    template: 'generic.jinja2'
     kind: job
     params: &v4l2-decoder-conformance-params
+      test_method: v4l2-decoder-conformance
+      boot_commands: nfs
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240703.0/{debarch}/'
       job_timeout: 30
       videodec_parallel_jobs: 1
@@ -376,12 +378,25 @@ _anchors:
     kcidb_test_suite: fluster.v4l2
 
   watchdog-reset: &watchdog-reset-job
-    template: watchdog-reset.jinja2
+    template: generic.jinja2
     kind: job
     params: &watchdog-reset-job-params
+      test_method: watchdog-reset
       bl_message: 'coreboot-'
       wdt_dev: 'watchdog0'
     kcidb_test_suite: kernelci_watchdog_reset
+
+  wifi-basic: &wifi-basic-job
+    template: generic.jinja2
+    kind: test
+    params: &wifi-basic-job-params
+      test_method: wifi-basic
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
+    rules:
+      tree:
+        - mainline
+        - next
+    kcidb_test_suite: kernelci_wifi_basic
 
 jobs:
 
@@ -444,9 +459,11 @@ jobs:
       flavour: amd-stoneyridge
 
   kselftest-acpi:
-    template: kselftest.jinja2
+    template: generic.jinja2
     kind: job
     params:
+      test_method: kselftest
+      boot_commands: nfs
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: acpi
       job_timeout: 10
@@ -649,3 +666,7 @@ jobs:
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job
   watchdog-reset-x86-amd: *watchdog-reset-job
   watchdog-reset-x86-intel: *watchdog-reset-job
+
+  wifi-basic-arm64-mediatek: *wifi-basic-job
+  wifi-basic-x86-amd: *wifi-basic-job
+  wifi-basic-x86-intel: *wifi-basic-job
