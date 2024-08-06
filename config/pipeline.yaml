@@ -118,6 +118,7 @@ _anchors:
       - 'ardb'
       - 'arnd'
       - 'clk'
+      - 'efi'
       - 'peterz'
 
 api:
@@ -1246,6 +1247,9 @@ trees:
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
+  efi:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -1688,6 +1692,9 @@ scheduler:
 
   - job: kbuild-gcc-12-riscv-build-only
     <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
@@ -1742,6 +1749,9 @@ scheduler:
 
   - job: kbuild-gcc-12-mips-build-only
     <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
     <<: *build-k8s-all
@@ -1754,6 +1764,9 @@ scheduler:
 
   - job: kbuild-gcc-12-arc-build-only
     <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
     <<: *build-k8s-all
@@ -1969,6 +1982,10 @@ build_configs:
   clk:
     tree: clk
     branch: 'clk-next'
+
+  efi:
+    tree: efi
+    branch: 'next'
 
   kernelci_staging-mainline:
     tree: kernelci
