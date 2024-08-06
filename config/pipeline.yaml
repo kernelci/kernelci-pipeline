@@ -1686,6 +1686,9 @@ scheduler:
 
   - job: kbuild-gcc-12-riscv
     <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-12-riscv-android-defconfig
     <<: *build-k8s-all
