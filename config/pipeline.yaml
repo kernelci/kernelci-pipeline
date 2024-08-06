@@ -1954,7 +1954,7 @@ build_environments:
 
 
 build_variants:
-  variants: &build-variants
+  variants:
     gcc-12:
       build_environment: gcc-12
       architectures:
@@ -1997,47 +1997,38 @@ build_configs:
   broonie-misc:
     tree: broonie-misc
     branch: 'for-kernelci'
-    variants: *build-variants
 
   broonie-regmap:
     tree: broonie-regmap
     branch: 'for-next'
-    variants: *build-variants
 
   broonie-regmap-fixes:
     tree: broonie-regmap
     branch: 'for-linus'
-    variants: *build-variants
 
   broonie-regulator:
     tree: broonie-regulator
     branch: 'for-next'
-    variants: *build-variants
 
   broonie-regulator-fixes:
     tree: broonie-regulator
     branch: 'for-linus'
-    variants: *build-variants
 
   broonie-sound:
     tree: broonie-sound
     branch: 'for-next'
-    variants: *build-variants
 
   broonie-sound-fixes:
     tree: broonie-sound
     branch: 'for-linus'
-    variants: *build-variants
 
   broonie-spi:
     tree: broonie-spi
     branch: 'for-next'
-    variants: *build-variants
 
   broonie-spi-fixes:
     tree: broonie-spi
     branch: 'for-linus'
-    variants: *build-variants
 
   chrome-platform:
     tree: chrome-platform
@@ -2058,27 +2049,22 @@ build_configs:
   kernelci_staging-mainline:
     tree: kernelci
     branch: 'staging-mainline'
-    variants: *build-variants
 
   kernelci_staging-next:
     tree: kernelci
     branch: 'staging-next'
-    variants: *build-variants
 
   kernelci_staging-stable:
     tree: kernelci
     branch: 'staging-stable'
-    variants: *build-variants
 
   mainline:
     tree: mainline
     branch: 'master'
-    variants: *build-variants
 
   stable-rc_4.19: &stable-rc
     tree: stable-rc
     branch: 'linux-4.19.y'
-    variants: *build-variants
 
   stable-rc_5.4:
     <<: *stable-rc
@@ -2115,12 +2101,10 @@ build_configs:
   next_master:
     tree: next
     branch: 'master'
-    variants: *build-variants
 
   mediatek_for_next:
     tree: mediatek
     branch: 'for-next'
-    variants: *build-variants
 
   android_4.19-stable:
     tree: android
@@ -2201,12 +2185,10 @@ build_configs:
   collabora-next_for-kernelci:
     tree: collabora-next
     branch: 'for-kernelci'
-    variants: *build-variants
 
   collabora-chromeos-kernel_for-kernelci:
     tree: collabora-chromeos-kernel
     branch: 'for-kernelci'
-    variants: *build-variants
 
   lee_mfd:
     tree: lee-mfd
@@ -2215,12 +2197,10 @@ build_configs:
   media_master:
     tree: media
     branch: 'master'
-    variants: *build-variants
 
   media_fixes:
     tree: media
     branch: 'fixes'
-    variants: *build-variants
 
   peterz:
     tree: peterz
