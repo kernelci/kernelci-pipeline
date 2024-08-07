@@ -431,17 +431,17 @@ jobs:
       <<: *kbuild-gcc-12-arm64-chromeos-params
       flavour: qualcomm
 
-  kbuild-gcc-12-x86-chromeos-intel:
-    <<: *kbuild-gcc-12-x86-chromeos-job
-    params:
-      <<: *kbuild-gcc-12-x86-chromeos-params
-      flavour: intel-pineview
-
   kbuild-gcc-12-x86-chromeos-amd:
     <<: *kbuild-gcc-12-x86-chromeos-job
     params:
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: amd-stoneyridge
+
+  kbuild-gcc-12-x86-chromeos-intel:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-x86-chromeos-params
+      flavour: intel-pineview
 
   kselftest-acpi:
     template: kselftest.jinja2
@@ -469,8 +469,8 @@ jobs:
 
   tast-basic-arm64-mediatek: *tast-basic-job
   tast-basic-arm64-qualcomm: *tast-basic-job
-  tast-basic-x86-intel: *tast-basic-job
   tast-basic-x86-amd: *tast-basic-job
+  tast-basic-x86-intel: *tast-basic-job
 
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
 
@@ -491,14 +491,8 @@ jobs:
         - video.ChromeStackDecoderVerification.vp9_0_group1_sub8x8_sf
     rules: *max-6_6-rules
 
-  tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
-
-  tast-decoder-v4l2-sl-av1-arm64-mediatek: *tast-decoder-v4l2-sl-av1-job
-  tast-decoder-v4l2-sl-h264-arm64-mediatek: *tast-decoder-v4l2-sl-h264-job
-  tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
-  tast-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-decoder-v4l2-sl-vp8-job
-  tast-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-decoder-v4l2-sl-vp9-job
+  tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
 
   tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
   tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
@@ -536,53 +530,60 @@ jobs:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_0_sub8x8_sf
     rules: *max-6_6-rules
 
+  tast-decoder-v4l2-sl-av1-arm64-mediatek: *tast-decoder-v4l2-sl-av1-job
+  tast-decoder-v4l2-sl-h264-arm64-mediatek: *tast-decoder-v4l2-sl-h264-job
+  tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
+  tast-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-decoder-v4l2-sl-vp8-job
+  tast-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-decoder-v4l2-sl-vp9-job
+
   tast-hardware-arm64-mediatek: *tast-hardware-job
   tast-hardware-arm64-qualcomm: *tast-hardware-job
-  tast-hardware-x86-intel: *tast-hardware-job
   tast-hardware-x86-amd: *tast-hardware-job
+  tast-hardware-x86-intel: *tast-hardware-job
 
   tast-kernel-arm64-mediatek: *tast-kernel-job
   tast-kernel-arm64-qualcomm: *tast-kernel-job
-  tast-kernel-x86-intel: *tast-kernel-job
   tast-kernel-x86-amd: *tast-kernel-job
+  tast-kernel-x86-intel: *tast-kernel-job
 
   tast-mm-decode-arm64-mediatek: *tast-mm-decode-job
   tast-mm-decode-arm64-qualcomm: *tast-mm-decode-job
 
   tast-mm-misc-arm64-mediatek: *tast-mm-misc-job
   tast-mm-misc-arm64-qualcomm: *tast-mm-misc-job
-  tast-mm-misc-x86-intel: *tast-mm-misc-job
   tast-mm-misc-x86-amd: *tast-mm-misc-job
+  tast-mm-misc-x86-intel: *tast-mm-misc-job
 
   tast-perf-arm64-mediatek: *tast-perf-job
   tast-perf-arm64-qualcomm: *tast-perf-job
-  tast-perf-x86-intel: *tast-perf-job
-  tast-perf-x86-amd: *tast-perf-job
 
   tast-perf-long-duration-arm64-mediatek: *tast-perf-long-duration-job
   tast-perf-long-duration-arm64-qualcomm: *tast-perf-long-duration-job
-  tast-perf-long-duration-x86-intel: *tast-perf-long-duration-job
   tast-perf-long-duration-x86-amd: *tast-perf-long-duration-job
+  tast-perf-long-duration-x86-intel: *tast-perf-long-duration-job
+
+  tast-perf-x86-amd: *tast-perf-job
+  tast-perf-x86-intel: *tast-perf-job
 
   tast-platform-arm64-mediatek: *tast-platform-job
   tast-platform-arm64-qualcomm: *tast-platform-job
-  tast-platform-x86-intel: *tast-platform-job
   tast-platform-x86-amd: *tast-platform-job
+  tast-platform-x86-intel: *tast-platform-job
 
   tast-power-arm64-mediatek: *tast-power-job
   tast-power-arm64-qualcomm: *tast-power-job
-  tast-power-x86-intel: *tast-power-job
   tast-power-x86-amd: *tast-power-job
+  tast-power-x86-intel: *tast-power-job
 
   tast-sound-arm64-mediatek: *tast-sound-job
   tast-sound-arm64-qualcomm: *tast-sound-job
-  tast-sound-x86-intel: *tast-sound-job
   tast-sound-x86-amd: *tast-sound-job
+  tast-sound-x86-intel: *tast-sound-job
 
   tast-ui-arm64-mediatek: *tast-ui-job
   tast-ui-arm64-qualcomm: *tast-ui-job
-  tast-ui-x86-intel: *tast-ui-job
   tast-ui-x86-amd: *tast-ui-job
+  tast-ui-x86-intel: *tast-ui-job
 
   v4l2-decoder-conformance-av1:
     <<: *v4l2-decoder-conformance-job

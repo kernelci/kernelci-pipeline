@@ -171,18 +171,6 @@ runtimes:
     lab_type: kubernetes
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
-  lava-broonie:
-    lab_type: lava
-    url: 'https://lava.sirena.org.uk/'
-    priority_min: 10
-    priority_max: 40
-    notify:
-      callback:
-        token: kernelci-new-api-callback
-    rules:
-      tree:
-      - '!android'
-
   lava-baylibre:
     lab_type: lava
     url: 'https://lava.baylibre.com/'
@@ -194,6 +182,18 @@ runtimes:
       - kernelci
       - mainline
       - next
+
+  lava-broonie:
+    lab_type: lava
+    url: 'https://lava.sirena.org.uk/'
+    priority_min: 10
+    priority_max: 40
+    notify:
+      callback:
+        token: kernelci-new-api-callback
+    rules:
+      tree:
+      - '!android'
 
   lava-cip:
     lab_type: lava
@@ -415,16 +415,6 @@ jobs:
       tree:
       - 'android'
 
-  kbuild-gcc-12-arm64-allnoconfig:
-    <<: *kbuild-gcc-12-arm64-job
-    params:
-      <<: *kbuild-gcc-12-arm64-params
-      fragments:
-       - 'allnoconfig'
-    rules:
-      tree:
-      - 'arm64'
-
   # Default config and build only job
   kbuild-gcc-12-arc-build-only: &kbuild-gcc-12-arc-job
     <<: *kbuild-job
@@ -564,6 +554,16 @@ jobs:
       - 'stable-rc'
 
   kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
+
+  kbuild-gcc-12-arm64-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+       - 'allnoconfig'
+    rules:
+      tree:
+      - 'arm64'
 
   kbuild-gcc-12-arm64-android: &kbuild-gcc-12-arm64-android-job
     <<: *kbuild-gcc-12-arm64-job
