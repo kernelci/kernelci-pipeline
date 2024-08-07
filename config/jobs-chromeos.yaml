@@ -388,7 +388,7 @@ _anchors:
 
   wifi-basic: &wifi-basic-job
     template: generic.jinja2
-    kind: test
+    kind: job
     params: &wifi-basic-job-params
       test_method: wifi-basic
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
@@ -474,7 +474,7 @@ jobs:
 
   kselftest-device-error-logs:
     template: generic.jinja2
-    kind: test
+    kind: job
     params:
       test_method: kselftest
       boot_commands: nfs
