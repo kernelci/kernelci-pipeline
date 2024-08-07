@@ -388,7 +388,7 @@ _anchors:
 
   wifi-basic: &wifi-basic-job
     template: generic.jinja2
-    kind: test
+    kind: job
     params: &wifi-basic-job-params
       test_method: wifi-basic
       boot_commands: nfs
@@ -475,7 +475,7 @@ jobs:
 
   kselftest-device-error-logs:
     template: generic.jinja2
-    kind: test
+    kind: job
     params:
       test_method: kselftest
       boot_commands: nfs
