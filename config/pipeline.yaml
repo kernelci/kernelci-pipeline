@@ -105,6 +105,7 @@ _anchors:
     - 'clk'
     - 'efi'
     - 'peterz'
+    - 'tip'
 
 api:
 
@@ -1242,6 +1243,9 @@ trees:
   stable-rt:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git'
 
+  tip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git"
+
 platforms:
 
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
@@ -2262,3 +2266,7 @@ build_configs:
   stable-rt_v6.6-rt:
     tree: stable-rt
     branch: 'v6.6-rt'
+
+  tip:
+    tree: tip
+    branch: 'master'
