@@ -375,6 +375,22 @@ _anchors:
         - media
     kcidb_test_suite: fluster.v4l2
 
+  v4l2-decoder-conformance-chromeos: &v4l2-decoder-conformance-chromeos-job
+    template: 'v4l2-decoder-conformance-chromeos.jinja2'
+    kind: job
+    params: &v4l2-decoder-conformance-chromeos-params
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240703.0/{debarch}/'
+      job_timeout: 30
+      videodec_parallel_jobs: 1
+      videodec_timeout: 90
+    rules:
+      tree:
+        - mainline
+        - next
+        - collabora-chromeos-kernel
+        - media
+    kcidb_test_suite: fluster.v4l2
+
   watchdog-reset: &watchdog-reset-job
     template: watchdog-reset.jinja2
     kind: job
@@ -640,6 +656,67 @@ jobs:
     <<: *v4l2-decoder-conformance-job
     params:
       <<: *v4l2-decoder-conformance-params
+      testsuite: 'VP9-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP9-V4L2-Gst1.0'
+        - 'GStreamer-VP9-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-av1:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-av1-chromium-10bit:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-h264:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'JVT-AVC_V1'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-h264-frext:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'JVT-FR-EXT'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-h265:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'JCT-VC-HEVC_V1'
+      decoders:
+        - 'GStreamer-H.265-V4L2-Gst1.0'
+        - 'GStreamer-H.265-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-vp8:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
+      testsuite: 'VP8-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP8-V4L2-Gst1.0'
+        - 'GStreamer-VP8-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-chromeos-vp9:
+    <<: *v4l2-decoder-conformance-chromeos-job
+    params:
+      <<: *v4l2-decoder-conformance-chromeos-params
       testsuite: 'VP9-TEST-VECTORS'
       decoders:
         - 'GStreamer-VP9-V4L2-Gst1.0'
