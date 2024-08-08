@@ -175,7 +175,7 @@ class KCIDBBridge(Service):
             'architecture': node['data'].get('arch'),
             'compiler': node['data'].get('compiler'),
             'config_name': node['data'].get('defconfig'),
-            'valid': node['result'] == 'pass',
+            'valid': node['result'] if node['result'] in ('pass', 'fail') else None,
             'misc': {
                 'platform': node['data'].get('platform'),
                 'runtime': node['data'].get('runtime'),
