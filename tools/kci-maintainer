@@ -144,6 +144,36 @@ def prepare_checkout(args):
 
     send_checkout_request2(token, repoinfo['url'], repoinfo['branch'], args.commit, args.jobfilter)
 
+
+def send_patchset_request(token, args):
+    if not args.patchurl:
+        print('Patch URL is required')
+        return
+
+    if not args.nodeid:
+        print('Node ID is required')
+        return
+
+    if not args.jobfilter and not args.nojobfilter:
+        print('Job filter is required or --nojobfilter should be provided')
+        return
+
+    url = PIPELINE_URL + 'api/patchset'
+    headers = {'Authorization': token, 'Content-Type': 'application/json'}
+    data = {
+        'nodeid': args.nodeid,
+        'patchurl': args.patchurl
+    }
+    if args.jobfilter:
+        data['jobfilter'] = args.jobfilter
+
+    if args.verbose:
+        print(json.dumps(data))
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response.raise_for_status()
+    print(response.text)
+
+
 def main():
     global PIPELINE_URL, API_URL
     ap = argparse.ArgumentParser()
@@ -154,13 +184,15 @@ def main():
     ap.add_argument('--api', help='API server to use', choices=API_ENDPOINTS.keys())
     ap.add_argument('--checkout', action='store_true', help='Send checkout request')
     ap.add_argument('--jobretry', action='store_true', help='Retry job(test) request')
+    ap.add_argument('--patchset', action='store_true', help='Send patchset request')
     ap.add_argument('-r', '--repodir', help='Local repository directory')
     ap.add_argument('-u', '--repourl', help='Repository URL')
     ap.add_argument('-b', '--branch', help='Branch name')
-    ap.add_argument('-f', '--jobfilter', help='Job filter')
+    ap.add_argument('-f', '--jobfilter', help='Job filter', nargs='+', action='extend', type=str)
     ap.add_argument('--nojobfilter', help='No job filter set', action='store_true')
     ap.add_argument('-n', '--nodeid', help='Node ID')
     ap.add_argument('-c', '--commit', help='Commit ID')
+    ap.add_argument('-p', '--patchurl', help='Patch URL', nargs='+', action='extend', type=str)
     ap.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
 
     args = ap.parse_args()
@@ -188,6 +220,10 @@ def main():
 
     if args.checkout:
         prepare_checkout(args)
+        sys.exit(0)
+
+    if args.patchset:
+        send_patchset_request(token, args)
         sys.exit(0)
 
     ap.print_help()
