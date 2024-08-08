@@ -166,6 +166,14 @@ class KCIDBBridge(Service):
             return data[-(16*1024):]
 
     def _parse_build_node(self, origin, node):
+        result = node.get('result')
+        result_map = {
+            'pass': True,
+            'fail': False,
+            'incomplete': None,
+        }
+        valid = result_map.get(result) if result else None
+
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
             'id': f"{origin}:{node['id']}",
@@ -175,7 +183,7 @@ class KCIDBBridge(Service):
             'architecture': node['data'].get('arch'),
             'compiler': node['data'].get('compiler'),
             'config_name': node['data'].get('defconfig'),
-            'valid': node['result'] == 'pass',
+            'valid': valid,
             'misc': {
                 'platform': node['data'].get('platform'),
                 'runtime': node['data'].get('runtime'),
