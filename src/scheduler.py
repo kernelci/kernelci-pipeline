@@ -117,7 +117,29 @@ class Scheduler(Service):
         }
         extra_args.update(job.config.params)
         params = job.platform_config.format_params(params, extra_args)
-        data = runtime.generate(job, params)
+        # we experience sometimes that the job is not created properly
+        # due exception in the runtime.generate method
+        try:
+            data = runtime.generate(job, params)
+        except Exception as e:
+            self.log.error(' '.join([
+                node['id'],
+                runtime.config.name,
+                platform.name,
+                job_config.name,
+                str(e),
+            ]))
+            node['state'] = 'done'
+            node['result'] = 'incomplete'
+            node['data']['error_code'] = 'job_generation_error'
+            node['data']['error_msg'] = str(e)
+            try:
+                self._api.node.update(node)
+            except requests.exceptions.HTTPError as err:
+                err_msg = json.loads(err.response.content).get("detail", [])
+                self.log.error(err_msg)
+            return
+
         if not data:
             self.log.error(' '.join([
                 node['id'],
