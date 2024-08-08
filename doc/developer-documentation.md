@@ -101,9 +101,10 @@ Common patterns are often defined using YAML anchors and aliases. This approach 
 The test job example is:
 ```yaml
   kselftest-exec:
-    template: kselftest.jinja2
+    template: generic.jinja2
     kind: job
     params:
+      test_method: kselftest
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
       collections: exec
       job_timeout: 10
@@ -177,9 +178,10 @@ Here is an example of enabling `kselftest` (found in `<linux_kernel>/tools/testi
 1. Create a job definition in `jobs` section.
 ```
   kselftest-dt:
-    template: kselftest.jinja2
+    template: generic.jinja2
     kind: job
     params:
+      test_method: kselftest
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}'
       collections: dt
       job_timeout: 10
