@@ -30,8 +30,8 @@ def generate_jwt(payload, secret):
 def main():
     parser = argparse.ArgumentParser(description='Generate JWT token')
     parser.add_argument('--permissions', type=str,
-                        help='Permissions (checkout, testretry, testfix, testpatch)',
-                        default='checkout,testretry,testfix,testpatch')
+                        help='Permissions (checkout, testretry, patchset) separated by comma',
+                        default='checkout,testretry,patchset')
     parser.add_argument('--secret', type=str, help='Secret key to sign the payload')
     parser.add_argument('--toml', type=str, help='Path to toml file containing secret key')
     parser.add_argument('--email', type=str, help='Email of maintainer', required=True)
