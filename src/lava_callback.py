@@ -17,6 +17,7 @@ import jwt
 import logging
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 import kernelci.api.helper
@@ -184,11 +185,15 @@ def submit_job(api_helper, node_id, job_callback):
 async def callback(node_id: str, request: Request):
     tokens = SETTINGS.get(SETTINGS_PREFIX)
     if not tokens:
-        return 'Unauthorized', 401
+        item = {}
+        item['message'] = 'No tokens configured'
+        return JSONResponse(content=item, status_code=500)
     lab_token = request.headers.get('Authorization')
     # return 401 if no token
     if not lab_token:
-        return 'Unauthorized', 401
+        item = {}
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
     # iterate over tokens and check if value of one matches
     # we might have runtime_token and callback_token
@@ -201,7 +206,9 @@ async def callback(node_id: str, request: Request):
             lab_name = lab
             break
     if not lab_name:
-        return 'Unauthorized', 401
+        item = {}
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
     data = await request.json()
     job_callback = kernelci.runtime.lava.Callback(data)
@@ -211,7 +218,9 @@ async def callback(node_id: str, request: Request):
 
     submit_job(api_helper, node_id, job_callback)
 
-    return 'OK', 202
+    item = {}
+    item['message'] = 'OK'
+    return JSONResponse(content=item, status_code=202)
 
 
 def decode_jwt(jwtstr):
@@ -291,32 +300,40 @@ async def jobretry(data: JobRetry, request: Request,
     API call to assist in regression bisecting by retrying a specific job
     retrieved from test results.
     '''
+    # return item
+    item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'testretry')
     if not decoded:
-        return 'Unauthorized', 401
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
     email = decoded.get('email')
     logging.info(f"User {email} is retrying job {data.nodeid}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
-        return 'No default API name set', 500
+        item['message'] = 'No default API name set'
+        return JSONResponse(content=item, status_code=500)
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
     try:
         node = api_helper.api.node.get(data.nodeid)
     except Exception as e:
         logging.error(f'Error getting node {data.nodeid}: {e}')
-        return 'Error getting node', 500
+        item['message'] = 'Error getting node'
+        return JSONResponse(content=item, status_code=500)
     if not node:
-        return 'Node not found', 404
+        item['message'] = 'Node not found'
+        return JSONResponse(content=item, status_code=404)
     if node['kind'] != 'job':
-        return 'Node is not a job', 400
+        item['message'] = 'Node is not a job'
+        return JSONResponse(content=item, status_code=400)
 
     knode = find_parent_kind(node, api_helper, 'kbuild')
     if not knode:
-        return 'Kernel build not found', 404
+        item['message'] = 'Kernel build not found'
+        return JSONResponse(content=item, status_code=404)
 
     jobfilter = [knode['name'], node['name']]
     knode['jobfilter'] = jobfilter
@@ -324,9 +341,11 @@ async def jobretry(data: JobRetry, request: Request,
     knode['data'].pop('artifacts', None)
     # state - done, result - pass
     if knode.get('state') != 'done':
-        return 'Kernel build is not done', 400
+        item['message'] = 'Kernel build is not done'
+        return JSONResponse(content=item, status_code=400)
     if knode.get('result') != 'pass':
-        return 'Kernel build result is not pass', 400
+        item['message'] = 'Kernel build result is not pass'
+        return JSONResponse(content=item, status_code=400)
     # remove created, updated, timeout, owner, submitter, usergroups
     knode.pop('created', None)
     knode.pop('updated', None)
@@ -339,7 +358,8 @@ async def jobretry(data: JobRetry, request: Request,
     # Now we can submit custom kbuild node to the API(pub/sub)
     api_helper.api.send_event('node', evnode)
     logging.info(f"Job retry for node {data.nodeid} submitted")
-    return 'OK', 200
+    item['message'] = 'OK'
+    return JSONResponse(content=item, status_code=200)
 
 
 def get_jobfilter(node, api_helper):
@@ -347,13 +367,13 @@ def get_jobfilter(node, api_helper):
     if node['kind'] != 'job':
         jobnode = find_parent_kind(node, api_helper, 'job')
         if not jobnode:
-            return 'Job not found', 404
+            return None
     else:
         jobnode = node
 
     kbuildnode = find_parent_kind(node, api_helper, 'kbuild')
     if not kbuildnode:
-        return 'Kernel build not found', 404
+        return None
 
     kbuildname = kbuildnode['name']
     testname = jobnode['name']
@@ -399,20 +419,24 @@ async def checkout(data: ManualCheckout, request: Request,
     commit hash. In the latter case, the tree name is looked up in the
     configuration file.
     '''
+    item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'checkout')
     if not decoded:
-        return 'Unauthorized', 401
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
     email = decoded.get('email')
     if not email:
-        return 'Unauthorized', 401
-    logging.info(f"User {email} is checking out {data.nodeid} at custom commit {data.commit}")
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
+    logging.info(f"User {email} is checking out {data.nodeid} at custom commit {data.commit}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
-        return 'No default API name set', 500
+        item['message'] = 'No default API name set'
+        return JSONResponse(content=item, status_code=500)
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
 
@@ -421,26 +445,35 @@ async def checkout(data: ManualCheckout, request: Request,
         node = api_helper.api.node.get(data.nodeid)
         # validate commit string
         if not is_valid_commit_string(data.commit):
-            return 'Invalid commit format', 400
+            item['message'] = 'Invalid commit format'
+            return JSONResponse(content=item, status_code=400)
         if not node:
-            return 'Node not found', 404
+            item['message'] = 'Node not found'
+            return JSONResponse(content=item, status_code=404)
         try:
             treename = node['data']['kernel_revision']['tree']
             treeurl = node['data']['kernel_revision']['url']
             branch = node['data']['kernel_revision']['branch']
             commit = data.commit
         except KeyError:
-            return 'Node does not have kernel revision data', 400
+            item['message'] = 'Node does not have kernel revision data'
+            return JSONResponse(content=item, status_code=400)
 
         jobfilter = get_jobfilter(node, api_helper)
+        if not jobfilter:
+            item['message'] = 'Failed to get jobfilter'
+            return JSONResponse(content=item, status_code=500)
     else:
         if not data.url or not data.branch or not data.commit:
-            return 'Missing tree URL, branch or commit', 400
+            item['message'] = 'Missing tree URL, branch or commit'
+            return JSONResponse(content=item, status_code=400)
         if not is_valid_commit_string(data.commit):
-            return 'Invalid commit format', 400
+            item['message'] = 'Invalid commit format'
+            return JSONResponse(content=item, status_code=400)
         treename = find_tree(data.url, data.branch)
         if not treename:
-            return 'Tree not found', 404
+            item['message'] = 'Tree not found'
+            return JSONResponse(content=item, status_code=404)
         treeurl = data.url
         branch = data.branch
         commit = data.commit
@@ -449,10 +482,12 @@ async def checkout(data: ManualCheckout, request: Request,
         if data.jobfilter:
             # to be on safe side restrict length of jobfilter to 8
             if len(data.jobfilter) > 8:
-                return 'Too many jobs in jobfilter', 400
+                item['message'] = 'Too many jobs in jobfilter'
+                return JSONResponse(content=item, status_code=400)
             for jobname in data.jobfilter:
                 if not is_job_exist(jobname):
-                    return f'Job {jobname} not found', 404
+                    item['message'] = f'Job {jobname} not found'
+                    return JSONResponse(content=item, status_code=404)
             jobfilter = data.jobfilter
         else:
             jobfilter = None
@@ -481,10 +516,13 @@ async def checkout(data: ManualCheckout, request: Request,
 
     r = api_helper.api.node.add(node)
     if not r:
-        return 'Failed to submit checkout node', 500
+        item['message'] = 'Failed to submit checkout node'
+        return JSONResponse(content=item, status_code=500)
     else:
         logging.info(f"Checkout node {r['id']} submitted")
-        return r, 200
+        item['message'] = 'OK'
+        item['node'] = r
+        return JSONResponse(content=item, status_code=200)
 
 
 def validate_patch_url(patchurl):
@@ -512,44 +550,54 @@ async def checkout(data: PatchSet, request: Request,
     API call to test existing checkout with a patch(set)
     Patch can be supplied as a URL or within the request body
     '''
+    item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'patchset')
     if not decoded:
-        return 'Unauthorized', 401
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
     email = decoded.get('email')
     if not email:
-        return 'Unauthorized', 401
-    logging.info(f"User {email} is testing patchset on {data.nodeid}")
+        item['message'] = 'Unauthorized'
+        return JSONResponse(content=item, status_code=401)
 
+    logging.info(f"User {email} is testing patchset on {data.nodeid}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
-        return 'No default API name set', 500
+        item['message'] = 'No default API name set'
+        return JSONResponse(content=item, status_code=500)
     api_token = os.getenv('KCI_API_TOKEN')
     api_helper = _get_api_helper(api_config_name, api_token)
 
     node = api_helper.api.node.get(data.nodeid)
     if not node:
-        return 'Node not found', 404
+        item['message'] = 'Node not found'
+        return JSONResponse(content=item, status_code=404)
     if node['kind'] != 'checkout':
-        return 'Node is not a checkout', 400
+        item['message'] = 'Node is not a checkout'
+        return JSONResponse(content=item, status_code=400)
 
     # validate patch URL
     if data.patchurl:
         if isinstance(data.patchurl, list):
             for patchurl in data.patchurl:
                 if not isinstance(patchurl, str):
-                    return 'Invalid patch URL element type', 400
+                    item['message'] = 'Invalid patch URL element type'
+                    return JSONResponse(content=item, status_code=400)
                 if not validate_patch_url(patchurl):
-                    return 'Invalid patch URL', 400
+                    item['message'] = 'Invalid patch URL'
+                    return JSONResponse(content=item, status_code=400)
         else:
             return 'Invalid patch URL type', 400
     elif data.patch:
         # We need to implement upload to storage and return URL
-        return 'Not implemented', 501
+        item['message'] = 'Not implemented yet'
+        return JSONResponse(content=item, status_code=501)
     else:
-        return 'Missing patch URL or patch', 400
+        item['message'] = 'Missing patch URL or patch'
+        return JSONResponse(content=item, status_code=400)
 
     # Now we can submit custom patchset node to the API
     # Maybe add field who requested the patchset?
@@ -579,10 +627,13 @@ async def checkout(data: PatchSet, request: Request,
 
     r = api_helper.api.node.add(newnode)
     if not r:
-        return 'Failed to submit patchset node', 500
+        item['message'] = 'Failed to submit patchset node'
+        return JSONResponse(content=item, status_code=500)
     else:
         logging.info(f"Patchset node {r['id']} submitted")
-        return r, 200
+        item['message'] = 'OK'
+        item['node'] = r
+        return JSONResponse(content=item, status_code=200)
 
 
 # Default built-in development server, not suitable for production
