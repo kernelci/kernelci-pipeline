@@ -216,6 +216,30 @@ scheduler:
   - job: kselftest-cpufreq
     <<: *test-job-arm64-mediatek
 
+  - job: kselftest-cpufreq-hibernate
+    <<: *test-job-x86-intel
+
+  - job: kselftest-cpufreq-hibernate
+    <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq-hibernate
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-cpufreq-hibernate
+    <<: *test-job-arm64-mediatek
+
+  - job: kselftest-cpufreq-suspend
+    <<: *test-job-x86-intel
+
+  - job: kselftest-cpufreq-suspend
+    <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq-suspend
+    <<: *test-job-arm64-qualcomm
+
+  - job: kselftest-cpufreq-suspend
+    <<: *test-job-arm64-mediatek
+
   - job: kselftest-dmabuf-heaps
     <<: *test-job-x86-intel
 
