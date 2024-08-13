@@ -910,6 +910,28 @@ jobs:
       job_timeout: 10
     kcidb_test_suite: kselftest.cpufreq
 
+  kselftest-cpufreq-hibernate:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: cpufreq
+      env: 'KSELFTEST_MAIN_SH_ARGS="-t hibernate_rtc"'
+    rules:
+      tree:
+      - 'kernelci:staging-next'
+    kcidb_test_suite: kselftest.cpufreq.hibernate
+
+  kselftest-cpufreq-suspend:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: cpufreq
+      env: 'KSELFTEST_MAIN_SH_ARGS="-t suspend_rtc"'
+    rules:
+      tree:
+      - 'kernelci:staging-next'
+    kcidb_test_suite: kselftest.cpufreq.suspend
+
   kselftest-dmabuf-heaps:
     <<: *kselftest-job
     params:
