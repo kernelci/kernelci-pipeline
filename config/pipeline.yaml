@@ -134,7 +134,7 @@ api:
   staging:
     url: https://staging.kernelci.org:9000
 
-  early-access:
+  production:
     url: https://kernelci-api.westus3.cloudapp.azure.com
 
   k8s-host:
@@ -149,10 +149,10 @@ storage:
     port: 8022
     base_url: http://172.17.0.1:8002/
 
-  early-access-azure: &azure-files
+  production-azure: &azure-files
     storage_type: azure
     base_url: https://kciapistagingstorage1.file.core.windows.net/
-    share: early-access
+    share: production
     sas_public_token: "?sv=2022-11-02&ss=f&srt=sco&sp=r&se=2026-10-18T13:36:18Z&st=2024-10-17T05:36:18Z&spr=https&sig=xFxYOOh5uXJWeN9I3YKAUvpGGQivo89HKZbD78gcxvc%3D"
 
   k8s-host:
