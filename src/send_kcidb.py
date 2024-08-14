@@ -173,6 +173,7 @@ class KCIDBBridge(Service):
             'incomplete': None,
         }
         valid = result_map.get(result) if result else None
+        error_code = node['data'].get('error_code')
 
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
@@ -190,8 +191,9 @@ class KCIDBBridge(Service):
                 'job_id': node['data'].get('job_id'),
                 'job_context': node['data'].get('job_context'),
                 'kernel_type': node['data'].get('kernel_type'),
-                'error_code': node['data'].get('error_code'),
-                'error_msg': node['data'].get('error_msg'),
+                'error_code': error_code if error_code != 'node_timeout' else None,
+                'error_msg': node['data'].get('error_msg')
+                if error_code != 'node_timeout' else None,
             }
         }
         artifacts = node.get('artifacts')
