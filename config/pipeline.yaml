@@ -104,8 +104,22 @@ _anchors:
     - 'arnd'
     - 'clk'
     - 'efi'
+    - 'krzysztof'
+    - 'lee-backlight'
+    - 'linusw'
+    - 'net-next'
+    - 'omap'
     - 'peterz'
+    - 'pm'
+    - 'renesas'
+    - 'robh'
+    - 'rppt'
+    - 'soc'
+    - 'tegra'
+    - 'thermal'
     - 'tip'
+    - 'ulfh'
+    - 'vireshk'
 
 api:
 
@@ -1222,8 +1236,17 @@ trees:
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
+  krzysztof:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
+
+  lee-backlight:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/backlight.git"
+
   lee-mfd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git"
+
+  linusw:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git"
 
   mainline:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
@@ -1234,11 +1257,32 @@ trees:
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
 
+  net-next:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git"
+
   next:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
+  omap:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
+
   peterz:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git"
+
+  pm:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
+
+  renesas:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
+
+  robh:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git"
+
+  rppt:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git"
+
+  soc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
 
   stable-rc:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
@@ -1246,8 +1290,20 @@ trees:
   stable-rt:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git'
 
+  tegra:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"
+
+  thermal:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git"
+
   tip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git"
+
+  ulfh:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
+
+  vireshk:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/vireshk/linux.git"
 
 platforms:
 
@@ -2154,9 +2210,29 @@ build_configs:
     tree: kernelci
     branch: 'staging-stable'
 
+  krzysztof:
+    tree: krzysztof
+    branch: 'for-next'
+
+  lee_backlight:
+    tree: lee-backlight
+    branch: 'for-backlight-next'
+
   lee_mfd:
     tree: lee-mfd
     branch: 'for-mfd-next'
+
+  linusw_devel:
+    tree: linusw
+    branch: 'devel'
+
+  linusw_fixes:
+    tree: linusw
+    branch: 'fixes'
+
+  linusw_for-next:
+    tree: linusw
+    branch: 'for-next'
 
   mainline:
     tree: mainline
@@ -2174,13 +2250,49 @@ build_configs:
     tree: mediatek
     branch: 'for-next'
 
+  net-next:
+    tree: net-next
+    branch: 'master'
+
   next_master:
     tree: next
     branch: 'master'
 
+  omap:
+    tree: omap
+    branch: 'for-next'
+
   peterz:
     tree: peterz
     branch: 'kernelci'
+
+  pm:
+    tree: pm
+    branch: 'testing'
+
+  renesas:
+    tree: renesas
+    branch: 'master'
+
+  renesas_next:
+    tree: renesas
+    branch: 'next'
+
+  robh:
+    tree: robh
+    branch: 'for-kernelci'
+
+  rppt:
+    tree: rppt
+    branch: 'for-kernelci'
+
+  soc_fixes:
+    tree: soc
+    branch: 'arm/fixes'
+
+  soc_for-next:
+    tree: soc
+    branch: 'for-next'
 
   stable-rc_4.19: &stable-rc
     tree: stable-rc
@@ -2270,6 +2382,22 @@ build_configs:
     tree: stable-rt
     branch: 'v6.6-rt'
 
+  tegra:
+    tree: tegra
+    branch: 'for-next'
+
+  thermal:
+    tree: thermal
+    branch: 'testing'
+
   tip:
     tree: tip
     branch: 'master'
+
+  ulfh:
+    tree: ulfh
+    branch: 'next'
+
+  vireshk:
+    tree: vireshk
+    branch: 'for-kernelci'
