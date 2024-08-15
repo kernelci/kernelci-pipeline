@@ -53,7 +53,6 @@ lava_labs = {
     "lava-baylibre": "https://lava.baylibre.com",
     "lava-broonie": "https://lava.sirena.org.uk",
     "lava-collabora": "https://lava.collabora.dev",
-    "lava-collabora-early-access": "https://staging.lava.collabora.dev",
     "lava-collabora-staging": "https://staging.lava.collabora.dev",
 }
 
