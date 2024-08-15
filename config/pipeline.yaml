@@ -231,14 +231,6 @@ runtimes:
       callback:
         token: kernelci-api-token-staging
 
-  # ToDo: avoid creating a separate Runtime entry
-  # https://github.com/kernelci/kernelci-core/issues/2088
-  lava-collabora-early-access:
-    <<: *lava-collabora-staging
-    notify:
-      callback:
-        token: kernelci-api-token-early-access
-
   lava-collabora-staging:
     <<: *lava-collabora-staging
     url: https://staging.lava.collabora.dev/

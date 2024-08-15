@@ -33,10 +33,6 @@ The `lava-callback` service is used to receive notifications from LAVA after a j
 [runtime.lava-collabora]
 runtime_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
 callback_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
-
-[runtime.lava-collabora-early-access]
-runtime_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA-EARLY-ACCESS"
-callback_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
 ```
 In case we have single token, it will be same token used to submit job(by scheduler), runtime_token only, but if we use different to tokens to submit job and to receive callback, we need to specify both runtime_token and callback_token.
 
