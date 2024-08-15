@@ -24,7 +24,7 @@ Then point it to the appropriate Maestro instance by editing the
 to the current production instance:
 
 ```
-$ sed -i 's/api_config = "docker-host"/api_config = "early-access"/' config/kernelci.toml
+$ sed -i 's/api_config = "docker-host"/api_config = "production"/' config/kernelci.toml
 ```
 
 ## How to use it
