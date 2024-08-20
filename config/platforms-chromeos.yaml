@@ -103,6 +103,7 @@ platforms:
     base_name: jacuzzi
     mach: mediatek
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
+    compatible: ['google,juniper-sku16', 'google,juniper', 'mediatek,mt8183']
     context:
       test_character_delay: 10
     rules:
@@ -115,6 +116,7 @@ platforms:
     <<: *mediatek-chromebook-device
     base_name: corsola
     dtb: dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb
+    compatible: ['google,steelix-sku131072', 'google,steelix']
     params:
       <<: *arm64-chromebook-device-params
       flash_kernel:
@@ -130,6 +132,7 @@ platforms:
     <<: *mediatek-chromebook-device
     base_name: asurada
     dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
+    compatible: ['google,spherion-rev3', 'google,spherion-rev2']
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -140,6 +143,7 @@ platforms:
     <<: *mediatek-chromebook-device
     base_name: cherry
     dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
+    compatible: ['google,tomato-rev2', 'google,tomato', 'mediatek,mt8195']
     rules:
       <<: *arm64-chromebook-device-rules
       min_version:
@@ -153,6 +157,7 @@ platforms:
     dtb:
       - dtbs/qcom/sc7180-trogdor-kingoftown.dtb
       - dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
+    compatible: ['google,kingoftown', 'qcom,sc7180']
     params:
       <<: *arm64-chromebook-device-params
       flash_kernel:
@@ -163,3 +168,4 @@ platforms:
   sc7180-trogdor-lazor-limozeen:
     <<: *trogdor-chromebook-device
     dtb: dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb
+    compatible: ['google,lazor-rev5-sku5', 'google,lazor-rev5-sku6']

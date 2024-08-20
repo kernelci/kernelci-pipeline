@@ -1318,6 +1318,7 @@ platforms:
     <<: *arm-device
     mach: broadcom
     dtb: dtbs/bcm2836-rpi-2-b.dtb
+    compatible: ['raspberrypi,2-model-b', 'brcm,bcm2836']
 
   docker:
 
@@ -1325,6 +1326,7 @@ platforms:
     <<: *arm-device
     mach: imx
     dtb: dtbs/imx6q-sabrelite.dtb
+    compatible: ['fsl,imx6q-sabrelite', 'fsl,imx6q']
 
   kubernetes:
 
@@ -1332,6 +1334,7 @@ platforms:
     <<: *arm64-device
     mach: amlogic
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
+    compatible: ['khadas,vim3', 'amlogic,a311d', 'amlogic,g12b']
 
   minnowboard-turbot-E3826: *x86_64-device
 
@@ -1339,12 +1342,14 @@ platforms:
     <<: *arm-device
     mach: samsung
     dtb: dtbs/exynos5422-odroidxu3.dtb
+    compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
 
   qcs6490-rb3gen2:
     <<: *arm64-device
     boot_method: fastboot
     mach: qcom
     dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
+    compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
 
   qemu: &qemu-device
     base_name: qemu
@@ -1362,28 +1367,33 @@ platforms:
     <<: *arm-device
     mach: rockchip
     dtb: dtbs/rk3288-rock2-square.dtb
+    compatible: ['radxa,rock2-square', 'rockchip,rk3288']
 
   rk3288-veyron-jaq:
     <<: *arm-device
     boot_method: depthcharge
     mach: rockchip
     dtb: dtbs/rk3288-veyron-jaq.dtb
+    compatible: ['google,veyron-jaq-rev5', 'google,veyron-jaq-rev4']
 
   rk3399-gru-kevin:
     <<: *arm64-device
     boot_method: depthcharge
     mach: rockchip
     dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
+    compatible: ['google,kevin-rev15', 'google,kevin-rev14']
 
   rk3399-rock-pi-4b:
     <<: *arm64-device
     mach: rockchip
     dtb: dtbs/rockchip/rk3399-rock-pi-4b.dtb
+    compatible: ['radxa,rockpi4b', 'radxa,rockpi4', 'rockchip,rk3399']
 
   rk3588-rock-5b:
     <<: *arm64-device
     mach: rockchip
     dtb: dtbs/rockchip/rk3588-rock-5b.dtb
+    compatible: ['radxa,rock-5b', 'rockchip,rk3588']
 
   shell:
 
@@ -1391,16 +1401,19 @@ platforms:
     <<: *arm-device
     mach: allwinner
     dtb: dtbs/sun7i-a20-cubieboard2.dtb
+    compatible: ['cubietech,cubieboard2', 'allwinner,sun7i-a20']
 
   sun50i-h5-libretech-all-h3-cc:
     <<: *arm64-device
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
+    compatible: ['libretech,all-h3-cc-h5', 'allwinner,sun50i-h5']
 
   sun50i-h6-pine-h64:
     <<: *arm64-device
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
+    compatible: ['pine64,pine-h64', 'allwinner,sun50i-h6']
 
 
 scheduler:
