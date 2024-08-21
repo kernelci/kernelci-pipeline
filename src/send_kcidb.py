@@ -51,6 +51,7 @@ class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._jobs = configs['jobs']
+        self._platforms = configs['platforms']
 
     def _setup(self, args):
         return {
@@ -345,17 +346,23 @@ the test: {sub_path}")
         else:
             build_id = f"{origin}:{build_node['id']}"
 
+        platform = test_node['data'].get('platform')
+        if platform:
+            compatible = self._platforms[platform].compatible
+            self.log.info(f"Compatible string: {test_node['id']}:{compatible}")
+
         parsed_test_node = {
             'build_id': build_id,
             'id': f"{origin}:{test_node['id']}",
             'origin': origin,
-            'comment': f"{test_node['name']} on {test_node['data'].get('platform')} \
+            'comment': f"{test_node['name']} on {platform} \
 in {test_node['data'].get('runtime')}",
             'start_time': self._set_timezone(test_node['created']),
             'environment': {
                 'comment': f"Runtime: {test_node['data'].get('runtime')}",
+                'compatible': compatible,
                 'misc': {
-                    'platform': test_node['data'].get('platform'),
+                    'platform': platform,
                 }
             },
             'waived': False,
@@ -474,7 +481,7 @@ in {test_node['data'].get('runtime')}",
                 'tests': parsed_test_node,
                 'version': {
                     'major': 4,
-                    'minor': 3
+                    'minor': 4
                 }
             }
             self._send_revision(context['client'], revision)
