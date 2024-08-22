@@ -375,7 +375,6 @@ _anchors:
         - next
         - collabora-chromeos-kernel
         - media
-    kcidb_test_suite: fluster.v4l2
 
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
@@ -612,6 +611,7 @@ jobs:
       testsuite: 'AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_av1
 
   v4l2-decoder-conformance-av1-chromium-10bit:
     <<: *v4l2-decoder-conformance-job
@@ -620,6 +620,7 @@ jobs:
       testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_av1_chromium
 
   v4l2-decoder-conformance-h264:
     <<: *v4l2-decoder-conformance-job
@@ -629,6 +630,7 @@ jobs:
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_h264
 
   v4l2-decoder-conformance-h264-frext:
     <<: *v4l2-decoder-conformance-job
@@ -638,6 +640,7 @@ jobs:
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_h264_frext
 
   v4l2-decoder-conformance-h265:
     <<: *v4l2-decoder-conformance-job
@@ -647,6 +650,7 @@ jobs:
       decoders:
         - 'GStreamer-H.265-V4L2-Gst1.0'
         - 'GStreamer-H.265-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_h265
 
   v4l2-decoder-conformance-vp8:
     <<: *v4l2-decoder-conformance-job
@@ -656,6 +660,7 @@ jobs:
       decoders:
         - 'GStreamer-VP8-V4L2-Gst1.0'
         - 'GStreamer-VP8-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_vp8
 
   v4l2-decoder-conformance-vp9:
     <<: *v4l2-decoder-conformance-job
@@ -665,6 +670,7 @@ jobs:
       decoders:
         - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
+    kcidb_test_suite: fluster.v4l2.gstreamer_vp9
 
   watchdog-reset-arm64-mediatek: *watchdog-reset-job
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job
