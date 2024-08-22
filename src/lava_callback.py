@@ -460,9 +460,6 @@ async def checkout(data: ManualCheckout, request: Request,
             return JSONResponse(content=item, status_code=400)
 
         jobfilter = get_jobfilter(node, api_helper)
-        if not jobfilter:
-            item['message'] = 'Failed to get jobfilter'
-            return JSONResponse(content=item, status_code=500)
     else:
         if not data.url or not data.branch or not data.commit:
             item['message'] = 'Missing tree URL, branch or commit'
