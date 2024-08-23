@@ -72,8 +72,9 @@ _anchors:
   ltp-job: &ltp-job
     template: ltp.jinja2
     kind: job
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20240313.0/{debarch}'
     params: &ltp-params
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20240313.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
     kcidb_test_suite: ltp
@@ -1088,8 +1089,9 @@ jobs:
   rt-tests: &rt-tests
     template: rt-tests.jinja2
     kind: job
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240313.0/{debarch}'
     params: &rt-tests-params
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240313.0/{debarch}'
       job_timeout: 10
       duration: '60s'
     kcidb_test_suite: rt-tests
@@ -1182,6 +1184,7 @@ jobs:
     kind: job
     params:
       test_method: sleep
+      boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}
       sleep_params: mem freeze
     kcidb_test_suite: kernelci_sleep
