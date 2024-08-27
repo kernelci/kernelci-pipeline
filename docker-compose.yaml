@@ -40,7 +40,7 @@ services:
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
-    restart: on-failure
+    #restart: on-failure
 
   scheduler: &scheduler
     container_name: 'kernelci-pipeline-scheduler'
