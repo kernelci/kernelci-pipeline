@@ -1967,6 +1967,106 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
+  - job: rt-tests-pi-stress
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-pi-stress
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-pi-stress
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-pi-stress
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-pi-stress
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-pmqtest
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-pmqtest
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-pmqtest
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-pmqtest
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-pmqtest
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-ptsematest
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-ptsematest
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-ptsematest
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-ptsematest
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-ptsematest
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-rt-migrate-test
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-rt-migrate-test
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-rt-migrate-test
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-rt-migrate-test
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-rt-migrate-test
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-12-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
@@ -2013,6 +2113,81 @@ scheduler:
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rtla-timerlat
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-signaltest
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-signaltest
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-signaltest
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-signaltest
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-signaltest
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-sigwaittest
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-sigwaittest
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-sigwaittest
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-sigwaittest
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-sigwaittest
+    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm-preempt_rt-platforms
+
+  - job: rt-tests-svsematest
+    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
+  - job: rt-tests-svsematest
+    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-chromebook-platforms
+
+  - job: rt-tests-svsematest
+    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-platforms
+
+  - job: rt-tests-svsematest
+    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-x86-rt-chromebook-platforms
+
+  - job: rt-tests-svsematest
     event: *kbuild-gcc-12-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
