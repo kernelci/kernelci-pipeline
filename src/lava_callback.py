@@ -16,7 +16,7 @@ import uvicorn
 import jwt
 import logging
 from datetime import datetime, timedelta
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI, HTTPException, Request, Header, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -57,6 +57,60 @@ class PatchSet(BaseModel):
 
 class JobRetry(BaseModel):
     nodeid: str
+
+
+class Metrics():
+    def __init__(self, kind):
+        self.kind = kind
+        self.metrics = {}
+        self.metrics['http_requests_total'] = 0
+        self.metrics['lava_callback_requests_total'] = 0
+        self.metrics['lava_callback_requests_authfail_total'] = 0
+        self.metrics['lava_callback_late_fail_total'] = 0
+        self.metrics['pipeline_api_auth_fail_total'] = 0
+        self.metrics['pipeline_api_requests_total'] = 0
+        self.lock = threading.Lock()
+
+    # Various internal metrics
+    def update(self):
+        with self.lock:
+            # This might not work as we have ASGI/WSGI server which have their own threads
+            self.metrics['executor_threads_active'] = executor._work_queue.qsize()
+            self.metrics['executor_threads_all'] = executor._max_workers
+
+    def add(self, key, value):
+        with self.lock:
+            if key not in self.metrics:
+                self.metrics[key] = 0
+            self.metrics[key] += value
+
+    def get(self, key):
+        self.update()
+        with self.lock:
+            return self.metrics.get(key, 0)
+
+    def all(self):
+        self.update()
+        with self.lock:
+            return self.metrics
+
+    def export(self):
+        counters = ['_total', '_counter', '_created']
+        self.update()
+        with self.lock:
+            promstr = ''
+            for key, value in self.metrics.items():
+                promstr += f'# HELP {key} {key}\n'
+                # if key doesn't end in _total, _counter - it is a gauge, otherwise counter
+                if not any([key.endswith(c) for c in counters]):
+                    promstr += f'# TYPE {key} gauge\n'
+                else:
+                    promstr += f'# TYPE {key} counter\n'
+                promstr += f'{key}{{kind="{self.kind}"}} {value}\n'
+            return promstr
+
+
+metrics = Metrics('pipeline_callback')
 
 
 def _get_api_helper(api_config_name, api_token):
@@ -140,6 +194,7 @@ def async_job_submit(api_helper, node_id, job_callback):
     results = job_callback.get_results()
     job_node = api_helper.api.node.get(node_id)
     if not job_node:
+        metrics.add('lava_callback_late_fail_total', 1)
         logging.error(f'Node {node_id} not found')
         return
     # TODO: Verify lab_name matches job node lab name
@@ -156,10 +211,15 @@ def async_job_submit(api_helper, node_id, job_callback):
     if log_txt_url:
         job_node['artifacts']['lava_log'] = log_txt_url
         print(f"Log uploaded to {log_txt_url}")
+    else:
+        print("Failed to upload log")
+        metrics.add('lava_callback_late_fail_total', 1)
     callback_json_url = _upload_callback_data(callback_data, job_node, storage)
     if callback_json_url:
         job_node['artifacts']['callback_data'] = callback_json_url
         print(f"Callback data uploaded to {callback_json_url}")
+    else:
+        metrics.add('lava_callback_late_fail_total', 1)
     # failed LAVA job should have result set to 'incomplete'
     job_node['result'] = job_result
     job_node['state'] = 'done'
@@ -183,6 +243,8 @@ def submit_job(api_helper, node_id, job_callback):
 # POST /node/<node_id>
 @app.post('/node/{node_id}')
 async def callback(node_id: str, request: Request):
+    metrics.add('http_requests_total', 1)
+    metrics.add('lava_callback_requests_total', 1)
     tokens = SETTINGS.get(SETTINGS_PREFIX)
     if not tokens:
         item = {}
@@ -191,6 +253,7 @@ async def callback(node_id: str, request: Request):
     lab_token = request.headers.get('Authorization')
     # return 401 if no token
     if not lab_token:
+        metrics.add('lava_callback_requests_authfail_total', 1)
         item = {}
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
@@ -206,6 +269,7 @@ async def callback(node_id: str, request: Request):
             lab_name = lab
             break
     if not lab_name:
+        metrics.add('lava_callback_requests_authfail_total', 1)
         item = {}
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
@@ -300,12 +364,15 @@ async def jobretry(data: JobRetry, request: Request,
     API call to assist in regression bisecting by retrying a specific job
     retrieved from test results.
     '''
+    metrics.add('http_requests_total', 1)
+    metrics.add('pipeline_api_requests_total', 1)
     # return item
     item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'testretry')
     if not decoded:
+        metrics.add('pipeline_api_auth_fail_total', 1)
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
@@ -419,11 +486,14 @@ async def checkout(data: ManualCheckout, request: Request,
     commit hash. In the latter case, the tree name is looked up in the
     configuration file.
     '''
+    metrics.add('http_requests_total', 1)
+    metrics.add('pipeline_api_requests_total', 1)
     item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'checkout')
     if not decoded:
+        metrics.add('pipeline_api_auth_fail_total', 1)
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
@@ -547,11 +617,14 @@ async def checkout(data: PatchSet, request: Request,
     API call to test existing checkout with a patch(set)
     Patch can be supplied as a URL or within the request body
     '''
+    metrics.add('http_requests_total', 1)
+    metrics.add('pipeline_api_requests_total', 1)
     item = {}
     # Validate JWT token from Authorization header
     jwtoken = Authorization
     decoded = validate_permissions(jwtoken, 'patchset')
     if not decoded:
+        metrics.add('pipeline_api_auth_fail_total', 1)
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
@@ -631,6 +704,22 @@ async def checkout(data: PatchSet, request: Request,
         item['message'] = 'OK'
         item['node'] = r
         return JSONResponse(content=item, status_code=200)
+
+
+@app.get('/api/metrics')
+async def apimetrics():
+    '''
+    Prometheus compatible metrics export
+    /api/metrics
+    http_requests_total{kind="pipeline_callback"} 4633433
+    lava_callback_requests_total{kind="pipeline_callback"} 4633433
+    lava_callback_requests_authfail{kind="pipeline_callback"} 0
+    lava_callback_late_fail{kind="pipeline_callback"} 0
+    '''
+    metrics.add('http_requests_total', 1)
+    export_str = metrics.export()
+
+    return Response(content=export_str, media_type='text/plain')
 
 
 # Default built-in development server, not suitable for production
