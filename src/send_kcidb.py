@@ -362,7 +362,6 @@ the test: {sub_path}")
         platform = test_node['data'].get('platform')
         if platform:
             compatible = self._platforms[platform].compatible
-            self.log.info(f"Compatible string: {test_node['id']}:{compatible}")
 
         runtime = test_node['data'].get('runtime')
         parsed_test_node = {
