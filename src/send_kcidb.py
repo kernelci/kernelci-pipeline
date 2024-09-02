@@ -46,6 +46,14 @@ ERRORED_TEST_CODES = (
     'Test',
 )
 
+lava_labs = {
+    "lava-baylibre": "https://lava.baylibre.com",
+    "lava-broonie": "https://lava.sirena.org.uk",
+    "lava-collabora": "https://lava.collabora.dev",
+    "lava-collabora-early-access": "https://staging.lava.collabora.dev",
+    "lava-collabora-staging": "https://staging.lava.collabora.dev",
+}
+
 
 class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
@@ -307,9 +315,9 @@ the test: {sub_path}")
 
     def _get_job_metadata(self, node):
         """Retrive job metadata
-        Get job metadata such as job ID and context. If the node doesn't
-        have the metadata, it will search through parent nodes recursively
-        until it's found.
+        Get job metadata such as job ID, context, and job URL (for lava jobs).
+        If the node doesn't have the metadata, it will search through parent nodes
+        recursively until it's found.
         """
         data = node.get('data')
         if not data.get('job_id'):
@@ -317,6 +325,10 @@ the test: {sub_path}")
                 parent = self._api.node.get(node['parent'])
                 if parent:
                     data = self._get_job_metadata(parent)
+        lab_url = lava_labs.get(data.get('runtime'))
+        if lab_url:
+            job_url = lab_url + "/scheduler/job/" + data.get('job_id')
+            data['job_url'] = job_url
         return data
 
     def _get_error_metadata(self, node):
@@ -388,6 +400,8 @@ in {test_node['data'].get('runtime')}",
                 'job_id')
             parsed_test_node['environment']['misc']['job_context'] = job_metadata.get(
                 'job_context')
+            parsed_test_node['environment']['misc']['job_url'] = job_metadata.get(
+                'job_url')
 
         artifacts = self._get_artifacts(test_node)
         if artifacts:
