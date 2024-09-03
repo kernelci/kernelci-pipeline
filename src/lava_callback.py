@@ -575,6 +575,7 @@ async def checkout(data: ManualCheckout, request: Request,
             }
         },
         "timeout": checkout_timeout.isoformat(),
+        "submitter": f'user:{email}',
     }
 
     if jobfilter:
@@ -610,7 +611,7 @@ def validate_patch_url(patchurl):
 
 
 @app.post('/api/patchset')
-async def checkout(data: PatchSet, request: Request,
+async def patchset(data: PatchSet, request: Request,
                    Authorization: str = Header(None)):
     '''
     API call to test existing checkout with a patch(set)
@@ -688,6 +689,7 @@ async def checkout(data: PatchSet, request: Request,
     newnode['parent'] = node['id']
     newnode['artifacts'] = {}
     newnode['timeout'] = patchset_timeout.isoformat()
+    newnode['submitter'] = f'user:{email}'
     if data.patchurl:
         for i, patchurl in enumerate(data.patchurl):
             newnode['artifacts'][f'patch{i}'] = patchurl
