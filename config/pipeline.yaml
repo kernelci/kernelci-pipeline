@@ -100,11 +100,13 @@ _anchors:
 
   build-only-trees-rules: &build-only-trees-rules
     tree:
+    - 'agross'
     - 'amlogic'
     - 'ardb'
     - 'arnd'
     - 'clk'
     - 'efi'
+    - 'khilman'
     - 'krzysztof'
     - 'lee-backlight'
     - 'linusw'
@@ -1191,6 +1193,9 @@ jobs:
 
 trees:
 
+  agross:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
+
   amlogic:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
@@ -1238,6 +1243,9 @@ trees:
 
   kernelci:
     url: "https://github.com/kernelci/linux.git"
+
+  khilman:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git"
 
   krzysztof:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
@@ -2233,6 +2241,10 @@ build_variants:
 
 build_configs:
 
+  agross:
+    tree: agross
+    branch: 'ci-next'
+
   amlogic:
     tree: amlogic
     branch: 'for-next'
@@ -2400,6 +2412,10 @@ build_configs:
   kernelci_staging-stable:
     tree: kernelci
     branch: 'staging-stable'
+
+  khilman:
+    tree: khilman
+    branch: 'to-build'
 
   krzysztof:
     tree: krzysztof
