@@ -97,8 +97,7 @@ def get_repo_info(repodir):
 def prepare_checkout(args):
     token = get_token()
     if not token:
-        print('API token is required')
-        return
+        token = args.token
 
     # Developer have several ways to provide checkout data
     # Always require commit ID
