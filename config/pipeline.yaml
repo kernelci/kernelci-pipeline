@@ -366,6 +366,19 @@ jobs:
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
 
+  kbuild-clang-17-arm64-kselftest:
+    <<: *kbuild-clang-17-arm64-job
+    params:
+      <<: *kbuild-clang-17-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'kselftest'
+    rules: &kbuild-kselftest-rules
+      tree:
+        - 'kselftest'
+      fragments:
+        - kselftest
+
   kbuild-clang-17-i386: &kbuild-clang-17-i386-job
     <<: *kbuild-job
     image: kernelci/staging-clang-17:x86-kselftest-kernelci
@@ -432,6 +445,18 @@ jobs:
     rules:
       tree:
       - 'android'
+
+  kbuild-clang-17-x86-kselftest:
+    <<: *kbuild-clang-17-x86-job
+    params:
+      <<: *kbuild-clang-17-x86-params
+      defconfig:
+        - x86_64_defconfig
+      fragments:
+        - 'kselftest'
+        - 'x86-board'
+    rules:
+      <<: *kbuild-kselftest-rules
 
   # Default config and build only job
   kbuild-gcc-12-arc-build-only: &kbuild-gcc-12-arc-job
@@ -512,6 +537,15 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+
+  kbuild-gcc-12-arm-kselftest:
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'kselftest'
+    rules:
+      <<: *kbuild-kselftest-rules
 
   kbuild-gcc-12-arm-mfd:
     <<: *kbuild-gcc-12-arm-job
@@ -652,6 +686,16 @@ jobs:
       dtbs_check: true
     kcidb_test_suite: dtbs_check
 
+  kbuild-gcc-12-arm64-kselftest:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'kselftest'
+    rules:
+      <<: *kbuild-kselftest-rules
+
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
     rules:
@@ -715,6 +759,15 @@ jobs:
   kbuild-gcc-12-i386-build-only:
     <<: *kbuild-gcc-12-i386-job
     rules: *build-only-trees-rules
+
+  kbuild-gcc-12-i386-kselftest:
+    <<: *kbuild-gcc-12-i386-job
+    params:
+      <<: *kbuild-gcc-12-i386-params
+      fragments:
+        - 'kselftest'
+    rules:
+      <<: *kbuild-kselftest-rules
 
   kbuild-gcc-12-i386-mfd:
     <<: *kbuild-gcc-12-i386-job
@@ -860,6 +913,16 @@ jobs:
     rules:
       tree:
       - '!android'
+
+  kbuild-gcc-12-x86-kselftest:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'x86-board'
+    rules:
+      <<: *kbuild-kselftest-rules
 
   kbuild-gcc-12-x86-mfd:
     <<: *kbuild-gcc-12-x86-job
@@ -1250,6 +1313,9 @@ trees:
   krzysztof:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
 
+  kselftest:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git'
+
   lee-backlight:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/backlight.git"
 
@@ -1627,6 +1693,9 @@ scheduler:
   - job: kbuild-clang-17-arm64-android-randomize
     <<: *build-k8s-all
 
+  - job: kbuild-clang-17-arm64-kselftest
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-i386-android-allnoconfig
     <<: *build-k8s-all
 
@@ -1640,6 +1709,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-x86-android-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-x86-kselftest
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arc-build-only
@@ -1673,6 +1745,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-kselftest
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-mfd
@@ -1736,6 +1811,9 @@ scheduler:
 #      tree:
 #        - kernelci:staging-next
 
+  - job: kbuild-gcc-12-arm64-kselftest
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-mfd
     <<: *build-k8s-all
 
@@ -1758,6 +1836,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-i386-tinyconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-i386-kselftest
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-i386-mfd
@@ -1815,6 +1896,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-kcidebug
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-kselftest
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mfd
@@ -2420,6 +2504,14 @@ build_configs:
   krzysztof:
     tree: krzysztof
     branch: 'for-next'
+
+  kselftest_fixes:
+    tree: kselftest
+    branch: 'fixes'
+
+  kselftest_next:
+    tree: kselftest
+    branch: 'next'
 
   lee_backlight:
     tree: lee-backlight
