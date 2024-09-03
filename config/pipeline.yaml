@@ -805,6 +805,7 @@ jobs:
     rules:
       tree:
       - 'chrome-platform'
+      - 'mediatek'
 
   kbuild-gcc-12-arm64-chromebook-kcidebug:
     <<: *kbuild-gcc-12-arm64-job
@@ -1177,6 +1178,16 @@ jobs:
       defconfig:
         - x86_64_defconfig
         - allnoconfig
+
+  kbuild-gcc-12-x86-mediatek:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+       - 'x86-board'
+    rules:
+      tree:
+      - 'mediatek'
 
   kbuild-gcc-12-x86-mfd:
     <<: *kbuild-gcc-12-x86-job
@@ -2228,6 +2239,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-mediatek
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mfd
