@@ -468,8 +468,7 @@ def is_job_exist(jobname):
     Check if job exists in the config
     '''
     for job in YAMLCFG['jobs']:
-        data = YAMLCFG['jobs'].get(job)
-        if data.get('name') == jobname:
+        if job == jobname:
             return True
     return False
 
