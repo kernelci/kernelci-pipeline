@@ -198,7 +198,7 @@ runtimes:
     rules:
       tree:
       - kernelci
-      - mainline
+      - 'mainline'
       - next
 
   lava-broonie:
@@ -351,6 +351,11 @@ jobs:
       defconfig:
         - defconfig
         - allnoconfig
+    rules:
+      tree:
+        - 'android'
+        - 'mainline'
+
 
   kbuild-clang-17-arm64-android-big_endian:
     <<: *kbuild-clang-17-arm64-android-job
@@ -379,6 +384,49 @@ jobs:
       fragments:
         - kselftest
 
+  kbuild-clang-17-arm64-mainline: &kbuild-clang-17-arm64-mainline-job
+    <<: *kbuild-clang-17-arm64-job
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-clang-17-arm64-mainline-64K_PAGES:
+    <<: *kbuild-clang-17-arm64-mainline-job
+    params:
+      <<: *kbuild-clang-17-arm64-params
+      fragments:
+        - 'CONFIG_ARM64_64K_PAGES=y'
+
+  kbuild-clang-17-arm-mainline: &kbuild-clang-17-arm-mainline-job
+    <<: *kbuild-clang-17-arm-job
+    params:
+      <<: *kbuild-clang-17-arm-params
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-clang-17-arm-mainline-allnoconfig:
+    <<: *kbuild-clang-17-arm-mainline-job
+    params:
+      <<: *kbuild-clang-17-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+
+  kbuild-clang-17-arm-mainline-aspeed_g5:
+    <<: *kbuild-clang-17-arm-mainline-job
+    params:
+      <<: *kbuild-clang-17-arm-params
+      defconfig:
+        - aspeed_g5_defconfig
+
+  kbuild-clang-17-arm-mainline-multi_v5:
+    <<: *kbuild-clang-17-arm-mainline-job
+    params:
+      <<: *kbuild-clang-17-arm-params
+      defconfig:
+        - multi_v5_defconfig
+
   kbuild-clang-17-i386: &kbuild-clang-17-i386-job
     <<: *kbuild-job
     image: kernelci/staging-clang-17:x86-kselftest-kernelci
@@ -397,6 +445,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'mainline'
 
   kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
     <<: *kbuild-job
@@ -445,6 +494,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'mainline'
 
   kbuild-clang-17-x86-kselftest:
     <<: *kbuild-clang-17-x86-job
@@ -462,7 +512,7 @@ jobs:
   kbuild-gcc-12-arc-build-only: &kbuild-gcc-12-arc-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:arc-kselftest-kernelci
-    params:
+    params: &kbuild-gcc-12-arc-params
       arch: arc
       compiler: gcc-12
       cross_compile: 'arc-elf32-'
@@ -475,6 +525,29 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+
+  kbuild-gcc-12-arc-mainline: &kbuild-gcc-12-arc-mainline-job
+    <<: *kbuild-gcc-12-arc-job
+    params: &kbuild-gcc-12-arc-mainline-params
+      <<: *kbuild-gcc-12-arc-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      min_version:
+        version: 4
+        patchlevel: 10
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-arc-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-arc-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arc-mainline-params
+      defconfig:
+        - haps_hs_smp_defconfig
+        - allnoconfig
 
   kbuild-gcc-12-arm: &kbuild-gcc-12-arm-job
     <<: *kbuild-job
@@ -546,6 +619,71 @@ jobs:
         - 'kselftest'
     rules:
       <<: *kbuild-kselftest-rules
+
+  kbuild-gcc-12-arm-mainline: &kbuild-gcc-12-arm-mainline-job
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-arm-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-arm-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+
+  kbuild-gcc-12-arm-mainline-BIG_ENDIAN:
+    <<: *kbuild-gcc-12-arm-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_CPU_BIG_ENDIAN=y'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+
+  kbuild-gcc-12-arm-mainline-EFI:
+    <<: *kbuild-gcc-12-arm-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_EFI=y'
+        - 'CONFIG_ARM_LPAE=y'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+
+  kbuild-gcc-12-arm-mainline-SMP:
+    <<: *kbuild-gcc-12-arm-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_SMP=n'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+
+  kbuild-gcc-12-arm-mainline-THUMB2:
+    <<: *kbuild-gcc-12-arm-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_THUMB2_KERNEL=y'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
 
   kbuild-gcc-12-arm-mfd:
     <<: *kbuild-gcc-12-arm-job
@@ -696,6 +834,38 @@ jobs:
     rules:
       <<: *kbuild-kselftest-rules
 
+  kbuild-gcc-12-arm64-mainline: &kbuild-gcc-12-arm64-mainline-job
+    <<: *kbuild-gcc-12-arm64-job
+    params: &kbuild-gcc-12-arm64-mainline-params
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-arm64-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm64-mainline-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+
+  kbuild-gcc-12-arm64-BIG_ENDIAN:
+    <<: *kbuild-gcc-12-arm64-mainline-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'CONFIG_CPU_BIG_ENDIAN=y'
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
     rules:
@@ -769,6 +939,26 @@ jobs:
     rules:
       <<: *kbuild-kselftest-rules
 
+  kbuild-gcc-12-i386-mainline: &kbuild-gcc-12-i386-mainline-job
+    <<: *kbuild-gcc-12-i386-job
+    params: &kbuild-gcc-12-i386-mainline-params
+      <<: *kbuild-gcc-12-i386-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-i386-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-i386-mainline-job
+    params:
+      <<: *kbuild-gcc-12-i386-mainline-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+
   kbuild-gcc-12-i386-mfd:
     <<: *kbuild-gcc-12-i386-job
     rules:
@@ -789,7 +979,7 @@ jobs:
   kbuild-gcc-12-mips-32r2el_defconfig: &kbuild-gcc-12-mips-job
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:mips-kselftest-kernelci
-    params:
+    params: &kbuild-gcc-12-mips-params
       arch: mips
       compiler: gcc-12
       cross_compile: 'mips-linux-gnu-'
@@ -803,6 +993,26 @@ jobs:
   kbuild-gcc-12-mips-build-only:
     <<: *kbuild-gcc-12-mips-job
     rules: *build-only-trees-rules
+
+  kbuild-gcc-12-mips-mainline: &kbuild-gcc-12-mips-mainline-job
+    <<: *kbuild-gcc-12-mips-job
+    params: &kbuild-gcc-12-mips-mainline-params
+      <<: *kbuild-gcc-12-mips-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-mips-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-mips-mainline-job
+    params:
+      <<: *kbuild-gcc-12-mips-mainline-params
+      defconfig:
+        - 32r2el_defconfig
+        - allnoconfig
 
   kbuild-gcc-12-riscv: &kbuild-gcc-12-riscv-job
     <<: *kbuild-job
@@ -827,6 +1037,29 @@ jobs:
   kbuild-gcc-12-riscv-build-only:
     <<: *kbuild-gcc-12-riscv-job
     rules: *build-only-trees-rules
+
+  kbuild-gcc-12-riscv-mainline: &kbuild-gcc-12-riscv-mainline-job
+    <<: *kbuild-gcc-12-riscv-job
+    params: &kbuild-gcc-12-riscv-mainline-params
+      <<: *kbuild-gcc-12-riscv-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+    rules:
+      min_version:
+        version: 4
+        patchlevel: 15
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-riscv-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-riscv-mainline-job
+    params:
+      <<: *kbuild-gcc-12-riscv-mainline-params
+      defconfig:
+      - defconfig
+      - allnoconfig
 
   kbuild-gcc-12-riscv-mfd:
     <<: *kbuild-gcc-12-riscv-job
@@ -923,6 +1156,27 @@ jobs:
         - 'x86-board'
     rules:
       <<: *kbuild-kselftest-rules
+
+  kbuild-gcc-12-x86-mainline: &kbuild-gcc-12-x86-mainline-job
+    <<: *kbuild-gcc-12-x86-job
+    params: &kbuild-gcc-12-x86-mainline-params
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
+        - 'x86-board'
+    rules:
+      tree:
+        - 'mainline'
+
+  kbuild-gcc-12-x86-mainline-allnoconfig:
+    <<: *kbuild-gcc-12-x86-mainline-job
+    params:
+      <<: *kbuild-gcc-12-x86-mainline-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
 
   kbuild-gcc-12-x86-mfd:
     <<: *kbuild-gcc-12-x86-job
@@ -1696,6 +1950,24 @@ scheduler:
   - job: kbuild-clang-17-arm64-kselftest
     <<: *build-k8s-all
 
+  - job: kbuild-clang-17-arm64-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm64-mainline-64K_PAGES
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm-mainline-aspeed_g5
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm-mainline-multi_v5
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-i386-android-allnoconfig
     <<: *build-k8s-all
 
@@ -1718,6 +1990,12 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arc-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arc-mainline-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm
@@ -1748,6 +2026,24 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-kselftest
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline-BIG_ENDIAN
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline-EFI
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline-SMP
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-mainline-THUMB2
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-mfd
@@ -1814,6 +2110,15 @@ scheduler:
   - job: kbuild-gcc-12-arm64-kselftest
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-BIG_ENDIAN
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-mfd
     <<: *build-k8s-all
 
@@ -1841,6 +2146,12 @@ scheduler:
   - job: kbuild-gcc-12-i386-kselftest
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-i386-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-i386-mainline-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-i386-mfd
     <<: *build-k8s-all
 
@@ -1852,6 +2163,12 @@ scheduler:
     rules:
       tree:
         - '!efi'
+
+  - job: kbuild-gcc-12-mips-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-mips-mainline-allnoconfig
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv
     <<: *build-k8s-all
@@ -1867,6 +2184,12 @@ scheduler:
     rules:
       tree:
         - '!efi'
+
+  - job: kbuild-gcc-12-riscv-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-riscv-mainline-allnoconfig
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv-mfd
     <<: *build-k8s-all
@@ -1899,6 +2222,12 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-kselftest
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-mainline-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mfd
