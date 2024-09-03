@@ -19,7 +19,7 @@ import sys
 PIPELINE_ENDPOINTS = {
     'staging': 'https://staging.kernelci.org:9100/',
     'production': 'https://kernelci-pipeline.westus3.cloudapp.azure.com/',
-    'local': 'http://localhost:8000/'
+    'local': 'http://localhost:8100/'
 }
 
 API_ENDPOINTS = {
