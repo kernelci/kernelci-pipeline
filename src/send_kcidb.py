@@ -52,6 +52,7 @@ class KCIDBBridge(Service):
         super().__init__(configs, args, name)
         self._jobs = configs['jobs']
         self._platforms = configs['platforms']
+        self._current_user = self._api.user.whoami()
 
     def _setup(self, args):
         return {
@@ -449,6 +450,12 @@ in {test_node['data'].get('runtime')}",
         while True:
             node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Received an event for node: {node['id']}")
+
+            # Submit nodes with service origin only for staging pipeline
+            if self._current_user['username'] == 'staging':
+                if node['submitter'] != 'service:pipeline':
+                    self.log.debug(f"Not sending node to KCIDB: {node['id']}")
+                    continue
 
             parsed_checkout_node = []
             parsed_build_node = []
