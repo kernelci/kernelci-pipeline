@@ -80,6 +80,9 @@ class Trigger(Service):
             },
             'timeout': checkout_timeout.isoformat(),
         }
+        if self._current_user['username'] == 'staging':
+            node['submitter'] = 'service:pipeline'
+
         try:
             self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
