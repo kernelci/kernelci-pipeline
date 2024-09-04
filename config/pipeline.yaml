@@ -856,7 +856,7 @@ jobs:
         - defconfig
         - allnoconfig
 
-  kbuild-gcc-12-arm64-BIG_ENDIAN:
+  kbuild-gcc-12-arm64-mainline-big_endian:
     <<: *kbuild-gcc-12-arm64-mainline-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -2127,7 +2127,7 @@ scheduler:
   - job: kbuild-gcc-12-arm64-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-BIG_ENDIAN
+  - job: kbuild-gcc-12-arm64-mainline-big_endian
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-mfd
