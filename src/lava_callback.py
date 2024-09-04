@@ -15,6 +15,7 @@ import threading
 import uvicorn
 import jwt
 import logging
+import hashlib
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Request, Header, Response
 from fastapi.responses import JSONResponse
@@ -562,6 +563,8 @@ async def checkout(data: ManualCheckout, request: Request,
     # Maybe add field who requested the checkout?
     timeout = 300
     checkout_timeout = datetime.utcnow() + timedelta(minutes=timeout)
+    treeidsrc = treeurl + branch + str(datetime.now())
+    treeid = hashlib.sha256(treeidsrc.encode()).hexdigest()
     node = {
         "kind": "checkout",
         "name": "checkout",
@@ -576,6 +579,7 @@ async def checkout(data: ManualCheckout, request: Request,
         },
         "timeout": checkout_timeout.isoformat(),
         "submitter": f'user:{email}',
+        "treeid": treeid,
     }
 
     if jobfilter:
@@ -673,6 +677,9 @@ async def patchset(data: PatchSet, request: Request,
     # Maybe add field who requested the patchset?
     timeout = 300
     patchset_timeout = datetime.utcnow() + timedelta(minutes=timeout)
+    treeidsrc = node['data']['kernel_revision']['url'] + \
+        node['data']['kernel_revision']['branch'] + str(datetime.now())
+    treeid = hashlib.sha256(treeidsrc.encode()).hexdigest()
     # copy node to newnode
     newnode = node.copy()
     # delete some fields, like id, created, updated, timeout
@@ -690,6 +697,7 @@ async def patchset(data: PatchSet, request: Request,
     newnode['artifacts'] = {}
     newnode['timeout'] = patchset_timeout.isoformat()
     newnode['submitter'] = f'user:{email}'
+    newnode['treeid'] = treeid
     if data.patchurl:
         for i, patchurl in enumerate(data.patchurl):
             newnode['artifacts'][f'patch{i}'] = patchurl

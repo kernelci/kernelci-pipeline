@@ -72,6 +72,9 @@ class Trigger(Service):
             'commit': head_commit,
         }
         checkout_timeout = datetime.utcnow() + timedelta(minutes=timeout)
+        # treeid is sha256(url+branch+timestamp)
+        hashstr = revision['url'] + revision['branch'] + str(datetime.now())
+        treeid = hashlib.sha256(hashstr.encode()).hexdigest()
         node = {
             'name': 'checkout',
             'path': ['checkout'],
@@ -80,14 +83,10 @@ class Trigger(Service):
                 'kernel_revision': revision,
             },
             'timeout': checkout_timeout.isoformat(),
+            'treeid': treeid,
         }
         if self._current_user['username'] == 'staging':
             node['submitter'] = 'service:pipeline'
-
-        # treeid is sha256(url+branch+timestamp)
-        hashstr = revision['url'] + revision['branch'] + str(datetime.now())
-        treeid = hashlib.sha256(hashstr.encode()).hexdigest()
-        node['treeid'] = treeid
 
         try:
             self._api.node.add(node)
