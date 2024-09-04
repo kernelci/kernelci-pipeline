@@ -324,7 +324,6 @@ _anchors:
         - power.CheckStatus
         - power.CpufreqConf
         - power.UtilCheck
-        - typec.Basic
 
   tast-sound: &tast-sound-job
     <<: *tast-job
