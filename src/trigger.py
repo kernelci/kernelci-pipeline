@@ -19,6 +19,7 @@ import kernelci.db
 from kernelci.legacy.cli import Args, Command, parse_opts
 import urllib
 import requests
+import hashlib
 
 from base import Service
 
@@ -82,6 +83,11 @@ class Trigger(Service):
         }
         if self._current_user['username'] == 'staging':
             node['submitter'] = 'service:pipeline'
+
+        # treeid is sha256(url+branch+timestamp)
+        hashstr = revision['url'] + revision['branch'] + str(datetime.now())
+        treeid = hashlib.sha256(hashstr.encode()).hexdigest()
+        node['treeid'] = treeid
 
         try:
             self._api.node.add(node)
