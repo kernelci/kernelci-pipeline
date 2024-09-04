@@ -111,6 +111,7 @@ _anchors:
     - 'lee-backlight'
     - 'linusw'
     - 'net-next'
+    - 'next'
     - 'omap'
     - 'peterz'
     - 'pm'
@@ -389,6 +390,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'next'
 
   kbuild-clang-17-arm64-mainline-64K_PAGES:
     <<: *kbuild-clang-17-arm64-mainline-job
@@ -404,6 +406,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'next'
 
   kbuild-clang-17-arm-mainline-allnoconfig:
     <<: *kbuild-clang-17-arm-mainline-job
@@ -446,6 +449,7 @@ jobs:
       tree:
       - 'android'
       - 'mainline'
+      - 'next'
 
   kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
     <<: *kbuild-job
@@ -469,6 +473,7 @@ jobs:
         patchlevel: 19
       tree:
       - 'android'
+      - 'next'
 
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
@@ -495,6 +500,7 @@ jobs:
       tree:
       - 'android'
       - 'mainline'
+      - 'next'
 
   kbuild-clang-17-x86-kselftest:
     <<: *kbuild-clang-17-x86-job
@@ -519,12 +525,21 @@ jobs:
       defconfig: haps_hs_smp_defconfig
     rules: *build-only-trees-rules
 
+  kbuild-gcc-12-arc-hs_smp_defconfig-allnoconfig:
+    <<: *kbuild-gcc-12-arc-job
+    params:
+      <<: *kbuild-gcc-12-arc-params
+      defconfig:
+        - haps_hs_smp_defconfig
+        - allnoconfig
+
   kbuild-gcc-12-arc-haps_hs_smp_defconfig:
     <<: *kbuild-gcc-12-arc-job
     rules:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'next'
 
   kbuild-gcc-12-arc-mainline: &kbuild-gcc-12-arc-mainline-job
     <<: *kbuild-gcc-12-arc-job
@@ -557,6 +572,46 @@ jobs:
       compiler: gcc-12
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
+
+  kbuild-gcc-12-arm-allnoconfig: &kbuild-gcc-12-arm-allnoconfig-job
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+    rules:
+      tree:
+        - 'next'
+
+  kbuild-gcc-12-arm-BIG_ENDIAN:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_CPU_BIG_ENDIAN=y'
+
+  kbuild-gcc-12-arm-SMP:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_SMP=n'
+
+  kbuild-gcc-12-arm-EFI:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_EFI=y'
+        - 'CONFIG_ARM_LPAE=y'
+
+  kbuild-gcc-12-arm-THUMB2:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      fragments:
+        - 'CONFIG_THUMB2_KERNEL=y'
 
   kbuild-gcc-12-arm-android: &kbuild-gcc-12-arm-android-job
     <<: *kbuild-gcc-12-arm-job
@@ -749,11 +804,13 @@ jobs:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
-      fragments:
-       - 'allnoconfig'
+      defconfig:
+        - defconfig
+        - allnoconfig
     rules:
       tree:
       - 'arm64'
+      - 'next'
 
   kbuild-gcc-12-arm64-android: &kbuild-gcc-12-arm64-android-job
     <<: *kbuild-gcc-12-arm64-job
@@ -790,6 +847,49 @@ jobs:
       <<: *kbuild-gcc-12-arm64-params
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
+
+  kbuild-gcc-12-arm64-16k_pages: &kbuild-gcc-12-arm64-16k_pages-job
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'CONFIG_ARM64_16K_PAGES=y'
+    rules:
+      tree:
+      - 'next'
+
+  kbuild-gcc-12-arm64-64k_pages:
+    <<: *kbuild-gcc-12-arm64-16k_pages-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'CONFIG_ARM64_64K_PAGES=y'
+
+  kbuild-gcc-12-arm64-big_endian:
+    <<: *kbuild-gcc-12-arm64-16k_pages-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'CONFIG_CPU_BIG_ENDIAN=y'
+
+  kbuild-gcc-12-arm64-randomize:
+    <<: *kbuild-gcc-12-arm64-16k_pages-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'CONFIG_RANDOMIZE_BASE=y'
+
+  kbuild-gcc-12-arm64-kselftest:
+    <<: *kbuild-gcc-12-arm64-16k_pages-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'arm64-chromebook'
+        - 'kselftest'
 
   # Default config and build only job
   kbuild-gcc-12-arm64-build-only:
@@ -914,6 +1014,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'next'
 
   kbuild-gcc-12-i386-android-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
@@ -989,6 +1090,18 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'next'
+
+  kbuild-gcc-12-mips-allnoconfig:
+    <<: *kbuild-gcc-12-mips-job
+    params:
+      <<: *kbuild-gcc-12-mips-params
+      defconfig:
+        - 32r2el_defconfig
+        - allnoconfig
+    rules:
+      tree:
+        - 'next'
 
   # Default config and build only job
   kbuild-gcc-12-mips-build-only:
@@ -1178,6 +1291,27 @@ jobs:
       defconfig:
         - x86_64_defconfig
         - allnoconfig
+
+  kbuild-gcc-12-x86-next: &kbuild-gcc-12-x86-next-job
+    <<: *kbuild-gcc-12-x86-job
+    params: &kbuild-gcc-12-x86-next-params
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'x86-board'
+    rules:
+      tree:
+        - 'next'
+
+  kbuild-gcc-12-x86-next-allnoconfig:
+    <<: *kbuild-gcc-12-x86-next-job
+    params:
+      <<: *kbuild-gcc-12-x86-next-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
+      fragments:
+        - 'x86-board'
 
   kbuild-gcc-12-x86-mediatek:
     <<: *kbuild-gcc-12-x86-job
@@ -2000,6 +2134,9 @@ scheduler:
   - job: kbuild-gcc-12-arc-build-only
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arc-hs_smp_defconfig-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
     <<: *build-k8s-all
 
@@ -2010,6 +2147,21 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-BIG_ENDIAN
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-SMP
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-EFI
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-THUMB2
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-android
@@ -2096,6 +2248,21 @@ scheduler:
   - job: kbuild-gcc-12-arm64-android-randomize
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-16k_pages
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-64k_pages
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-big_endian
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-randomize
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-kselftest
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-build-only
     <<: *build-k8s-all
 
@@ -2169,6 +2336,9 @@ scheduler:
   - job: kbuild-gcc-12-mips-32r2el_defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-mips-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-mips-build-only
     <<: *build-k8s-all
     rules:
@@ -2239,6 +2409,12 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-next
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-next-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-mediatek
@@ -2899,6 +3075,10 @@ build_configs:
   next_master:
     tree: next
     branch: 'master'
+
+  next_pending-fixes:
+    tree: next
+    branch: 'pending-fixes'
 
   omap:
     tree: omap
