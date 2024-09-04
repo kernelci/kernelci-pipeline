@@ -475,6 +475,16 @@ jobs:
       - 'android'
       - 'next'
 
+  kbuild-clang-17-riscv-smp:
+    <<: *kbuild-clang-17-riscv-job
+    params:
+      <<: *kbuild-clang-17-riscv-params
+      fragments:
+        - 'CONFIG_SMP=n'
+    rules:
+      tree:
+      - 'rsicv'
+
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
 
@@ -1192,6 +1202,16 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
 
+  kbuild-gcc-12-riscv-smp:
+    <<: *kbuild-gcc-12-riscv-job
+    params:
+      <<: *kbuild-gcc-12-riscv-params
+      fragments:
+        - 'CONFIG_SMP=n'
+    rules:
+      tree:
+      - 'rsicv'
+
   kbuild-gcc-12-um:
     <<: *kbuild-job
     image: kernelci/staging-gcc-12:x86-kselftest-kernelci
@@ -1751,6 +1771,9 @@ trees:
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
+  riscv:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git"
+
   robh:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git"
 
@@ -2119,6 +2142,9 @@ scheduler:
   - job: kbuild-clang-17-riscv-android-defconfig
     <<: *build-k8s-all
 
+  - job: kbuild-clang-17-riscv-smp
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-x86
     <<: *build-k8s-all
 
@@ -2376,6 +2402,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-riscv-smp
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-um
@@ -3099,6 +3128,14 @@ build_configs:
   renesas_next:
     tree: renesas
     branch: 'next'
+
+  riscv_fixes:
+    tree: riscv
+    branch: 'fixes'
+
+  riscv_for-next:
+    tree: riscv
+    branch: 'for-next'
 
   robh:
     tree: robh
