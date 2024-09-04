@@ -82,6 +82,8 @@ class Trigger(Service):
         }
         if self._current_user['username'] == 'staging':
             node['submitter'] = 'service:pipeline'
+        else:
+            node['submitter'] = f"user:{self._current_user['email']}"
 
         try:
             self._api.node.add(node)
