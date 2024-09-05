@@ -311,7 +311,6 @@ _anchors:
         - platform.DMVerity
         - platform.DumpVPDLog
         - platform.Firewall
-        - platform.LocalPerfettoTBMTracedProbes
         - platform.Mtpd
         - platform.TPMResponsive
         - storage.HealthInfo
