@@ -452,7 +452,8 @@ in {test_node['data'].get('runtime')}",
             self.log.info(f"Received an event for node: {node['id']}")
 
             # Submit nodes with service origin only for staging pipeline
-            if self._current_user['username'] == 'staging':
+            if self._current_user['username'] in ('staging.kernelci.org',
+                                                  'production'):
                 if node['submitter'] != 'service:pipeline':
                     self.log.debug(f"Not sending node to KCIDB: {node['id']}")
                     continue

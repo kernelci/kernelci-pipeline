@@ -85,7 +85,8 @@ class Trigger(Service):
             'timeout': checkout_timeout.isoformat(),
             'treeid': treeid,
         }
-        if self._current_user['username'] == 'staging':
+        if self._current_user['username'] in ('staging.kernelci.org',
+                                              'production'):
             node['submitter'] = 'service:pipeline'
         else:
             node['submitter'] = f"user:{self._current_user['email']}"
