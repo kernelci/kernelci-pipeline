@@ -1767,7 +1767,7 @@ trees:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
   omap:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap.git"
 
   peterz:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git"
