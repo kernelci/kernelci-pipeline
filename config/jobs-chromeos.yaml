@@ -386,10 +386,7 @@ _anchors:
       videodec_timeout: 90
     rules:
       tree:
-        - mainline
-        - next
         - collabora-chromeos-kernel
-        - media
 
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
