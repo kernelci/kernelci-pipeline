@@ -1028,7 +1028,6 @@ jobs:
     params:
       <<: *kbuild-gcc-12-i386-params
       defconfig: allnoconfig
-      disable_modules: true
     rules:
       tree:
       - 'kernelci'
@@ -1091,7 +1090,6 @@ jobs:
     params:
       <<: *kbuild-gcc-12-i386-params
       defconfig: tinyconfig
-      disable_modules: true
     rules:
       tree:
       - 'kernelci'
@@ -1205,7 +1203,6 @@ jobs:
     params:
       <<: *kbuild-gcc-12-riscv-params
       defconfig: nommu_k210_defconfig
-      disable_modules: true
     rules:
       tree:
       - 'kernelci'
@@ -1245,7 +1242,6 @@ jobs:
     params:
       <<: *kbuild-gcc-12-x86-params
       defconfig: allnoconfig
-      disable_modules: true
     rules:
       tree:
       - 'kernelci'
@@ -1386,7 +1382,6 @@ jobs:
     params:
       <<: *kbuild-gcc-12-x86-params
       defconfig: tinyconfig
-      disable_modules: true
     rules:
       tree:
       - 'kernelci'
