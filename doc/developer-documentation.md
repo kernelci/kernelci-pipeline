@@ -268,6 +268,33 @@ It has two child nodes. One is a `setup` test suite as mentioned above, and anot
 `kselftest-cpufreq` (child job node) will be executed only after `setup` test suite's successful execution.
 
 
+## Checkout result evaluation
+
+Maestro pipeline creates a `checkout` node i.e., root node whenever a new kernel revision is detected.
+All the build and test jobs are created as child nodes of this root node.
+
+Below is the explanation of `checkout` node result evaluation based on different conditions.
+
+Tarball service creates/updates a local git repo and uses it to create a kernel source tarball for the new revision. It transits checkout node to `result=fail` if git repo update operation fails.
+```mermaid
+flowchart TD
+  subgraph tarball_service[Tarball Service]
+    update_repo{Update git </br> repo failed?}
+    update_repo --> |Yes| fail_checkout[Set 'checkout' node <br />state=done, result=fail]
+  end
+```
+
+Timeout service is responsible for detecting timed-out nodes and transiting them to appropriate state/result based on child job status. Below is the visual representation of how the `checkout` node is handled by the service based on its state:
+```mermaid
+flowchart TD
+  subgraph timeout_service[Timeout Service]
+    node_timedout{Checkout node </br> timed out?}
+    node_timedout --> |state=running| running_checkout[Set 'checkout' node <br />state=done, result=incomplete]
+    node_timedout --> |state=available/closing| available_checkout[Set 'checkout' node <br />state=done, result=pass]
+  end
+```
+
+
 ## Test result evaluation
 
 This section is intended to explain how results are evaluated in maestro.
