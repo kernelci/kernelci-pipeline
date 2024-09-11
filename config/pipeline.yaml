@@ -112,7 +112,6 @@ _anchors:
     - 'linusw'
     - 'net-next'
     - 'next'
-    - 'omap'
     - 'peterz'
     - 'pm'
     - 'renesas'
@@ -777,6 +776,15 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
 
+  kbuild-gcc-12-arm-omap1_defconfig:
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig: omap1_defconfig
+    rules:
+      tree:
+      - 'omap'
+
   kbuild-gcc-12-arm-omap2plus_defconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
@@ -785,6 +793,7 @@ jobs:
     rules:
       tree:
       - 'kernelci'
+      - 'omap'
       - 'stable-rc'
 
   kbuild-gcc-12-arm-preempt_rt:
@@ -2242,6 +2251,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-multi_v7_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-omap1_defconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm-omap2plus_defconfig
