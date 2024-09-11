@@ -120,7 +120,7 @@ platforms:
     params:
       <<: *arm64-chromebook-device-params
       flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-corsola/20240514.0/arm64
+        url: https://storage.chromeos.kernelci.org/images/kernel/v6.10-mediatek/
         image: 'Image'
     rules:
       <<: *arm64-chromebook-device-rules
