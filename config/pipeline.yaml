@@ -100,7 +100,7 @@ _anchors:
 
   build-only-trees-rules: &build-only-trees-rules
     tree:
-    - 'agross'
+    - 'qcom'
     - 'amlogic'
     - 'ardb'
     - 'arnd'
@@ -1675,7 +1675,7 @@ jobs:
 
 trees:
 
-  agross:
+  qcom:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
 
   amlogic:
@@ -2873,10 +2873,6 @@ build_variants:
 
 build_configs:
 
-  agross:
-    tree: agross
-    branch: 'ci-next'
-
   amlogic:
     tree: amlogic
     branch: 'for-next'
@@ -3120,6 +3116,10 @@ build_configs:
   pm:
     tree: pm
     branch: 'testing'
+
+  qcom:
+    tree: qcom
+    branch: 'for-next'
 
   renesas:
     tree: renesas
