@@ -719,85 +719,85 @@ all-android-builds:
         repos:
           - tree: android
 
-#### Failures and regressions in v4l2-decoder-conformance tests
+#### Failures and regressions in fluster-debian tests
 
-monitor-v4l2-decoder-conformance-regressions:
+monitor-fluster-debian-regressions:
   metadata:
     action: monitor
-    title: "KernelCI v4l2-decoder-conformance regressions"
+    title: "KernelCI fluster-debian regressions"
     template: "generic-regression-report.html.jinja2"
-    output_file: "v4l2-decoder-conformance-regressions.html"
+    output_file: "fluster-debian-regressions.html"
   preset:
     regression:
       - data.error_code: null
-        group__re: v4l2-decoder-conformance
+        group__re: fluster-debian
         repos:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
 
-monitor-v4l2-decoder-conformance-failures__runtime-errors:
+monitor-fluster-debian-failures__runtime-errors:
   metadata:
     action: monitor
-    title: "KernelCI v4l2-decoder-conformance failures due to runtime errors"
+    title: "KernelCI fluster-debian failures due to runtime errors"
     template: "generic-test-results.html.jinja2"
-    output_file: "v4l2-decoder-conformance-failures__runtime-errors.html"
+    output_file: "fluster-debian-failures__runtime-errors.html"
   preset:
     job:
       - data.error_code__ne: null
         result: fail
-        name__re: v4l2-decoder-conformance
+        name__re: fluster-debian
         repos:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
 
-summary-v4l2-decoder-conformance-regressions:
+summary-fluster-debian-regressions:
   metadata:
     action: summary
-    title: "KernelCI v4l2-decoder-conformance regressions"
+    title: "KernelCI fluster-debian regressions"
     template: "generic-regressions.html.jinja2"
-    output_file: "v4l2-decoder-conformance-regressions.html"
+    output_file: "fluster-debian-regressions.html"
   preset:
     regression:
       - data.error_code: null
-        group__re: v4l2-decoder-conformance
+        group__re: fluster-debian
         repos:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
 
-summary-v4l2-decoder-conformance-failures__runtime-errors:
+summary-fluster-debian-failures__runtime-errors:
   metadata:
     action: summary
-    title: "KernelCI v4l2-decoder-conformance failures due to runtime errors"
+    title: "KernelCI fluster-debian failures due to runtime errors"
     template: "generic-test-results.html.jinja2"
-    output_file: "v4l2-decoder-conformance-failures__runtime-errors.html"
+    output_file: "fluster-debian-failures__runtime-errors.html"
   preset:
     job:
       - data.error_code__ne: null
         result: fail
-        name__re: v4l2-decoder-conformance
+        name__re: fluster-debian
         repos:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
           - tree: media
 
-summary-v4l2-decoder-conformance-failures:
+summary-fluster-debian-failures:
   metadata:
     action: summary
-    title: "KernelCI v4l2-decoder-conformance failures"
+    title: "KernelCI fluster-debian failures"
     template: "generic-test-results.html.jinja2"
-    output_file: "v4l2-decoder-conformance-failures.html"
+    output_file: "fluster-debian-failures.html"
   preset:
     test:
       - data.error_code: null
         result: fail
-        group__re: v4l2-decoder-conformance
+        group__re: fluster-debian
         repos:
           - tree: mainline
           - tree: next

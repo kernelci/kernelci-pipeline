@@ -485,35 +485,35 @@ scheduler:
 #  - job: tast-ui-x86-intel
 #    <<: *test-job-chromeos-intel
 
-  - job: v4l2-decoder-conformance-av1
+  - job: fluster-debian-av1
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8195-cherry-tomato-r2
 
-  - job: v4l2-decoder-conformance-av1-chromium-10bit
+  - job: fluster-debian-av1-chromium-10bit
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8195-cherry-tomato-r2
 
-  - job: v4l2-decoder-conformance-h264
+  - job: fluster-debian-h264
     <<: *test-job-arm64-mediatek
 
-  - job: v4l2-decoder-conformance-h264-frext
+  - job: fluster-debian-h264-frext
     <<: *test-job-arm64-mediatek
 
-  - job: v4l2-decoder-conformance-h265
+  - job: fluster-debian-h265
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8195-cherry-tomato-r2
 
-  - job: v4l2-decoder-conformance-vp8
+  - job: fluster-debian-vp8
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
-  - job: v4l2-decoder-conformance-vp9
+  - job: fluster-debian-vp9
     <<: *test-job-arm64-mediatek
     platforms:
       - mt8186-corsola-steelix-sku131072
@@ -555,19 +555,19 @@ scheduler:
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
-  - job: v4l2-decoder-conformance-h264
+  - job: fluster-debian-h264
     <<: *test-job-arm64-qualcomm
 
-  - job: v4l2-decoder-conformance-h264-frext
+  - job: fluster-debian-h264-frext
     <<: *test-job-arm64-qualcomm
 
-  - job: v4l2-decoder-conformance-h265
+  - job: fluster-debian-h265
     <<: *test-job-arm64-qualcomm
 
-  - job: v4l2-decoder-conformance-vp8
+  - job: fluster-debian-vp8
     <<: *test-job-arm64-qualcomm
 
-  - job: v4l2-decoder-conformance-vp9
+  - job: fluster-debian-vp9
     <<: *test-job-arm64-qualcomm
 
   - job: watchdog-reset-arm64-mediatek
