@@ -322,11 +322,13 @@ scheduler:
   - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-decoder-chromestack-x86-amd
-    <<: *test-job-chromeos-amd
+# Disabled as per daniels request to reduce load on LAVA
+#  - job: tast-decoder-chromestack-x86-amd
+#    <<: *test-job-chromeos-amd
 
-  - job: tast-decoder-chromestack-x86-intel
-    <<: *test-job-chromeos-intel
+# Disabled as per daniels request to reduce load on LAVA
+#  - job: tast-decoder-chromestack-x86-intel
+#    <<: *test-job-chromeos-intel
 
   - job: tast-decoder-v4l2-sl-av1-arm64-mediatek
     <<: *test-job-chromeos-mediatek
