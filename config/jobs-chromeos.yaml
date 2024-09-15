@@ -59,6 +59,24 @@ _anchors:
     rules: *min-5_4-rules
     kcidb_test_suite: tast
 
+  tast-debian: &tast-debian-job
+    template: 'generic.jinja2'
+    kind: job
+    kcidb_test_suite: tast.debian
+    params: &tast-debian-params
+      test_method: tast-debian
+      boot_commands: nfs
+      nfsroot: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-tast/{debarch}/'
+      job_timeout: 30
+      videodec_parallel_jobs: 1
+      videodec_timeout: 90
+    rules:
+      tree:
+        - mainline
+        - next
+        - collabora-chromeos-kernel
+        - media
+
   tast-basic: &tast-basic-job
     <<: *tast-job
     params:
@@ -79,11 +97,21 @@ _anchors:
       # Those jobs can run for a very long time, so we need a very large timeout
       job_timeout: 180
 
+  tast-debian-decoder-chromestack: &tast-debian-decoder-chromestack-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-chromestack-params
+
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-h264-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_h264_*
+
+  tast-debian-decoder-v4l2-sf-h264: &tast-debian-decoder-v4l2-sf-h264-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sf-h264-params
 
   tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
     <<: *tast-job
@@ -91,11 +119,21 @@ _anchors:
       tests:
         - video.PlatformDecoding.v4l2_stateful_hevc_*
 
+  tast-debian-decoder-v4l2-sf-hevc: &tast-debian-decoder-v4l2-sf-hevc-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sf-hevc-params
+
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-vp8-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp8_*
+
+  tast-debian-decoder-v4l2-sf-vp8: &tast-debian-decoder-v4l2-sf-vp8-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp8-params
 
   tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
     <<: *tast-job
@@ -109,11 +147,21 @@ _anchors:
         # Regression in ChromeOS R120, to be re-evaluated on next CrOS upgrade
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_sub8x8_sf
 
+  tast-debian-decoder-v4l2-sf-vp9: &tast-debian-decoder-v4l2-sf-vp9-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-params
+
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-vp9-extra-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
+
+  tast-debian-decoder-v4l2-sf-vp9-extra: &tast-debian-decoder-v4l2-sf-vp9-extra-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-extra-params
 
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
     <<: *tast-job
@@ -121,11 +169,21 @@ _anchors:
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
 
+  tast-debian-decoder-v4l2-sl-av1: &tast-debian-decoder-v4l2-sl-av1-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-av1-params
+
   tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-h264-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_h264_*
+
+  tast-debian-decoder-v4l2-sl-h264: &tast-debian-decoder-v4l2-sl-h264-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-h264-params
 
   tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
     <<: *tast-job
@@ -133,11 +191,21 @@ _anchors:
       tests:
         - video.PlatformDecoding.v4l2_stateless_hevc_*
 
+  tast-debian-decoder-v4l2-sl-hevc: &tast-debian-decoder-v4l2-sl-hevc-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-hevc-params
+
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-vp8-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp8_*
+
+  tast-debian-decoder-v4l2-sl-vp8: &tast-debian-decoder-v4l2-sl-vp8-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-vp8-params
 
   tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
     <<: *tast-job
@@ -148,11 +216,21 @@ _anchors:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group3_*
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group4_*
 
+  tast-debian-decoder-v4l2-sl-vp9: &tast-debian-decoder-v4l2-sl-vp9-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-vp9-params
+
   tast-decoder-v4l2-sl-vp9-extra: &tast-decoder-v4l2-sl-vp9-extra-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-vp9-extra-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
+
+  tast-debian-decoder-v4l2-sl-vp9-extra: &tast-debian-decoder-v4l2-sl-vp9-extra-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-v4l2-sl-vp9-extra-params
 
   tast-hardware: &tast-hardware-job
     <<: *tast-job
@@ -213,6 +291,11 @@ _anchors:
         - video.PlatformDecoding.vaapi_vp9_0_group4_buf
         - video.PlatformDecoding.vaapi_vp9_0_level5_0_buf
         - video.PlatformDecoding.vaapi_vp9_0_level5_1_buf
+
+  tast-debian-mm-decode: &tast-debian-mm-decode-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-mm-decode-params
 
   tast-mm-encode: &tast-mm-encode-job
     <<: *tast-job
@@ -505,16 +588,21 @@ jobs:
   tast-basic-x86-intel: *tast-basic-job
 
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
+  tast-debian-decoder-chromestack-arm64-mediatek: *tast-debian-decoder-chromestack-job
 
   tast-decoder-chromestack-arm64-qualcomm:
     <<: *tast-decoder-chromestack-job
+    rules: *min-6_7-rules
+
+  tast-debian-decoder-chromestack-arm64-qualcomm:
+    <<: *tast-debian-decoder-chromestack-job
     rules: *min-6_7-rules
 
   tast-decoder-chromestack-arm64-qualcomm-pre6_7:
     <<: *tast-decoder-chromestack-job
     params:
       <<: *tast-decoder-chromestack-params
-      excluded_tests:
+      excluded_tests: &tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
         # Platform-independent excluded tests
         - video.ChromeStackDecoderVerification.hevc_main
         - video.ChromeStackDecoderVerification.vp9_0_svc
@@ -523,22 +611,40 @@ jobs:
         - video.ChromeStackDecoderVerification.vp9_0_group1_sub8x8_sf
     rules: *max-6_6-rules
 
+  tast-debian-decoder-chromestack-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-chromestack-job
+    params:
+      <<: *tast-decoder-chromestack-params
+      excluded_tests: *tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
   tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
+
+  tast-debian-decoder-chromestack-x86-amd: *tast-debian-decoder-chromestack-job
+  tast-debian-decoder-chromestack-x86-intel: *tast-debian-decoder-chromestack-job
 
   tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
   tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
   tast-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-decoder-v4l2-sf-vp8-job
 
+  tast-debian-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-h264-job
+  tast-debian-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-hevc-job
+  tast-debian-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-vp8-job
+
   tast-decoder-v4l2-sf-vp9-arm64-qualcomm:
     <<: *tast-decoder-v4l2-sf-vp9-job
+    rules: *min-6_7-rules
+
+  tast-debian-decoder-v4l2-sf-vp9-arm64-qualcomm:
+    <<: *tast-debian-decoder-v4l2-sf-vp9-job
     rules: *min-6_7-rules
 
   tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7:
     <<: *tast-decoder-v4l2-sf-vp9-job
     params:
       <<: *tast-decoder-v4l2-sf-vp9-params
-      excluded_tests:
+      excluded_tests: &tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7-excluded_tests
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_frm_resize
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_sub8x8_sf
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_frm_resize
@@ -549,17 +655,35 @@ jobs:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group4_sub8x8_sf
     rules: *max-6_6-rules
 
+  tast-debian-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-v4l2-sf-vp9-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-params
+      excluded_tests: *tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
   tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm:
     <<: *tast-decoder-v4l2-sf-vp9-extra-job
+    rules: *min-6_7-rules
+
+  tast-debian-decoder-v4l2-sf-vp9-extra-arm64-qualcomm:
+    <<: *tast-debian-decoder-v4l2-sf-vp9-extra-job
     rules: *min-6_7-rules
 
   tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7:
     <<: *tast-decoder-v4l2-sf-vp9-extra-job
     params:
       <<: *tast-decoder-v4l2-sf-vp9-extra-params
-      excluded_tests:
+      excluded_tests: &tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7-excluded_tests
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_0_frm_resize
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_0_sub8x8_sf
+    rules: *max-6_6-rules
+
+  tast-debian-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-v4l2-sf-vp9-extra-job
+    params:
+      <<: *tast-decoder-v4l2-sf-vp9-extra-params
+      excluded_tests: *tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7-excluded_tests
     rules: *max-6_6-rules
 
   tast-decoder-v4l2-sl-av1-arm64-mediatek: *tast-decoder-v4l2-sl-av1-job
@@ -567,6 +691,12 @@ jobs:
   tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
   tast-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-decoder-v4l2-sl-vp8-job
   tast-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-decoder-v4l2-sl-vp9-job
+
+  tast-debian-decoder-v4l2-sl-av1-arm64-mediatek: *tast-debian-decoder-v4l2-sl-av1-job
+  tast-debian-decoder-v4l2-sl-h264-arm64-mediatek: *tast-debian-decoder-v4l2-sl-h264-job
+  tast-debian-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-debian-decoder-v4l2-sl-hevc-job
+  tast-debian-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-debian-decoder-v4l2-sl-vp8-job
+  tast-debian-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-debian-decoder-v4l2-sl-vp9-job
 
   tast-hardware-arm64-mediatek: *tast-hardware-job
   tast-hardware-arm64-qualcomm: *tast-hardware-job
@@ -580,6 +710,9 @@ jobs:
 
   tast-mm-decode-arm64-mediatek: *tast-mm-decode-job
   tast-mm-decode-arm64-qualcomm: *tast-mm-decode-job
+
+  tast-debian-mm-decode-arm64-mediatek: *tast-debian-mm-decode-job
+  tast-debian-mm-decode-arm64-qualcomm: *tast-debian-mm-decode-job
 
   tast-mm-misc-arm64-mediatek: *tast-mm-misc-job
   tast-mm-misc-arm64-qualcomm: *tast-mm-misc-job
