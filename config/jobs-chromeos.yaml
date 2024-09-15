@@ -81,19 +81,19 @@ _anchors:
 
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sf-h264-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_h264_*
 
   tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sf-hevc-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_hevc_*
 
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sf-vp8-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp8_*
 
@@ -117,31 +117,31 @@ _anchors:
 
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-av1-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
 
   tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-h264-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_h264_*
 
   tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-hevc-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_hevc_*
 
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-vp8-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp8_*
 
   tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-vp9-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
@@ -150,7 +150,7 @@ _anchors:
 
   tast-decoder-v4l2-sl-vp9-extra: &tast-decoder-v4l2-sl-vp9-extra-job
     <<: *tast-job
-    params:
+    params: &tast-decoder-v4l2-sl-vp9-extra-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
 
@@ -194,7 +194,7 @@ _anchors:
 
   tast-mm-decode: &tast-mm-decode-job
     <<: *tast-job
-    params:
+    params: &tast-mm-decode-params
       tests:
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group2_buf
