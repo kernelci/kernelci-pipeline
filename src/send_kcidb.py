@@ -352,15 +352,16 @@ the test: {sub_path}")
             compatible = self._platforms[platform].compatible
             self.log.info(f"Compatible string: {test_node['id']}:{compatible}")
 
+        runtime = test_node['data'].get('runtime')
         parsed_test_node = {
             'build_id': build_id,
             'id': f"{origin}:{test_node['id']}",
             'origin': origin,
             'comment': f"{test_node['name']} on {platform} \
-in {test_node['data'].get('runtime')}",
+in {runtime}",
             'start_time': self._set_timezone(test_node['created']),
             'environment': {
-                'comment': f"Runtime: {test_node['data'].get('runtime')}",
+                'comment': f"Runtime: {runtime}",
                 'compatible': compatible,
                 'misc': {
                     'platform': platform,
@@ -374,6 +375,7 @@ in {test_node['data'].get('runtime')}",
                 'compiler': test_node['data'].get('compiler'),
                 'kernel_type': test_node['data'].get('kernel_type'),
                 'arch': test_node['data'].get('arch'),
+                'runtime': runtime,
             }
         }
 
