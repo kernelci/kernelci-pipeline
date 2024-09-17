@@ -127,6 +127,7 @@ class Scheduler(Service):
                 runtime.config.name,
                 platform.name,
                 job_config.name,
+                'Failed to generate job data:',
                 str(e),
             ]))
             node['state'] = 'done'
@@ -167,6 +168,7 @@ class Scheduler(Service):
                 runtime.config.name,
                 platform.name,
                 job_config.name,
+                'submit error:',
                 str(e),
             ]))
             node['state'] = 'done'
