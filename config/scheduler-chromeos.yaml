@@ -542,20 +542,47 @@ scheduler:
     <<: *test-job-chromeos-mediatek
     platforms:
       - mt8195-cherry-tomato-r2
+      - mt8186-corsola-steelix-sku131072
+      - mt8183-kukui-jacuzzi-juniper-sku16
 
   - job: fluster-chromeos-vp8
     <<: *test-job-chromeos-mediatek
     platforms:
+      - mt8195-cherry-tomato-r2
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
-      - mt8195-cherry-tomato-r2
 
   - job: fluster-chromeos-vp9
     <<: *test-job-chromeos-mediatek
     platforms:
+      - mt8195-cherry-tomato-r2
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
-      - mt8195-cherry-tomato-r2
+
+  - job: fluster-chromeos-h264
+    <<: *test-job-chromeos-qualcomm
+    platforms:
+      - sc7180-trogdor-lazor-limozeen
+
+  - job: fluster-chromeos-h264-frext
+    <<: *test-job-chromeos-qualcomm
+    platforms:
+      - sc7180-trogdor-lazor-limozeen
+
+  - job: fluster-chromeos-h265
+    <<: *test-job-chromeos-qualcomm
+    platforms:
+      - sc7180-trogdor-lazor-limozeen
+
+  - job: fluster-chromeos-vp8
+    <<: *test-job-chromeos-qualcomm
+    platforms:
+      - sc7180-trogdor-lazor-limozeen
+
+  - job: fluster-chromeos-vp9
+    <<: *test-job-chromeos-qualcomm
+    platforms:
+      - sc7180-trogdor-lazor-limozeen
 
   - job: v4l2-decoder-conformance-h264
     <<: *test-job-arm64-qualcomm
