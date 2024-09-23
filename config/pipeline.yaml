@@ -117,6 +117,7 @@ _anchors:
     - 'renesas'
     - 'robh'
     - 'rppt'
+    - 'sashal-next'
     - 'soc'
     - 'tegra'
     - 'thermal'
@@ -1804,6 +1805,9 @@ trees:
   rppt:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git"
 
+  sashal-next:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linus-next.git"
+
   soc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
 
@@ -3171,6 +3175,10 @@ build_configs:
   rppt:
     tree: rppt
     branch: 'for-kernelci'
+
+  sashal-next:
+    tree: sashal-next
+    branch: 'linus-next'
 
   soc_fixes:
     tree: soc
