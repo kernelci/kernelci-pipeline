@@ -391,6 +391,7 @@ jobs:
       tree:
         - 'mainline'
         - 'next'
+        - 'sashal-next'
 
   kbuild-clang-17-arm64-mainline-64K_PAGES:
     <<: *kbuild-clang-17-arm64-mainline-job
@@ -407,6 +408,7 @@ jobs:
       tree:
         - 'mainline'
         - 'next'
+        - 'sashal-next'
 
   kbuild-clang-17-arm-mainline-allnoconfig:
     <<: *kbuild-clang-17-arm-mainline-job
@@ -450,6 +452,7 @@ jobs:
       - 'android'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
     <<: *kbuild-job
@@ -474,6 +477,7 @@ jobs:
       tree:
       - 'android'
       - 'next'
+      - 'sashal-next'
 
   kbuild-clang-17-riscv-smp:
     <<: *kbuild-clang-17-riscv-job
@@ -511,6 +515,7 @@ jobs:
       - 'android'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-clang-17-x86-kselftest:
     <<: *kbuild-clang-17-x86-job
@@ -550,6 +555,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-arc-mainline: &kbuild-gcc-12-arc-mainline-job
     <<: *kbuild-gcc-12-arc-job
@@ -593,6 +599,7 @@ jobs:
     rules:
       tree:
         - 'next'
+        - 'sashal-next'
 
   kbuild-gcc-12-arm-BIG_ENDIAN:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
@@ -831,6 +838,7 @@ jobs:
       tree:
       - 'arm64'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64-android: &kbuild-gcc-12-arm64-android-job
     <<: *kbuild-gcc-12-arm64-job
@@ -878,6 +886,7 @@ jobs:
     rules:
       tree:
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64-64k_pages:
     <<: *kbuild-gcc-12-arm64-16k_pages-job
@@ -1034,6 +1043,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-i386-android-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
@@ -1109,6 +1119,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-mips-allnoconfig:
     <<: *kbuild-gcc-12-mips-job
@@ -1120,6 +1131,7 @@ jobs:
     rules:
       tree:
         - 'next'
+        - 'sashal-next'
 
   # Default config and build only job
   kbuild-gcc-12-mips-build-only:
@@ -1328,6 +1340,7 @@ jobs:
     rules:
       tree:
         - 'next'
+        - 'sashal-next'
 
   kbuild-gcc-12-x86-next-allnoconfig:
     <<: *kbuild-gcc-12-x86-next-job
@@ -2334,6 +2347,7 @@ scheduler:
     rules:
       tree:
         - next:master
+        - sashal-next
 
 # Example of same job name to apply to different tree/branch
 #  - job: kbuild-gcc-12-arm64-dtbscheck
