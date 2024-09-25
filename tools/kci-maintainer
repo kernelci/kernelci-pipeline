@@ -14,7 +14,6 @@ import json
 import os
 import argparse
 import sys
-import git
 import subprocess
 import re
 
