@@ -1398,6 +1398,19 @@ jobs:
       job_timeout: 10
     kcidb_test_suite: kselftest.cpufreq
 
+  kselftest-devices-probe:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-kselftest/20240912.0/{debarch}' # TODO: update to production URL once available
+      collections: devices/probe
+      env: "KSELFTEST_TEST_DISCOVERABLE_DEVICES_PY_ARGS=--boards-dir=/opt/platform-test-parameters/kselftest/test_discoverable_devices/boards/"
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 11
+    kcidb_test_suite: kselftest.devices-probe
+
   kselftest-dmabuf-heaps:
     <<: *kselftest-job
     params:
