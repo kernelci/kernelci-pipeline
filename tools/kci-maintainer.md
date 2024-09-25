@@ -12,6 +12,13 @@ After obtaining the token you need to create a file `.kci_token` in same directo
 
 Do not submit too many custom checkouts, especially without jobfilter, at once. Try to wait until previous one completed. Computing resources are limited and we need to share them with other users.
 
+## Install requirements
+
+Please install requirement packages for `kci_maintainer` tool from `tools/requirements.txt` using the below command:
+```
+pip install -r requirements.txt
+```
+
 ## Submitting custom checkout to staging 
 
 If you want to test some specific tree on staging you can use the `kci-maintainer` tool to submit a custom checkout for this tree.
