@@ -4,13 +4,7 @@ KernelCI Pipeline
 Modular pipeline based on the new [KernelCI
 API](https://github.com/kernelci/kernelci-api).
 
-Please refer to the [pipeline design documentation](https://docs.kernelci.org/api_pipeline/api/design/#pipeline-design) for more details.
-
-To use it, first, start the API.  Then start the services in this repository on the same host.
-
-Follow instructions to [add a token and start the services](https://docs.kernelci.org/api_pipeline/api/local-instance/#setting-up-a-pipeline-instance).
-
-> **Note** The `trigger` service was run only once as it's not currently configured to run periodically.
+Please refer to the [API design documentation](https://docs.kernelci.org/maestro/api/design/) and [pipeline design documentation](https://docs.kernelci.org/maestro/pipeline/pipeline-details/) for more details.
 
 ### Setting up LAVA lab
 
@@ -114,5 +108,3 @@ The value of the kcidb_topic_name should be set to the env file
 ```
 echo "KCIDB_TOPIC_NAME=kcidb_new" >> .env
 ```
-
-
