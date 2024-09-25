@@ -132,11 +132,28 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             if value
         }
 
-    def _update_node(self, checkout_node, describe, version, tarball_url):
+    def _get_commit_info(self, path, commit, tree, branch):
+        commit_tags = kernelci.build.git_commit_tags(
+            path, commit
+        )
+        commit_message = kernelci.build.git_commit_message(
+            path, commit
+        )
+        branch_tip = kernelci.build.git_branch_tip(
+            path, commit, tree, branch
+        )
+        return commit_tags, commit_message, branch_tip
+
+    # pylint: disable=too-many-arguments
+    def _update_node(self, checkout_node, describe, version, tarball_url,
+                     commit_tags, commit_message, branch_tip):
         node = checkout_node.copy()
         node['data']['kernel_revision'].update({
             'describe': describe,
             'version': version,
+            'commit_tags': commit_tags,
+            'commit_message': commit_message,
+            'tip_of_branch': branch_tip,
         })
         node.update({
             'state': 'available',
@@ -209,14 +226,17 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 os._exit(1)
             self._checkout_commitid(commitid)
 
+            config_tree = build_config.tree.name
+            config_branch = build_config.branch
+
             describe = kernelci.build.git_describe(
-                build_config.tree.name, self._service_config.kdir
+                config_tree, self._service_config.kdir
             )
             version = self._get_version_from_describe()
             tarball_name = '-'.join([
                 'linux',
-                build_config.tree.name,
-                build_config.branch,
+                config_tree,
+                config_branch,
                 describe
             ])
             tarball_path = self._make_tarball(
@@ -224,7 +244,10 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 tarball_name
             )
             tarball_url = self._push_tarball(tarball_path)
-            self._update_node(checkout_node, describe, version, tarball_url)
+            commit_tags, commit_message, branch_tip = self._get_commit_info(
+                self._service_config.kdir, commitid, config_tree, config_branch)
+            self._update_node(checkout_node, describe, version, tarball_url,
+                              commit_tags, commit_message, branch_tip)
 
 
 class cmd_run(Command):
