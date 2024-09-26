@@ -357,11 +357,11 @@ _anchors:
         - ui.HotseatAnimation.shelf_with_navigation_widget_lacros
         - ui.WindowControl
 
-  v4l2-decoder-conformance: &v4l2-decoder-conformance-job
+  fluster-debian: &fluster-debian-job
     template: 'generic.jinja2'
     kind: job
-    params: &v4l2-decoder-conformance-params
-      test_method: v4l2-decoder-conformance
+    params: &fluster-debian-params
+      test_method: fluster-debian
       boot_commands: nfs
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240703.0/{debarch}/'
       job_timeout: 30
@@ -617,68 +617,68 @@ jobs:
   tast-ui-x86-amd: *tast-ui-job
   tast-ui-x86-intel: *tast-ui-job
 
-  v4l2-decoder-conformance-av1:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-av1:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_av1
 
-  v4l2-decoder-conformance-av1-chromium-10bit:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-av1-chromium-10bit:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_av1_chromium
 
-  v4l2-decoder-conformance-h264:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-h264:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'JVT-AVC_V1'
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_h264
 
-  v4l2-decoder-conformance-h264-frext:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-h264-frext:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'JVT-FR-EXT'
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_h264_frext
 
-  v4l2-decoder-conformance-h265:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-h265:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'JCT-VC-HEVC_V1'
       decoders:
         - 'GStreamer-H.265-V4L2-Gst1.0'
         - 'GStreamer-H.265-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_h265
 
-  v4l2-decoder-conformance-vp8:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-vp8:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'VP8-TEST-VECTORS'
       decoders:
         - 'GStreamer-VP8-V4L2-Gst1.0'
         - 'GStreamer-VP8-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.v4l2.gstreamer_vp8
 
-  v4l2-decoder-conformance-vp9:
-    <<: *v4l2-decoder-conformance-job
+  fluster-debian-vp9:
+    <<: *fluster-debian-job
     params:
-      <<: *v4l2-decoder-conformance-params
+      <<: *fluster-debian-params
       testsuite: 'VP9-TEST-VECTORS'
       decoders:
         - 'GStreamer-VP9-V4L2-Gst1.0'
