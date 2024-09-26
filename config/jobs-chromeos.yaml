@@ -363,7 +363,7 @@ _anchors:
     params: &v4l2-decoder-conformance-params
       test_method: v4l2-decoder-conformance
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240703.0/{debarch}/'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240926.0/{debarch}/'
       job_timeout: 30
       videodec_parallel_jobs: 1
       videodec_timeout: 90
