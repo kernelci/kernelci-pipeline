@@ -50,6 +50,19 @@ def validate_jobs(jobs):
                 raise yaml.YAMLError(
                     f"Template not found for job: {name}'"
                 )
+            template = definition.get('template')
+            if template == 'generic.jinja2':
+                # test_method in params
+                if not definition.get('params'):
+                    raise yaml.YAMLError(
+                        f"Params not found for job: {name}'"
+                    )
+                params = definition.get('params')
+                if not params.get('test_method'):
+                    raise yaml.YAMLError(
+                        f"Test method not found for job: {name}'"
+                    )
+
 
 def validate_scheduler_jobs(data):
     '''
