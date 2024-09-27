@@ -87,6 +87,7 @@ _anchors:
   tast-decoder-chromestack: &tast-decoder-chromestack-job
     <<: *tast-job
     params: &tast-decoder-chromestack-params
+      <<: *tast-debian-params
       tests:
         - video.ChromeStackDecoder.*
         - video.ChromeStackDecoderVerification.*
@@ -105,6 +106,7 @@ _anchors:
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-h264-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_h264_*
 
@@ -116,6 +118,7 @@ _anchors:
   tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-hevc-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_hevc_*
 
@@ -127,6 +130,7 @@ _anchors:
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-vp8-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp8_*
 
@@ -138,6 +142,7 @@ _anchors:
   tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-vp9-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
@@ -155,6 +160,7 @@ _anchors:
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sf-vp9-extra-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
 
@@ -166,6 +172,7 @@ _anchors:
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-av1-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
 
@@ -177,6 +184,7 @@ _anchors:
   tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-h264-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_h264_*
 
@@ -188,6 +196,7 @@ _anchors:
   tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-hevc-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_hevc_*
 
@@ -199,6 +208,7 @@ _anchors:
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-vp8-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp8_*
 
@@ -210,6 +220,7 @@ _anchors:
   tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
     <<: *tast-job
     params: &tast-decoder-v4l2-sl-vp9-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
@@ -273,6 +284,7 @@ _anchors:
   tast-mm-decode: &tast-mm-decode-job
     <<: *tast-job
     params: &tast-mm-decode-params
+      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group2_buf
