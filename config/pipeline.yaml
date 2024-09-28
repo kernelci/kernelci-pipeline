@@ -3194,6 +3194,10 @@ build_configs:
     <<: *stable-rc
     branch: 'linux-6.10.y'
 
+  stable-rc_6.11:
+    <<: *stable-rc
+    branch: 'linux-6.11.y'
+
   stable-rt_v4.14-rt:
     tree: stable-rt
     branch: 'v4.14-rt'
