@@ -196,6 +196,15 @@ scheduler:
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
 
+  - job: kselftest-devices-exist
+    <<: *lava-job-collabora
+    event:
+      channel: node
+      name: kbuild-gcc-12-arm64-chromebook
+      result: pass
+    platforms:
+      - mt8195-cherry-tomato-r2
+
   - job: kselftest-device-error-logs
     <<: *lava-job-collabora
     event:
