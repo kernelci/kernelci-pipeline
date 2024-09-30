@@ -1540,6 +1540,18 @@ jobs:
       - 'kernelci:staging-next'
     kcidb_test_suite: kselftest.cpufreq.suspend
 
+  kselftest-devices-exist:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      test_method: kselftest-platform-parameters
+      collections: devices/exist
+      env: "KSELFTEST_TEST_DEV_EXIST_PY_ARGS=--reference-dir=/opt/platform-test-parameters-main/kselftest/devices/exist/"
+    rules:
+      tree:
+        - collabora-next:for-kernelci
+    kcidb_test_suite: kselftest.devices-exist
+
   kselftest-devices-probe:
     <<: *kselftest-job
     params:
