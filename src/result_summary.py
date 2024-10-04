@@ -137,9 +137,9 @@ class ResultSummary(Service):
 
     def _run(self, context):
         if context['metadata']['action'] == 'summary':
-            summary.run(self, context)
+            return summary.run(self, context)
         elif context['metadata']['action'] == 'monitor':
-            monitor.run(self, context)
+            return monitor.run(self, context)
         else:
             raise Exception("Undefined or unsupported preset action: "
                             f"{metadata.get('action')}")
