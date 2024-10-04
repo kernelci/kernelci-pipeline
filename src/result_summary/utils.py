@@ -15,6 +15,7 @@ import result_summary
 
 
 CONFIG_TRACES_FILE_PATH = './config/traces_config.yaml'
+LAVA_JOB_URL = 'https://lava.collabora.dev/scheduler/job/'
 
 
 def split_query_params(query_string):
@@ -212,6 +213,31 @@ def post_process_node(node, api):
         key 'logs', which contains a dictionary of processed log
         data (see get_logs()).
     """
+    node_cache = {}
+
+    def get_parent(node, api):
+        nonlocal node_cache
+        parent_id = node.get('parent')
+        if parent_id:
+            if parent_id in node_cache:
+                return node_cache[parent_id]
+            else:
+                return api.node.get(node['parent'])
+        return None
+
+    def get_job_id(node, api):
+        """For a test node, get the lava job id. If no job id is found,
+        search upwards through parent links until we find it.
+        """
+        if node['kind'] != 'test' and node['kind'] != 'job':
+            return None
+        job_id = node['data'].get('job_id')
+        if not job_id:
+            parent = get_parent(node, api)
+            if parent:
+                job_id = get_job_id(parent, api)
+        return job_id
+
 
     def find_node_logs(node, api):
         """For an input node, use get_logs() to retrieve its log
@@ -224,10 +250,9 @@ def post_process_node(node, api):
         """
         logs = get_logs(node)
         if not logs:
-            if node.get('parent'):
-                parent = api.node.get(node['parent'])
-                if parent:
-                    logs = find_node_logs(parent, api)
+            parent = get_parent(node, api)
+            if parent:
+                logs = find_node_logs(parent, api)
         if not logs:
             return {}
         # Remove empty logs
@@ -245,6 +270,10 @@ def post_process_node(node, api):
             concatenated_logs += logs[log]['text']
         return concatenated_logs
 
+    node_cache = {}
+    node['job_id'] = get_job_id(node, api)
+    if node.get('job_id'):
+        node['job_url'] = f"{LAVA_JOB_URL}{node['job_id']}"
     node['logs'] = find_node_logs(node, api)
 
     if node['result'] != 'pass':

@@ -120,8 +120,8 @@ expects the following input parameters:
               {% if test['data']['runtime'] %}
                 <li>Runtime: {{ test['data']['runtime'] }}</li>
               {% endif %}
-              {% if test['data']['job_id'] %}
-                <li>Job ID: {{ test['data']['job_id'] }}</li>
+              {% if test['job_id'] %}
+                <li>LAVA job: <a href="{{ test['job_url'] }}" target="_blank" rel="noopener noreferrer">{{ test['job_id'] }}</a></li>
               {% endif %}
               {% if test['data']['error_code'] -%}
                 <li>Error code: <code>{{ test['data']['error_code'] }}</code></li>
