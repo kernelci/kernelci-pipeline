@@ -479,17 +479,17 @@ scheduler:
 #  - job: tast-mm-misc-x86-intel
 #    <<: *test-job-chromeos-intel
 
-#  - job: tast-perf-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
+  - job: tast-perf-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-perf-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
+  - job: tast-perf-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
 
-#  - job: tast-perf-x86-amd
-#    <<: *test-job-chromeos-amd
+  - job: tast-perf-x86-amd
+    <<: *test-job-chromeos-amd
 
-#  - job: tast-perf-x86-intel
-#    <<: *test-job-chromeos-intel
+  - job: tast-perf-x86-intel
+    <<: *test-job-chromeos-intel
 
 #  - job: tast-perf-long-duration-arm64-mediatek
 #    <<: *test-job-chromeos-mediatek
