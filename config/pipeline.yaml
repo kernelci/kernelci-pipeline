@@ -1393,7 +1393,7 @@ jobs:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20241007.0/{debarch}'
       collections: cpufreq
       job_timeout: 10
     kcidb_test_suite: kselftest.cpufreq
