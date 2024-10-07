@@ -66,6 +66,7 @@ def run(service, context):
         result_summary.logger.debug(f"Query matches found: {len(query_results)}")
         nodes.extend(query_results)
     result_summary.logger.info(f"Total nodes found: {len(nodes)}")
+    utils.node_cache_write(nodes)
 
     # Post-process nodes
     # Filter log files

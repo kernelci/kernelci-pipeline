@@ -10,12 +10,31 @@ import re
 import requests
 import yaml
 from typing import Any, Dict
+from threading import Lock
 
 import result_summary
 
 
 CONFIG_TRACES_FILE_PATH = './config/traces_config.yaml'
 LAVA_JOB_URL = 'https://lava.collabora.dev/scheduler/job/'
+
+node_cache = {}
+node_cache_lock = Lock()
+
+def node_cache_write(nodes):
+    global node_cache
+    with node_cache_lock:
+        for node in nodes:
+            if node['id'] not in node_cache:
+                node_cache[node['id']] = node
+
+def node_cache_read(id):
+    return None
+    global node_cache
+    node = None
+    with node_cache_lock:
+        node = node_cache.get(id)
+    return node
 
 
 def split_query_params(query_string):
@@ -213,16 +232,20 @@ def post_process_node(node, api):
         key 'logs', which contains a dictionary of processed log
         data (see get_logs()).
     """
-    node_cache = {}
 
     def get_parent(node, api):
-        nonlocal node_cache
+        """Fetches and returns a node parent, if it exists. Uses and
+        updates the node cache in the process"""
         parent_id = node.get('parent')
         if parent_id:
-            if parent_id in node_cache:
-                return node_cache[parent_id]
+            parent = node_cache_read(parent_id)
+            if parent:
+                return parent
             else:
-                return api.node.get(node['parent'])
+                parent = api.node.get(node['parent'])
+                if parent:
+                    node_cache_write([parent])
+                return parent
         return None
 
     def get_job_id(node, api):
