@@ -348,7 +348,6 @@ _anchors:
         - graphics.DRM.atomic_test_plane_ctm
         - graphics.DRM.atomic_test_primary_pageflip
         - graphics.DRM.atomic_test_rgba_primary
-        - graphics.DRM.atomic_test_video_overlay
         - graphics.DRM.atomic_test_video_underlay
         - graphics.DRM.dmabuf_test
         - graphics.DRM.drm_cursor_test
