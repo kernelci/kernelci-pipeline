@@ -48,6 +48,7 @@ class Trigger(Service):
             "kind": "checkout",
             "data.kernel_revision.commit": head_commit,
             "owner": self._current_user['username'],
+            "submitter": "service:pipeline"
         })
 
         if node_count > 0:
