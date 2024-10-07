@@ -334,7 +334,7 @@ _anchors:
 
   tast-mm-misc: &tast-mm-misc-job
     <<: *tast-job
-    params:
+    params: &tast-mm-misc-params
       tests:
         # - camera.Suspend
         # - camera.V4L2
@@ -726,7 +726,15 @@ jobs:
   tast-debian-mm-decode-arm64-qualcomm: *tast-debian-mm-decode-job
 
   tast-mm-misc-arm64-mediatek: *tast-mm-misc-job
-  tast-mm-misc-arm64-qualcomm: *tast-mm-misc-job
+
+  tast-mm-misc-arm64-qualcomm:
+    <<: *tast-mm-misc-job
+    params:
+      <<: *tast-mm-misc-params
+      excluded_tests:
+        # Qualcomm-specific: those always
+        - graphics.DRM.vk_glow
+
   tast-mm-misc-x86-amd: *tast-mm-misc-job
   tast-mm-misc-x86-intel: *tast-mm-misc-job
 
