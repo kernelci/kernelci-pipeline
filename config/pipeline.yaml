@@ -1798,7 +1798,7 @@ trees:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
   media:
-    url: 'https://git.linuxtv.org/media_stage.git'
+    url: 'https://git.linuxtv.org/media.git'
 
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
@@ -3142,9 +3142,9 @@ build_configs:
     tree: media
     branch: 'fixes'
 
-  media_master:
+  media_next:
     tree: media
-    branch: 'master'
+    branch: 'next'
 
   mediatek_for_next:
     tree: mediatek
