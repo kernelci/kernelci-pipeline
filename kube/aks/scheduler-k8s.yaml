@@ -56,7 +56,7 @@ spec:
               subPath: k8s-credentials/.azure
       initContainers:
         - name: credentials
-          image: denysfcollabora/pipeline
+          image: kernelci/kernelci:pipeline
           imagePullPolicy: Always
           volumeMounts:
             - name: tmpsecrets
