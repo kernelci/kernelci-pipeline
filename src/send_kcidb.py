@@ -87,10 +87,34 @@ class KCIDBBridge(Service):
             return [self._remove_none_fields(item) for item in data]
         return data
 
+    def remove_log_excerpts(self, data):
+        if isinstance(data, dict):
+            # Remove 'log_excerpt' if it exists in this dictionary
+            data.pop('log_excerpt', None)
+
+            # Recursively process all values in the dictionary
+            for key, value in data.items():
+                data[key] = self.remove_log_excerpts(value)
+        elif isinstance(data, list):
+            # Recursively process all items in the list
+            return [self.remove_log_excerpts(item) for item in data]
+
+        return data
+
+    def _print_debug(self, data):
+        '''
+        Remove log_excerpt field, as it is filling up the logs
+        '''
+        log_data = data.copy()
+        log_data = self.remove_log_excerpts(log_data)
+        self.log.debug(f"Sending revision: {log_data}")
+
     def _send_revision(self, client, revision):
         revision = self._remove_none_fields(revision)
         if any(value for key, value in revision.items() if key != 'version'):
-            self.log.debug(f"DEBUG: sending revision: {revision}")
+            # remove log_excerpt field, as it is filling up the logs
+            log_data = revision.copy()
+            self._print_debug(log_data)
             if kcidb.io.SCHEMA.is_valid(revision):
                 client.submit(revision)
             else:
