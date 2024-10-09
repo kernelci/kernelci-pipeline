@@ -87,10 +87,20 @@ class KCIDBBridge(Service):
             return [self._remove_none_fields(item) for item in data]
         return data
 
+    def _print_debug(self, data):
+        """Print debug information for the data being sent to KCIDB"""
+        fields = ['checkouts', 'builds', 'tests']
+        for field in fields:
+            if field in data:
+                for item in data[field]:
+                    id = item.get('id')
+                    self.log.debug(f"Sending to KCIDB: {field}: {id}")
+
     def _send_revision(self, client, revision):
         revision = self._remove_none_fields(revision)
         if any(value for key, value in revision.items() if key != 'version'):
-            self.log.debug(f"DEBUG: sending revision: {revision}")
+            # remove log_excerpt field, as it is filling up the logs
+            self._print_debug(revision)
             if kcidb.io.SCHEMA.is_valid(revision):
                 client.submit(revision)
             else:
