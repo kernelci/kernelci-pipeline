@@ -175,6 +175,10 @@ _anchors:
       <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
+      excluded_tests:
+        # Started passing on cherry on R130-16008.0.0; to be re-evaluated on next CrOS upgrade
+        - video.PlatformDecoding.v4l2_stateless_av1_10bit
+        - video.PlatformDecoding.v4l2_stateless_av1_10bit_quantizer
 
   tast-debian-decoder-v4l2-sl-av1: &tast-debian-decoder-v4l2-sl-av1-job
     <<: *tast-debian-job
