@@ -36,6 +36,7 @@ MISSED_TEST_CODES = (
     'RequestBodyTooLarge',
     'submit_error',
     'Unexisting permission codename.',
+    'kbuild_internal_error',
 )
 
 ERRORED_TEST_CODES = (
