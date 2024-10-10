@@ -297,6 +297,8 @@ the test: {sub_path}")
                 return 'ERROR'
             if error_code in MISSED_TEST_CODES:
                 return 'MISS'
+            self.log.debug(f"Error code is not set for {test_node['id']}")
+            return None
         return test_node['result'].upper()
 
     def _get_parent_build_node(self, node):
