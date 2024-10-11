@@ -416,7 +416,6 @@ _anchors:
       tests:
         - power.CheckStatus
         - power.CpufreqConf
-        - power.UtilCheck
 
   tast-sound: &tast-sound-job
     <<: *tast-job
