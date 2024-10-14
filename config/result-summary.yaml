@@ -589,6 +589,141 @@ tast-failures__runtime-errors:
         result: fail
         data.error_code__ne: null
 
+Tast-kernel-failures:
+  metadata:
+    action: summary
+    title: "<strong>Tast-kernel Failures</strong>"
+    template: "generic-test-results.html.jinja2"
+    output_file: "tast-kernel-failures.html"
+  preset:
+    test:
+      - group__re: tast-kernel
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        data.error_code: null
+        result: fail
+
+Tast-hardware-failures:
+  metadata:
+    action: summary
+    title: "<strong>Tast-hardware Failures</strong>"
+    template: "generic-test-results.html.jinja2"
+    output_file: "tast-hardware-failures.html"
+  preset:
+    test:
+      - group__re: tast-hardware
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        data.error_code: null
+        result: fail
+
+Tast-platform-failures:
+  metadata:
+    action: summary
+    title: "<strong>Tast-platform Failures</strong>"
+    template: "generic-test-results.html.jinja2"
+    output_file: "tast-platform-failures.html"
+  preset:
+    test:
+      - group__re: tast-platform
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        data.error_code: null
+        result: fail
+
+Tast-power-failures:
+  metadata:
+    action: summary
+    title: "<strong>Tast-power Failures</strong>"
+    template: "generic-test-results.html.jinja2"
+    output_file: "tast-power-failures.html"
+  preset:
+    test:
+      - group__re: tast-power
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        data.error_code: null
+        result: fail
+
+Tast-mm-misc-failures:
+  metadata:
+    action: summary
+    title: "<strong>Tast-mm-misc Failures</strong>"
+    template: "generic-test-results.html.jinja2"
+    output_file: "tast-graphics-failures.html"
+  preset:
+    test:
+      - group__re: tast-mm-misc
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        data.error_code: null
+        result: fail
+
+Tast-kernel-regressions:
+  metadata:
+    action: summary
+    title: "<strong>Tast-kernel Regressions</strong>"
+    template: "generic-regressions.html.jinja2"
+    output_file: "tast-kernel-regressions.html"
+  preset:
+    regression:
+      - group__re: tast-kernel
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        result: fail
+
+Tast-hardware-regressions:
+  metadata:
+    action: summary
+    title: "<strong>Tast-hardware Regressions</strong>"
+    template: "generic-regressions.html.jinja2"
+    output_file: "tast-hardware-regressions.html"
+  preset:
+    regression:
+      - group__re: tast-hardware
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        result: fail
+
+Tast-platform-regressions:
+  metadata:
+    action: summary
+    title: "<strong>Tast-platform Regressions</strong>"
+    template: "generic-regressions.html.jinja2"
+    output_file: "tast-platform-regressions.html"
+  preset:
+    regression:
+      - group__re: tast-platform
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        result: fail
+
+Tast-power-regressions:
+  metadata:
+    action: summary
+    title: "<strong>Tast-power Regressions</strong>"
+    template: "generic-regressions.html.jinja2"
+    output_file: "tast-power-regressions.html"
+  preset:
+    regression:
+      - group__re: tast-power
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        result: fail
+
+Tast-mm-misc-regressions:
+  metadata:
+    action: summary
+    title: "<strong>Tast-mm-misc Regressions</strong>"
+    template: "generic-regressions.html.jinja2"
+    output_file: "tast-power-regressions.html"
+  preset:
+    regression:
+      - group__re: tast-mm-misc
+        name__re: "^(?!tast).*"
+        path__ne: setup
+        result: fail
+
 # General regressions (kbuilds and all tests) on mainline and next
 # excluding those triggered by runtime errors
 mainline-next-regressions:
