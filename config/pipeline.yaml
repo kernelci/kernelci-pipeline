@@ -912,7 +912,7 @@ jobs:
         - 'arm64-chromebook'
         - 'CONFIG_RANDOMIZE_BASE=y'
 
-  kbuild-gcc-12-arm64-kselftest:
+  kbuild-gcc-12-arm64-kselftest-16k_pages:
     <<: *kbuild-gcc-12-arm64-16k_pages-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -2342,7 +2342,7 @@ scheduler:
   - job: kbuild-gcc-12-arm64-randomize
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-kselftest
+  - job: kbuild-gcc-12-arm64-kselftest-16k_pages
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-build-only
