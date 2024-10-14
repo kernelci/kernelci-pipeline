@@ -47,6 +47,7 @@ class ManualCheckout(BaseModel):
     branch: Optional[str] = None
     commit: Optional[str] = None
     jobfilter: Optional[list] = None
+    platformfilter: Optional[list] = None
 
 
 class PatchSet(BaseModel):
@@ -54,6 +55,7 @@ class PatchSet(BaseModel):
     patchurl: Optional[list] = None
     patch: Optional[list] = None
     jobfilter: Optional[list] = None
+    platformfilter: Optional[list] = None
 
 
 class JobRetry(BaseModel):
@@ -474,6 +476,16 @@ def is_job_exist(jobname):
     return False
 
 
+def is_platform_exist(platform):
+    '''
+    Check if platform exists in the config
+    '''
+    for p in YAMLCFG['platforms']:
+        if p == platform:
+            return True
+    return False
+
+
 @app.post('/api/checkout')
 async def checkout(data: ManualCheckout, request: Request,
                    Authorization: str = Header(None)):
@@ -530,6 +542,7 @@ async def checkout(data: ManualCheckout, request: Request,
             return JSONResponse(content=item, status_code=400)
 
         jobfilter = get_jobfilter(node, api_helper)
+        # TBD: platformfilter
     else:
         if not data.url or not data.branch or not data.commit:
             item['message'] = 'Missing tree URL, branch or commit'
@@ -559,6 +572,19 @@ async def checkout(data: ManualCheckout, request: Request,
         else:
             jobfilter = None
 
+        if data.platformfilter:
+            # to be on safe side restrict length of platformfilter to 8
+            if len(data.platformfilter) > 8:
+                item['message'] = 'Too many platforms in platformfilter'
+                return JSONResponse(content=item, status_code=400)
+            for platform in data.platformfilter:
+                if not is_platform_exist(platform):
+                    item['message'] = f'Platform {platform} not found'
+                    return JSONResponse(content=item, status_code=404)
+            platform_filter = data.platformfilter
+        else:
+            platform_filter = None
+
     # Now we can submit custom checkout node to the API
     # Maybe add field who requested the checkout?
     timeout = 300
@@ -584,6 +610,9 @@ async def checkout(data: ManualCheckout, request: Request,
 
     if jobfilter:
         node['jobfilter'] = jobfilter
+
+    if platform_filter:
+        node['platform_filter'] = platform_filter
 
     r = api_helper.api.node.add(node)
     if not r:
@@ -703,6 +732,8 @@ async def patchset(data: PatchSet, request: Request,
             newnode['artifacts'][f'patch{i}'] = patchurl
     if data.jobfilter:
         newnode['jobfilter'] = data.jobfilter
+    if data.platformfilter:
+        newnode['platform_filter'] = data.platformfilter
 
     r = api_helper.api.node.add(newnode)
     if not r:
