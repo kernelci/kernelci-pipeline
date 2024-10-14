@@ -44,6 +44,10 @@ KBUILD_PARAMS = {
 {%- if dtbs_check %}
     'dtbs_check': '{{ dtbs_check }}'
 {%- endif %}
+{%- if kselftest %}
+    'kselftest': '{{ kselftest }}'
+{%- endif %}
+
 }
 {%- endblock %}
 
