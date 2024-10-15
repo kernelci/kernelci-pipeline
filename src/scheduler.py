@@ -31,6 +31,7 @@ class Scheduler(Service):
         self._api_config_yaml = yaml.dump(self._api_config)
         self._verbose = args.verbose
         self._output = args.output
+        self._imgprefix = args.image_prefix or ''
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         rconfigs = (
@@ -88,6 +89,13 @@ class Scheduler(Service):
                 job_node['artifacts'].update(parent_node['artifacts'])
             else:
                 job_node['artifacts'] = parent_node['artifacts']
+        if job_config.image:
+            # handle it as f-string, with possible parameter imgprefix
+            image_params = {
+                'image_prefix': self._imgprefix
+            }
+            imagename = job_config.image.format_map(image_params)
+            job_config.image = imagename
         job = kernelci.runtime.Job(job_node, job_config)
         job.platform_config = platform
         job.storage_config = self._storage_config
