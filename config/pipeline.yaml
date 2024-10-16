@@ -1787,9 +1787,6 @@ jobs:
 
 trees:
 
-  qcom:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
-
   amlogic:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
@@ -1826,11 +1823,11 @@ trees:
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
-  collabora-next:
-    url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
-
   collabora-chromeos-kernel:
     url: 'https://gitlab.collabora.com/google/chromeos-kernel.git'
+
+  collabora-next:
+    url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
 
   efi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
@@ -1879,6 +1876,9 @@ trees:
 
   pm:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
+
+  qcom:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
 
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
