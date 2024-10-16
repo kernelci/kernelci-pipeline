@@ -2546,7 +2546,7 @@ scheduler:
 
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
-  
+
   - job: kbuild-gcc-12-x86-allnoconfig
     <<: *build-k8s-all
 
@@ -2642,13 +2642,13 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
-  
+
   - job: ltp-smoketest
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
-  
+
   - job: ltp-timers
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
