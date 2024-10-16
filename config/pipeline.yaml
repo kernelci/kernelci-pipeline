@@ -133,7 +133,7 @@ api:
   staging:
     url: https://staging.kernelci.org:9000
 
-  early-access:
+  production:
     url: https://kernelci-api.westus3.cloudapp.azure.com
 
   k8s-host:
@@ -148,10 +148,10 @@ storage:
     port: 8022
     base_url: http://172.17.0.1:8002/
 
-  early-access-azure: &azure-files
+  production-azure: &azure-files
     storage_type: azure
     base_url: https://kciapistagingstorage1.file.core.windows.net/
-    share: early-access
+    share: production
     sas_public_token: "?sv=2022-11-02&ss=f&srt=sco&sp=r&se=2024-10-17T19:19:12Z&st=2023-10-17T11:19:12Z&spr=https&sig=sLmFlvZHXRrZsSGubsDUIvTiv%2BtzgDq6vALfkrtWnv8%3D"
 
   k8s-host:
@@ -229,14 +229,6 @@ runtimes:
     notify:
       callback:
         token: kernelci-api-token-staging
-
-  # ToDo: avoid creating a separate Runtime entry
-  # https://github.com/kernelci/kernelci-core/issues/2088
-  lava-collabora-early-access:
-    <<: *lava-collabora-staging
-    notify:
-      callback:
-        token: kernelci-api-token-early-access
 
   lava-collabora-staging:
     <<: *lava-collabora-staging
