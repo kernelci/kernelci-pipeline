@@ -104,6 +104,7 @@ _anchors:
     - 'amlogic'
     - 'ardb'
     - 'arnd'
+    - 'cip'
     - 'clk'
     - 'efi'
     - 'khilman'
@@ -1787,9 +1788,6 @@ jobs:
 
 trees:
 
-  qcom:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
-
   amlogic:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
@@ -1823,14 +1821,17 @@ trees:
   chrome-platform:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
 
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
-  collabora-next:
-    url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
-
   collabora-chromeos-kernel:
     url: 'https://gitlab.collabora.com/google/chromeos-kernel.git'
+
+  collabora-next:
+    url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
 
   efi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
@@ -1879,6 +1880,9 @@ trees:
 
   pm:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
+
+  qcom:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
 
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
@@ -2546,7 +2550,7 @@ scheduler:
 
   - job: kbuild-gcc-12-x86
     <<: *build-k8s-all
-  
+
   - job: kbuild-gcc-12-x86-allnoconfig
     <<: *build-k8s-all
 
@@ -2642,13 +2646,13 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
-  
+
   - job: ltp-smoketest
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
-  
+
   - job: ltp-timers
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
@@ -3143,6 +3147,42 @@ build_configs:
   chrome-platform-firmware:
     tree: chrome-platform
     branch: 'for-firmware-next'
+
+  cip-4.4:
+    tree: cip
+    branch: 'linux-4.4.y-cip'
+
+  cip-4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-cip-rt'
+
+  cip-4.4-st:
+    tree: cip
+    branch: 'linux-4.4.y-cip-st'
+
+  cip-4.19:
+    tree: cip
+    branch: 'linux-4.19.y-cip'
+
+  cip-4.19-rt:
+    tree: cip
+    branch: 'linux-4.19.y-cip-rt'
+
+  cip-5.10:
+    tree: cip
+    branch: 'linux-5.10.y-cip'
+
+  cip-5.10-rt:
+    tree: cip
+    branch: 'linux-5.10.y-cip-rt'
+
+  cip-6.1:
+    tree: cip
+    branch: 'linux-6.1.y-cip'
+
+  cip-6.1-rt:
+    tree: cip
+    branch: 'linux-6.1.y-cip-rt'
 
   clk:
     tree: clk
