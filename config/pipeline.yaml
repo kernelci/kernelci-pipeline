@@ -153,7 +153,7 @@ storage:
     storage_type: azure
     base_url: https://kciapistagingstorage1.file.core.windows.net/
     share: early-access
-    sas_public_token: "?sv=2022-11-02&ss=f&srt=sco&sp=r&se=2024-10-17T19:19:12Z&st=2023-10-17T11:19:12Z&spr=https&sig=sLmFlvZHXRrZsSGubsDUIvTiv%2BtzgDq6vALfkrtWnv8%3D"
+    sas_public_token: "?sv=2022-11-02&ss=f&srt=sco&sp=r&se=2026-10-18T13:36:18Z&st=2024-10-17T05:36:18Z&spr=https&sig=xFxYOOh5uXJWeN9I3YKAUvpGGQivo89HKZbD78gcxvc%3D"
 
   k8s-host:
     storage_type: ssh
