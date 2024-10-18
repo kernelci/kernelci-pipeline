@@ -3092,6 +3092,10 @@ build_configs:
     tree: android
     branch: 'android15-6.6-lts'
 
+  android16-6.12:
+    tree: android
+    branch: 'android16-6.12'
+
   ardb:
     tree: ardb
     branch: 'for-kernelci'
