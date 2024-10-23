@@ -543,6 +543,10 @@ class cmd_run(Command):
             'help': "KCIDB project ID",
         },
         {
+            'name': '--name',
+            'help': "Name of pipeline instance",
+        },
+        {
             'name': '--origin',
             'help': "CI system identifier",
         },
