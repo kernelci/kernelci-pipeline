@@ -20,6 +20,7 @@ services:
       - '/home/kernelci/pipeline/send_kcidb.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
+      - '--name=pipeline_kcidb'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
