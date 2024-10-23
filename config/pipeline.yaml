@@ -525,7 +525,7 @@ jobs:
         - 'CONFIG_SMP=n'
     rules:
       tree:
-      - 'rsicv'
+      - 'riscv'
 
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
@@ -1286,7 +1286,7 @@ jobs:
         - 'CONFIG_SMP=n'
     rules:
       tree:
-      - 'rsicv'
+      - 'riscv'
 
   kbuild-gcc-12-um:
     <<: *kbuild-job
