@@ -741,6 +741,7 @@ jobs:
       excluded_tests:
         # AMD-specific: always fails
         - graphics.DRM.dmabuf_test
+        - graphics.DRM.yuv_to_rgb_test
 
   tast-mm-misc-x86-intel: *tast-mm-misc-job
 
