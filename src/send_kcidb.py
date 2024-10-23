@@ -15,12 +15,14 @@ import sys
 import re
 import io
 import gzip
+import os
 import requests
 
 import kernelci
 import kernelci.config
 from kernelci.legacy.cli import Args, Command, parse_opts
 import kcidb
+from logspec import logspec_api
 
 from base import Service
 
@@ -64,11 +66,19 @@ class KCIDBBridge(Service):
         self._current_user = self._api.user.whoami()
 
     def _setup(self, args):
+        db_conn = (
+            f"postgresql:dbname={args.database_name} "
+            f"user={args.postgresql_user} host={args.postgresql_host} "
+            f"password={os.getenv('KCIDB_POSTGRESQL_PASSWORD')} "
+            f"port={args.postgresql_port}"
+        )
+        db_client = kcidb.db.Client(db_conn)
         return {
             'client': kcidb.Client(
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
+            'kcidb_oo_client': kcidb.oo.Client(db_client),
             'sub_id': self._api_helper.subscribe_filters({
                 'state': ('done', 'available'),
             }),
@@ -90,7 +100,7 @@ class KCIDBBridge(Service):
 
     def _print_debug(self, data):
         """Print debug information for the data being sent to KCIDB"""
-        fields = ['checkouts', 'builds', 'tests']
+        fields = ['checkouts', 'builds', 'tests', 'issues', 'incidents']
         for field in fields:
             if field in data:
                 for item in data[field]:
@@ -495,6 +505,8 @@ in {runtime}",
             parsed_checkout_node = []
             parsed_build_node = []
             parsed_test_node = []
+            issues = []
+            incidents = []
 
             if node['kind'] == 'checkout':
                 parsed_checkout_node = self._parse_checkout_node(
@@ -517,10 +529,42 @@ in {runtime}",
                     self._get_test_data_recursively(node, context['origin'],
                                                     parsed_test_node, parsed_build_node)
 
+            for parsed_node in parsed_build_node:
+                if parsed_node.get('valid') is False and parsed_node.get('log_url'):
+                    issues_and_incidents = logspec_api.generate_issues_and_incidents(
+                        parsed_node['id'],
+                        parsed_node['log_url'],
+                        "build",
+                        context['kcidb_oo_client'])
+                    if issues_and_incidents:
+                        issues.extend(issues_and_incidents.get('issues', []))
+                        incidents.extend(issues_and_incidents.get('incidents', []))
+                        self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
+                    else:
+                        self.log.warning("logspec: Could not generate any issues or "
+                                         f"incidents for {parsed_node['id']}")
+
+            for parsed_node in parsed_test_node:
+                if parsed_node.get('status') == 'FAIL' and parsed_node.get('log_url'):
+                    issues_and_incidents = logspec_api.generate_issues_and_incidents(
+                        parsed_node['id'],
+                        parsed_node['log_url'],
+                        "test",
+                        context['kcidb_oo_client'])
+                    if issues_and_incidents:
+                        issues.extend(issues_and_incidents.get('issues', []))
+                        incidents.extend(issues_and_incidents.get('incidents', []))
+                        self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
+                    else:
+                        self.log.warning("logspec: Could not generate any issues or "
+                                         f"incidents for {parsed_node['id']}")
+
             revision = {
                 'checkouts': parsed_checkout_node,
                 'builds': parsed_build_node,
                 'tests': parsed_test_node,
+                'issues': issues,
+                'incidents': incidents,
                 'version': {
                     'major': 4,
                     'minor': 5
