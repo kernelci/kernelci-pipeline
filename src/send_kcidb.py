@@ -504,6 +504,9 @@ in {runtime}",
                 parsed_build_node = self._parse_build_node(
                     context['origin'], node
                 )
+                self.log.debug("Testing kcidb query:")
+                self.log.debug(context['client'].query(ids={
+                    "checkouts": [f"maestro:{node['parent']}"]}))
 
             elif node['kind'] == 'test':
                 self._get_test_data(node, context['origin'],
