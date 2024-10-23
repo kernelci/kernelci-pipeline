@@ -1,16 +1,23 @@
+# The default configuration is used for all the jobs that don't have a specific configuration
 [DEFAULT]
 api_config = "docker-host"
 storage_config = "docker-host"
 verbose = true
 
 [trigger]
+# how often to poll git trees for new commits
 poll_period = 0
+# delay first git poll after startup
 startup_delay = 3
+# checkout default timeout
 timeout = 180
 
 [tarball]
+# where to store git tree sources, relative to tarball process
 kdir = "/home/kernelci/data/src/linux"
+# where to store tarballs, relative to tarball process
 output = "/home/kernelci/data/output"
+# which storage service to use
 storage_config = "docker-host"
 
 [patchset]
@@ -19,10 +26,12 @@ output = "/home/kernelci/data/output"
 storage_config = "docker-host"
 patchset_tmp_file_prefix = "kernel-patch"
 patchset_short_hash_len = 13
+# domains allowed to fetch patches from
 allowed_domains = ["patchwork.kernel.org"]
 polling_delay_secs = 30
 
 [scheduler]
+# directory to store temporary job templates
 output = "/home/kernelci/data/output"
 
 [notifier]
@@ -35,6 +44,8 @@ origin = "maestro"
 [test_report]
 email_sender = "bot@kernelci.org"
 email_recipient = "kernelci-results-staging@groups.io"
+# smtp_host = "smtp.yourserver.com"
+# smtp_port = 465
 
 [timeout]
 
@@ -46,7 +57,18 @@ storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
 [storage.k8s-host]
 storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
 
+# JWT secret to generate Pipeline API tokens
+#[jwt]
+#secret = "SomeSecretString"
+
+# Azure secret token to upload artifacts to Azure files storage
+#[storage.staging-azure]
+#storage_cred = "?sv=......"
+
 #[runtime.lava-collabora]
+# runtime_token is the token used to authenticate with the LAVA server
+# callback_token is the token used by LAVA in callback data 
+# in case callback_token is not set, runtime_token is expected to be used
 #runtime_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
 #callback_token = "REPLACE-LAVA-TOKEN-GENERATED-BY-LAB-LAVA-COLLABORA"
 
