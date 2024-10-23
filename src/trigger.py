@@ -163,6 +163,10 @@ class cmd_run(Command):
             'help': "List of build configurations to monitor",
         },
         {
+            'name': '--name',
+            'help': "Name of pipeline instance",
+        },
+        {
             'name': '--startup-delay',
             'type': int,
             'help': "Delay loop at startup by a number of seconds",
