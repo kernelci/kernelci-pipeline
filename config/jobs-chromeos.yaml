@@ -336,11 +336,11 @@ _anchors:
     <<: *tast-job
     params: &tast-mm-misc-params
       tests:
-        # - camera.Suspend
-        # - camera.V4L2
-        # - camera.V4L2Compliance
-        # - camera.V4L2.certification
-        # - camera.V4L2.supported_formats
+        - camera.Suspend
+        - camera.V4L2
+        - camera.V4L2Compliance
+        - camera.V4L2.certification
+        - camera.V4L2.supported_formats
         - graphics.Clvk.api_tests
         - graphics.Clvk.simple_test
         - graphics.DRM.atomic_test_overlay_upscaling
@@ -360,10 +360,10 @@ _anchors:
         - graphics.DRM.vk_glow
         - graphics.DRM.yuv_to_rgb_test
         - graphics.GLBench
-        # - security.GPUSandboxed
-        # - video.ImageProcessor.image_processor_unit_test
-        # - video.MemCheck.av1_hw
-        # - video.PlatformVAAPIUnittest
+        - security.GPUSandboxed
+        - video.ImageProcessor.image_processor_unit_test
+        - video.MemCheck.av1_hw
+        - video.PlatformVAAPIUnittest
 
   tast-perf: &tast-perf-job
     <<: *tast-job
