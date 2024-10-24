@@ -66,6 +66,7 @@ class KCIDBBridge(Service):
     def _setup(self, args):
         return {
             'client': kcidb.Client(
+                database='playground_kcidb',
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
@@ -504,6 +505,9 @@ in {runtime}",
                 parsed_build_node = self._parse_build_node(
                     context['origin'], node
                 )
+                self.log.debug("Testing kcidb query:")
+                self.log.debug(context['client'].query(ids={
+                    "checkouts": [f"maestro:{node['parent']}"]}))
 
             elif node['kind'] == 'test':
                 self._get_test_data(node, context['origin'],
