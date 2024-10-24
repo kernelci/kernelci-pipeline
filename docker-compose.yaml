@@ -126,6 +126,7 @@ services:
       - './pipeline/tarball.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
+      - '--name=tarball'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
@@ -144,6 +145,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--trees=kernelci'
+      - '--name=trigger'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -217,6 +219,7 @@ services:
       - './pipeline/patchset.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
+      - '--name=patchset'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
