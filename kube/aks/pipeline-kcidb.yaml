@@ -23,6 +23,7 @@ spec:
             - ./src/send_kcidb.py
             - --settings=/secrets/kernelci.toml
             - run
+            - --name=pipeline_kcidb
           env:
             - name: KCI_API_TOKEN
               valueFrom:
