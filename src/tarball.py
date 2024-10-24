@@ -257,6 +257,10 @@ class cmd_run(Command):
     ]
     opt_args = [
         Args.verbose, Args.storage_cred,
+        {
+            'name': '--name',
+            'help': "Name of pipeline instance",
+        },
     ]
 
     def __call__(self, configs, args):
