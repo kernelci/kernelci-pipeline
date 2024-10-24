@@ -26,6 +26,16 @@ services:
       - './data/kcidb:/home/kernelci/data/kcidb'
       - './logs:/home/kernelci/logs'
     restart: on-failure
+  postgres:
+    container_name: 'postgres'
+    image: 'gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest'
+    command:
+      - '--credentials-file /home/kernelci/data/kcidb/kernelci-production-ci-kernelci.json kernelci-production'
+    networks: ['kcidb']
+    volumes:
+      - './data/kcidb:/home/kernelci/data/kcidb'
+    restart: on-failure
+
 networks:
   kcidb:
     driver: bridge
