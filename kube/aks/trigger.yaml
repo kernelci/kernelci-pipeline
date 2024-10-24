@@ -29,7 +29,7 @@ spec:
             - --yaml-config=/config
             - run
             - --trees=!kernelci
-            #            - --force
+            - --name=trigger
           env:
             - name: KCI_API_TOKEN
               valueFrom:
