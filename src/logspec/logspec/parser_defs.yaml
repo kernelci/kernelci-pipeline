@@ -1,0 +1,78 @@
+version: 0.0.1
+
+# Parser definitions
+
+parsers:
+  generic_linux_boot:
+    # Parse a Linux boot from kernel startup until it reaches a
+    # command-line prompt.
+    states:
+      - name: generic_boot.generic_boot
+        transitions:
+          - function: linux.linux_start_detected
+            state: linux_kernel.kernel_load
+      - name: linux_kernel.kernel_load
+    start_state: generic_boot.generic_boot
+
+  test_baseline:
+    states:
+      - name: generic_boot.generic_boot
+        transitions:
+          - function: linux.linux_start_detected
+            state: linux_kernel.kernel_load
+      - name: linux_kernel.kernel_load
+        transitions:
+          - function: linux.linux_prompt_detected
+            state: test_baseline.test_baseline
+      - name: test_baseline.test_baseline
+    start_state: generic_boot.generic_boot
+
+
+  chromebook_single_boot:
+    # Parse a Linux boot on a Chromebook from power-on until it reaches
+    # a command-line prompt.
+    states:
+      - name: chromebook_boot.chromebook_boot
+        transitions:
+          - function: common.jump_to_state
+            state: chromebook_boot.chromebook_bootloader_started
+      - name: chromebook_boot.chromebook_bootloader_started
+        transitions:
+          - function: linux.linux_start_detected
+            state: linux_kernel.kernel_load
+      - name: linux_kernel.kernel_load
+    start_state: chromebook_boot.chromebook_boot
+
+  chromebook_2stage_boot:
+    # Parse a Linux boot on a Chromebook from power-on until it reaches
+    # a command-line prompt, for LAVA setups that run a 2-stage boot
+    # (SSH-connected Chromebooks).
+    states:
+      - name: chromebook_boot.chromebook_boot
+        transitions:
+          - function: common.jump_to_state
+            state: chromebook_boot.chromebook_bootloader_started
+      - name: chromebook_boot.chromebook_bootloader_started
+        transitions:
+          - function: linux.linux_start_detected
+            state: linux_kernel.kernel_load
+      - name: linux_kernel.kernel_load
+        transitions:
+          - function: linux.linux_prompt_detected
+            state: chromebook_boot.chromebook_boot_stage2
+      - name: chromebook_boot.chromebook_boot_stage2
+        transitions:
+          - function: common.jump_to_state
+            state: chromebook_boot.chromebook_bootloader_stage2_started
+      - name: chromebook_boot.chromebook_bootloader_stage2_started
+        transitions:
+          - function: linux.linux_start_detected
+            state: linux_kernel.kernel_stage2_load
+      - name: linux_kernel.kernel_stage2_load
+    start_state: chromebook_boot.chromebook_boot
+
+  kbuild:
+    # Parses a kernel build log
+    states:
+      - name: kbuild.kbuild_start
+    start_state: kbuild.kbuild_start
