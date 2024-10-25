@@ -39,6 +39,10 @@ output = "/home/kernelci/data/output"
 [send_kcidb]
 kcidb_topic_name = "playground_kcidb_new"
 kcidb_project_id = "kernelci-production"
+database_name = "playground_kcidb"
+postgresql_host = "kernelci-pipeline-postgres-proxy"
+postgresql_port = 5432
+postgresql_user = "kernelci.org"
 origin = "maestro"
 
 [test_report]
