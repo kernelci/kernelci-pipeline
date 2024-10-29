@@ -1274,6 +1274,9 @@ jobs:
       <<: *kbuild-gcc-12-riscv-params
       defconfig: nommu_k210_defconfig
     rules:
+      min_version:
+        version: 5
+        patchlevel: 10
       tree:
       - 'kernelci'
       - 'stable-rc'
