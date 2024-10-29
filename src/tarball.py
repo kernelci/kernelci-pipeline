@@ -139,21 +139,17 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         commit_message = kernelci.build.git_commit_message(
             path, commit
         )
-        branch_tip = kernelci.build.git_branch_tip(
-            path, commit, tree, branch
-        )
-        return commit_tags, commit_message, branch_tip
+        return commit_tags, commit_message
 
     # pylint: disable=too-many-arguments
     def _update_node(self, checkout_node, describe, version, tarball_url,
-                     commit_tags, commit_message, branch_tip):
+                     commit_tags, commit_message):
         node = checkout_node.copy()
         node['data']['kernel_revision'].update({
             'describe': describe,
             'version': version,
             'commit_tags': commit_tags,
             'commit_message': commit_message,
-            'tip_of_branch': branch_tip,
         })
         node.update({
             'state': 'available',
@@ -244,10 +240,10 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 tarball_name
             )
             tarball_url = self._push_tarball(tarball_path)
-            commit_tags, commit_message, branch_tip = self._get_commit_info(
+            commit_tags, commit_message = self._get_commit_info(
                 self._service_config.kdir, commitid, config_tree, config_branch)
             self._update_node(checkout_node, describe, version, tarball_url,
-                              commit_tags, commit_message, branch_tip)
+                              commit_tags, commit_message)
 
 
 class cmd_run(Command):

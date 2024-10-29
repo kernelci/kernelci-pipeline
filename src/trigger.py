@@ -82,6 +82,7 @@ class Trigger(Service):
             'kind': 'checkout',
             'data': {
                 'kernel_revision': revision,
+                'tip_of_branch': True,
             },
             'timeout': checkout_timeout.isoformat(),
             'treeid': treeid,
