@@ -1979,6 +1979,7 @@ platforms:
     mach: broadcom
     dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
 
+  # No job is being scheduled on these board as its infrastructure errors need to be fixed first.
   bcm2836-rpi-2-b:
     <<: *arm-device
     mach: broadcom
@@ -2001,6 +2002,7 @@ platforms:
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
     compatible: ['khadas,vim3', 'amlogic,a311d', 'amlogic,g12b']
 
+  # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
   minnowboard-turbot-E3826: *x86_64-device
 
   odroid-xu3:
@@ -2091,7 +2093,6 @@ scheduler:
       type: lava
       name: lava-collabora
     platforms: &collabora-arm-platforms
-      - bcm2836-rpi-2-b
       - imx6q-sabrelite
       - odroid-xu3
       - rk3288-rock2-square
@@ -2118,7 +2119,7 @@ scheduler:
       name: kbuild-gcc-12-arm-mfd
     runtime: *lava-collabora-runtime
     platforms:
-      - bcm2836-rpi-2-b
+      - imx6q-sabrelite
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
@@ -2190,7 +2191,6 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-platforms
       - qemu-x86
-      - minnowboard-turbot-E3826
 
   - job: baseline-x86-baylibre
     event: *kbuild-gcc-12-x86-node-event
@@ -2246,7 +2246,7 @@ scheduler:
       name: kbuild-gcc-12-x86-mfd
     runtime: *lava-collabora-runtime
     platforms:
-      - minnowboard-turbot-E3826
+      - qemu-x86
 
   - job: kbuild-clang-17-arm-allmodconfig
     <<: *build-k8s-all
@@ -2680,13 +2680,13 @@ scheduler:
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
-      - bcm2836-rpi-2-b
+      - imx6q-sabrelite
 
   - job: ltp-dio
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
-      - bcm2836-rpi-2-b
+      - imx6q-sabrelite
 
   - job: ltp-fcntl-locktests
     event: *kbuild-gcc-12-arm64-node-event
@@ -2773,7 +2773,6 @@ scheduler:
       name: kbuild-gcc-12-arm-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm-preempt_rt-platforms
-      - bcm2836-rpi-2-b
       - imx6q-sabrelite
 
   - job: rt-tests-cyclictest
