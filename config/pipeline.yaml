@@ -294,6 +294,17 @@ jobs:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-clang-17-arm-allmodconfig:
+    <<: *kbuild-clang-17-arm-job
+    params:
+      <<: *kbuild-clang-17-arm-params
+      defconfig:
+        - defconfig
+        - allmodconfig
+    rules:
+      tree:
+        - 'mainline'
+
   kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
     <<: *kbuild-clang-17-arm-job
     params: &kbuild-clang-17-arm-android-params
@@ -334,6 +345,17 @@ jobs:
     params:
       <<: *kbuild-clang-17-arm-android-params
       defconfig: vexpress_defconfig
+
+  kbuild-clang-17-arm64-allmodconfig:
+    <<: *kbuild-clang-17-arm64-job
+    params:
+      <<: *kbuild-clang-17-arm64-params
+      defconfig:
+        - defconfig
+        - allmodconfig
+    rules:
+      tree:
+        - 'mainline'
 
   kbuild-clang-17-arm64-allnoconfig:
     <<: *kbuild-clang-17-arm64-job
@@ -541,6 +563,17 @@ jobs:
     rules:
       tree:
       - 'android'
+
+  kbuild-clang-17-x86-allmodconfig:
+    <<: *kbuild-clang-17-x86-job
+    params:
+      <<: *kbuild-clang-17-x86-params
+      defconfig:
+        - x86_64_defconfig
+        - allmodconfig
+    rules:
+      tree:
+      - 'mainline'
 
   kbuild-clang-17-x86-allnoconfig:
     <<: *kbuild-clang-17-x86-job
@@ -1088,6 +1121,17 @@ jobs:
       arch: i386
       compiler: gcc-12
       defconfig: i386_defconfig
+
+  kbuild-clang-17-i386-allmodconfig:
+    <<: *kbuild-clang-17-i386-job
+    params:
+      <<: *kbuild-clang-17-i386-params
+      defconfig:
+        - i386_defconfig
+        - allmodconfig
+    rules:
+      tree:
+      - 'mainline'
 
   kbuild-gcc-12-i386-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
@@ -2204,6 +2248,9 @@ scheduler:
     platforms:
       - minnowboard-turbot-E3826
 
+  - job: kbuild-clang-17-arm-allmodconfig
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-arm-android
     <<: *build-k8s-all
 
@@ -2217,6 +2264,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-arm-android-omap2plus_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-arm64-allmodconfig
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-arm64-allnoconfig
@@ -2280,6 +2330,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-x86-android-allmodconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-clang-17-x86-allmodconfig
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-x86-allnoconfig
@@ -2473,6 +2526,9 @@ scheduler:
   - job: kbuild-gcc-12-i386
     <<: *build-k8s-all
 
+  - job: kbuild-clang-17-i386-allmodconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-i386-allnoconfig
     <<: *build-k8s-all
 
@@ -2557,7 +2613,7 @@ scheduler:
   - job: kbuild-gcc-12-x86-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-android-allmodconfig
+  - job: kbuild-clang-17-x86-android-allmodconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-android-allnoconfig
