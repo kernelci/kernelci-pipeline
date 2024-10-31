@@ -376,7 +376,6 @@ _anchors:
         - filemanager.UIPerf.directory_list
         - filemanager.UIPerf.list_apps
         - ui.DesksAnimationPerf
-        - ui.DragTabInTabletPerf.touch
         - ui.OverviewWithExpandedDesksBarPerf
 
   tast-perf-long-duration: &tast-perf-long-duration-job
@@ -389,8 +388,6 @@ _anchors:
         - ui.WindowResizePerf
         - ui.BubbleLauncherAnimationPerf
         - ui.DragMaximizedWindowPerf
-        - ui.DragTabInClamshellPerf
-        - ui.DragTabInTabletPerf
 
   tast-platform: &tast-platform-job
     <<: *tast-job
@@ -398,7 +395,6 @@ _anchors:
       tests:
         - platform.CheckDiskSpace
         - platform.CheckProcesses
-        - platform.CheckTracefsInstances
         - platform.CrosDisks
         - platform.CrosDisksArchive
         - platform.CrosDisksFilesystem
@@ -407,7 +403,6 @@ _anchors:
         - platform.CrosDisksSSHFS
         - platform.CrosID
         - platform.DMVerity
-        - platform.DumpVPDLog
         - platform.Firewall
         - platform.Mtpd
         - platform.TPMResponsive
@@ -447,11 +442,8 @@ _anchors:
       tests:
         - ui.DesktopControl
         - ui.HotseatAnimation.non_overflow_shelf
-        - ui.HotseatAnimation.non_overflow_shelf_lacros
         - ui.HotseatAnimation.overflow_shelf
-        - ui.HotseatAnimation.overflow_shelf_lacros
         - ui.HotseatAnimation.shelf_with_navigation_widget
-        - ui.HotseatAnimation.shelf_with_navigation_widget_lacros
         - ui.WindowControl
 
   fluster-debian: &fluster-debian-job
