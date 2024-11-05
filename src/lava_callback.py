@@ -606,7 +606,8 @@ async def checkout(data: ManualCheckout, request: Request,
                 "tree": treename,
                 "branch": branch,
                 "commit": commit,
-                "url": treeurl
+                "url": treeurl,
+                "tip_of_branch": False
             }
         },
         "timeout": checkout_timeout.isoformat(),
