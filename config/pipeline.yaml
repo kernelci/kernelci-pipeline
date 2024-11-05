@@ -301,6 +301,8 @@ jobs:
       defconfig:
         - defconfig
         - allmodconfig
+      fragments:
+        - 'CONFIG_FRAME_WARN=2048'
     rules:
       tree:
         - 'mainline'
