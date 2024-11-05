@@ -141,11 +141,11 @@ class KCIDBBridge(Service):
             'git_repository_branch':
                 checkout_node['data']['kernel_revision']['branch'],
             'git_commit_tags':
-                checkout_node['data']['kernel_revision']['commit_tags'],
+                checkout_node['data']['kernel_revision'].get('commit_tags'),
             'git_commit_message':
-                checkout_node['data']['kernel_revision']['commit_message'],
+                checkout_node['data']['kernel_revision'].get('commit_message'),
             'git_repository_branch_tip':
-                checkout_node['data']['kernel_revision']['tip_of_branch'],
+                checkout_node['data']['kernel_revision'].get('tip_of_branch'),
             'start_time': self._set_timezone(checkout_node['created']),
             'patchset_hash': '',
             'misc': {
