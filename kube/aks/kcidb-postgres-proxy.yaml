@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kernelci-pipeline-postgres-deployment
+  labels:
+    app: kernelci-pipeline-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kernelci-pipeline-postgres
+  template:
+    metadata:
+      labels:
+        app: kernelci-pipeline-postgres
+    spec:
+      containers:
+      - name: kernelci-pipeline-postgres-proxy
+        image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+        args:
+          - "kernelci-production:us-central1:postgresql2"
+          - "-c"
+          - "/secrets/kcidb-credentials.json"
+          - "-a"
+          - "0.0.0.0"
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /secrets/kcidb-credentials.json
+        volumeMounts:
+          - name: secrets
+            mountPath: /secrets
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+      restartPolicy: Always
