@@ -277,7 +277,13 @@ async def callback(node_id: str, request: Request):
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
-    data = await request.json()
+    try:
+        data = await request.json()
+    except Exception as e:
+        logging.error(f'Error decoding JSON: {e}')
+        item = {}
+        item['message'] = 'Error decoding JSON'
+        return JSONResponse(content=item, status_code=400)
     job_callback = kernelci.runtime.lava.Callback(data)
     api_config_name = job_callback.get_meta('api_config_name')
     api_token = os.getenv('KCI_API_TOKEN')
