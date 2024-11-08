@@ -1993,6 +1993,7 @@ platforms:
     <<: *arm64-device
     mach: broadcom
     dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
+    compatible: ['raspberrypi,4-model-b', 'brcm,bcm2711']
 
   # No job is being scheduled on these board as its infrastructure errors need to be fixed first.
   bcm2836-rpi-2-b:
