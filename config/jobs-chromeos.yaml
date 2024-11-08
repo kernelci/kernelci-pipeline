@@ -58,6 +58,10 @@ _anchors:
     kind: job
     rules: *min-5_4-rules
     kcidb_test_suite: tast
+    rules:
+      tree:
+        - mainline
+        - stable-rc
 
   tast-debian: &tast-debian-job
     template: 'generic.jinja2'
