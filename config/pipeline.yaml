@@ -206,8 +206,8 @@ runtimes:
   lava-broonie:
     lab_type: lava
     url: 'https://lava.sirena.org.uk/'
-    priority_min: 10
-    priority_max: 40
+    priority_min: 0
+    priority_max: 49
     notify:
       callback:
         token: kernelci-new-api-callback
