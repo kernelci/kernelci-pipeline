@@ -2010,11 +2010,29 @@ platforms:
 
   kubernetes:
 
+  meson-g12b-a311d-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12b-a311d-libretech-cc.dtb
+    compatible: ['libretech,aml-a311d-cc', 'amlogic,a311d', 'amlogic,g12b']
+
   meson-g12b-a311d-khadas-vim3:
     <<: *arm64-device
     mach: amlogic
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
     compatible: ['khadas,vim3', 'amlogic,a311d', 'amlogic,g12b']
+
+  meson-gxl-s905x-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-gxl-s905x-libretech-cc.dtb
+    compatible: ['libretech,aml-s905x-cc', 'amlogic,s905x', 'amlogic,meson-gxl']
+
+  meson-sm1-s905d3-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-sm1-s905d3-libretech-cc.dtb
+    compatible: ['libretech,aml-s905d3-cc', 'amlogic,sm1']
 
   # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
   minnowboard-turbot-E3826: *x86_64-device
@@ -2064,6 +2082,12 @@ platforms:
     dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
     compatible: ['google,kevin-rev15', 'google,kevin-rev14']
 
+  rk3399-rock-pc:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-roc-pc.dtb
+    compatible: ['firefly,roc-rk3399-pc', 'rockchip,rk3399']
+
   rk3399-rock-pi-4b:
     <<: *arm64-device
     mach: rockchip
@@ -2083,6 +2107,12 @@ platforms:
     mach: allwinner
     dtb: dtbs/sun7i-a20-cubieboard2.dtb
     compatible: ['cubietech,cubieboard2', 'allwinner,sun7i-a20']
+
+  sun50i-a64-pine64-plus:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-a64-pine64-plus.dtb
+    compatible: ['pine64,pine64-plus', 'allwinner,sun50i-a64']
 
   sun50i-h5-libretech-all-h3-cc:
     <<: *arm64-device
@@ -2161,6 +2191,12 @@ scheduler:
       type: lava
       name: lava-broonie
     platforms:
+      - bcm2711-rpi-4-b
+      - meson-g12b-a311d-libretech-cc
+      - meson-gxl-s905x-libretech-cc
+      - meson-sm1-s905d3-libretech-cc
+      - rk3399-roc-pc
+      - sun50i-a64-pine64-plus
       - sun50i-h5-libretech-all-h3-cc
 
   - job: baseline-arm64-kcidebug-mediatek
