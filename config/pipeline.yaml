@@ -2120,6 +2120,13 @@ platforms:
 
   shell:
 
+  stm32mp157a-dhcor-avenger96:
+    <<: *arm-device
+    mach: st
+    dtb: dtbs/stm32mp157a-dhcor-avenger96.dtb
+    compatible: ['arrow,stm32mp157a-avenger96', 'dh,stm32mp157a-dhcor-som',
+                     'st,stm32mp157']
+
   sun7i-a20-cubieboard2:
     <<: *arm-device
     mach: allwinner
