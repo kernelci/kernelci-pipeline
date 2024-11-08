@@ -32,6 +32,11 @@ spec:
                   key: token
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /secrets/kcidb-credentials.json
+            - name: KCIDB_POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kcidb-tokens
+                  key: kcidb-postgresql-password
           volumeMounts:
             - name: secrets
               mountPath: /secrets
