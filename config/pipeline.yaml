@@ -267,6 +267,7 @@ jobs:
   #   image: 'kernelci/staging-kernelci'
 
   baseline-arm: *baseline-job
+  baseline-arm-broonie: *baseline-job
   baseline-arm-android: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-mfd: *baseline-job
@@ -2181,6 +2182,17 @@ scheduler:
       name: lava-baylibre
     platforms:
       - sun7i-a20-cubieboard2
+
+  - job: baseline-arm-broonie
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-broonie-runtime
+      type: lava
+      name: lava-broonie
+    platforms:
+      - beaglebone-black
+      - imx6dl-udoo
+      - imx6q-udoo
+      - stm32mp157a-dhcor-avenger96
 
   - job: baseline-arm-mfd
     event:
