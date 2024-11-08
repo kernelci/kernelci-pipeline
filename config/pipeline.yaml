@@ -2000,6 +2000,12 @@ platforms:
     dtb: dtbs/bcm2836-rpi-2-b.dtb
     compatible: ['raspberrypi,2-model-b', 'brcm,bcm2836']
 
+  beaglebone-black:
+    <<: *arm-device
+    mach: omap
+    dtb: dtbs/am335x-boneblack.dtb
+    compatible: ['ti,am335x-bone-black', 'ti,am335x-bone', 'ti,am33xx']
+
   docker:
 
   imx6q-sabrelite:
