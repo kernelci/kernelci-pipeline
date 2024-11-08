@@ -2008,11 +2008,23 @@ platforms:
 
   docker:
 
+  imx6dl-udoo:
+    <<: *arm-device
+    mach: imx
+    dtb: dtbs/imx6dl-udoo.dtb
+    compatible: ['udoo,imx6dl-udoo', 'fsl,imx6dl']
+
   imx6q-sabrelite:
     <<: *arm-device
     mach: imx
     dtb: dtbs/imx6q-sabrelite.dtb
     compatible: ['fsl,imx6q-sabrelite', 'fsl,imx6q']
+
+  imx6q-udoo:
+    <<: *arm-device
+    mach: imx
+    dtb: dtbs/imx6q-udoo.dtb
+    compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
 
   kubernetes:
 
