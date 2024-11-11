@@ -43,6 +43,7 @@ database_name = "playground_kcidb"
 postgresql_host = "kernelci-pipeline-postgres-proxy"
 postgresql_port = 5432
 postgresql_user = "kernelci.org"
+# postgresql_password = "KCIDB-POSTGRESQL-USER-PASSWORD"
 origin = "maestro"
 
 [test_report]
