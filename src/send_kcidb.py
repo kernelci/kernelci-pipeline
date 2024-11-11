@@ -69,7 +69,7 @@ class KCIDBBridge(Service):
         db_conn = (
             f"postgresql:dbname={args.database_name} "
             f"user={args.postgresql_user} host={args.postgresql_host} "
-            f"password={os.getenv('KCIDB_POSTGRESQL_PASSWORD')} "
+            f"password={args.postgresql_password} "
             f"port={args.postgresql_port}"
         )
         db_client = kcidb.db.Client(db_conn)
@@ -593,6 +593,26 @@ class cmd_run(Command):
         {
             'name': '--origin',
             'help': "CI system identifier",
+        },
+        {
+            'name': '--database-name',
+            'help': "KCIDB postgresql database instance name",
+        },
+        {
+            'name': '--postgresql-host',
+            'help': "KCIDB postgresql DB host",
+        },
+        {
+            'name': '--postgresql-port',
+            'help': "KCIDB postgresql DB port",
+        },
+        {
+            'name': '--postgresql-user',
+            'help': "Username for connecting to KCIDB postgresql DB",
+        },
+        {
+            'name': '--postgresql-password',
+            'help': "Password for connecting to KCIDB postgresql DB",
         },
     ]
 
