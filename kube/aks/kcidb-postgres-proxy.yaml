@@ -41,3 +41,15 @@ spec:
           secret:
             secretName: pipeline-secrets
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kernelci-pipeline-postgres
+  namespace: kernelci-pipeline
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: kernelci-pipeline-postgres
