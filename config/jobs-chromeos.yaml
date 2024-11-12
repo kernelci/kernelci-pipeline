@@ -779,7 +779,7 @@ jobs:
       testsuite: 'AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_av1
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_av1
 
   fluster-debian-av1-chromium-10bit:
     <<: *fluster-debian-job
@@ -788,7 +788,7 @@ jobs:
       testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
       decoders:
         - 'GStreamer-AV1-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_av1_chromium
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_av1_chromium
 
   fluster-debian-h264:
     <<: *fluster-debian-job
@@ -798,7 +798,7 @@ jobs:
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_h264
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_h264
 
   fluster-debian-h264-frext:
     <<: *fluster-debian-job
@@ -808,7 +808,7 @@ jobs:
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_h264_frext
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_h264_frext
 
   fluster-debian-h265:
     <<: *fluster-debian-job
@@ -818,7 +818,7 @@ jobs:
       decoders:
         - 'GStreamer-H.265-V4L2-Gst1.0'
         - 'GStreamer-H.265-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_h265
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_h265
 
   fluster-debian-vp8:
     <<: *fluster-debian-job
@@ -828,7 +828,7 @@ jobs:
       decoders:
         - 'GStreamer-VP8-V4L2-Gst1.0'
         - 'GStreamer-VP8-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_vp8
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_vp8
 
   fluster-debian-vp9:
     <<: *fluster-debian-job
@@ -838,7 +838,7 @@ jobs:
       decoders:
         - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.v4l2.gstreamer_vp9
+    kcidb_test_suite: fluster.debian.v4l2.gstreamer_vp9
 
   fluster-chromeos-av1:
     <<: *fluster-chromeos-job
