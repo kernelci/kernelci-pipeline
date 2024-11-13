@@ -2019,6 +2019,27 @@ platforms:
     dtb: dtbs/imx6q-udoo.dtb
     compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
 
+  imx8mp-evk:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-evk.dtb
+    compatible: ["fsl,imx8mp-evk", "fsl,imx8mp"]
+
+  imx8mp-verdin-nonwifi-dahlia:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-verdin-nonwifi-dahlia.dtb
+    compatible: ['toradex,verdin-imx8mp-nonwifi-dahlia',
+                 'toradex,verdin-imx8mp-nonwifi',
+                 'toradex,verdin-imx8mp',
+                 'fsl,imx8mp']
+  juno:
+    <<: *arm64-device
+    mach: vexpress
+    dtb: dtbs/arm/juno.dtb
+    compatible: ['arm,juno', 'arm,vexpress']
+
+
   kubernetes:
 
   meson-g12b-a311d-libretech-cc:
@@ -2214,6 +2235,9 @@ scheduler:
       name: lava-broonie
     platforms:
       - bcm2711-rpi-4-b
+      - imx8mp-evk
+      - imx8mp-verdin-nonwifi-dahlia
+      - juno
       - meson-g12b-a311d-libretech-cc
       - meson-gxl-s905x-libretech-cc
       - meson-sm1-s905d3-libretech-cc
