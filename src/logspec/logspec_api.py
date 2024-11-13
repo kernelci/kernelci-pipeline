@@ -191,7 +191,7 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
             issue = get_issue_from_db(oo_client, error['error']['signature'])
             if issue:
                 issue_id = issue.id
-                issue_version = issue.version
+                issue_version = issue.version_num
             else:
                 issue = new_issue(error, object_type)
                 issues.append(issue)
