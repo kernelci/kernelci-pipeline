@@ -393,6 +393,7 @@ the test: {sub_path}")
             compatible = self._platforms[platform].compatible
 
         runtime = test_node['data'].get('runtime')
+        misc = test_node['data'].get('misc')
         parsed_test_node = {
             'build_id': build_id,
             'id': f"{origin}:{test_node['id']}",
@@ -405,6 +406,7 @@ in {runtime}",
                 'compatible': compatible,
                 'misc': {
                     'platform': platform,
+                    'measurement': misc.get('measurement') if misc else None
                 }
             },
             'waived': False,
