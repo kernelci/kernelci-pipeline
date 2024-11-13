@@ -389,6 +389,7 @@ the test: {sub_path}")
             build_id = f"{origin}:{build_node['id']}"
 
         platform = test_node['data'].get('platform')
+        compatible = None
         if platform:
             compatible = self._platforms[platform].compatible
 
