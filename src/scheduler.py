@@ -12,6 +12,9 @@ import tempfile
 import json
 import yaml
 import requests
+import re
+import time
+import datetime
 
 import kernelci
 import kernelci.config
@@ -213,6 +216,66 @@ class Scheduler(Service):
         if runtime.config.lab_type in ['shell', 'docker']:
             self._job_tmp_dirs[running_job] = tmp
 
+    def translate_freq(self, freq):
+        """
+        Translate the frequency to seconds
+        Format is: [Nd][Nh][Nm], where each field optional
+        """
+        freq_sec = 0
+        freq_re = re.compile(r'(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?')
+        freq_match = freq_re.match(freq)
+        if freq_match:
+            days, hours, minutes = freq_match.groups()
+            if days:
+                freq_sec += int(days) * 24 * 60 * 60
+            if hours:
+                freq_sec += int(hours) * 60 * 60
+            if minutes:
+                freq_sec += int(minutes) * 60
+
+        return freq_sec
+
+    def _search_job_freq(self, jobname, tree, branch, tstamp, platform):
+        """
+        Search for jobs with the same name, tree, branch and created
+        timestamp greater than tstamp
+        """
+        attributes = {
+            'name': jobname,
+            'data.kernel_revision.tree': tree,
+            'data.kernel_revision.branch': branch,
+            'data.platform': platform.name,
+            'created__gte': tstamp,
+        }
+        nodes = self._api.node.find(attributes, 0, 1)
+        return nodes
+
+    def _verify_frequency(self, job, node, platform):
+        """Verify if the job can be run, as frequency limit
+        how often it can be run for particular tree/branch
+        """
+        try:
+            tree = node['data']['kernel_revision']['tree']
+            branch = node['data']['kernel_revision']['branch']
+            frequency = job.params['frequency']
+        except KeyError:
+            print(f"Job {job.name} does not have valid frequency parameters")
+            return True
+
+        freq_sec = self.translate_freq(frequency)
+        if not freq_sec or freq_sec < 60:
+            print(f"Job {job.name} has invalid frequency parameter {frequency}")
+            return True
+        # date format 2024-10-08T18:56:07.810000, ISO 8601?
+        now = datetime.datetime.now()
+        tstamp = now - datetime.timedelta(seconds=freq_sec)
+        if self._search_job_freq(job.name, tree, branch, tstamp, platform):
+            print(f"Job {job.name} for tree {tree} branch {branch} "
+                  f"created less than {freq_sec} seconds ago"
+                  f", skipping due frequency limit {frequency}")
+            return False
+        return True
+
     def _run(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
@@ -225,6 +288,10 @@ class Scheduler(Service):
                 # Add to node data the jobfilter if it exists in event
                 if jobfilter and isinstance(jobfilter, list):
                     input_node['jobfilter'] = jobfilter
+                # we cannot use rules, as we need to have info about job too
+                if job.params.get('frequency', None):
+                    if not self._verify_frequency(job, input_node, platform):
+                        continue
                 if self._api_helper.should_create_node(rules, input_node):
                     self._run_job(job, runtime, platform, input_node)
 
