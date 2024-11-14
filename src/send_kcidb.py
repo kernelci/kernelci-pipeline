@@ -22,7 +22,7 @@ import kernelci
 import kernelci.config
 from kernelci.legacy.cli import Args, Command, parse_opts
 import kcidb
-from logspec import logspec_api
+from kernelci_pipeline.logspec_api import generate_issues_and_incidents
 
 from base import Service
 
@@ -535,7 +535,7 @@ in {runtime}",
 
             for parsed_node in parsed_build_node:
                 if parsed_node.get('valid') is False and parsed_node.get('log_url'):
-                    issues_and_incidents = logspec_api.generate_issues_and_incidents(
+                    issues_and_incidents = generate_issues_and_incidents(
                         parsed_node['id'],
                         parsed_node['log_url'],
                         "build",
@@ -550,7 +550,7 @@ in {runtime}",
 
             for parsed_node in parsed_test_node:
                 if parsed_node.get('status') == 'FAIL' and parsed_node.get('log_url'):
-                    issues_and_incidents = logspec_api.generate_issues_and_incidents(
+                    issues_and_incidents = generate_issues_and_incidents(
                         parsed_node['id'],
                         parsed_node['log_url'],
                         "test",
