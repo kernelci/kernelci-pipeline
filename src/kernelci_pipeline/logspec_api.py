@@ -16,8 +16,7 @@ import hashlib
 import json
 import requests
 import kcidb
-
-from .logspec import main
+import logspec.main
 
 
 # Configuration tables per object type
@@ -72,7 +71,7 @@ def get_logspec_errors(parsed_data, parser):
     of errors.
     """
     errors_list = []
-    logspec_version = main.logspec_version()
+    logspec_version = logspec.main.logspec_version()
     base_dict = {
         'version': logspec_version,
         'parser': parser,
@@ -166,12 +165,13 @@ def process_log(log_url, parser, start_state):
     log = get_log(log_url)
     if not log:
         return
-    parsed_data = main.parse_log(log, start_state)
+    parsed_data = logspec.main.parse_log(log, start_state)
     # return processed data
     return get_logspec_errors(parsed_data, parser)
 
 
 def get_issue_from_db(oo_client, signature):
+    """Get existing issue matching ID from DB"""
     data = oo_client.query(kcidb.orm.query.Pattern.parse(f">issue[maestro:{signature}]#"))
     if len(data['issue']):
         issue = data['issue'][0]
@@ -180,8 +180,8 @@ def get_issue_from_db(oo_client, signature):
 
 
 def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
-    # Load logspec parser
-    start_state = main.load_parser(object_types[object_type]['parser'])
+    """Generate issues and incidents"""
+    start_state = logspec.main.load_parser(object_types[object_type]['parser'])
     parser = object_types[object_type]['parser']
     error_list = process_log(log_url, parser, start_state)
     issues = []
