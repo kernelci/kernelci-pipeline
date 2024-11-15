@@ -472,8 +472,9 @@ in {runtime}",
             self.log.info(f"Not sending test as path information is missing: {test_node['id']}")
             return
 
-        if 'setup' in test_node.get('path'):
-            # do not send setup tests
+        path = test_node.get('path')
+        if 'setup' in path and 'os-release' not in path:
+            # do not send setup tests except `os-release`
             return
 
         parsed_test_node.append(test_node)
