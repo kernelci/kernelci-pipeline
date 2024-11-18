@@ -546,7 +546,7 @@ in {runtime}",
                         self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
                     else:
                         self.log.warning("logspec: Could not generate any issues or "
-                                         f"incidents for {parsed_node['id']}")
+                                         f"incidents for build node {parsed_node['id']}")
 
             for parsed_node in parsed_test_node:
                 if parsed_node.get('status') == 'FAIL' and parsed_node.get('log_url'):
@@ -561,7 +561,7 @@ in {runtime}",
                         self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
                     else:
                         self.log.warning("logspec: Could not generate any issues or "
-                                         f"incidents for {parsed_node['id']}")
+                                         f"incidents for test node {parsed_node['id']}")
 
             revision = {
                 'checkouts': parsed_checkout_node,
