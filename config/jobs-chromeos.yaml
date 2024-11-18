@@ -411,7 +411,6 @@ _anchors:
         - platform.Mtpd
         - platform.TPMResponsive
         - storage.HealthInfo
-        - storage.LowPowerStateResidence
 
   tast-power: &tast-power-job
     <<: *tast-job
