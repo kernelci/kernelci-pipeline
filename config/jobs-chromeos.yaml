@@ -678,6 +678,13 @@ jobs:
       excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
     rules: *max-6_6-rules
 
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
   tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
 
