@@ -366,20 +366,35 @@ scheduler:
 
 
 # Some of this tests running too long, must be max 30 min
-#  - job: tast-decoder-chromestack-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
+  - job: tast-decoder-chromestack-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-debian-decoder-chromestack-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
+  - job: tast-decoder-chromestack-verification-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-decoder-chromestack-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
+  - job: tast-debian-decoder-chromestack-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-debian-decoder-chromestack-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
+  - job: tast-debian-decoder-chromestack-verification-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
-#    <<: *test-job-chromeos-qualcomm
+  - job: tast-decoder-chromestack-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
+
+  - job: tast-decoder-chromestack-verification-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
+
+  - job: tast-debian-decoder-chromestack-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
+
+  - job: tast-debian-decoder-chromestack-verification-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
+
+  - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
+    <<: *test-job-chromeos-qualcomm
+
+  - job: tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7
+    <<: *test-job-chromeos-qualcomm
 
 # Disabled as per daniels request to reduce load on LAVA
 #  - job: tast-decoder-chromestack-x86-amd
