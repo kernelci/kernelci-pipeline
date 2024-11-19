@@ -61,6 +61,14 @@ _anchors:
       <<: *min-5_4-rules
       tree:
         - mainline
+        - stable-rc
+
+  tast-decoder: &tast-decoder-job
+    <<: *tast-job
+    rules: &tast-decoder-rules
+      <<: *min-5_4-rules
+      tree:
+        - mainline
         - collabora-chromeos-kernel
         - stable
 
@@ -76,10 +84,7 @@ _anchors:
       videodec_parallel_jobs: 1
       videodec_timeout: 90
     rules:
-      tree:
-        - mainline
-        - collabora-chromeos-kernel
-        - stable
+      <<: *tast-decoder-rules
 
   tast-basic: &tast-basic-job
     <<: *tast-job
@@ -89,7 +94,7 @@ _anchors:
         - platform.TPMResponsive
 
   tast-decoder-chromestack: &tast-decoder-chromestack-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-chromestack-params
       <<: *tast-debian-params
       tests:
@@ -108,7 +113,7 @@ _anchors:
       <<: *tast-decoder-chromestack-params
 
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-h264-params
       <<: *tast-debian-params
       tests:
@@ -120,7 +125,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sf-h264-params
 
   tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-hevc-params
       <<: *tast-debian-params
       tests:
@@ -132,7 +137,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sf-hevc-params
 
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp8-params
       <<: *tast-debian-params
       tests:
@@ -144,7 +149,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sf-vp8-params
 
   tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-params
       <<: *tast-debian-params
       tests:
@@ -162,7 +167,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sf-vp9-params
 
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-extra-params
       <<: *tast-debian-params
       tests:
@@ -174,7 +179,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sf-vp9-extra-params
 
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-av1-params
       <<: *tast-debian-params
       tests:
@@ -190,7 +195,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sl-av1-params
 
   tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-h264-params
       <<: *tast-debian-params
       tests:
@@ -202,7 +207,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sl-h264-params
 
   tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-hevc-params
       <<: *tast-debian-params
       tests:
@@ -214,7 +219,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sl-hevc-params
 
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp8-params
       <<: *tast-debian-params
       tests:
@@ -226,7 +231,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sl-vp8-params
 
   tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp9-params
       <<: *tast-debian-params
       tests:
@@ -241,7 +246,7 @@ _anchors:
       <<: *tast-decoder-v4l2-sl-vp9-params
 
   tast-decoder-v4l2-sl-vp9-extra: &tast-decoder-v4l2-sl-vp9-extra-job
-    <<: *tast-job
+    <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp9-extra-params
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
