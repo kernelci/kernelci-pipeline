@@ -268,7 +268,6 @@ jobs:
 
   baseline-arm: *baseline-job
   baseline-arm-broonie: *baseline-job
-  baseline-arm-android: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-mfd: *baseline-job
   baseline-arm64: *baseline-job
@@ -2168,13 +2167,6 @@ scheduler:
       - odroid-xu3
       - rk3288-rock2-square
       - rk3288-veyron-jaq
-
-  - job: baseline-arm-android
-    event:
-      <<: *node-event
-      name: kbuild-gcc-12-arm-android
-    runtime: *lava-collabora-runtime
-    platforms: *collabora-arm-platforms
 
   - job: baseline-arm-baylibre
     event: *kbuild-gcc-12-arm-node-event
