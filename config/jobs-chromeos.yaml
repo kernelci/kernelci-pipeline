@@ -99,6 +99,19 @@ _anchors:
       <<: *tast-debian-params
       tests:
         - video.ChromeStackDecoder.*
+      # Those jobs can run for a very long time, so we need a very large timeout
+      job_timeout: 180
+
+  tast-debian-decoder-chromestack: &tast-debian-decoder-chromestack-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-chromestack-params
+
+  tast-decoder-chromestack-verification: &tast-decoder-chromestack-verification-job
+    <<: *tast-job
+    params: &tast-decoder-chromestack-verification-params
+      <<: *tast-debian-params
+      tests:
         - video.ChromeStackDecoderVerification.*
       excluded_tests:
         # Those always fail on all platforms
@@ -107,10 +120,10 @@ _anchors:
       # Those jobs can run for a very long time, so we need a very large timeout
       job_timeout: 180
 
-  tast-debian-decoder-chromestack: &tast-debian-decoder-chromestack-job
+  tast-debian-decoder-chromestack-verification: &tast-debian-decoder-chromestack-verification-job
     <<: *tast-debian-job
     params:
-      <<: *tast-decoder-chromestack-params
+      <<: *tast-decoder-chromestack-verification-params
 
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-decoder-job
@@ -602,6 +615,9 @@ jobs:
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
   tast-debian-decoder-chromestack-arm64-mediatek: *tast-debian-decoder-chromestack-job
 
+  tast-decoder-chromestack-verification-arm64-mediatek: *tast-decoder-chromestack-verification-job
+  tast-debian-decoder-chromestack-verification-arm64-mediatek: *tast-debian-decoder-chromestack-verification-job
+
   tast-decoder-chromestack-arm64-qualcomm:
     <<: *tast-decoder-chromestack-job
     rules: *min-6_7-rules
@@ -610,11 +626,25 @@ jobs:
     <<: *tast-debian-decoder-chromestack-job
     rules: *min-6_7-rules
 
+  tast-decoder-chromestack-verification-arm64-qualcomm:
+    <<: *tast-decoder-chromestack-verification-job
+    rules: *min-6_7-rules
+
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    rules: *min-6_7-rules
+
   tast-decoder-chromestack-arm64-qualcomm-pre6_7:
     <<: *tast-decoder-chromestack-job
     params:
       <<: *tast-decoder-chromestack-params
-      excluded_tests: &tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
+  tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: &tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
         # Platform-independent excluded tests
         - video.ChromeStackDecoderVerification.hevc_main
         - video.ChromeStackDecoderVerification.vp9_0_svc
@@ -627,14 +657,26 @@ jobs:
     <<: *tast-debian-decoder-chromestack-job
     params:
       <<: *tast-decoder-chromestack-params
-      excluded_tests: *tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
     rules: *max-6_6-rules
 
   tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
 
+  tast-decoder-chromestack-verification-x86-amd: *tast-decoder-chromestack-verification-job
+  tast-decoder-chromestack-verification-x86-intel: *tast-decoder-chromestack-verification-job
+
   tast-debian-decoder-chromestack-x86-amd: *tast-debian-decoder-chromestack-job
   tast-debian-decoder-chromestack-x86-intel: *tast-debian-decoder-chromestack-job
+
+  tast-debian-decoder-chromestack-verification-x86-amd: *tast-debian-decoder-chromestack-verification-job
+  tast-debian-decoder-chromestack-verification-x86-intel: *tast-debian-decoder-chromestack-verification-job
 
   tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
   tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
