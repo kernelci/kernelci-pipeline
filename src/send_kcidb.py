@@ -54,6 +54,8 @@ lava_labs = {
     "lava-broonie": "https://lava.sirena.org.uk",
     "lava-collabora": "https://lava.collabora.dev",
     "lava-collabora-staging": "https://staging.lava.collabora.dev",
+    "lava-cip": "https://lava.ciplatform.org/",
+    "lava-qualcomm": "https://lava.infra.foundries.io",
 }
 
 
@@ -358,6 +360,9 @@ the test: {sub_path}")
         if lab_url:
             job_url = lab_url + "/scheduler/job/" + data.get('job_id')
             data['job_url'] = job_url
+        elif 'lava' in data.get('runtime'):
+            self.log.warning(f"{node.get('id')} LAVA lab URL not found in the "
+                             f"mapping for runtime: {data.get('runtime')}")
         return data
 
     def _get_error_metadata(self, node):
