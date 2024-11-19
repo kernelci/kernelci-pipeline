@@ -119,6 +119,7 @@ _anchors:
     - 'rppt'
     - 'sashal-next'
     - 'soc'
+    - 'stable'
     - 'tegra'
     - 'thermal'
     - 'tip'
@@ -1960,6 +1961,9 @@ trees:
   soc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
 
+  stable:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git'
+
   stable-rc:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
 
@@ -3474,6 +3478,10 @@ build_configs:
   soc_for-next:
     tree: soc
     branch: 'for-next'
+
+  stable_6.6:
+    tree: stable
+    branch: 'linux-6.6.y'
 
   stable-rc_4.19: &stable-rc
     tree: stable-rc
