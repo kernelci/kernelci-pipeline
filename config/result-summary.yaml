@@ -870,7 +870,6 @@ monitor-fluster-debian-regressions:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
-          - tree: media
 
 monitor-fluster-debian-failures__runtime-errors:
   metadata:
@@ -887,7 +886,6 @@ monitor-fluster-debian-failures__runtime-errors:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
-          - tree: media
 
 summary-fluster-debian-regressions:
   metadata:
@@ -903,7 +901,6 @@ summary-fluster-debian-regressions:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
-          - tree: media
 
 summary-fluster-debian-failures__runtime-errors:
   metadata:
@@ -920,7 +917,6 @@ summary-fluster-debian-failures__runtime-errors:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
-          - tree: media
 
 summary-fluster-debian-failures:
   metadata:
@@ -937,7 +933,6 @@ summary-fluster-debian-failures:
           - tree: mainline
           - tree: next
           - tree: collabora-chromeos-kernel
-          - tree: media
 
 #### Failures and regressions in watchdog reset test
 
