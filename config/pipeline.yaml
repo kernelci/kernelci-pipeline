@@ -3175,10 +3175,6 @@ build_configs:
     tree: amlogic
     branch: 'for-next'
 
-  android_4.19-stable:
-    tree: android
-    branch: 'android-4.19-stable'
-
   android_mainline:
     tree: android
     branch: 'android-mainline'
