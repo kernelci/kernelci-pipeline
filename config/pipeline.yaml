@@ -306,6 +306,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'stable-rc'
 
   kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
     <<: *kbuild-clang-17-arm-job
@@ -358,6 +359,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'stable-rc'
 
   kbuild-clang-17-arm64-allnoconfig:
     <<: *kbuild-clang-17-arm64-job
@@ -576,6 +578,7 @@ jobs:
     rules:
       tree:
       - 'mainline'
+      - 'stable-rc'
 
   kbuild-clang-17-x86-allnoconfig:
     <<: *kbuild-clang-17-x86-job
@@ -1134,6 +1137,7 @@ jobs:
     rules:
       tree:
       - 'mainline'
+      - 'stable-rc'
 
   kbuild-gcc-12-i386-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
