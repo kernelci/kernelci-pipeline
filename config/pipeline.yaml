@@ -1894,6 +1894,9 @@ trees:
   collabora-next:
     url: 'https://gitlab.collabora.com/kernel/collabora-next.git'
 
+  compudj:
+    url: 'https://github.com/compudj/linux-dev'
+
   efi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
 
@@ -3337,6 +3340,11 @@ build_configs:
   collabora-next_for-kernelci:
     tree: collabora-next
     branch: 'for-kernelci'
+
+  compudj-kernelci:
+    tree: compudj
+    branch: 'kernelci'
+    owner: 'mathieu.desnoyers@efficios.com'
 
   efi:
     tree: efi
