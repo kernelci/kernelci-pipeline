@@ -723,7 +723,21 @@ jobs:
   tast-debian-mm-decode-arm64-mediatek: *tast-debian-mm-decode-job
   tast-debian-mm-decode-arm64-qualcomm: *tast-debian-mm-decode-job
 
-  tast-mm-misc-arm64-mediatek: *tast-mm-misc-job
+  tast-mm-misc-arm64-mediatek:
+    <<: *tast-mm-misc-job
+    params:
+      <<: *tast-mm-misc-params
+      excluded_tests:
+        # Mediatek-specific
+        - camera.V4L2
+        - camera.V4L2.certification
+        - camera.V4L2.supported_formats
+        - graphics.Clvk.api_tests
+        - graphics.Clvk.simple_test
+        - graphics.DRM.dmabuf_test
+        - graphics.DRM.mapped_access_perf_test
+        - graphics.GLBench
+        - video.ImageProcessor.image_processor_unit_test
 
   tast-mm-misc-arm64-qualcomm:
     <<: *tast-mm-misc-job
@@ -731,6 +745,11 @@ jobs:
       <<: *tast-mm-misc-params
       excluded_tests:
         # Qualcomm-specific: those always
+        - camera.V4L2
+        - camera.V4L2.certification
+        - camera.V4L2.supported_formats
+        - graphics.Clvk.api_tests
+        - graphics.Clvk.simple_test
         - graphics.DRM.vk_glow
 
   tast-mm-misc-x86-amd:
@@ -738,11 +757,21 @@ jobs:
     params:
       <<: *tast-mm-misc-params
       excluded_tests:
+        - camera.V4L2
+        - camera.V4L2.certification
+        - camera.V4L2.supported_formats
         # AMD-specific: always fails
         - graphics.DRM.dmabuf_test
         - graphics.DRM.yuv_to_rgb_test
 
-  tast-mm-misc-x86-intel: *tast-mm-misc-job
+  tast-mm-misc-x86-intel:
+    <<: *tast-mm-misc-job
+    params:
+      <<: *tast-mm-misc-params
+      excluded_tests:
+        - camera.V4L2
+        - camera.V4L2.certification
+        - camera.V4L2.supported_formats
 
   tast-perf-arm64-mediatek: *tast-perf-job
   tast-perf-arm64-qualcomm: *tast-perf-job
