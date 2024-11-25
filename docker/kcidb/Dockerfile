@@ -10,4 +10,4 @@ MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 RUN pip install git+https://github.com/kernelci/kcidb.git
 
 # Install logspec
-RUN pip install git+https://github.com/kernelci/logspec.git
+RUN pip install git+https://github.com/kernelci/logspec.git@3ca649a4237aaed7ee8be3a8486f53301daeb109
