@@ -44,14 +44,26 @@ class Trigger(Service):
                 return
 
         head_commit = kernelci.build.get_branch_head(build_config)
-        node_count = self._api.node.count({
+        search_terms = {
             "kind": "checkout",
             "data.kernel_revision.commit": head_commit,
             "owner": self._current_user['username'],
             "submitter": "service:pipeline"
-        })
+        }
+        node_count = self._api.node.count(search_terms)
+        search_terms["result"] = "incomplete"
+        incomplete_node_count = self._api.node.count(search_terms)
 
-        if node_count > 0:
+        # If incomplete_node_count >= 3, then we have a problem
+        # it means we retry the same commit 3 times and it still fails
+        if incomplete_node_count >= 3:
+            self._log_revision(
+                "Too many incomplete checkouts", build_config, head_commit
+            )
+            return
+
+        # Do not count incomplete checkouts
+        if node_count > 0 and incomplete_node_count != node_count:
             if force:
                 self._log_revision(
                     "Resubmitting existing revision", build_config, head_commit
