@@ -239,6 +239,8 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 config_branch,
                 describe
             ])
+            # replace / by _ in name
+            tarball_name = tarball_name.replace('/', '_')
             tarball_path = self._make_tarball(
                 self._service_config.kdir,
                 tarball_name
