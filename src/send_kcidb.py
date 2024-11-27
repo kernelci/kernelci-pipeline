@@ -15,11 +15,12 @@ import sys
 import re
 import io
 import gzip
-import os
+from urllib.parse import urljoin
 import requests
 
 import kernelci
 import kernelci.config
+from kernelci.config.runtime import RuntimeLAVA
 from kernelci.legacy.cli import Args, Command, parse_opts
 import kcidb
 from kernelci_pipeline.logspec_api import generate_issues_and_incidents
@@ -49,21 +50,16 @@ ERRORED_TEST_CODES = (
     'Test',
 )
 
-lava_labs = {
-    "lava-baylibre": "https://lava.baylibre.com",
-    "lava-broonie": "https://lava.sirena.org.uk",
-    "lava-collabora": "https://lava.collabora.dev",
-    "lava-collabora-staging": "https://staging.lava.collabora.dev",
-    "lava-cip": "https://lava.ciplatform.org/",
-    "lava-qualcomm": "https://lava.infra.foundries.io",
-}
-
 
 class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._jobs = configs['jobs']
         self._platforms = configs['platforms']
+        self._lava_labs = {}
+        for runtime_name, runtime_configs in configs['runtimes'].items():
+            if isinstance(runtime_configs, RuntimeLAVA):
+                self._lava_labs[runtime_name] = runtime_configs.url
         self._current_user = self._api.user.whoami()
 
     def _setup(self, args):
@@ -356,9 +352,9 @@ the test: {sub_path}")
                 parent = self._api.node.get(node['parent'])
                 if parent:
                     data = self._get_job_metadata(parent)
-        lab_url = lava_labs.get(data.get('runtime'))
+        lab_url = self._lava_labs.get(data.get('runtime'))
         if lab_url:
-            job_url = lab_url + "/scheduler/job/" + data.get('job_id')
+            job_url = urljoin(lab_url, f"/scheduler/job/{data.get('job_id')}")
             data['job_url'] = job_url
         elif 'lava' in data.get('runtime'):
             self.log.warning(f"{node.get('id')} LAVA lab URL not found in the "
