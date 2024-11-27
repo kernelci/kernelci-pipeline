@@ -352,13 +352,6 @@ the test: {sub_path}")
                 parent = self._api.node.get(node['parent'])
                 if parent:
                     data = self._get_job_metadata(parent)
-        lab_url = self._lava_labs.get(data.get('runtime'))
-        if lab_url:
-            job_url = urljoin(lab_url, f"/scheduler/job/{data.get('job_id')}")
-            data['job_url'] = job_url
-        elif 'lava' in data.get('runtime'):
-            self.log.warning(f"{node.get('id')} LAVA lab URL not found in the "
-                             f"mapping for runtime: {data.get('runtime')}")
         return data
 
     def _get_error_metadata(self, node):
@@ -430,12 +423,14 @@ in {runtime}",
 
         job_metadata = self._get_job_metadata(test_node)
         if job_metadata:
+            lab_url = self._lava_labs.get(job_metadata.get('runtime'))
+            if lab_url:
+                job_url = urljoin(lab_url, f"/scheduler/job/{job_metadata.get('job_id')}")
+                parsed_test_node['environment']['misc']['job_url'] = job_url
             parsed_test_node['environment']['misc']['job_id'] = job_metadata.get(
                 'job_id')
             parsed_test_node['environment']['misc']['job_context'] = job_metadata.get(
                 'job_context')
-            parsed_test_node['environment']['misc']['job_url'] = job_metadata.get(
-                'job_url')
 
         artifacts = self._get_artifacts(test_node)
         if artifacts:
