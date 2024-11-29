@@ -17,6 +17,7 @@ import io
 import gzip
 from urllib.parse import urljoin
 import requests
+import time
 
 import kernelci
 import kernelci.config
@@ -56,6 +57,7 @@ class KCIDBBridge(Service):
         self._jobs = configs['jobs']
         self._platforms = configs['platforms']
         self._lava_labs = {}
+        self._last_unprocessed_search = None
         for runtime_name, runtime_configs in configs['runtimes'].items():
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
@@ -503,12 +505,61 @@ in {runtime}",
                 self._get_test_data_recursively(child, origin, parsed_test_node,
                                                 parsed_build_node)
 
+    def _node_processed(self, node):
+        """
+        Mark the node as processed, sent_kcidb field to True
+        That means kcidb has received the node, and at least tried to process it
+        Data in node might be invalid, and not really sent to kcidb
+        This is workaround, until we improve event handling in kernelci-pipeline/api
+        """
+        node['processed_by_kcidb_bridge'] = True
+        try:
+            self._api.node.update(node)
+        except Exception as exc:
+            self.log.error(f"Failed to update node {node['id']}: {str(exc)}")
+
+    def _node_processed_recursively(self, node):
+        """
+        Mark the node and its child nodes as processed
+        """
+        child_nodes = self._api.node.find({'parent': node['id']})
+        if child_nodes:
+            for child in child_nodes:
+                self._node_processed_recursively(child)
+        self._node_processed(node)
+
+    def _find_unprocessed_node(self):
+        """
+        Search for 24h nodes that were not sent to KCIDB
+        This is nodes in available/completed state, and where flag
+        sent_kcidb is not set
+        If we don't have anymore unprocessed nodes, we will wait for 30 minutes
+        before we search again.
+        """
+        if self._last_unprocessed_search and \
+                time.time() - self._last_unprocessed_search < 30 * 60:
+            return None
+        nodes = self._api.node.find({
+            'state': ('done', 'available'),
+            'processed_by_kcidb_bridge': False,
+            'created__gt': datetime.datetime.now() - datetime.timedelta(days=1)
+        })
+        if nodes:
+            return nodes[0]
+        else:
+            self._last_unprocessed_search = time.time()
+        return None
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+            is_hierarchy = False
+            node = self._find_unprocessed_node()
+
+            if not node:
+                node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
             self.log.info(f"Received an event for node: {node['id']}")
 
             # Submit nodes with service origin only for staging pipeline
@@ -587,6 +638,12 @@ in {runtime}",
                 }
             }
             self._send_revision(context['client'], revision)
+
+            # mark the node as processed, sent_kcidb field to True
+            # TBD: job nodes might have child nodes, mark them as processed as well
+            self._node_processed(node)
+            if is_hierarchy:
+                self._node_processed_recursively(node)
         return True
 
 
