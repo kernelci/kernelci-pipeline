@@ -46,7 +46,6 @@ ERRORED_TEST_CODES = (
     'Canceled',
     'LAVATimeout',
     'MultinodeTimeout',
-    'node_timeout',
     'Test',
 )
 
@@ -129,6 +128,12 @@ class KCIDBBridge(Service):
 
     def _parse_checkout_node(self, origin, checkout_node):
         result = checkout_node.get('result')
+
+        # Don't send "timed-out" checkout node to KCIDB
+        if result == 'incomplete' and \
+                checkout_node['data'].get('error_code') == 'node_timeout':
+            return []
+
         result_map = {
             'pass': True,
             'fail': False,
@@ -201,13 +206,18 @@ class KCIDBBridge(Service):
 
     def _parse_build_node(self, origin, node):
         result = node.get('result')
+        error_code = node['data'].get('error_code')
+
+        # Skip timed-out build node submission
+        if result == 'incomplete' and error_code == 'node_timeout':
+            return []
+
         result_map = {
             'pass': True,
             'fail': False,
             'incomplete': None,
         }
         valid = result_map.get(result) if result else None
-        error_code = node['data'].get('error_code')
 
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
@@ -225,9 +235,8 @@ class KCIDBBridge(Service):
                 'job_id': node['data'].get('job_id'),
                 'job_context': node['data'].get('job_context'),
                 'kernel_type': node['data'].get('kernel_type'),
-                'error_code': error_code if error_code != 'node_timeout' else None,
-                'error_msg': node['data'].get('error_msg')
-                if error_code != 'node_timeout' else None,
+                'error_code': error_code,
+                'error_msg': node['data'].get('error_msg'),
             }
         }
         artifacts = node.get('artifacts')
@@ -376,6 +385,11 @@ the test: {sub_path}")
         return data
 
     def _parse_test_node(self, origin, test_node):
+        # Do not submit "timed-out" test node to KCIDB
+        if test_node['result'] == 'incomplete' and \
+                test_node['data'].get('error_code') == 'node_timeout':
+            return {}, {}
+
         dummy_build = {}
         is_checkout_child = False
         build_node = self._get_parent_build_node(test_node)
@@ -468,6 +482,9 @@ in {runtime}",
         test_node, build_node = self._parse_test_node(
             origin, node
         )
+        if not test_node:
+            return
+
         if not test_node['path']:
             self.log.info(f"Not sending test as path information is missing: {test_node['id']}")
             return
