@@ -380,10 +380,8 @@ the test: {sub_path}")
         return data
 
     def _parse_test_node(self, origin, test_node):
-        # Do not submit "timed-out" test node to KCIDB
-        if test_node['result'] == 'incomplete' and \
-                test_node['data'].get('error_code') == 'node_timeout':
-            return {}, {}
+        # We submit incomplete test nodes to KCIDB
+        # As they might have useful information
 
         dummy_build = {}
         is_checkout_child = False
