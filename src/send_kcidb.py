@@ -513,6 +513,7 @@ in {runtime}",
         node['processed_by_kcidb_bridge'] = True
         try:
             self._api.node.update(node)
+            self.log.info(f"Node {node['id']} marked as processed")
         except Exception as exc:
             self.log.error(f"Failed to update node {node['id']}: {str(exc)}")
 
@@ -558,7 +559,9 @@ in {runtime}",
 
             if not node:
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
-            self.log.info(f"Received an event for node: {node['id']}")
+                self.log.info(f"Received an event for node: {node['id']}")
+            else:
+                self.log.info(f"Found an unprocessed node: {node['id']}")
 
             # Submit nodes with service origin only for staging pipeline
             if self._current_user['username'] in ('staging.kernelci.org',
