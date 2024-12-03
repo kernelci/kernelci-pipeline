@@ -529,7 +529,7 @@ in {runtime}",
 
     def _find_unprocessed_node(self):
         """
-        Search for 24h nodes that were not sent to KCIDB
+        Search for 96h nodes that were not sent to KCIDB
         This is nodes in available/completed state, and where flag
         sent_kcidb is not set
         If we don't have anymore unprocessed nodes, we will wait for 30 minutes
@@ -541,7 +541,7 @@ in {runtime}",
         nodes = self._api.node.find({
             'state': ('done', 'available'),
             'processed_by_kcidb_bridge': False,
-            'created__gt': datetime.datetime.now() - datetime.timedelta(days=1)
+            'created__gt': datetime.datetime.now() - datetime.timedelta(days=4)
         })
         if nodes:
             return nodes[0]
