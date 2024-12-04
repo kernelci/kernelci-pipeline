@@ -510,9 +510,11 @@ in {runtime}",
         Data in node might be invalid, and not really sent to kcidb
         This is workaround, until we improve event handling in kernelci-pipeline/api
         """
+        if node['processed_by_kcidb_bridge']:
+            return
         node['processed_by_kcidb_bridge'] = True
         try:
-            self._api.node.update(node)
+            self._api.node.update(node, noevent=True)
             self.log.info(f"Node {node['id']} marked as processed")
         except Exception as exc:
             self.log.error(f"Failed to update node {node['id']}: {str(exc)}")
@@ -550,18 +552,64 @@ in {runtime}",
             self._last_unprocessed_search = time.time()
         return []
 
+    def _submit_parsed_data(self, checkouts, builds, tests, issues, incidents, ctx_client):
+        revision = {
+            'checkouts': checkouts,
+            'builds': builds,
+            'tests': tests,
+            'issues': issues,
+            'incidents': incidents,
+            'version': {
+                'major': 4,
+                'minor': 5
+            }
+        }
+        self._send_revision(ctx_client, revision)
+        if len(checkouts) > 0:
+            for checkout in checkouts:
+                self.log.info(f"Sent checkout node: {checkout['id']}")
+        if len(builds) > 0:
+            for build in builds:
+                self.log.info(f"Sent build node: {build['id']}")
+        if len(tests) > 0:
+            for test in tests:
+                self.log.info(f"Sent test node: {test['id']}")
+        if len(issues) > 0:
+            for issue in issues:
+                self.log.info(f"Sent issue node: {issue['id']}")
+        if len(incidents) > 0:
+            for incident in incidents:
+                self.log.info(f"Sent incident node: {incident['id']}")
+
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
         nodes = []
+        batchcheckouts = []
+        batchbuilds = []
+        batchtests = []
+        batchissues = []
+        batchincidents = []
 
         while True:
             is_hierarchy = False
             if not nodes or len(nodes) == 0:
+                # if no batched nodes to process anymore, submit accumulated data
+                if len(batchcheckouts) > 0 or len(batchbuilds) > 0 or len(batchtests) > 0 or\
+                   len(batchissues) > 0 or len(batchincidents) > 0:
+                    self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
+                                             batchissues, batchincidents, context['client'])
+                # and reset the lists
+                batchcheckouts = []
+                batchbuilds = []
+                batchtests = []
+                batchissues = []
+                batchincidents = []
+                # If we have no more batched nodes to process, try to find new ones
                 nodes = self._find_unprocessed_node()
                 self.log.info(f"Found {len(nodes)} unprocessed nodes")
 
-            if not nodes:
+            if not nodes or len(nodes) == 0:
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 self.log.info(f"Received an event for node: {node['id']}")
             else:
@@ -585,15 +633,19 @@ in {runtime}",
             if node['kind'] == 'checkout':
                 parsed_checkout_node = self._parse_checkout_node(
                     context['origin'], node)
+                batchcheckouts.extend(parsed_checkout_node)
 
             elif node['kind'] == 'kbuild':
                 parsed_build_node = self._parse_build_node(
                     context['origin'], node
                 )
+                batchbuilds.extend(parsed_build_node)
 
             elif node['kind'] == 'test':
                 self._get_test_data(node, context['origin'],
                                     parsed_test_node, parsed_build_node)
+                batchtests.extend(parsed_test_node)
+                batchbuilds.extend(parsed_build_node)
 
             elif node['kind'] == 'job':
                 # Send job node
@@ -602,6 +654,8 @@ in {runtime}",
                 if is_hierarchy:
                     self._get_test_data_recursively(node, context['origin'],
                                                     parsed_test_node, parsed_build_node)
+                batchtests.extend(parsed_test_node)
+                batchbuilds.extend(parsed_build_node)
 
             for parsed_node in parsed_build_node:
                 if parsed_node.get('valid') is False and parsed_node.get('log_url'):
@@ -613,6 +667,9 @@ in {runtime}",
                     if issues_and_incidents:
                         issues.extend(issues_and_incidents.get('issues', []))
                         incidents.extend(issues_and_incidents.get('incidents', []))
+                        batchissues.extend(issues)
+                        batchincidents.extend(incidents)
+
                         self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
                     else:
                         self.log.warning("logspec: Could not generate any issues or "
@@ -628,23 +685,12 @@ in {runtime}",
                     if issues_and_incidents:
                         issues.extend(issues_and_incidents.get('issues', []))
                         incidents.extend(issues_and_incidents.get('incidents', []))
+                        batchissues.extend(issues)
+                        batchincidents.extend(incidents)
                         self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
                     else:
                         self.log.warning("logspec: Could not generate any issues or "
                                          f"incidents for test node {parsed_node['id']}")
-
-            revision = {
-                'checkouts': parsed_checkout_node,
-                'builds': parsed_build_node,
-                'tests': parsed_test_node,
-                'issues': issues,
-                'incidents': incidents,
-                'version': {
-                    'major': 4,
-                    'minor': 5
-                }
-            }
-            self._send_revision(context['client'], revision)
 
             # mark the node as processed, sent_kcidb field to True
             # TBD: job nodes might have child nodes, mark them as processed as well
