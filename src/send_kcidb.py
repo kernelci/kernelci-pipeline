@@ -58,6 +58,8 @@ class KCIDBBridge(Service):
         self._platforms = configs['platforms']
         self._lava_labs = {}
         self._last_unprocessed_search = None
+        self._nodecache = {}
+        self._excerptcache = {}
         for runtime_name, runtime_configs in configs['runtimes'].items():
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
@@ -187,6 +189,9 @@ class KCIDBBridge(Service):
     def _get_log_excerpt(self, log_url):
         """Parse compressed(gzip) or text log file and return last 16*1024 characters as it's
         the maximum allowed length for KCIDB `log_excerpt` field"""
+        # is log_url in cache?
+        if log_url in self._excerptcache:
+            return self._excerptcache[log_url]
         try:
             res = requests.get(log_url, timeout=60)
             if res.status_code != 200:
@@ -200,11 +205,15 @@ class KCIDBBridge(Service):
             buffer_data = io.BytesIO(res.content)
             with gzip.open(buffer_data, mode='rt') as fp:
                 data = fp.read()
-                return data[-(16*1024):]
+                trunc_data = data[-(16*1024):]
+                self._excerptcache[log_url] = trunc_data
+                return trunc_data
         except gzip.BadGzipFile:
             # parse text file such as kunit log file `test_log`
             data = res.content.decode("utf-8")
-            return data[-(16*1024):]
+            trunc_data = data[-(16*1024):]
+            self._excerptcache[log_url] = trunc_data
+            return trunc_data
 
     def _parse_build_node(self, origin, node):
         result = node.get('result')
@@ -265,6 +274,15 @@ class KCIDBBridge(Service):
             else:
                 new_path += char
         return new_path
+    
+    def _get_node_cached(self, node_id):
+        if node_id in self._nodecache:
+            return self._nodecache[node_id]
+        else:
+            node = self._api.node.get(node_id)
+            if node:
+                self._nodecache[node_id] = node
+                return node
 
     def _parse_node_path(self, path, is_checkout_child):
         """Parse and create KCIDB schema compatible node path
@@ -320,7 +338,7 @@ the test: {sub_path}")
         return test_node['result'].upper()
 
     def _get_parent_build_node(self, node):
-        node = self._api.node.get(node['parent'])
+        node = self._get_node_cached(node['parent'])
         if node['kind'] == 'kbuild' or node['kind'] == 'checkout':
             return node
         return self._get_parent_build_node(node)
@@ -346,7 +364,8 @@ the test: {sub_path}")
         artifacts = node.get('artifacts')
         if not artifacts:
             if node.get('parent'):
-                parent = self._api.node.get(node['parent'])
+                #parent = self._api.node.get(node['parent'])
+                parent = self._get_node_cached(node['parent'])
                 if parent:
                     artifacts = self._get_artifacts(parent)
         return artifacts
@@ -360,7 +379,8 @@ the test: {sub_path}")
         data = node.get('data')
         if not data.get('job_id'):
             if node.get('parent'):
-                parent = self._api.node.get(node['parent'])
+                #parent = self._api.node.get(node['parent'])
+                parent = self._get_node_cached(node['parent'])
                 if parent:
                     data = self._get_job_metadata(parent)
         return data
@@ -374,7 +394,8 @@ the test: {sub_path}")
         data = node.get('data')
         if not data.get('error_code'):
             if node.get('parent'):
-                parent = self._api.node.get(node['parent'])
+                #parent = self._api.node.get(node['parent'])
+                parent = self._get_node_cached(node['parent'])
                 if parent:
                     data = self._get_error_metadata(parent)
         return data
@@ -503,33 +524,28 @@ in {runtime}",
                 self._get_test_data_recursively(child, origin, parsed_test_node,
                                                 parsed_build_node)
 
-    def _node_processed(self, node):
+    def _nodes_processed(self, nodes):
         """
         Mark the node as processed, sent_kcidb field to True
         That means kcidb has received the node, and at least tried to process it
         Data in node might be invalid, and not really sent to kcidb
         This is workaround, until we improve event handling in kernelci-pipeline/api
         """
-        if node['processed_by_kcidb_bridge']:
-            return
-        node['processed_by_kcidb_bridge'] = True
-        try:
-            self._api.node.update(node, noevent=True)
-            self.log.info(f"Node {node['id']} marked as processed")
-        except Exception as exc:
-            self.log.error(f"Failed to update node {node['id']}: {str(exc)}")
+        self.log.info(f"Marking {len(nodes)} nodes flag as processed")
+        self._api.node.bulkset(nodes, 'processed_by_kcidb_bridge', 'True')
 
     def _node_processed_recursively(self, node):
         """
         Mark the node and its child nodes as processed
         """
+        nodeids = []
         child_nodes = self._api.node.find({'parent': node['id']})
         if child_nodes:
             for child in child_nodes:
-                self._node_processed_recursively(child)
-        self._node_processed(node)
+                nodeids.append(child['id'])
+        return nodeids
 
-    def _find_unprocessed_node(self):
+    def _find_unprocessed_node(self, chunksize):
         """
         Search for 96h nodes that were not sent to KCIDB
         This is nodes in available/completed state, and where flag
@@ -544,7 +560,7 @@ in {runtime}",
             'state': 'done',
             'processed_by_kcidb_bridge': False,
             'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
-            'limit': 100
+            'limit': chunksize
         })
         if nodes:
             return nodes
@@ -584,12 +600,14 @@ in {runtime}",
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
+        chunksize = 500
         nodes = []
         batchcheckouts = []
         batchbuilds = []
         batchtests = []
         batchissues = []
         batchincidents = []
+        batchnodes = []
 
         while True:
             is_hierarchy = False
@@ -597,16 +615,32 @@ in {runtime}",
                 # if no batched nodes to process anymore, submit accumulated data
                 if len(batchcheckouts) > 0 or len(batchbuilds) > 0 or len(batchtests) > 0 or\
                    len(batchissues) > 0 or len(batchincidents) > 0:
-                    self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
-                                             batchissues, batchincidents, context['client'])
+                    try:
+                        self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
+                                                 batchissues, batchincidents, context['client'])
+                        chunksize = 500
+                    except Exception as exc:
+                        self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
+                        # do not mark nodes as processed, as they were not sent to KCIDB
+                        batchnodes = []
+                        # sometimes we get too much data and exceed gcloud limits,
+                        # try to send smaller chunks
+                        chunksize = 50
+
+                if len(batchnodes) > 0:
+                    self._nodes_processed(batchnodes)
                 # and reset the lists
                 batchcheckouts = []
                 batchbuilds = []
                 batchtests = []
                 batchissues = []
                 batchincidents = []
+                batchnodes = []
+                # clean caches
+                self._nodecache = {}
+                self._excerptcache = {}
                 # If we have no more batched nodes to process, try to find new ones
-                nodes = self._find_unprocessed_node()
+                nodes = self._find_unprocessed_node(chunksize)
                 self.log.info(f"Found {len(nodes)} unprocessed nodes")
 
             if not nodes or len(nodes) == 0:
@@ -621,7 +655,7 @@ in {runtime}",
                                                   'production'):
                 if node['submitter'] != 'service:pipeline':
                     self.log.debug(f"Not sending node to KCIDB: {node['id']}")
-                    self._node_processed(node)
+                    batchnodes.append(node['id'])
                     continue
 
             parsed_checkout_node = []
@@ -694,9 +728,10 @@ in {runtime}",
 
             # mark the node as processed, sent_kcidb field to True
             # TBD: job nodes might have child nodes, mark them as processed as well
-            self._node_processed(node)
+            batchnodes.append(node['id'])
             if is_hierarchy:
-                self._node_processed_recursively(node)
+                childnodes = self._node_processed_recursively(node)
+                batchnodes.extend(childnodes)
         return True
 
 
