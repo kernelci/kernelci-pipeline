@@ -539,7 +539,7 @@ in {runtime}",
                 time.time() - self._last_unprocessed_search < 30 * 60:
             return None
         nodes = self._api.node.find({
-            'state': ('done', 'available'),
+            'state': 'done',
             'processed_by_kcidb_bridge': False,
             'created__gt': datetime.datetime.now() - datetime.timedelta(days=4)
         })
@@ -568,6 +568,7 @@ in {runtime}",
                                                   'production'):
                 if node['submitter'] != 'service:pipeline':
                     self.log.debug(f"Not sending node to KCIDB: {node['id']}")
+                    self._node_processed(node)
                     continue
 
             parsed_checkout_node = []
