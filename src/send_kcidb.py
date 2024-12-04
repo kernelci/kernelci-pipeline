@@ -542,7 +542,7 @@ in {runtime}",
             'state': 'done',
             'processed_by_kcidb_bridge': False,
             'created__gt': datetime.datetime.now() - datetime.timedelta(days=4)
-        })
+        }, limit=1)
         if nodes:
             return nodes[0]
         else:
