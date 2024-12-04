@@ -40,6 +40,9 @@ object_types = {
 
 def get_log(url, snippet_lines=0):
     """Fetches a text log given its url.
+    url can be a file path or an http(s) url, supporting
+    schema file://, http:// and https://
+
     Returns:
       If the log file couldn't be retrieved by any reason: None
       Otherwise:
@@ -47,14 +50,28 @@ def get_log(url, snippet_lines=0):
         If snippet_lines > 0: the first snippet_lines log lines
         If snippet_lines < 0: the last snippet_lines log lines
     """
-    response = requests.get(url)
-    if not len(response.content):
-        return None
+    schema = url.split(':')[0]
+    # if schema is file
+    if schema == 'file':
+        # url is then file:///path/to/file
+        path = url.split('file://')[1]
+        try:
+            with open(path, 'r') as f:
+                raw_data = f.read()
+        except FileNotFoundError:
+            return None
+
+    if schema == 'http' or schema == 'https':
+        response = requests.get(url)
+        if not len(response.content):
+            return None
+        raw_data = response.content
+
     try:
-        raw_bytes = gzip.decompress(response.content)
+        raw_bytes = gzip.decompress(raw_data)
         text = raw_bytes.decode('utf-8')
     except gzip.BadGzipFile:
-        text = response.text
+        text = raw_data.decode('utf-8')
     if snippet_lines > 0:
         lines = text.splitlines()
         return '\n'.join(lines[:snippet_lines])
@@ -85,7 +102,7 @@ def get_logspec_errors(parsed_data, parser):
         logspec_dict['error']['signature'] = error._signature
         logspec_dict['error']['log_excerpt'] = error._report
         logspec_dict['error']['signature_fields'] = {
-            field:getattr(error, field)
+            field: getattr(error, field)
             for field in error._signature_fields}
         errors_list.append(logspec_dict)
     return errors_list
