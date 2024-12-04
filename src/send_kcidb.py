@@ -542,27 +542,31 @@ in {runtime}",
             'state': 'done',
             'processed_by_kcidb_bridge': False,
             'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
-            'limit': 1
+            'limit': 100
         })
         if nodes:
-            return nodes[0]
+            return nodes
         else:
             self._last_unprocessed_search = time.time()
-        return None
+        return []
 
     def _run(self, context):
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
+        nodes = []
 
         while True:
             is_hierarchy = False
-            node = self._find_unprocessed_node()
+            if not nodes or len(nodes) == 0:
+                nodes = self._find_unprocessed_node()
+                self.log.info(f"Found {len(nodes)} unprocessed nodes")
 
-            if not node:
+            if not nodes:
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 self.log.info(f"Received an event for node: {node['id']}")
             else:
-                self.log.info(f"Found an unprocessed node: {node['id']}")
+                node = nodes.pop()
+                self.log.info(f"Processing unprocessed node: {node['id']}")
 
             # Submit nodes with service origin only for staging pipeline
             if self._current_user['username'] in ('staging.kernelci.org',
