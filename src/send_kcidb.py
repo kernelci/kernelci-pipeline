@@ -585,11 +585,11 @@ in {runtime}",
         Search for 96h nodes that were not sent to KCIDB
         This is nodes in available/completed state, and where flag
         sent_kcidb is not set
-        If we don't have anymore unprocessed nodes, we will wait for 30 minutes
+        If we don't have anymore unprocessed nodes, we will wait for 5 minutes
         before we search again.
         """
         if self._last_unprocessed_search and \
-                time.time() - self._last_unprocessed_search < 30 * 60:
+                time.time() - self._last_unprocessed_search < 5 * 60:
             return None
         nodes = self._api.node.findfast({
             'state': 'done',
@@ -597,10 +597,11 @@ in {runtime}",
             'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
             'limit': chunksize
         })
+
+        if len(nodes) < chunksize:
+            self._last_unprocessed_search = time.time()
         if nodes:
             return nodes
-        else:
-            self._last_unprocessed_search = time.time()
         return []
 
     def _submit_parsed_data(self, checkouts, builds, tests, issues, incidents, ctx_client):
@@ -676,7 +677,10 @@ in {runtime}",
                 self._excerptcache = {}
                 # If we have no more batched nodes to process, try to find new ones
                 nodes = self._find_unprocessed_node(chunksize)
-                self.log.info(f"Found {len(nodes)} unprocessed nodes")
+                if nodes:
+                    self.log.info(f"Found {len(nodes)} unprocessed nodes")
+                else:
+                    self.log.info("No more unprocessed nodes found, switching to event mode")
 
             if not nodes or len(nodes) == 0:
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
