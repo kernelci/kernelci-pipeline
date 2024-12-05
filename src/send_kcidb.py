@@ -58,6 +58,7 @@ class KCIDBBridge(Service):
         self._platforms = configs['platforms']
         self._lava_labs = {}
         self._last_unprocessed_search = None
+        self._nodecache = {}
         for runtime_name, runtime_configs in configs['runtimes'].items():
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
@@ -320,7 +321,13 @@ the test: {sub_path}")
         return test_node['result'].upper()
 
     def _get_parent_build_node(self, node):
-        node = self._api.node.get(node['parent'])
+        # is node in nodecache?
+        if node['id'] in self._nodecache:
+            node = self._nodecache[node['id']]
+        else:
+            node = self._api.node.get(node['parent'])
+            if node:
+                self._nodecache[node['id']] = node
         if node['kind'] == 'kbuild' or node['kind'] == 'checkout':
             return node
         return self._get_parent_build_node(node)
@@ -503,31 +510,26 @@ in {runtime}",
                 self._get_test_data_recursively(child, origin, parsed_test_node,
                                                 parsed_build_node)
 
-    def _node_processed(self, node):
+    def _nodes_processed(self, nodes):
         """
         Mark the node as processed, sent_kcidb field to True
         That means kcidb has received the node, and at least tried to process it
         Data in node might be invalid, and not really sent to kcidb
         This is workaround, until we improve event handling in kernelci-pipeline/api
         """
-        if node['processed_by_kcidb_bridge']:
-            return
-        node['processed_by_kcidb_bridge'] = True
-        try:
-            self._api.node.update(node, noevent=True)
-            self.log.info(f"Node {node['id']} marked as processed")
-        except Exception as exc:
-            self.log.error(f"Failed to update node {node['id']}: {str(exc)}")
+        self.log.info(f"Marking {len(nodes)} nodes flag as processed")
+        self._api.node.bulkset(nodes, 'processed_by_kcidb_bridge', 'True')
 
     def _node_processed_recursively(self, node):
         """
         Mark the node and its child nodes as processed
         """
+        nodeids = []
         child_nodes = self._api.node.find({'parent': node['id']})
         if child_nodes:
             for child in child_nodes:
-                self._node_processed_recursively(child)
-        self._node_processed(node)
+                nodeids.append(child['id'])
+        return nodeids
 
     def _find_unprocessed_node(self):
         """
@@ -590,6 +592,7 @@ in {runtime}",
         batchtests = []
         batchissues = []
         batchincidents = []
+        batchnodes = []
 
         while True:
             is_hierarchy = False
@@ -599,12 +602,17 @@ in {runtime}",
                    len(batchissues) > 0 or len(batchincidents) > 0:
                     self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
                                              batchissues, batchincidents, context['client'])
+                if len(batchnodes) > 0:
+                    self._nodes_processed(batchnodes)
                 # and reset the lists
                 batchcheckouts = []
                 batchbuilds = []
                 batchtests = []
                 batchissues = []
                 batchincidents = []
+                batchnodes = []
+                # clean node cache
+                self._nodecache = {}
                 # If we have no more batched nodes to process, try to find new ones
                 nodes = self._find_unprocessed_node()
                 self.log.info(f"Found {len(nodes)} unprocessed nodes")
@@ -621,7 +629,7 @@ in {runtime}",
                                                   'production'):
                 if node['submitter'] != 'service:pipeline':
                     self.log.debug(f"Not sending node to KCIDB: {node['id']}")
-                    self._node_processed(node)
+                    batchnodes.append(node['id'])
                     continue
 
             parsed_checkout_node = []
@@ -694,9 +702,10 @@ in {runtime}",
 
             # mark the node as processed, sent_kcidb field to True
             # TBD: job nodes might have child nodes, mark them as processed as well
-            self._node_processed(node)
+            batchnodes.append(node['id'])
             if is_hierarchy:
-                self._node_processed_recursively(node)
+                childnodes = self._node_processed_recursively(node)
+                batchnodes.extend(childnodes)
         return True
 
 
