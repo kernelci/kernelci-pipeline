@@ -29,10 +29,6 @@ spec:
             - --yaml-config=/config
             - loop
             - --name=scheduler_lava
-            - --runtimes
-            - lava-collabora
-            - lava-broonie
-            - lava-baylibre
           env:
             - name: KCI_API_TOKEN
               valueFrom:
