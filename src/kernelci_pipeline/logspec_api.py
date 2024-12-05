@@ -114,7 +114,10 @@ def new_issue(logspec_error, object_type):
         'comment': comment,
         'misc': {
             'logspec': error_copy
-        }
+        },
+        # Set culprit_code to True by default
+        # OBS: this needs to be reviewed on every logspec upgrade
+        'culprit': {'code': True}
     }
     if 'build_valid' in object_types[object_type]:
         issue['build_valid'] = object_types[object_type]['build_valid']
