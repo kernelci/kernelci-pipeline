@@ -56,7 +56,7 @@ def get_log(url, snippet_lines=0):
         # url is then file:///path/to/file
         path = url.split('file://')[1]
         try:
-            with open(path, 'r') as f:
+            with open(path, 'rb') as f:
                 raw_data = f.read()
         except FileNotFoundError:
             return None
