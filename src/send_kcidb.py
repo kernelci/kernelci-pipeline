@@ -450,7 +450,11 @@ the test: {sub_path}")
         platform = test_node['data'].get('platform')
         compatible = None
         if platform:
-            compatible = self._platforms[platform].compatible
+            platformobj = self._platforms.get(platform)
+            if platformobj:
+                compatible = platformobj.compatible
+            else:
+                self.log.error(f"Platform {platform} not found in the platform list")
 
         runtime = test_node['data'].get('runtime')
         misc = test_node['data'].get('misc')
