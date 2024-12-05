@@ -193,4 +193,5 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
             incidents.append(new_incident(result_id, issue_id, object_type, issue_version))
     # Return the new issues and incidents as a formatted dict
     if issues or incidents:
-        return generate_output_dict(issues, incidents)
+        unique_issues = list({issue["id"]: issue for issue in issues}.values())
+        return generate_output_dict(unique_issues, incidents)
