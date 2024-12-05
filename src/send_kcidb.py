@@ -220,10 +220,11 @@ class KCIDBBridge(Service):
     def _cache_expire(self):
         """Read list of files /tmp/cached_* and remove the oldest one
         if there is more than 100 files"""
-        cached_files = [f for f in os.listdir("/tmp") if f.startswith("cached_")]
+        cached_files = [os.path.join("/tmp", f) for f in
+                        os.listdir("/tmp") if f.startswith("cached_")]
         if len(cached_files) > 100:
             oldest_file = min(cached_files, key=os.path.getctime)
-            os.remove(f"/tmp/{oldest_file}")
+            os.remove(f"{oldest_file}")
 
     def _cached_fetch(self, url):
         """
@@ -747,7 +748,7 @@ in {runtime}",
                     local_url = f"file://{local_file}"
                     issues_and_incidents = generate_issues_and_incidents(
                         parsed_node['id'],
-                        parsed_node['log_url'],
+                        local_url,
                         "test",
                         context['kcidb_oo_client'])
                     if issues_and_incidents:
