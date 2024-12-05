@@ -177,15 +177,6 @@ def process_log(log_url, parser, start_state):
     return get_logspec_errors(parsed_data, parser)
 
 
-def get_issue_from_db(oo_client, signature):
-    """Get existing issue matching ID from DB"""
-    data = oo_client.query(kcidb.orm.query.Pattern.parse(f">issue[maestro:{signature}]#"))
-    if len(data['issue']):
-        issue = data['issue'][0]
-        return issue
-    return None
-
-
 def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
     """Generate issues and incidents"""
     start_state = logspec.main.load_parser(object_types[object_type]['parser'])
@@ -195,15 +186,10 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
     incidents = []
     for error in error_list:
         if error and error['error'].get('signature'):
-            issue = get_issue_from_db(oo_client, error['error']['signature'])
-            if issue:
-                issue_id = issue.id
-                issue_version = issue.version_num
-            else:
-                issue = new_issue(error, object_type)
-                issues.append(issue)
-                issue_id = issue["id"]
-                issue_version = issue["version"]
+            issue = new_issue(error, object_type)
+            issues.append(issue)
+            issue_id = issue["id"]
+            issue_version = issue["version"]
             incidents.append(new_incident(result_id, issue_id, object_type, issue_version))
     # Return the new issues and incidents as a formatted dict
     if issues or incidents:
