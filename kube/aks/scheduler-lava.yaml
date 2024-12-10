@@ -31,8 +31,11 @@ spec:
             - --name=scheduler_lava
             - --runtimes
             - lava-collabora
+            - lava-collabora-staging
             - lava-broonie
             - lava-baylibre
+            - lava-qualcomm
+            - lava-cip
           env:
             - name: KCI_API_TOKEN
               valueFrom:
