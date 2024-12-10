@@ -94,6 +94,13 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_lava'
+      - '--runtimes'
+      - 'lava-collabora'
+      - 'lava-collabora-staging'
+      - 'lava-broonie'
+      - 'lava-baylibre'
+      - 'lava-qualcomm'
+      - 'lava-cip'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
