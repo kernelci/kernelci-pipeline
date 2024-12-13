@@ -546,17 +546,17 @@ scheduler:
   - job: tast-power-x86-intel
     <<: *test-job-chromeos-intel
 
-#  - job: tast-sound-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
+  - job: tast-sound-arm64-mediatek
+    <<: *test-job-chromeos-mediatek
 
-#  - job: tast-sound-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
+  - job: tast-sound-arm64-qualcomm
+    <<: *test-job-chromeos-qualcomm
 
-#  - job: tast-sound-x86-amd
-#    <<: *test-job-chromeos-amd
+  - job: tast-sound-x86-amd
+    <<: *test-job-chromeos-amd
 
-#  - job: tast-sound-x86-intel
-#    <<: *test-job-chromeos-intel
+  - job: tast-sound-x86-intel
+    <<: *test-job-chromeos-intel
 
   - job: tast-ui-arm64-mediatek
     <<: *test-job-chromeos-mediatek
