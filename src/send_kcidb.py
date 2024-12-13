@@ -751,7 +751,9 @@ in {runtime}",
                                          f"incidents for build node {parsed_node['id']}")
 
             for parsed_node in parsed_test_node:
-                if parsed_node.get('status') == 'FAIL' and parsed_node.get('log_url'):
+                if parsed_node.get('status') == 'FAIL' \
+                        and parsed_node.get('log_url') \
+                        and parsed_node.get('path').startswith('boot'):
                     local_file = self._cached_fetch(parsed_node['log_url'])
                     local_url = f"file://{local_file}"
                     issues_and_incidents = generate_issues_and_incidents(
