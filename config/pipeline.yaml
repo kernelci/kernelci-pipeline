@@ -1850,6 +1850,18 @@ jobs:
       sleep_params: mem freeze
     kcidb_test_suite: kernelci_sleep
 
+  h26forge-debian:
+    template: generic.jinja2
+    kind: job
+    params:
+      test_method: h26forge-debian
+      boot_commands: nfs
+      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-gst-h26forge/20250109.0/{debarch}/'
+    rules:
+      tree:
+        - media
+    kcidb_test_suite: h26forge.debian
+
 trees:
 
   amlogic:
@@ -3137,6 +3149,13 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - acer-chromebox-cxi4-puff
+
+  - job: h26forge-debian
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
