@@ -484,6 +484,17 @@ _anchors:
         - next
         - collabora-chromeos-kernel
 
+  h26forge-debian: &h26forge-debian-job
+    template: 'h26forge-debian.jinja2'
+    kind: job
+    params: &h264forge-debian-params
+      test_method: h26forge-debian
+      boot_commands: nfs
+      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-gst-h26forge/20241218.0/{debarch}/'
+   rules:
+      tree:
+        - mainline
+
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
     kind: job
