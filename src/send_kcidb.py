@@ -654,14 +654,16 @@ in {runtime}",
                     try:
                         self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
                                                  batchissues, batchincidents, context['client'])
-                        chunksize = 200
+                        # temporary restricted to 25, old value was 200
+                        chunksize = 25
                     except Exception as exc:
                         self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
                         # do not mark nodes as processed, as they were not sent to KCIDB
                         batchnodes = []
                         # sometimes we get too much data and exceed gcloud limits,
                         # try to send smaller chunks
-                        chunksize = 50
+                        # Temporary restricted to 5, old value was 50
+                        chunksize = 5
 
                 if len(batchnodes) > 0:
                     self._nodes_processed(batchnodes)
