@@ -373,6 +373,8 @@ the test: {sub_path}")
 
     def _get_parent_build_node(self, node):
         node = self._get_node_cached(node['parent'])
+        if not node:
+            return None
         if node['kind'] == 'kbuild' or node['kind'] == 'checkout':
             return node
         return self._get_parent_build_node(node)
@@ -438,6 +440,14 @@ the test: {sub_path}")
         dummy_build = {}
         is_checkout_child = False
         build_node = self._get_parent_build_node(test_node)
+        if not build_node:
+            # broken test node, no parent build node found
+            self.log.error(f"Parent build node not found for test node: {test_node['id']}")
+            # forcefully set this node as processed, it is broken
+            nodes = []
+            nodes.append(test_node['id'])
+            self._nodes_processed(nodes)
+            return None, None
         # Create dummy build node if test is hanging directly from checkout
         if build_node['kind'] == 'checkout':
             is_checkout_child = True
