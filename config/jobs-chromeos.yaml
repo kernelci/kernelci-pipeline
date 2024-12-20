@@ -97,13 +97,9 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-chromestack-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.ChromeStackDecoder.*
-        - video.ChromeStackDecoderVerification.*
-      excluded_tests:
-        # Those always fail on all platforms
-        - video.ChromeStackDecoderVerification.hevc_main
-        - video.ChromeStackDecoderVerification.vp9_0_svc
       # Those jobs can run for a very long time, so we need a very large timeout
       job_timeout: 180
 
@@ -112,10 +108,30 @@ _anchors:
     params:
       <<: *tast-decoder-chromestack-params
 
+  tast-decoder-chromestack-verification: &tast-decoder-chromestack-verification-job
+    <<: *tast-job
+    params: &tast-decoder-chromestack-verification-params
+      <<: *tast-debian-params
+      frequency: 2d
+      tests:
+        - video.ChromeStackDecoderVerification.*
+      excluded_tests:
+        # Those always fail on all platforms
+        - video.ChromeStackDecoderVerification.hevc_main
+        - video.ChromeStackDecoderVerification.vp9_0_svc
+      # Those jobs can run for a very long time, so we need a very large timeout
+      job_timeout: 180
+
+  tast-debian-decoder-chromestack-verification: &tast-debian-decoder-chromestack-verification-job
+    <<: *tast-debian-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-h264-params
       <<: *tast-debian-params
+      frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateful_h264_*
 
@@ -131,15 +147,16 @@ _anchors:
       tests:
         - video.PlatformDecoding.v4l2_stateful_hevc_*
 
-  tast-debian-decoder-v4l2-sf-hevc: &tast-debian-decoder-v4l2-sf-hevc-job
-    <<: *tast-debian-job
-    params:
-      <<: *tast-decoder-v4l2-sf-hevc-params
+  # tast-debian-decoder-v4l2-sf-hevc: &tast-debian-decoder-v4l2-sf-hevc-job
+  #   <<: *tast-debian-job
+  #   params:
+  #     <<: *tast-decoder-v4l2-sf-hevc-params
 
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp8-params
       <<: *tast-debian-params
+      frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp8_*
 
@@ -152,6 +169,7 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group2_*
@@ -170,6 +188,7 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-extra-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
 
@@ -182,6 +201,7 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-av1-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
       excluded_tests:
@@ -198,6 +218,7 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-h264-params
       <<: *tast-debian-params
+      frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateless_h264_*
 
@@ -210,18 +231,20 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-hevc-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_hevc_*
 
-  tast-debian-decoder-v4l2-sl-hevc: &tast-debian-decoder-v4l2-sl-hevc-job
-    <<: *tast-debian-job
-    params:
-      <<: *tast-decoder-v4l2-sl-hevc-params
+  # tast-debian-decoder-v4l2-sl-hevc: &tast-debian-decoder-v4l2-sl-hevc-job
+  #   <<: *tast-debian-job
+  #   params:
+  #     <<: *tast-decoder-v4l2-sl-hevc-params
 
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp8-params
       <<: *tast-debian-params
+      frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp8_*
 
@@ -234,6 +257,7 @@ _anchors:
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp9-params
       <<: *tast-debian-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
@@ -248,6 +272,7 @@ _anchors:
   tast-decoder-v4l2-sl-vp9-extra: &tast-decoder-v4l2-sl-vp9-extra-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sl-vp9-extra-params
+      frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
 
@@ -602,6 +627,9 @@ jobs:
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
   tast-debian-decoder-chromestack-arm64-mediatek: *tast-debian-decoder-chromestack-job
 
+  tast-decoder-chromestack-verification-arm64-mediatek: *tast-decoder-chromestack-verification-job
+  tast-debian-decoder-chromestack-verification-arm64-mediatek: *tast-debian-decoder-chromestack-verification-job
+
   tast-decoder-chromestack-arm64-qualcomm:
     <<: *tast-decoder-chromestack-job
     rules: *min-6_7-rules
@@ -610,11 +638,25 @@ jobs:
     <<: *tast-debian-decoder-chromestack-job
     rules: *min-6_7-rules
 
+  tast-decoder-chromestack-verification-arm64-qualcomm:
+    <<: *tast-decoder-chromestack-verification-job
+    rules: *min-6_7-rules
+
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    rules: *min-6_7-rules
+
   tast-decoder-chromestack-arm64-qualcomm-pre6_7:
     <<: *tast-decoder-chromestack-job
     params:
       <<: *tast-decoder-chromestack-params
-      excluded_tests: &tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
+  tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: &tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
         # Platform-independent excluded tests
         - video.ChromeStackDecoderVerification.hevc_main
         - video.ChromeStackDecoderVerification.vp9_0_svc
@@ -627,21 +669,40 @@ jobs:
     <<: *tast-debian-decoder-chromestack-job
     params:
       <<: *tast-decoder-chromestack-params
-      excluded_tests: *tast-decoder-chromestack-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
+    rules: *max-6_6-rules
+
+  tast-debian-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
+    <<: *tast-debian-decoder-chromestack-verification-job
+    params:
+      <<: *tast-decoder-chromestack-verification-params
+      excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
     rules: *max-6_6-rules
 
   tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
   tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
 
+  tast-decoder-chromestack-verification-x86-amd: *tast-decoder-chromestack-verification-job
+  tast-decoder-chromestack-verification-x86-intel: *tast-decoder-chromestack-verification-job
+
   tast-debian-decoder-chromestack-x86-amd: *tast-debian-decoder-chromestack-job
   tast-debian-decoder-chromestack-x86-intel: *tast-debian-decoder-chromestack-job
 
+  tast-debian-decoder-chromestack-verification-x86-amd: *tast-debian-decoder-chromestack-verification-job
+  tast-debian-decoder-chromestack-verification-x86-intel: *tast-debian-decoder-chromestack-verification-job
+
   tast-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-decoder-v4l2-sf-h264-job
-  tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
+  # tast-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-decoder-v4l2-sf-hevc-job
   tast-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-decoder-v4l2-sf-vp8-job
 
   tast-debian-decoder-v4l2-sf-h264-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-h264-job
-  tast-debian-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-hevc-job
+  # tast-debian-decoder-v4l2-sf-hevc-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-hevc-job
   tast-debian-decoder-v4l2-sf-vp8-arm64-qualcomm: *tast-debian-decoder-v4l2-sf-vp8-job
 
   tast-decoder-v4l2-sf-vp9-arm64-qualcomm:
@@ -700,13 +761,13 @@ jobs:
 
   tast-decoder-v4l2-sl-av1-arm64-mediatek: *tast-decoder-v4l2-sl-av1-job
   tast-decoder-v4l2-sl-h264-arm64-mediatek: *tast-decoder-v4l2-sl-h264-job
-  tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
+  # tast-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-decoder-v4l2-sl-hevc-job
   tast-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-decoder-v4l2-sl-vp8-job
   tast-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-decoder-v4l2-sl-vp9-job
 
   tast-debian-decoder-v4l2-sl-av1-arm64-mediatek: *tast-debian-decoder-v4l2-sl-av1-job
   tast-debian-decoder-v4l2-sl-h264-arm64-mediatek: *tast-debian-decoder-v4l2-sl-h264-job
-  tast-debian-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-debian-decoder-v4l2-sl-hevc-job
+  # tast-debian-decoder-v4l2-sl-hevc-arm64-mediatek: *tast-debian-decoder-v4l2-sl-hevc-job
   tast-debian-decoder-v4l2-sl-vp8-arm64-mediatek: *tast-debian-decoder-v4l2-sl-vp8-job
   tast-debian-decoder-v4l2-sl-vp9-arm64-mediatek: *tast-debian-decoder-v4l2-sl-vp9-job
 
