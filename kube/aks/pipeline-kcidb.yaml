@@ -32,6 +32,10 @@ spec:
                   key: token
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /secrets/kcidb-credentials.json
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
           volumeMounts:
             - name: secrets
               mountPath: /secrets
