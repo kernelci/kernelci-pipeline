@@ -36,6 +36,10 @@ spec:
                 secretKeyRef:
                   name: kernelci-api-token
                   key: token
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
           volumeMounts:
             - name: secrets
               mountPath: /secrets
