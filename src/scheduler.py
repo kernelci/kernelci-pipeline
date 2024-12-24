@@ -77,8 +77,21 @@ class Scheduler(Service):
         self._cleanup_paths()
 
     def _run_job(self, job_config, runtime, platform, input_node):
-        node = self._api_helper.create_job_node(job_config, input_node,
-                                                runtime, platform)
+        try:
+            node = self._api_helper.create_job_node(job_config,
+                                                    input_node,
+                                                    runtime, platform)
+        except KeyError as e:
+            self.log.error(' '.join([
+                input_node['id'],
+                runtime.config.name,
+                platform.name,
+                job_config.name,
+                'Failed to create job node due KeyError:',
+                str(e),
+            ]))
+            return
+
         if not node:
             return
         # Most of the time, the artifacts we need originate from the parent
