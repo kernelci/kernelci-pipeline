@@ -46,6 +46,10 @@ spec:
               value: prod
             - name: KCI_INSTANCE_CALLBACK
               value: https://kernelci-pipeline.westus3.cloudapp.azure.com
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
           volumeMounts:
             - name: secrets
               mountPath: /secrets
