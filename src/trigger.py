@@ -43,7 +43,12 @@ class Trigger(Service):
                (not tree_in_list and tree_condition == "only"):
                 return
 
-        head_commit = kernelci.build.get_branch_head(build_config)
+        try:
+            head_commit = kernelci.build.get_branch_head(build_config)
+        except Exception as ex:
+            self.log.error(f"Failed to get branch head for {build_config.name:32s}")
+            self.traceback(ex)
+            return
         search_terms = {
             "kind": "checkout",
             "data.kernel_revision.commit": head_commit,
