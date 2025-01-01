@@ -363,7 +363,7 @@ platforms:
     dtb: dtbs/qcom/qcs9100-ride.dtb
     compatible: ['qcom,qcs9100-ride', 'qcom,qcs9100']
 
-  qemu: &qemu-device
+  qemu-x86: &qemu-device
     base_name: qemu
     arch: x86_64
     boot_method: qemu
@@ -373,7 +373,7 @@ platforms:
       cpu: qemu64
       guestfs_interface: ide
 
-  qemu-x86: *qemu-device
+  qemu: *qemu-device
 
   rk3288-rock2-square:
     <<: *arm-device
