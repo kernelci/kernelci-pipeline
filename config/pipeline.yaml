@@ -171,6 +171,10 @@ storage:
     <<: *azure-files
     share: staging
 
+  kci-storage:
+    storage_type: backend
+    base_url: http://mon.kernelci.org:3000/
+
 runtimes:
 
   docker:
