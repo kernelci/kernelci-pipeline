@@ -508,14 +508,14 @@ _anchors:
 
 jobs:
 
-  baseline-arm64-mediatek: &baseline-job
+  baseline-arm64-mediatek-chromebook: &baseline-job
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
 
-  baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-qualcomm-chromebook: *baseline-job
 
-  baseline-nfs-arm64-mediatek: &baseline-nfs-job
+  baseline-nfs-arm64-mediatek-chromebook: &baseline-nfs-job
     template: baseline.jinja2
     kind: job
     params:
@@ -523,12 +523,12 @@ jobs:
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
     kcidb_test_suite: boot.nfs
 
-  baseline-nfs-arm64-qualcomm: *baseline-nfs-job
-  baseline-nfs-x86-amd: *baseline-nfs-job
-  baseline-nfs-x86-intel: *baseline-nfs-job
-  baseline-x86-amd: *baseline-job
-  baseline-x86-amd-staging: *baseline-job
-  baseline-x86-intel: *baseline-job
+  baseline-nfs-arm64-qualcomm-chromebook: *baseline-nfs-job
+  baseline-nfs-x86-amd-chromebook: *baseline-nfs-job
+  baseline-nfs-x86-intel-chromebook: *baseline-nfs-job
+  baseline-x86-amd-chromebook: *baseline-job
+  baseline-x86-amd-staging-chromebook: *baseline-job
+  baseline-x86-intel-chromebook: *baseline-job
 
   kbuild-gcc-12-arm64-chromebook:
     <<: *kbuild-gcc-12-arm64-chromeos-job

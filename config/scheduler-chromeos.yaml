@@ -108,46 +108,46 @@ _anchors:
 
 scheduler:
 
-  - job: baseline-arm64-mediatek
+  - job: baseline-arm64-mediatek-chromebook
     <<: *test-job-arm64-mediatek
 
-  - job: baseline-arm64-qualcomm
+  - job: baseline-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
 
-  - job: baseline-arm64-mediatek
+  - job: baseline-arm64-mediatek-chromebook
     <<: *test-job-chromeos-mediatek
 
-  - job: baseline-arm64-qualcomm
+  - job: baseline-arm64-qualcomm-chromebook
     <<: *test-job-chromeos-qualcomm
 
-  - job: baseline-nfs-arm64-mediatek
+  - job: baseline-nfs-arm64-mediatek-chromebook
     <<: *test-job-arm64-mediatek
 
-  - job: baseline-nfs-arm64-mediatek
+  - job: baseline-nfs-arm64-mediatek-chromebook
     <<: *test-job-chromeos-mediatek
 
-  - job: baseline-nfs-arm64-qualcomm
+  - job: baseline-nfs-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
 
-  - job: baseline-nfs-arm64-qualcomm
+  - job: baseline-nfs-arm64-qualcomm-chromebook
     <<: *test-job-chromeos-qualcomm
 
-  - job: baseline-nfs-x86-amd
+  - job: baseline-nfs-x86-amd-chromebook
     <<: *test-job-chromeos-amd
 
-  - job: baseline-nfs-x86-amd
+  - job: baseline-nfs-x86-amd-chromebook
     <<: *test-job-x86-amd
 
-  - job: baseline-nfs-x86-intel
+  - job: baseline-nfs-x86-intel-chromebook
     <<: *test-job-chromeos-intel
 
-  - job: baseline-nfs-x86-intel
+  - job: baseline-nfs-x86-intel-chromebook
     <<: *test-job-x86-intel
 
-  - job: baseline-x86-amd
+  - job: baseline-x86-amd-chromebook
     <<: *test-job-chromeos-amd
 
-  - job: baseline-x86-amd-staging
+  - job: baseline-x86-amd-staging-chromebook
     <<: *test-job-chromeos-amd
     runtime:
       type: lava
@@ -155,13 +155,13 @@ scheduler:
     platforms:
     - dell-latitude-3445-7520c-skyrim
 
-  - job: baseline-x86-amd
+  - job: baseline-x86-amd-chromebook
     <<: *test-job-x86-amd
 
-  - job: baseline-x86-intel
+  - job: baseline-x86-intel-chromebook
     <<: *test-job-chromeos-intel
 
-  - job: baseline-x86-intel
+  - job: baseline-x86-intel-chromebook
     <<: *test-job-x86-intel
 
   - job: kbuild-gcc-12-arm64-chromebook
