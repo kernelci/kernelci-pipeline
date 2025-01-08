@@ -3481,12 +3481,8 @@ build_configs:
     tree: stable
     branch: 'linux-6.6.y'
 
-  stable-rc_4.19: &stable-rc
+  stable-rc_5.4: &stable-rc
     tree: stable-rc
-    branch: 'linux-4.19.y'
-
-  stable-rc_5.4:
-    <<: *stable-rc
     branch: 'linux-5.4.y'
 
   stable-rc_5.10:
@@ -3532,14 +3528,6 @@ build_configs:
   stable-rt_v4.14-rt-next:
     tree: stable-rt
     branch: 'v4.14-rt-next'
-
-  stable-rt_v4.19-rt:
-    tree: stable-rt
-    branch: 'v4.19-rt'
-
-  stable-rt_v4.19-rt-next:
-    tree: stable-rt
-    branch: 'v4.19-rt-next'
 
   stable-rt_v5.4-rt:
     tree: stable-rt
