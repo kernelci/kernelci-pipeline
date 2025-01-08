@@ -1,3 +1,10 @@
+---
+title: "pipeline config reference"
+date: 2025-01-08
+description: "Reference for the KernelCI pipeline config file"
+weight: 4
+---
+
 # Configuration reference
 
 This document is a reference for options available in the KernelCI pipeline
