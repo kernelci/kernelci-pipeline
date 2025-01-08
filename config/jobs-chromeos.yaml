@@ -491,6 +491,10 @@ _anchors:
       test_method: watchdog-reset
       bl_message: 'coreboot-'
       wdt_dev: 'watchdog0'
+    rules:
+      tree:
+        - mainline
+        - stable-rc
     kcidb_test_suite: kernelci_watchdog_reset
 
   wifi-basic: &wifi-basic-job
@@ -503,7 +507,7 @@ _anchors:
     rules:
       tree:
         - mainline
-        - next
+        - stable-rc
     kcidb_test_suite: kernelci_wifi_basic
 
 jobs:
@@ -512,6 +516,10 @@ jobs:
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
+    rules:
+      tree:
+        - mainline
+        - stable-rc
 
   baseline-arm64-qualcomm-chromebook: *baseline-job
 
@@ -522,6 +530,10 @@ jobs:
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
     kcidb_test_suite: boot.nfs
+    rules:
+      tree:
+        - mainline
+        - stable-rc
 
   baseline-nfs-arm64-qualcomm-chromebook: *baseline-nfs-job
   baseline-nfs-x86-amd-chromebook: *baseline-nfs-job

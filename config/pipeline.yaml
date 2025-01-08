@@ -1518,9 +1518,10 @@ jobs:
       nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20241007.0/{debarch}'
       collections: cpufreq
       job_timeout: 10
-    rules:
+    rules: &kselftest-rules
       tree:
-      - '!android'
+        - mainline
+        - stable-rc
     kcidb_test_suite: kselftest.cpufreq
 
   kselftest-cpufreq-hibernate:
@@ -1530,8 +1531,10 @@ jobs:
       collections: cpufreq
       env: 'KSELFTEST_MAIN_SH_ARGS="-t hibernate_rtc"'
     rules:
-      tree:
-      - 'kernelci:staging-next'
+      <<: *kselftest-rules
+      min_version:
+        version: 6
+        patchlevel: 12
     kcidb_test_suite: kselftest.cpufreq.hibernate
 
   kselftest-cpufreq-suspend:
@@ -1541,8 +1544,10 @@ jobs:
       collections: cpufreq
       env: 'KSELFTEST_MAIN_SH_ARGS="-t suspend_rtc"'
     rules:
-      tree:
-      - 'kernelci:staging-next'
+      <<: *kselftest-rules
+      min_version:
+        version: 6
+        patchlevel: 12
     kcidb_test_suite: kselftest.cpufreq.suspend
 
   kselftest-devices-exist:
@@ -1564,8 +1569,7 @@ jobs:
       collections: devices/probe
       env: "KSELFTEST_TEST_DISCOVERABLE_DEVICES_PY_ARGS=--boards-dir=/opt/platform-test-parameters/kselftest/test_discoverable_devices/boards/"
     rules:
-      tree:
-      - '!android'
+      <<: *kselftest-rules
       min_version:
         version: 6
         patchlevel: 11
@@ -1584,8 +1588,7 @@ jobs:
       <<: *kselftest-params
       collections: dt
     rules:
-      tree:
-      - '!android'
+      <<: *kselftest-rules
       min_version:
         version: 6
         patchlevel: 7
