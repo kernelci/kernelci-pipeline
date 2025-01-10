@@ -2313,6 +2313,7 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-platforms
       - qemu-x86
+      - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: baseline-x86-baylibre
     event: *kbuild-gcc-12-x86-node-event
@@ -2361,6 +2362,7 @@ scheduler:
       - dell-latitude-5400-8665U-sarien
       - hp-x360-14-G1-sona
       - hp-x360-12b-ca0010nr-n4020-octopus
+      - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: baseline-x86-mfd
     event:
@@ -2369,6 +2371,7 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - qemu-x86
+      - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: kbuild-clang-17-arm-allmodconfig
     <<: *build-k8s-all
