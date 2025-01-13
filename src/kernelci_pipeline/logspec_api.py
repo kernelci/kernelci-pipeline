@@ -115,7 +115,7 @@ def new_issue(logspec_error, object_type):
     """
     error_copy = deepcopy(logspec_error)
     signature = error_copy['error'].pop('signature')
-    comment = f"[logspec:{object_types[object_type]['parser']}] {error_copy['error']['error_type']}"
+    comment = ""
     if 'error_summary' in error_copy['error']:
         comment += f" {error_copy['error']['error_summary']}"
     if 'target' in error_copy['error']:
@@ -124,6 +124,7 @@ def new_issue(logspec_error, object_type):
             comment += f" ({error_copy['error']['src_file']})"
         elif 'script' in error_copy['error']:
             comment += f" ({error_copy['error']['script']})"
+    comment += f" [logspec:{object_types[object_type]['parser']},{error_copy['error']['error_type']}]"
     issue = {
         'origin': 'maestro',
         'id': f'maestro:{signature}',
