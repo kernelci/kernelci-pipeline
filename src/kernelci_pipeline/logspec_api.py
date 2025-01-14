@@ -94,6 +94,36 @@ def get_logspec_errors(parsed_data, parser):
         'parser': parser,
     }
     errors = parsed_data.pop('errors')
+
+    # ----------------------------------------------------------------------
+    # Special case handling for failed boot tests
+    # ----------------------------------------------------------------------
+
+    if parser == 'generic_linux_boot':
+        def create_special_boot_error(summary):
+            error_dict = {
+                'error_type': 'maestro.linux.kernel.boot',
+                'error_summary': summary,
+                'signature': parsed_data['_signature'],
+                'log_excerpt': '',
+                'signature_fields': parsed_data['_signature_fields']
+            }
+            return {'error': error_dict, **base_dict}
+
+        # Check for unclean boot state
+        if parsed_data.get('linux.boot.prompt'):
+            error = create_special_boot_error('Unclean boot. Reached prompt but marked as failed.')
+            errors_list.append(error)
+
+        # Check for incomplete boot process
+        elif not parsed_data.get('bootloader.done') or not parsed_data.get('linux.boot.kernel_started'):
+            error = create_special_boot_error('Bootloader did not finish or kernel did not start.')
+            errors_list.append(error)
+
+    # ----------------------------------------------------------------------
+    # Parse errors detected by logspec
+    # ----------------------------------------------------------------------
+
     for error in errors:
         logspec_dict = {}
         logspec_dict.update(base_dict)
@@ -105,6 +135,7 @@ def get_logspec_errors(parsed_data, parser):
             field: getattr(error, field)
             for field in error._signature_fields}
         errors_list.append(logspec_dict)
+
     return errors_list
 
 
