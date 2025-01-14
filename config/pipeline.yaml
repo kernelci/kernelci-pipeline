@@ -92,9 +92,10 @@ _anchors:
     runtime:
       name: k8s-all
 
-  node-event: &node-event
+  node-event: &node-event-kbuild
     channel: node
     result: pass
+    kind: kbuild
 
 ### Frequently used rules
 
@@ -2203,7 +2204,7 @@ scheduler:
 
   - job: baseline-arm
     event: &kbuild-gcc-12-arm-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm
     runtime: &lava-collabora-runtime
       type: lava
@@ -2235,7 +2236,7 @@ scheduler:
 
   - job: baseline-arm-mfd
     event:
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm-mfd
     runtime: *lava-collabora-runtime
     platforms:
@@ -2243,7 +2244,7 @@ scheduler:
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm64-platforms
@@ -2256,7 +2257,7 @@ scheduler:
 
   - job: baseline-arm64-android
     event:
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-android
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
@@ -2280,7 +2281,7 @@ scheduler:
 
   - job: baseline-arm64-kcidebug-mediatek
     event: &kbuild-gcc-12-arm64-chromebook-kcidebug-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-chromebook-kcidebug
     runtime: *lava-collabora-runtime
     platforms:
@@ -2298,7 +2299,7 @@ scheduler:
 
   - job: baseline-arm64-mfd
     event:
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-mfd
     runtime: *lava-collabora-runtime
     platforms:
@@ -2315,7 +2316,7 @@ scheduler:
 
   - job: baseline-x86
     event: &kbuild-gcc-12-x86-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-x86
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-platforms
@@ -2338,7 +2339,7 @@ scheduler:
 
   - job: baseline-x86-kcidebug-amd
     event: &kbuild-gcc-12-x86-kcidebug-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-x86-kcidebug
     runtime: *lava-collabora-runtime
     platforms:
@@ -2373,7 +2374,7 @@ scheduler:
 
   - job: baseline-x86-mfd
     event:
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-x86-mfd
     runtime: *lava-collabora-runtime
     platforms:
@@ -2875,14 +2876,14 @@ scheduler:
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-preempt_rt_chromebook
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm64-chromebook-platforms
@@ -2895,14 +2896,14 @@ scheduler:
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-x86-preempt_rt-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-x86-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-x86-preempt_rt_x86_board
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-rt-chromebook-platforms
@@ -2917,7 +2918,7 @@ scheduler:
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm-preempt_rt-node-event
-      <<: *node-event
+      <<: *node-event-kbuild
       name: kbuild-gcc-12-arm-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm-preempt_rt-platforms
