@@ -1608,6 +1608,13 @@ jobs:
       collections: iommu
     kcidb_test_suite: kselftest.iommu
 
+  kselftest-net:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: net
+    kcidb_test_suite: kselftest.net
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
@@ -2785,6 +2792,22 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: kselftest-net
+    event: *kbuild-gcc-12-x86-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - acer-cb317-1h-c3z6-dedede
+      - aaeon-UPN-EHLX4RE-A10-0864
+
+  - job: kselftest-net
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - meson-g12b-a311d-khadas-vim3
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - sun50i-h6-pine-h64
 
 #  - job: kunit
 #    event: *checkout-event
