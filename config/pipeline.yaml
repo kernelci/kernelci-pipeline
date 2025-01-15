@@ -60,6 +60,8 @@ _anchors:
       compiler: gcc-12
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
+      fragments:
+        - 'lab-setup'
 
   kbuild-gcc-12-x86-job: &kbuild-gcc-12-x86-job
     <<: *kbuild-job
