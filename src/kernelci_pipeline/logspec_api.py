@@ -159,7 +159,7 @@ def new_issue(logspec_error, object_type):
     issue = {
         'origin': 'maestro',
         'id': f'maestro:{signature}',
-        'version': 0,
+        'version': 1,
         'comment': comment,
         'misc': {
             'logspec': error_copy
