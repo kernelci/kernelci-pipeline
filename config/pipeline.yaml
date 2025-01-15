@@ -2116,6 +2116,12 @@ platforms:
     dtb: dtbs/mediatek/mt8390-genio-700-evk.dtb
     compatible: ['mediatek,mt8390-evk', 'mediatek,mt8390', 'mediatek,mt8188']
 
+  mt8395-genio-1200-evk:
+    <<: *arm64-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8395-genio-1200-evk.dtb
+    compatible: ['mediatek,mt8395-evk', 'mediatek,mt8395', 'mediatek,mt8195']
+
   odroid-xu3:
     <<: *arm-device
     mach: samsung
@@ -2264,6 +2270,7 @@ scheduler:
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
       - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
       - rk3399-gru-kevin
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
