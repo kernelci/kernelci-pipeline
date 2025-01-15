@@ -2110,6 +2110,12 @@ platforms:
   # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
   minnowboard-turbot-E3826: *x86_64-device
 
+  mt8390-genio-700-evk:
+    <<: *arm64-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8390-genio-700-evk.dtb
+    compatible: ['mediatek,mt8390-evk', 'mediatek,mt8390', 'mediatek,mt8188']
+
   odroid-xu3:
     <<: *arm-device
     mach: samsung
@@ -2257,6 +2263,7 @@ scheduler:
     platforms: &collabora-arm64-platforms
       - bcm2711-rpi-4-b
       - meson-g12b-a311d-khadas-vim3
+      - mt8390-genio-700-evk
       - rk3399-gru-kevin
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
