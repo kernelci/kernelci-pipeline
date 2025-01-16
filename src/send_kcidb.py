@@ -644,55 +644,42 @@ in {runtime}",
                 self.log.info(f"Sent incident node: {incident['id']}")
 
     def _run(self, context):
+        """Main run loop that processes nodes and sends data to KCIDB"""
         self.log.info("Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
+
+        # Initialize batch processing variables
         chunksize = 200
         nodes = []
-        batchcheckouts = []
-        batchbuilds = []
-        batchtests = []
-        batchissues = []
-        batchincidents = []
-        batchnodes = []
+        batch = {
+            'checkouts': [],
+            'builds': [],
+            'tests': [],
+            'issues': [],
+            'incidents': [],
+            'nodes': []
+        }
 
         while True:
             is_hierarchy = False
-            if not nodes or len(nodes) == 0:
-                # if no batched nodes to process anymore, submit accumulated data
-                if len(batchcheckouts) > 0 or len(batchbuilds) > 0 or len(batchtests) > 0 or\
-                   len(batchissues) > 0 or len(batchincidents) > 0:
-                    try:
-                        self._submit_parsed_data(batchcheckouts, batchbuilds, batchtests,
-                                                 batchissues, batchincidents, context['client'])
-                        chunksize = 200
-                    except Exception as exc:
-                        self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
-                        # do not mark nodes as processed, as they were not sent to KCIDB
-                        batchnodes = []
-                        # sometimes we get too much data and exceed gcloud limits,
-                        # try to send smaller chunks
-                        chunksize = 50
 
-                if len(batchnodes) > 0:
-                    self._nodes_processed(batchnodes)
-                # and reset the lists
-                batchcheckouts = []
-                batchbuilds = []
-                batchtests = []
-                batchissues = []
-                batchincidents = []
-                batchnodes = []
-                # clean caches
-                self._nodecache = {}
-                self._excerptcache = {}
-                # If we have no more batched nodes to process, try to find new ones
+            # Submit accumulated data if no more nodes to process
+            if not nodes:
+                chunksize = self._handle_batch_submission(batch, context, chunksize)
+
+                # Reset batch data and caches
+                batch = self._reset_batch_data()
+                self._clean_caches()
+
+                # Find new unprocessed nodes
                 nodes = self._find_unprocessed_node(chunksize)
                 if nodes:
                     self.log.info(f"Found {len(nodes)} unprocessed nodes")
                 else:
                     self.log.info("No more unprocessed nodes found, switching to event mode")
 
-            if not nodes or len(nodes) == 0:
+            # Get next node to process
+            if not nodes:
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 self.log.info(f"Received an event for node: {node['id']}")
             else:
@@ -700,94 +687,135 @@ in {runtime}",
                 self.log.info(f"Processing unprocessed node: {node['id']}")
 
             # Submit nodes with service origin only for staging pipeline
-            if self._current_user['username'] in ('staging.kernelci.org',
-                                                  'production'):
-                if node['submitter'] != 'service:pipeline':
-                    self.log.debug(f"Not sending node to KCIDB: {node['id']}")
-                    batchnodes.append(node['id'])
-                    continue
+            if self._should_skip_node(node):
+                self.log.debug(f"Not sending node to KCIDB: {node['id']}")
+                batch['nodes'].append(node['id'])
+                continue
 
-            parsed_checkout_node = []
-            parsed_build_node = []
-            parsed_test_node = []
-            issues = []
-            incidents = []
+            # Process node based on its kind
+            parsed_data = self._process_node(node, context['origin'], is_hierarchy)
 
-            if node['kind'] == 'checkout':
-                parsed_checkout_node = self._parse_checkout_node(
-                    context['origin'], node)
-                batchcheckouts.extend(parsed_checkout_node)
+            # Add parsed data to batches
+            self._add_to_batch(batch, parsed_data)
 
-            elif node['kind'] == 'kbuild':
-                parsed_build_node = self._parse_build_node(
-                    context['origin'], node
-                )
-                batchbuilds.extend(parsed_build_node)
+            # Generate issues and incidents for failed builds/tests
+            self._handle_failures(parsed_data, batch, context)
 
-            elif node['kind'] == 'test':
-                self._get_test_data(node, context['origin'],
-                                    parsed_test_node, parsed_build_node)
-                batchtests.extend(parsed_test_node)
-                batchbuilds.extend(parsed_build_node)
-
-            elif node['kind'] == 'job':
-                # Send job node
-                self._get_test_data(node, context['origin'],
-                                    parsed_test_node, parsed_build_node)
-                if is_hierarchy:
-                    self._get_test_data_recursively(node, context['origin'],
-                                                    parsed_test_node, parsed_build_node)
-                batchtests.extend(parsed_test_node)
-                batchbuilds.extend(parsed_build_node)
-
-            for parsed_node in parsed_build_node:
-                if parsed_node.get('valid') is False and parsed_node.get('log_url'):
-                    local_file = self._cached_fetch(parsed_node['log_url'])
-                    local_url = f"file://{local_file}"
-                    issues_and_incidents = generate_issues_and_incidents(
-                        parsed_node['id'],
-                        local_url,
-                        "build",
-                        context['kcidb_oo_client'])
-                    if issues_and_incidents:
-                        issues.extend(issues_and_incidents.get('issues', []))
-                        incidents.extend(issues_and_incidents.get('incidents', []))
-                        batchissues.extend(issues)
-                        batchincidents.extend(incidents)
-
-                        self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
-                    else:
-                        self.log.warning("logspec: Could not generate any issues or "
-                                         f"incidents for build node {parsed_node['id']}")
-
-            for parsed_node in parsed_test_node:
-                if parsed_node.get('status') == 'FAIL' \
-                        and parsed_node.get('log_url') \
-                        and parsed_node.get('path').startswith('boot'):
-                    local_file = self._cached_fetch(parsed_node['log_url'])
-                    local_url = f"file://{local_file}"
-                    issues_and_incidents = generate_issues_and_incidents(
-                        parsed_node['id'],
-                        local_url,
-                        "test",
-                        context['kcidb_oo_client'])
-                    if issues_and_incidents:
-                        issues.extend(issues_and_incidents.get('issues', []))
-                        incidents.extend(issues_and_incidents.get('incidents', []))
-                        batchissues.extend(issues)
-                        batchincidents.extend(incidents)
-                        self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
-                    else:
-                        self.log.warning("logspec: Could not generate any issues or "
-                                         f"incidents for test node {parsed_node['id']}")
-
-            # mark the node as processed, sent_kcidb field to True
+            # Mark node and any children as processed
             # TBD: job nodes might have child nodes, mark them as processed as well
-            batchnodes.append(node['id'])
+            batch['nodes'].append(node['id'])
             if is_hierarchy:
                 childnodes = self._node_processed_recursively(node)
-                batchnodes.extend(childnodes)
+                batch['nodes'].extend(childnodes)
+
         return True
+
+    def _handle_batch_submission(self, batch, context, chunksize):
+        """Handle submitting accumulated batch data to KCIDB"""
+        if any(len(batch[k]) > 0 for k in ['checkouts', 'builds', 'tests', 'issues', 'incidents']):
+            try:
+                self._submit_parsed_data(
+                    batch['checkouts'], batch['builds'], batch['tests'],
+                    batch['issues'], batch['incidents'], context['client']
+                )
+                chunksize = 200
+            except Exception as exc:
+                self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
+                # Don't mark as processed since they were not sent to KCIDB
+                batch['nodes'] = []
+                # Sometimes we get too much data and exceed gcloud limits,
+                # so we reduce the chunk size to 50 and try again
+                chunksize = 50
+
+        if batch['nodes']:
+            self._nodes_processed(batch['nodes'])
+
+        return chunksize
+
+    def _reset_batch_data(self):
+        """Reset batch data structures"""
+        return {
+            'checkouts': [],
+            'builds': [],
+            'tests': [],
+            'issues': [],
+            'incidents': [],
+            'nodes': []
+        }
+
+    def _clean_caches(self):
+        """Clean node and excerpt caches"""
+        self._nodecache = {}
+        self._excerptcache = {}
+
+    def _should_skip_node(self, node):
+        """Check if node should be skipped based on environment"""
+        if self._current_user['username'] in ('staging.kernelci.org', 'production'):
+            return node['submitter'] != 'service:pipeline'
+        return False
+
+    def _process_node(self, node, origin, is_hierarchy):
+        """Process a node and return parsed data"""
+        parsed_data = {
+            'checkout_node': [],
+            'build_node': [],
+            'test_node': []
+        }
+
+        if node['kind'] == 'checkout':
+            parsed_data['checkout_node'] = self._parse_checkout_node(origin, node)
+
+        elif node['kind'] == 'kbuild':
+            parsed_data['build_node'] = self._parse_build_node(origin, node)
+
+        elif node['kind'] in ['test', 'job']:
+            self._get_test_data(node, origin, parsed_data['test_node'],
+                                parsed_data['build_node'])
+
+            if is_hierarchy and node['kind'] == 'job':
+                self._get_test_data_recursively(node, origin,
+                                                parsed_data['test_node'],
+                                                parsed_data['build_node'])
+
+        return parsed_data
+
+    def _add_to_batch(self, batch, parsed_data):
+        """Add parsed data to appropriate batch lists"""
+        batch['checkouts'].extend(parsed_data['checkout_node'])
+        batch['builds'].extend(parsed_data['build_node'])
+        batch['tests'].extend(parsed_data['test_node'])
+
+    def _handle_failures(self, parsed_data, batch, context):
+        """Handle failed builds and tests by generating issues/incidents"""
+        # Handle failed builds
+        for parsed_node in parsed_data['build_node']:
+            if parsed_node.get('valid') is False and parsed_node.get('log_url'):
+                self._generate_issues_and_incidents_for_node(
+                    parsed_node, batch, context, 'build')
+
+        # Handle failed tests
+        for parsed_node in parsed_data['test_node']:
+            if (parsed_node.get('status') == 'FAIL' and
+                parsed_node.get('log_url') and
+                parsed_node.get('path').startswith('boot')):
+                self._generate_issues_and_incidents_for_node(
+                    parsed_node, batch, context, 'test')
+
+    def _generate_issues_and_incidents_for_node(self, node, batch, context, node_type):
+        """Generate and add issues/incidents for a failed node"""
+        local_file = self._cached_fetch(node['log_url'])
+        local_url = f"file://{local_file}"
+
+        issues_and_incidents = generate_issues_and_incidents(
+            node['id'], local_url, node_type, context['kcidb_oo_client'])
+
+        if issues_and_incidents:
+            batch['issues'].extend(issues_and_incidents.get('issues', []))
+            batch['incidents'].extend(issues_and_incidents.get('incidents', []))
+            self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
+        else:
+            self.log.warning(
+                f"logspec: Could not generate any issues or incidents for {node_type} node {node['id']}")
 
 
 class cmd_run(Command):
