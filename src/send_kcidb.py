@@ -688,13 +688,11 @@ in {runtime}",
                 continue
 
             # Process node based on its kind
-            parsed_data = self._process_node(node, context['origin'], is_hierarchy)
-
-            # Add parsed data to batches
-            self._add_to_batch(batch, parsed_data)
+            parsed_node = self._process_node(node, context['origin'], is_hierarchy)
+            self._add_to_batch(batch, parsed_node)
 
             # Generate issues and incidents for failed builds/tests
-            self._handle_failures(parsed_data, batch, context)
+            self._handle_failures(parsed_node, batch, context)
 
             # Mark node and any children as processed
             # TBD: job nodes might have child nodes, mark them as processed as well
@@ -770,41 +768,48 @@ in {runtime}",
 
     def _add_to_batch(self, batch, parsed_data):
         """Add parsed data to appropriate batch lists"""
-        batch['checkouts'].extend(parsed_data['checkout_node'])
-        batch['builds'].extend(parsed_data['build_node'])
-        batch['tests'].extend(parsed_data['test_node'])
+        if 'checkout_node' in parsed_data:
+            batch['checkouts'].extend(parsed_data['checkout_node'])
+        if 'build_node' in parsed_data:
+            batch['builds'].extend(parsed_data['build_node'])
+        if 'test_node' in parsed_data:
+            batch['tests'].extend(parsed_data['test_node'])
+        if 'issue_node' in parsed_data:
+            batch['issues'].extend(parsed_data['issue_node'])
+        if 'incident_node' in parsed_data:
+            batch['incidents'].extend(parsed_data['incident_node'])
 
     def _handle_failures(self, parsed_data, batch, context):
         """Handle failed builds and tests by generating issues/incidents"""
         # Handle failed builds
         for parsed_node in parsed_data['build_node']:
             if parsed_node.get('valid') is False and parsed_node.get('log_url'):
-                self._generate_issues_and_incidents_for_node(
-                    parsed_node, batch, context, 'build')
+                parsed_fail = self._parse_fail_node(parsed_node, context, 'build')
+                self._add_to_batch(batch, parsed_fail)
 
         # Handle failed tests
         for parsed_node in parsed_data['test_node']:
-            if (parsed_node.get('status') == 'FAIL' and
-                parsed_node.get('log_url') and
-                parsed_node.get('path').startswith('boot')):
-                self._generate_issues_and_incidents_for_node(
-                    parsed_node, batch, context, 'test')
+            if (parsed_node.get("status") == "FAIL" and
+                    parsed_node.get("log_url") and
+                    parsed_node.get("path").startswith("boot")):
+                parsed_fail = self._parse_fail_node(parsed_node, context, 'test')
+                self._add_to_batch(batch, parsed_fail)
 
-    def _generate_issues_and_incidents_for_node(self, node, batch, context, node_type):
+    def _parse_fail_node(self, node, context, node_type):
         """Generate and add issues/incidents for a failed node"""
         local_file = self._cached_fetch(node['log_url'])
         local_url = f"file://{local_file}"
 
-        issues_and_incidents = generate_issues_and_incidents(
+        parsed_fail = generate_issues_and_incidents(
             node['id'], local_url, node_type, context['kcidb_oo_client'])
 
-        if issues_and_incidents:
-            batch['issues'].extend(issues_and_incidents.get('issues', []))
-            batch['incidents'].extend(issues_and_incidents.get('incidents', []))
-            self.log.debug(f"Generated issues/incidents: {issues_and_incidents}")
+        if parsed_fail['issue_node'] or parsed_fail['incident_node']:
+            self.log.debug(f"Generated issues/incidents: {parsed_fail}")
         else:
             self.log.warning(
                 f"logspec: Could not generate any issues or incidents for {node_type} node {node['id']}")
+
+        return parsed_fail
 
 
 class cmd_run(Command):

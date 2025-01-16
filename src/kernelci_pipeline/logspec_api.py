@@ -199,21 +199,6 @@ def new_incident(result_id, issue_id, object_type, issue_version):
     return incident
 
 
-def generate_output_dict(issues=None, incidents=None):
-    """Returns a dict suitable for KCIDB submission containing a list of
-    issues and a list of incidents.
-    Returns None if no issues or incidents are provided.
-    """
-    if not issues and not incidents:
-        return None
-    output_dict = {}
-    if issues:
-        output_dict['issues'] = issues
-    if incidents:
-        output_dict['incidents'] = incidents
-    return output_dict
-
-
 def process_log(log_url, parser, start_state):
     """Processes a test log using logspec. The log is first downloaded
     with get_log() and then parsed with logspec.
@@ -227,20 +212,24 @@ def process_log(log_url, parser, start_state):
 
 
 def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
+    parsed_data = {
+        'issue_node': [],
+        'incident_node': [],
+    }
+
     """Generate issues and incidents"""
     start_state = logspec.main.load_parser(object_types[object_type]['parser'])
     parser = object_types[object_type]['parser']
     error_list = process_log(log_url, parser, start_state)
-    issues = []
-    incidents = []
     for error in error_list:
         if error and error['error'].get('signature'):
             issue = new_issue(error, object_type)
-            issues.append(issue)
+            parsed_data['issue_node'].append(issue)
             issue_id = issue["id"]
             issue_version = issue["version"]
-            incidents.append(new_incident(result_id, issue_id, object_type, issue_version))
-    # Return the new issues and incidents as a formatted dict
-    if issues or incidents:
-        unique_issues = list({issue["id"]: issue for issue in issues}.values())
-        return generate_output_dict(unique_issues, incidents)
+            parsed_data['incident_node'].append(new_incident(result_id, issue_id, object_type, issue_version))
+
+    # Remove duplicate issues
+    parsed_data['issue_node'] = list({issue["id"]: issue for issue in parsed_data['issue_node']}.values())
+
+    return parsed_data
