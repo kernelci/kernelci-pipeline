@@ -795,19 +795,27 @@ in {runtime}",
                 parsed_fail = self._parse_fail_node(parsed_node, context, 'test')
                 self._add_to_batch(batch, parsed_fail)
 
-    def _parse_fail_node(self, node, context, node_type):
+    def _parse_fail_node(self, parsed_node, context, node_type):
         """Generate and add issues/incidents for a failed node"""
-        local_file = self._cached_fetch(node['log_url'])
+        local_file = self._cached_fetch(parsed_node['log_url'])
         local_url = f"file://{local_file}"
 
-        parsed_fail = generate_issues_and_incidents(
-            node['id'], local_url, node_type, context['kcidb_oo_client'])
+        parsed_fail, infra_error_detected = generate_issues_and_incidents(
+            parsed_node['id'], local_url, node_type, context['kcidb_oo_client'])
+
+        if infra_error_detected:
+            self.log.warning(
+                f"Infrastructure error detected for {node_type} node "
+                f"{parsed_node['id']}, changing status from {parsed_node['status']} to MISS")
+            parsed_node['status'] = 'MISS'
 
         if parsed_fail['issue_node'] or parsed_fail['incident_node']:
             self.log.debug(f"Generated issues/incidents: {parsed_fail}")
         else:
             self.log.warning(
-                f"logspec: Could not generate any issues or incidents for {node_type} node {node['id']}")
+                f"logspec: Could not generate any issues or incidents for "
+                f"{node_type} node {parsed_node['id']}"
+            )
 
         return parsed_fail
 
