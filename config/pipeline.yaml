@@ -62,6 +62,7 @@ _anchors:
       defconfig: defconfig
       fragments:
         - 'lab-setup'
+        - 'kselftest'
 
   kbuild-gcc-12-x86-job: &kbuild-gcc-12-x86-job
     <<: *kbuild-job
@@ -70,6 +71,8 @@ _anchors:
       arch: x86_64
       compiler: gcc-12
       defconfig: x86_64_defconfig
+      fragments:
+        - 'kselftest'
 
   ltp-job: &ltp-job
     template: ltp.jinja2
@@ -1365,8 +1368,9 @@ jobs:
     params:
       <<: *kbuild-gcc-12-x86-params
       fragments:
-        - lab-setup
+        - 'lab-setup'
         - 'x86-board'
+        - 'kselftest'
 
   kbuild-gcc-12-x86-allnoconfig:
     <<: *kbuild-gcc-12-x86-job
