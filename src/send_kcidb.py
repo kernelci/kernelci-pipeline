@@ -677,15 +677,22 @@ in {runtime}",
                     self.log.info(f"Found {len(nodes)} unprocessed nodes")
                 else:
                     self.log.info("No more unprocessed nodes found, switching to event mode")
+                    # Get event node since no unprocessed nodes found
+                    node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                    self.log.info(f"Received an event for node: {node['id']}")
+                    nodes = [node]
 
-            # Get next node to process
-            if not nodes:
-                node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
-                self.log.info(f"Received an event for node: {node['id']}")
-            else:
-                node = nodes.pop()
-                self.log.info(f"Processing unprocessed node: {node['id']}")
+            if nodes:
+                # Process nodes and update batch
+                self._process_nodes(nodes, batch, context, is_hierarchy)
+                # Clear nodes after processing
+                nodes = []
 
+        return True
+
+    def _process_nodes(self, nodes, batch, context, is_hierarchy):
+        """Process a list of nodes and update the batch data"""
+        for node in nodes:
             # Submit nodes with service origin only for staging pipeline
             if self._should_skip_node(node):
                 self.log.debug(f"Not sending node to KCIDB: {node['id']}")
@@ -707,8 +714,6 @@ in {runtime}",
             if is_hierarchy:
                 childnodes = self._node_processed_recursively(node)
                 batch['nodes'].extend(childnodes)
-
-        return True
 
     def _handle_batch_submission(self, batch, context, chunksize):
         """Handle submitting accumulated batch data to KCIDB"""
