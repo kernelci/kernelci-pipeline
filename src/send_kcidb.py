@@ -648,7 +648,6 @@ in {runtime}",
         self.log.info("Listening for events... Press Ctrl-C to stop.")
 
         chunksize = 200
-        batch = self._reset_batch_data()
 
         while True:
             is_hierarchy = False
@@ -658,6 +657,7 @@ in {runtime}",
 
             if not nodes:
                 # Switch to event mode if no unprocessed nodes
+                # Listen and wait for a node instead of processing the queue
                 node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 self.log.info(f"Processing event node: {node['id']}")
                 nodes = [node]
@@ -665,16 +665,20 @@ in {runtime}",
                 self.log.info(f"Processing {len(nodes)} unprocessed nodes")
 
             # Process nodes and update batch
-            self._process_nodes(nodes, batch, context, is_hierarchy)
+            batch = self._process_nodes(nodes, context, is_hierarchy)
 
-            # Submit batch and reset
-            chunksize = self._handle_batch_submission(batch, context, chunksize)
-            batch = self._reset_batch_data()
+            # Submit batch
+            # Sometimes we get too much data and exceed gcloud limits,
+            # so we reduce the chunk size to 50 and try again
+            chunksize = 50 if not self._submit_to_kcidb(batch, context) else 200
+
             self._clean_caches()
 
         return True
 
-    def _process_nodes(self, nodes, batch, context, is_hierarchy):
+    def _process_nodes(self, nodes, context, is_hierarchy):
+        batch = self._reset_batch_data()
+
         """Process a list of nodes and update the batch data"""
         for node in nodes:
             # Submit nodes with service origin only for staging pipeline
@@ -699,7 +703,9 @@ in {runtime}",
                 childnodes = self._node_processed_recursively(node)
                 batch['nodes'].extend(childnodes)
 
-    def _handle_batch_submission(self, batch, context, chunksize):
+        return batch
+
+    def _submit_to_kcidb(self, batch, context):
         """Handle submitting accumulated batch data to KCIDB"""
         if any(len(batch[k]) > 0 for k in ['checkouts', 'builds', 'tests', 'issues', 'incidents']):
             try:
@@ -707,19 +713,13 @@ in {runtime}",
                     batch['checkouts'], batch['builds'], batch['tests'],
                     batch['issues'], batch['incidents'], context['client']
                 )
-                chunksize = 200
+                self._nodes_processed(batch['nodes'])
+                return True
             except Exception as exc:
                 self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
                 # Don't mark as processed since they were not sent to KCIDB
                 batch['nodes'] = []
-                # Sometimes we get too much data and exceed gcloud limits,
-                # so we reduce the chunk size to 50 and try again
-                chunksize = 50
-
-        if batch['nodes']:
-            self._nodes_processed(batch['nodes'])
-
-        return chunksize
+                return False
 
     def _reset_batch_data(self):
         """Reset batch data structures"""
