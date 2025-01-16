@@ -645,48 +645,32 @@ in {runtime}",
 
     def _run(self, context):
         """Main run loop that processes nodes and sends data to KCIDB"""
-        self.log.info("Listening for events... ")
-        self.log.info("Press Ctrl-C to stop.")
+        self.log.info("Listening for events... Press Ctrl-C to stop.")
 
-        # Initialize batch processing variables
         chunksize = 200
-        nodes = []
-        batch = {
-            'checkouts': [],
-            'builds': [],
-            'tests': [],
-            'issues': [],
-            'incidents': [],
-            'nodes': []
-        }
+        batch = self._reset_batch_data()
 
         while True:
             is_hierarchy = False
 
-            # Submit accumulated data if no more nodes to process
+            # Process any unprocessed nodes first
+            nodes = self._find_unprocessed_node(chunksize)
+
             if not nodes:
-                chunksize = self._handle_batch_submission(batch, context, chunksize)
+                # Switch to event mode if no unprocessed nodes
+                node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                self.log.info(f"Processing event node: {node['id']}")
+                nodes = [node]
+            else:
+                self.log.info(f"Processing {len(nodes)} unprocessed nodes")
 
-                # Reset batch data and caches
-                batch = self._reset_batch_data()
-                self._clean_caches()
+            # Process nodes and update batch
+            self._process_nodes(nodes, batch, context, is_hierarchy)
 
-                # Find new unprocessed nodes
-                nodes = self._find_unprocessed_node(chunksize)
-                if nodes:
-                    self.log.info(f"Found {len(nodes)} unprocessed nodes")
-                else:
-                    self.log.info("No more unprocessed nodes found, switching to event mode")
-                    # Get event node since no unprocessed nodes found
-                    node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
-                    self.log.info(f"Received an event for node: {node['id']}")
-                    nodes = [node]
-
-            if nodes:
-                # Process nodes and update batch
-                self._process_nodes(nodes, batch, context, is_hierarchy)
-                # Clear nodes after processing
-                nodes = []
+            # Submit batch and reset
+            chunksize = self._handle_batch_submission(batch, context, chunksize)
+            batch = self._reset_batch_data()
+            self._clean_caches()
 
         return True
 
