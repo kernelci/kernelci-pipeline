@@ -62,6 +62,10 @@ def validate_jobs(jobs):
                     raise yaml.YAMLError(
                         f"Test method not found for job: {name}'"
                     )
+                if params.get('fragments'):
+                    raise yaml.YAMLError(
+                        f"Fragments not allowed in jobs: {name}'"
+                    )
 
 
 def validate_scheduler_jobs(data):
