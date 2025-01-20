@@ -87,6 +87,8 @@ def get_logspec_errors(parsed_data, parser):
     fields (fields that start with an underscore)) and returns the list
     of errors.
     """
+
+    infra_error_detected = False
     errors_list = []
     logspec_version = logspec.main.logspec_version()
     base_dict = {
@@ -94,6 +96,37 @@ def get_logspec_errors(parsed_data, parser):
         'parser': parser,
     }
     errors = parsed_data.pop('errors')
+
+    # ----------------------------------------------------------------------
+    # Special case handling for failed boot tests
+    # ----------------------------------------------------------------------
+
+    if parser == 'generic_linux_boot':
+        def create_special_boot_error(summary):
+            error_dict = {
+                'error_type': 'maestro.linux.kernel.boot',
+                'error_summary': summary,
+                'signature': parsed_data['_signature'],
+                'log_excerpt': '',
+                'signature_fields': parsed_data['_signature_fields']
+            }
+            return {'error': error_dict, **base_dict}
+
+        # Check for unclean boot state
+        if parsed_data.get('linux.boot.prompt'):
+            error = create_special_boot_error('Unclean boot. Reached prompt but marked as failed.')
+            errors_list.append(error)
+
+        # Check for incomplete boot process
+        elif not parsed_data.get('bootloader.done') or not parsed_data.get('linux.boot.kernel_started'):
+            error = create_special_boot_error('Bootloader did not finish or kernel did not start.')
+            errors_list.append(error)
+            infra_error_detected = True
+
+    # ----------------------------------------------------------------------
+    # Parse errors detected by logspec
+    # ----------------------------------------------------------------------
+
     for error in errors:
         logspec_dict = {}
         logspec_dict.update(base_dict)
@@ -105,7 +138,8 @@ def get_logspec_errors(parsed_data, parser):
             field: getattr(error, field)
             for field in error._signature_fields}
         errors_list.append(logspec_dict)
-    return errors_list
+
+    return errors_list, infra_error_detected
 
 
 def new_issue(logspec_error, object_type):
@@ -115,7 +149,7 @@ def new_issue(logspec_error, object_type):
     """
     error_copy = deepcopy(logspec_error)
     signature = error_copy['error'].pop('signature')
-    comment = f"[logspec:{object_types[object_type]['parser']}] {error_copy['error']['error_type']}"
+    comment = ""
     if 'error_summary' in error_copy['error']:
         comment += f" {error_copy['error']['error_summary']}"
     if 'target' in error_copy['error']:
@@ -124,10 +158,11 @@ def new_issue(logspec_error, object_type):
             comment += f" ({error_copy['error']['src_file']})"
         elif 'script' in error_copy['error']:
             comment += f" ({error_copy['error']['script']})"
+    comment += f" [logspec:{object_types[object_type]['parser']},{error_copy['error']['error_type']}]"
     issue = {
         'origin': 'maestro',
         'id': f'maestro:{signature}',
-        'version': 0,
+        'version': 1,
         'comment': comment,
         'misc': {
             'logspec': error_copy
@@ -167,21 +202,6 @@ def new_incident(result_id, issue_id, object_type, issue_version):
     return incident
 
 
-def generate_output_dict(issues=None, incidents=None):
-    """Returns a dict suitable for KCIDB submission containing a list of
-    issues and a list of incidents.
-    Returns None if no issues or incidents are provided.
-    """
-    if not issues and not incidents:
-        return None
-    output_dict = {}
-    if issues:
-        output_dict['issues'] = issues
-    if incidents:
-        output_dict['incidents'] = incidents
-    return output_dict
-
-
 def process_log(log_url, parser, start_state):
     """Processes a test log using logspec. The log is first downloaded
     with get_log() and then parsed with logspec.
@@ -195,20 +215,24 @@ def process_log(log_url, parser, start_state):
 
 
 def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
+    parsed_data = {
+        'issue_node': [],
+        'incident_node': [],
+    }
+
     """Generate issues and incidents"""
     start_state = logspec.main.load_parser(object_types[object_type]['parser'])
     parser = object_types[object_type]['parser']
-    error_list = process_log(log_url, parser, start_state)
-    issues = []
-    incidents = []
+    error_list, infra_error_detected = process_log(log_url, parser, start_state)
     for error in error_list:
         if error and error['error'].get('signature'):
             issue = new_issue(error, object_type)
-            issues.append(issue)
+            parsed_data['issue_node'].append(issue)
             issue_id = issue["id"]
             issue_version = issue["version"]
-            incidents.append(new_incident(result_id, issue_id, object_type, issue_version))
-    # Return the new issues and incidents as a formatted dict
-    if issues or incidents:
-        unique_issues = list({issue["id"]: issue for issue in issues}.values())
-        return generate_output_dict(unique_issues, incidents)
+            parsed_data['incident_node'].append(new_incident(result_id, issue_id, object_type, issue_version))
+
+    # Remove duplicate issues
+    parsed_data['issue_node'] = list({issue["id"]: issue for issue in parsed_data['issue_node']}.values())
+
+    return parsed_data, infra_error_detected
