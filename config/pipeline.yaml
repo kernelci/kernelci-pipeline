@@ -1527,7 +1527,7 @@ jobs:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250113.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250117.0/{debarch}'
       collections: cpufreq
       job_timeout: 10
     rules: &kselftest-rules
@@ -1625,7 +1625,7 @@ jobs:
     params:
       <<: *kselftest-params
       collections: net
-      job_timeout: 30
+      job_timeout: 120
     kcidb_test_suite: kselftest.net
 
   kunit: &kunit-job
@@ -1879,7 +1879,7 @@ jobs:
     params:
       test_method: h26forge-debian
       boot_commands: nfs
-      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-gst-h26forge/20250109.0/{debarch}/'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-h26forge/20250117.0/{debarch}/'
     rules:
       tree:
         - media
