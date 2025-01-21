@@ -231,8 +231,11 @@ def async_job_submit(api_helper, node_id, job_callback):
         job_node['error_msg'] = None
     if device_id:
         job_node['data']['device'] = device_id
+    print(f"Job {node_id} done, result: {job_result}")
     hierarchy = job_callback.get_hierarchy(results, job_node)
-    api_helper.submit_results(hierarchy, job_node)
+    print(f"Hierarchy: {hierarchy}")
+    r = api_helper.submit_results(hierarchy, job_node)
+    print(f"Results submitted: {r}")
 
 
 def submit_job(api_helper, node_id, job_callback):
