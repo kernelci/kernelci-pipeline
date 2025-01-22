@@ -1626,6 +1626,7 @@ jobs:
       <<: *kselftest-params
       collections: net
       job_timeout: 300
+      skipfile: https://storage.kernelci.org/skipfile-net.yaml
     kcidb_test_suite: kselftest.net
 
   kunit: &kunit-job
