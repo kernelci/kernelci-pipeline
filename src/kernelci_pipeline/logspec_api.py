@@ -88,7 +88,7 @@ def get_logspec_errors(parsed_data, parser):
     of errors.
     """
 
-    infra_error_detected = False
+    new_status = None
     errors_list = []
     logspec_version = logspec.main.logspec_version()
     base_dict = {
@@ -114,14 +114,15 @@ def get_logspec_errors(parsed_data, parser):
 
         # Check for unclean boot state
         if parsed_data.get('linux.boot.prompt'):
-            error = create_special_boot_error('Unclean boot. Reached prompt but marked as failed.')
+            error = create_special_boot_error('WARNING: Unclean boot. Reached prompt but marked as failed.')
             errors_list.append(error)
+            new_status = 'PASS'
 
         # Check for incomplete boot process
         elif not parsed_data.get('bootloader.done') or not parsed_data.get('linux.boot.kernel_started'):
             error = create_special_boot_error('Bootloader did not finish or kernel did not start.')
             errors_list.append(error)
-            infra_error_detected = True
+            new_status = 'MISS'
 
     # ----------------------------------------------------------------------
     # Parse errors detected by logspec
@@ -139,7 +140,7 @@ def get_logspec_errors(parsed_data, parser):
             for field in error._signature_fields}
         errors_list.append(logspec_dict)
 
-    return errors_list, infra_error_detected
+    return errors_list, new_status
 
 
 def new_issue(logspec_error, object_type):
@@ -223,7 +224,7 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
     """Generate issues and incidents"""
     start_state = logspec.main.load_parser(object_types[object_type]['parser'])
     parser = object_types[object_type]['parser']
-    error_list, infra_error_detected = process_log(log_url, parser, start_state)
+    error_list, new_status = process_log(log_url, parser, start_state)
     for error in error_list:
         if error and error['error'].get('signature'):
             issue = new_issue(error, object_type)
@@ -235,4 +236,4 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
     # Remove duplicate issues
     parsed_data['issue_node'] = list({issue["id"]: issue for issue in parsed_data['issue_node']}.values())
 
-    return parsed_data, infra_error_detected
+    return parsed_data, new_status

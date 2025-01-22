@@ -800,14 +800,14 @@ in {runtime}",
         local_file = self._cached_fetch(parsed_node['log_url'])
         local_url = f"file://{local_file}"
 
-        parsed_fail, infra_error_detected = generate_issues_and_incidents(
+        parsed_fail, new_status = generate_issues_and_incidents(
             parsed_node['id'], local_url, node_type, context['kcidb_oo_client'])
 
-        if infra_error_detected:
+        if new_status:
             self.log.warning(
-                f"Infrastructure error detected for {node_type} node "
-                f"{parsed_node['id']}, changing status from {parsed_node['status']} to MISS")
-            parsed_node['status'] = 'MISS'
+                f"Changing status from {parsed_node['status']} to {new_status} "
+                f"for {node_type} node {parsed_node['id']}")
+            parsed_node['status'] = new_status
 
         if parsed_fail['issue_node'] or parsed_fail['incident_node']:
             self.log.debug(f"Generated issues/incidents: {parsed_fail}")
