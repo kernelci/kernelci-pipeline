@@ -3140,6 +3140,13 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
+  - job: kselftest-device-error-logs-main
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+
   - job: kselftest-dt
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
