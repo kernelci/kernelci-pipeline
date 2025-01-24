@@ -2052,6 +2052,19 @@ jobs:
         - media
     kcidb_test_suite: h26forge.debian
 
+  wifi-basic:
+    template: generic.jinja2
+    kind: job
+    params:
+      test_method: wifi-basic
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
+    rules:
+      tree:
+        - mainline
+        - stable-rc
+    kcidb_test_suite: kernelci_wifi_basic
+
 trees:
 
   aaptel:
