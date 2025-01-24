@@ -2846,6 +2846,13 @@ scheduler:
       - rk3399-rock-pi-4b
       - sun50i-h6-pine-h64
 
+  - job: kselftest-cpufreq
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+
 #  - job: kunit
 #    event: *checkout-event
 #    runtime:
