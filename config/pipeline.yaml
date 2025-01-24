@@ -2530,6 +2530,14 @@ scheduler:
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
 
+  - job: wifi-basic
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-chromebook-main
+    runtime: *lava-collabora-runtime
+    platforms:
+      - mt8390-genio-700-evk
+
   - job: baseline-arm64-android
     event:
       <<: *node-event-kbuild
