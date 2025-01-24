@@ -2827,6 +2827,8 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
 
   - job: kselftest-net
     event: *kbuild-gcc-12-x86-node-event
