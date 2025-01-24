@@ -954,6 +954,15 @@ jobs:
 
   kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
 
+  kbuild-gcc-12-arm64-chromebook-main:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
+        - 'arm64-chromebook'
+
   kbuild-gcc-12-arm64-allnoconfig:
     <<: *kbuild-gcc-12-arm64-job
     params:
