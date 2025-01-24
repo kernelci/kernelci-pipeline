@@ -1675,6 +1675,13 @@ jobs:
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.devices-exist
 
+  kselftest-device-error-logs-main:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: devices/error_logs
+    kcidb_test_suite: kselftest.device_error_logs
+
   kselftest-devices-probe:
     <<: *kselftest-job
     params:
