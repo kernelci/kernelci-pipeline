@@ -83,7 +83,7 @@ class KCIDBBridge(Service):
             'kcidb_oo_client': kcidb.oo.Client(db_client),
             'sub_id': self._api_helper.subscribe_filters({
                 'state': ('done', 'available'),
-            }),
+            }, promiscuous=True),
             'origin': args.origin,
         }
 
