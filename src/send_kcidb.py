@@ -601,12 +601,16 @@ in {runtime}",
         if self._last_unprocessed_search and \
                 time.time() - self._last_unprocessed_search < 5 * 60:
             return None
-        nodes = self._api.node.findfast({
-            'state': 'done',
-            'processed_by_kcidb_bridge': False,
-            'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
-            'limit': chunksize
-        })
+        try:
+            nodes = self._api.node.findfast({
+                'state': 'done',
+                'processed_by_kcidb_bridge': False,
+                'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
+                'limit': chunksize,
+            })
+        except Exception as exc:
+            self.log.error(f"Failed to find unprocessed nodes: {str(exc)}")
+            return []
 
         if len(nodes) < chunksize:
             self._last_unprocessed_search = time.time()
