@@ -651,7 +651,7 @@ in {runtime}",
         """Main run loop that processes nodes and sends data to KCIDB"""
         self.log.info("Listening for events... Press Ctrl-C to stop.")
 
-        chunksize = 200
+        chunksize = 20
 
         while True:
             is_hierarchy = False
@@ -674,7 +674,7 @@ in {runtime}",
             # Submit batch
             # Sometimes we get too much data and exceed gcloud limits,
             # so we reduce the chunk size to 50 and try again
-            chunksize = 50 if not self._submit_to_kcidb(batch, context) else 200
+            chunksize = 5 if not self._submit_to_kcidb(batch, context) else 20
 
             self._clean_caches()
 
