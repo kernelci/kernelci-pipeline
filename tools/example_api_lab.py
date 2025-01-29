@@ -78,6 +78,7 @@ def create_job(jobname, parent_node):
         "data": {},
         "submitter": parent_node["submitter"],
         "treeid": parent_node["treeid"],
+        "processed_by_kcidb_bridge": False,
     }
     job_node["data"]["kernel_revision"] = parent_node["data"]["kernel_revision"]
     return create_node(job_node)
@@ -114,6 +115,7 @@ def submit_job_results(job_node_id, tests, artifacts):
             "data": {},
             "submitter": job_node["submitter"],
             "treeid": job_node["treeid"],
+            "processed_by_kcidb_bridge": False,
         }
         test_node["data"]["kernel_revision"] = job_node["data"]["kernel_revision"]
         test_node["data"]["platform"] = test["platform"]
