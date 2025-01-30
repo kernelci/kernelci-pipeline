@@ -89,6 +89,8 @@ _anchors:
   tast-basic: &tast-basic-job
     <<: *tast-job
     params:
+      tags:
+        - subset-1-gfx
       tests:
         - platform.CheckDiskSpace
         - platform.TPMResponsive
@@ -284,6 +286,8 @@ _anchors:
   tast-hardware: &tast-hardware-job
     <<: *tast-job
     params:
+      tags:
+        - subset-1-gfx
       tests:
         - graphics.HardwareProbe
         - graphics.KernelConfig
