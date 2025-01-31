@@ -2823,6 +2823,16 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kselftest-dt
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-arm
+
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-arm64
+
+  - job: kselftest-dt
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
