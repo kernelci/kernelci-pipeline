@@ -2259,7 +2259,7 @@ scheduler:
     runtime: &lava-broonie-runtime
       type: lava
       name: lava-broonie
-    platforms:
+    platforms: &lava-broonie-arm
       - beaglebone-black
       - imx6dl-udoo
       - imx6q-udoo
@@ -2301,7 +2301,7 @@ scheduler:
     runtime:
       type: lava
       name: lava-broonie
-    platforms:
+    platforms: &lava-broonie-arm64
       - bcm2711-rpi-4-b
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
