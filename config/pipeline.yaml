@@ -2059,6 +2059,13 @@ platforms:
 
   docker:
 
+  imx53-qsrb:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx53-qsrb.dtb
+    compatible: ['fsl,imx53-qsrb', 'fsl,imx53']
+
   imx6dl-udoo:
     <<: *arm-device
     mach: imx
@@ -2318,6 +2325,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx53-qsrb
       - imx6dl-riotboard
       - stm32mp157c-lxa-tac-gen1
 
