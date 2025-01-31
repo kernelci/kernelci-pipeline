@@ -2065,6 +2065,13 @@ platforms:
     dtb: dtbs/imx6dl-udoo.dtb
     compatible: ['udoo,imx6dl-udoo', 'fsl,imx6dl']
 
+  imx6dl-riotboard:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx6dl-riotboard.dtb
+    compatible: ['riot,imx6s-riotboard', 'fsl,imx6dl']
+
   imx6q-sabrelite:
     <<: *arm-device
     mach: imx
@@ -2311,6 +2318,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx6dl-riotboard
       - stm32mp157c-lxa-tac-gen1
 
   - job: baseline-arm64
