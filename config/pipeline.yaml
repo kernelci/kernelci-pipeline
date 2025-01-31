@@ -2059,6 +2059,13 @@ platforms:
 
   docker:
 
+  imx28-duckbill:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx28-duckbill.dtb
+    compatible: ['i2se,duckbill', 'fsl,imx28']
+
   imx53-qsrb:
     <<: *arm-device
     boot_method: barebox
@@ -2332,6 +2339,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx28-duckbill
       - imx53-qsrb
       - imx6dl-riotboard
       - imx6qp-wandboard-revd1
