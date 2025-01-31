@@ -1550,6 +1550,7 @@ jobs:
     rules: &kselftest-rules
       tree:
         - mainline
+        - next
         - stable-rc
         - stable
     kcidb_test_suite: kselftest.aaa
