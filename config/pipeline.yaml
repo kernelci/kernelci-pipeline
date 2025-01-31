@@ -1537,20 +1537,30 @@ jobs:
       - 'stable-rc'
       - 'stable'
 
-  kselftest-cpufreq: &kselftest-job
+  # Named so it sorts before all the actual kselftests, we need to
+  # specify a kselftest suite for YAML validation.
+  kselftest-aaa: &kselftest-job
     template: generic.jinja2
     kind: job
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250117.0/{debarch}'
-      collections: cpufreq
       job_timeout: 10
     rules: &kselftest-rules
       tree:
         - mainline
         - stable-rc
         - stable
+    kcidb_test_suite: kselftest.aaa
+
+  kselftest-cpufreq:
+    <<: *kselftest-job
+    template: generic.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params
+      collections: cpufreq
     kcidb_test_suite: kselftest.cpufreq
 
   kselftest-cpufreq-hibernate:
