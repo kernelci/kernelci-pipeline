@@ -2146,6 +2146,13 @@ platforms:
     dtb: dtbs/freescale/imx8mp-evk.dtb
     compatible: ["fsl,imx8mp-evk", "fsl,imx8mp"]
 
+  imx8mp-tqma8mpql-mba8mpxl:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-tqma8mpql-mba8mpxl.dtb
+    compatible: ['tq,imx8mp-tqma8mpql-mba8mpxl', 'tq,imx8mp-tqma8mpql', 'fsl,imx8mp']
+
   imx8mp-verdin-nonwifi-dahlia:
     <<: *arm64-device
     mach: imx
@@ -2420,6 +2427,7 @@ scheduler:
       name: lava-pengutronix
     platforms:
       - imx8mm-innocomm-wb15-evk
+      - imx8mp-tqma8mpql-mba8mpxl
 
   - job: baseline-arm64-qualcomm
     event: *kbuild-gcc-12-arm64-node-event
