@@ -2059,6 +2059,13 @@ platforms:
 
   docker:
 
+  imx23-olinuxino:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx23-olinuxino.dtb
+    compatible: ['olimex,imx23-olinuxino', '"fsl,imx23']
+
   imx27-phytec-phycard-s-rdk:
     <<: *arm-device
     boot_method: barebox
@@ -2346,6 +2353,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx23-olinuxino
       - imx27-phytec-phycard-s-rdk
       - imx28-duckbill
       - imx53-qsrb
