@@ -2059,6 +2059,13 @@ platforms:
 
   docker:
 
+  imx27-phytec-phycard-s-rdk:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx27-phytec-phycard-s-rdk.dtb
+    compatible: ['phytec,imx27-pca100-rdk', 'phytec,imx27-pca100', 'fsl,imx27']
+
   imx28-duckbill:
     <<: *arm-device
     boot_method: barebox
@@ -2339,6 +2346,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx27-phytec-phycard-s-rdk
       - imx28-duckbill
       - imx53-qsrb
       - imx6dl-riotboard
