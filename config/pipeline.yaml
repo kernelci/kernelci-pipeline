@@ -287,6 +287,7 @@ jobs:
   baseline-arm-broonie: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-mfd: *baseline-job
+  baseline-arm-pengutronix: *baseline-job
   baseline-arm64: *baseline-job
   baseline-arm64-android: *baseline-job
   baseline-arm64-broonie: *baseline-job
@@ -2287,6 +2288,13 @@ platforms:
     compatible: ['arrow,stm32mp157a-avenger96', 'dh,stm32mp157a-dhcor-som',
                      'st,stm32mp157']
 
+  stm32mp157c-lxa-tac-gen1:
+    <<: *arm-device
+    boot_method: barebox
+    mach: st
+    dtb: dtbs/stm32mp157c-lxa-tac-gen1.dtb
+    compatible: ['lxa,stm32mp157c-tac-gen1', 'oct,stm32mp15xx-osd32', 'st,stm32mp157']
+
   sun7i-a20-cubieboard2:
     <<: *arm-device
     mach: allwinner
@@ -2353,6 +2361,14 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
+
+  - job: baseline-arm-pengutronix
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-pengutronix-runtime
+      type: lava
+      name: lava-pengutronix
+    platforms:
+      - stm32mp157c-lxa-tac-gen1
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
@@ -2422,9 +2438,7 @@ scheduler:
 
   - job: baseline-arm64-pengutronix
     event: *kbuild-gcc-12-arm64-node-event
-    runtime:
-      type: lava
-      name: lava-pengutronix
+    runtime: *lava-pengutronix-runtime
     platforms:
       - imx8mm-innocomm-wb15-evk
       - imx8mp-tqma8mpql-mba8mpxl
