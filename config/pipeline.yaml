@@ -2304,6 +2304,12 @@ platforms:
     dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
     compatible: ['pine64,pine-h64', 'allwinner,sun50i-h6']
 
+  tegra124-jetson-tk1:
+    <<: *arm-device
+    boot_method: barebox
+    mach: nvidia
+    dtb: dtbs/tegra124-jetson-tk1.dtb
+    compatible: ['nvidia,jetson-tk1', 'nvidia,tegra124']
 
 scheduler:
 
@@ -2360,6 +2366,7 @@ scheduler:
       - imx6dl-riotboard
       - imx6qp-wandboard-revd1
       - stm32mp157c-lxa-tac-gen1
+      - tegra124-jetson-tk1
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
