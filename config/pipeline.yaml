@@ -3575,9 +3575,29 @@ build_configs:
     tree: soc
     branch: 'for-next'
 
+  stable_5.4:
+    tree: stable
+    branch: 'linux-5.4.y'
+
+  stable_5.10:
+    tree: stable
+    branch: 'linux-5.10.y'
+
+  stable_5.15:
+    tree: stable
+    branch: 'linux-5.15.y'
+
+  stable_6.1:
+    tree: stable
+    branch: 'linux-6.1.y'
+
   stable_6.6:
     tree: stable
     branch: 'linux-6.6.y'
+
+  stable_6.12:
+    tree: stable
+    branch: 'linux-6.12.y'
 
   stable-rc_5.4: &stable-rc
     tree: stable-rc
