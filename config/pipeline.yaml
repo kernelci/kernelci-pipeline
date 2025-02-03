@@ -315,6 +315,7 @@ jobs:
       tree:
         - 'mainline'
         - 'stable-rc'
+        - 'stable'
 
   kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
     <<: *kbuild-clang-17-arm-job
@@ -368,6 +369,7 @@ jobs:
       tree:
         - 'mainline'
         - 'stable-rc'
+        - 'stable'
 
   kbuild-clang-17-arm64-allnoconfig:
     <<: *kbuild-clang-17-arm64-job
@@ -587,6 +589,7 @@ jobs:
       tree:
       - 'mainline'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-clang-17-x86-allnoconfig:
     <<: *kbuild-clang-17-x86-job
@@ -650,6 +653,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
       - 'next'
       - 'sashal-next'
 
@@ -781,6 +785,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-arm-kselftest:
     <<: *kbuild-gcc-12-arm-job
@@ -871,6 +876,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-arm-multi_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -882,6 +888,7 @@ jobs:
       - 'chrome-platform'
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-arm-omap1_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -902,6 +909,7 @@ jobs:
       - 'kernelci'
       - 'omap'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-arm-preempt_rt:
     <<: *kbuild-gcc-12-arm-job
@@ -923,6 +931,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
 
@@ -1148,6 +1157,7 @@ jobs:
       tree:
       - 'mainline'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-i386-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
@@ -1158,6 +1168,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
       - 'next'
       - 'sashal-next'
 
@@ -1222,6 +1233,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-mips-32r2el_defconfig: &kbuild-gcc-12-mips-job
     <<: *kbuild-job
@@ -1235,6 +1247,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
       - 'next'
       - 'sashal-next'
 
@@ -1340,6 +1353,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-riscv-smp:
     <<: *kbuild-gcc-12-riscv-job
@@ -1381,6 +1395,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kbuild-gcc-12-x86-android-allmodconfig: &kbuild-gcc-12-x86-android-allmodconfig-job
     <<: *kbuild-gcc-12-x86-job
@@ -1520,6 +1535,7 @@ jobs:
       tree:
       - 'kernelci'
       - 'stable-rc'
+      - 'stable'
 
   kselftest-cpufreq: &kselftest-job
     template: generic.jinja2
@@ -1534,6 +1550,7 @@ jobs:
       tree:
         - mainline
         - stable-rc
+        - stable
     kcidb_test_suite: kselftest.cpufreq
 
   kselftest-cpufreq-hibernate:
