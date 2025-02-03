@@ -227,6 +227,11 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
     error_list, new_status = process_log(log_url, parser, start_state)
     for error in error_list:
         if error and error['error'].get('signature'):
+            # do not generate issues for error_return_code since they are not
+            # fatal, avoid noise.
+            if error['error'].get('error_type') == 'linux.kernel.error_return_code':
+                continue
+
             issue = new_issue(error, object_type)
             parsed_data['issue_node'].append(issue)
             issue_id = issue["id"]
