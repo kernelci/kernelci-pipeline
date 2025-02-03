@@ -62,6 +62,7 @@ _anchors:
       tree:
         - mainline
         - stable-rc
+        - stable
 
   tast-decoder: &tast-decoder-job
     <<: *tast-job
@@ -520,6 +521,7 @@ _anchors:
       tree:
         - mainline
         - stable-rc
+        - stable
     kcidb_test_suite: kernelci_watchdog_reset
 
   wifi-basic: &wifi-basic-job
@@ -533,6 +535,7 @@ _anchors:
       tree:
         - mainline
         - stable-rc
+        - stable
     kcidb_test_suite: kernelci_wifi_basic
 
 jobs:
@@ -545,6 +548,7 @@ jobs:
       tree:
         - mainline
         - stable-rc
+        - stable
 
   baseline-arm64-qualcomm-chromebook: *baseline-job
 
@@ -559,6 +563,7 @@ jobs:
       tree:
         - mainline
         - stable-rc
+        - stable
 
   baseline-nfs-arm64-qualcomm-chromebook: *baseline-nfs-job
   baseline-nfs-x86-amd-chromebook: *baseline-nfs-job
