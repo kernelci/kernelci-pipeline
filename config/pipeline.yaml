@@ -2003,6 +2003,9 @@ trees:
   omap:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap.git"
 
+  padovan:
+    url: "https://github.com/padovan/linux.git"
+
   pm:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
 
@@ -3568,6 +3571,10 @@ build_configs:
   omap:
     tree: omap
     branch: 'for-next'
+
+  padovan:
+    tree: padovan
+    branch: 'for-kernelci'
 
   pm:
     tree: pm
