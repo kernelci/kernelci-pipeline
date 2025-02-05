@@ -793,19 +793,34 @@ in {runtime}",
 
         # Handle failed tests
         for parsed_node in parsed_data['test_node']:
-            if (parsed_node.get("status") == "FAIL" and
-                    parsed_node.get("log_url") and
-                    parsed_node.get("path").startswith("boot")):
+            if (parsed_node.get("status") == "FAIL" and parsed_node.get("log_url")):
                 parsed_fail = self._parse_fail_node(parsed_node, context, 'test')
-                self._add_to_batch(batch, parsed_fail)
+                if parsed_fail:
+                    self._add_to_batch(batch, parsed_fail)
+
+    def _get_test_type(self, parsed_node, node_type):
+        """Get logspec test type from parsed node"""
+        if node_type == "build":
+            return "build"
+        elif parsed_node.get("path").startswith("boot"):
+            return "boot"
+        elif "kselftest" in parsed_node.get("path"):
+            return "kselftest"
+        return None
 
     def _parse_fail_node(self, parsed_node, context, node_type):
         """Generate and add issues/incidents for a failed node"""
+        test_type = self._get_test_type(parsed_node, node_type)
+
+        # Do not parse this node if logspec doesn't support it
+        if not test_type:
+            return None
+
         local_file = self._cached_fetch(parsed_node['log_url'])
         local_url = f"file://{local_file}"
 
         parsed_fail, new_status = generate_issues_and_incidents(
-            parsed_node['id'], local_url, node_type, context['kcidb_oo_client'])
+            parsed_node['id'], local_url, test_type, context['kcidb_oo_client'])
 
         if new_status:
             self.log.warning(
