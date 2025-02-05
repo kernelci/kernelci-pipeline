@@ -1,4 +1,41 @@
 _anchors:
+  kbuild-clang-17-chromeos:
+    params: &kbuild-clang-17-chromeos-params
+      compiler: clang-17
+      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
+      flavour: '{crosarch}-generic'
+      kselftest: disable
+
+  kbuild-clang-17-arm64-chromeos: &kbuild-clang-17-arm64-chromeos-job
+    template: kbuild.jinja2
+    kind: kbuild
+    image: ghcr.io/kernelci/{image_prefix}clang-17:arm64-kselftest-kernelci
+    params: &kbuild-clang-17-arm64-chromeos-params
+      <<: *kbuild-clang-17-chromeos-params
+      arch: arm64
+      cross_compile: 'aarch64-linux-gnu-'
+      fragments:
+        - lab-setup
+        - arm64-chromebook
+        - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
+    rules: &kbuild-clang-17-arm64-chromeos-rules
+      tree:
+      - chromiumos
+
+  kbuild-clang-17-x86-chromeos: &kbuild-clang-17-x86-chromeos-job
+    <<: *kbuild-clang-17-arm64-chromeos-job
+    image: ghcr.io/kernelci/{image_prefix}clang-17:x86-kselftest-kernelci
+    params: &kbuild-clang-17-x86-chromeos-params
+      <<: *kbuild-clang-17-chromeos-params
+      arch: x86_64
+      fragments:
+        - lab-setup
+        - x86-board
+        - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
+    rules: &kbuild-clang-17-x86-chromeos-rules
+      <<: *kbuild-clang-17-arm64-chromeos-rules
 
   kbuild-gcc-12-arm64-chromeos: &kbuild-gcc-12-arm64-chromeos-job
     template: kbuild.jinja2
@@ -33,7 +70,7 @@ _anchors:
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
-    rules:
+    rules: &kbuild-gcc-12-x86-chromeos-rules
       tree:
       - '!android'
 
@@ -572,12 +609,56 @@ jobs:
   baseline-x86-amd-staging-chromebook: *baseline-job
   baseline-x86-intel-chromebook: *baseline-job
 
+  kbuild-clang-17-arm64-chromeos-mediatek:
+    <<: *kbuild-clang-17-arm64-chromeos-job
+    params:
+      <<: *kbuild-clang-17-arm64-chromeos-params
+      flavour: mediatek
+    rules:
+      <<: *kbuild-clang-17-arm64-chromeos-rules
+      branch:
+        - '!chromiumos:chromeos-5.4'
+        - '!chromiumos:chromeos-6.6'
+
+  kbuild-clang-17-arm64-chromeos-qualcomm:
+    <<: *kbuild-clang-17-arm64-chromeos-job
+    params:
+      <<: *kbuild-clang-17-arm64-chromeos-params
+      flavour: qualcomm
+    rules:
+      <<: *kbuild-clang-17-arm64-chromeos-rules
+      branch:
+        - 'chromeos-6.6'
+
+  kbuild-clang-17-x86-chromeos-amd:
+    <<: *kbuild-clang-17-x86-chromeos-job
+    params:
+      <<: *kbuild-clang-17-x86-chromeos-params
+      flavour: amd-stoneyridge
+    rules:
+      <<: *kbuild-clang-17-x86-chromeos-rules
+      branch:
+        - '!chromiumos:chromeos-5.15'
+        - '!chromiumos:chromeos-6.1'
+        - '!chromiumos:chromeos-6.12'
+
+  kbuild-clang-17-x86-chromeos-intel:
+    <<: *kbuild-clang-17-x86-chromeos-job
+    params:
+      <<: *kbuild-clang-17-x86-chromeos-params
+      flavour: intel-pineview
+
   kbuild-gcc-12-arm64-chromebook:
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
       <<: *kbuild-gcc-12-arm64-chromeos-params
       cross_compile_compat:
       defconfig: defconfig
+    rules:
+      <<: *kbuild-gcc-12-arm64-chromeos-rules
+      tree:
+        - '!android'
+        - '!chromiumos'
 
   kbuild-gcc-12-arm64-chromeos-mediatek:
     <<: *kbuild-gcc-12-arm64-chromeos-job
@@ -589,18 +670,30 @@ jobs:
       min_version:
         version: 6
         patchlevel: 1
+      branch:
+      - '!chromiumos:chromeos-6.6'
 
   kbuild-gcc-12-arm64-chromeos-qualcomm:
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
       <<: *kbuild-gcc-12-arm64-chromeos-params
       flavour: qualcomm
+    rules:
+      <<: *kbuild-gcc-12-arm64-chromeos-rules
+      branch:
+      - 'chromiumos:chromeos-6.6'
 
   kbuild-gcc-12-x86-chromeos-amd:
     <<: *kbuild-gcc-12-x86-chromeos-job
     params:
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: amd-stoneyridge
+    rules:
+      <<: *kbuild-gcc-12-x86-chromeos-rules
+      branch:
+        - '!chromiumos:chromeos-5.15'
+        - '!chromiumos:chromeos-6.1'
+        - '!chromiumos:chromeos-6.12'
 
   kbuild-gcc-12-x86-chromeos-intel:
     <<: *kbuild-gcc-12-x86-chromeos-job
