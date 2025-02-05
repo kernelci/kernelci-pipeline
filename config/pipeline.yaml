@@ -34,6 +34,7 @@ _anchors:
     rules:
       tree:
       - '!android'
+      - '!chromiumos'
 
   kbuild-clang-17-arm64-job: &kbuild-clang-17-arm64-job
     <<: *kbuild-job
@@ -230,6 +231,7 @@ runtimes:
     rules:
       tree:
       - '!android'
+      - '!chromiumos'
 
   lava-cip:
     lab_type: lava
@@ -1454,6 +1456,7 @@ jobs:
     rules:
       tree:
       - '!android'
+      - '!chromiumos'
 
   kbuild-gcc-12-x86-kselftest:
     <<: *kbuild-gcc-12-x86-job
@@ -2057,6 +2060,9 @@ trees:
 
   chrome-platform:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
+
+  chromiumos:
+    url: "https://chromium.googlesource.com/chromiumos/third_party/kernel"
 
   cip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
@@ -3751,6 +3757,30 @@ build_configs:
   chrome-platform-firmware:
     tree: chrome-platform
     branch: 'for-firmware-next'
+
+  chromiumos-5.4: &chromiumos
+    tree: chromiumos
+    branch: 'chromeos-5.4'
+
+  chromiumos-5.10:
+    <<: *chromiumos
+    branch: 'chromeos-5.10'
+
+  chromiumos-5.15:
+    <<: *chromiumos
+    branch: 'chromeos-5.15'
+
+  chromiumos-6.1:
+    <<: *chromiumos
+    branch: 'chromeos-6.1'
+
+  chromiumos-6.6:
+    <<: *chromiumos
+    branch: 'chromeos-6.6'
+
+  chromiumos-6.12:
+    <<: *chromiumos
+    branch: 'chromeos-6.12'
 
   cip-4.4:
     tree: cip
