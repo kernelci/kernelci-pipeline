@@ -1555,6 +1555,15 @@ jobs:
         - stable
     kcidb_test_suite: kselftest.aaa
 
+  kselftest-arm64:
+    <<: *kselftest-job
+    template: generic.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params
+      collections: arm64
+    kcidb_test_suite: kselftest.arm64
+
   kselftest-cpufreq:
     <<: *kselftest-job
     template: generic.jinja2
@@ -2852,6 +2861,11 @@ scheduler:
 
   - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
+
+  - job: kselftest-arm64
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-arm64
 
   - job: kselftest-dt
     event: *kbuild-gcc-12-arm-node-event
