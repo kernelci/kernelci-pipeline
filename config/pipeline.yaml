@@ -1657,6 +1657,13 @@ jobs:
       collections: iommu
     kcidb_test_suite: kselftest.iommu
 
+  kselftest-kvm:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: kvm
+    kcidb_test_suite: kselftest.kvm
+
   kselftest-net:
     <<: *kselftest-job
     params:
@@ -2884,6 +2891,13 @@ scheduler:
       - bcm2711-rpi-4-b
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
+
+  - job: kselftest-kvm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-arm64
 
 #  - job: kselftest-net
 #    event: *kbuild-gcc-12-x86-node-event
