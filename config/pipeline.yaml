@@ -1566,6 +1566,13 @@ jobs:
         - stable
     kcidb_test_suite: kselftest.aaa
 
+  kselftest-alsa:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: alsa
+    kcidb_test_suite: kselftest.alsa
+
   kselftest-arm64:
     <<: *kselftest-job
     template: generic.jinja2
@@ -2941,6 +2948,28 @@ scheduler:
 
   - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+      - imx6dl-udoo
+      - imx6q-udoo
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+      - imx8mp-evk
+      - imx8mp-verdin-nonwifi-dahlia
+      - meson-g12b-a311d-libretech-cc
+      - meson-gxl-s905x-libretech-cc
+      - meson-sm1-s905d3-libretech-cc
+      - sun50i-a64-pine64-plus
+      - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-arm64
     event: *kbuild-gcc-12-arm64-node-event
