@@ -1939,6 +1939,9 @@ jobs:
 
 trees:
 
+  aaptel:
+    url: "https://github.com/aaptel/linux.git"
+
   amlogic:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
@@ -3361,6 +3364,10 @@ build_variants:
 
 
 build_configs:
+
+  aaptel:
+    tree: aaptel
+    branch: 'nvme-rx-offload-v25'
 
   amlogic:
     tree: amlogic
