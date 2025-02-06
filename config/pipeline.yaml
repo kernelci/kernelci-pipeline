@@ -1673,6 +1673,13 @@ jobs:
       skipfile: https://storage.kernelci.org/skipfile-net.yaml
     kcidb_test_suite: kselftest.net
 
+  kselftest-timers:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: timers
+    kcidb_test_suite: kselftest.timers
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
@@ -2914,6 +2921,21 @@ scheduler:
 #      - rk3399-gru-kevin
 #      - rk3399-rock-pi-4b
 #      - sun50i-h6-pine-h64
+
+  - job: kselftest-timers
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-timers
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+      - meson-gxl-s905x-libretech-cc
+      - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-cpufreq
     event: *kbuild-gcc-12-arm64-node-event
