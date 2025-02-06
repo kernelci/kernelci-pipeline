@@ -1661,6 +1661,13 @@ jobs:
       collections: exec
     kcidb_test_suite: kselftest.exec
 
+  kselftest-ftrace:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: ftrace
+    kcidb_test_suite: kselftest.ftrace
+
   kselftest-iommu:
     <<: *kselftest-job
     params:
@@ -2964,6 +2971,22 @@ scheduler:
       - bcm2711-rpi-4-b
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-kvm
     event:
