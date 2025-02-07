@@ -5,6 +5,7 @@ and print them to the console.
 It will filter only completed kernel builds, limit to 100 events per request,
 and retrieve corresponding nodes with artifacts.
 """
+import argparse
 import requests
 import json
 import sys
@@ -20,8 +21,28 @@ EVENTS_PATH = "/events"
 # saving last processed timestamp to a file or database
 timestamp = "1970-01-01T00:00:00.000000"
 
-def pollevents(timestamp):
-    url = BASE_URI + EVENTS_PATH + f"?kind=kbuild&state=done&limit=100&recursive=true&from={timestamp}"
+
+"""
+kind:
+
+There are a few different kinds:
+
+* checkout: a new git tree checkout to be tested. Maestro frequently cuts
+    new tree checkout from tree it is subscribed to. See 'config/pipeline.yaml'
+* kbuild: a new kernel build for a given config and arch
+* job: the execution of a test suite
+* test: the execution of a test inside a job
+
+
+state:
+
+In this example we track state=done to get an event when Maestro is ready to
+provide all the information about the node. Eg for checkout it will provide
+the commit hash to test and for builds the location of the kernel binaries built.
+"""
+
+def pollevents(timestamp, kind):
+    url = BASE_URI + EVENTS_PATH + f"?state=done&kind={kind}&limit=100&recursive=true&from={timestamp}"
     print(url)
     response = requests.get(url)
     response.raise_for_status()
@@ -30,9 +51,13 @@ def pollevents(timestamp):
 
 def main():
     global timestamp
+
+    parser = argparse.ArgumentParser(description="Listen to events in Maestro.")
+    parser.add_argument("--kind", default="kbuild", help="The kind of events")
+    args = parser.parse_args()
     while True:
         try:
-            events = pollevents(timestamp)
+            events = pollevents(timestamp, args.kind)
             if len(events) == 0:
                 print("No new events, sleeping for 30 seconds")
                 time.sleep(30)
