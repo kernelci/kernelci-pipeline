@@ -3114,6 +3114,12 @@ scheduler:
       - rk3399-gru-kevin
 
   - job: ltp-smoketest
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: ltp-smoketest
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
