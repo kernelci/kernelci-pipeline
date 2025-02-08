@@ -1689,6 +1689,15 @@ jobs:
       collections: kvm
     kcidb_test_suite: kselftest.kvm
 
+  # hugepages allocation suitable for machines with 2G of memory
+  kselftest-mm-2g:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      extra_kernel_args: "secretmem.enable hugepagesz=32M hugepages=0:4 default_hugepagesz=2M hugepages=0:128 hugepagesz=64K hugepages=0:4 kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
   kselftest-net:
     <<: *kselftest-job
     params:
@@ -3023,6 +3032,14 @@ scheduler:
       name: kbuild-gcc-12-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
+
+  - job: kselftest-mm-2g
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
 
 #  - job: kselftest-net
 #    event: *kbuild-gcc-12-x86-node-event
