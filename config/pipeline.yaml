@@ -1582,6 +1582,13 @@ jobs:
       collections: arm64
     kcidb_test_suite: kselftest.arm64
 
+  kselftest-clone3:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: clone3
+    kcidb_test_suite: kselftest.clone3
+
   kselftest-cpufreq:
     <<: *kselftest-job
     template: generic.jinja2
@@ -2991,6 +2998,18 @@ scheduler:
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - meson-gxl-s905x-libretech-cc
 
   - job: kselftest-dt
     event: *kbuild-gcc-12-arm-node-event
