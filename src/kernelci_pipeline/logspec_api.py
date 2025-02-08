@@ -20,7 +20,7 @@ import logspec.main
 
 
 # Configuration tables per object type
-object_types = {
+test_types = {
     'build': {
         # logspec parser to use
         'parser': 'kbuild',
@@ -29,8 +29,14 @@ object_types = {
         # Additional incident parameters
         'build_valid': False,
     },
-    'test': {
+    'boot': {
         'parser': 'generic_linux_boot',
+        'incident_id_field': 'test_id',
+        # Additional incident parameters
+        'test_status': 'FAIL',
+    },
+    'kselftest': {
+        'parser': 'test_kselftest',
         'incident_id_field': 'test_id',
         # Additional incident parameters
         'test_status': 'FAIL',
@@ -143,7 +149,7 @@ def get_logspec_errors(parsed_data, parser):
     return errors_list, new_status
 
 
-def new_issue(logspec_error, object_type):
+def new_issue(logspec_error, test_type):
     """Generates a new KCIDB issue object from a logspec error for a
     specific object type.
     Returns the issue as a dict.
@@ -159,7 +165,7 @@ def new_issue(logspec_error, object_type):
             comment += f" ({error_copy['error']['src_file']})"
         elif 'script' in error_copy['error']:
             comment += f" ({error_copy['error']['script']})"
-    comment += f" [logspec:{object_types[object_type]['parser']},{error_copy['error']['error_type']}]"
+    comment += f" [logspec:{test_types[test_type]['parser']},{error_copy['error']['error_type']}]"
     issue = {
         'origin': 'maestro',
         'id': f'maestro:{signature}',
@@ -176,14 +182,14 @@ def new_issue(logspec_error, object_type):
             'tool': False
         }
     }
-    if 'build_valid' in object_types[object_type]:
-        issue['build_valid'] = object_types[object_type]['build_valid']
-    if 'test_status' in object_types[object_type]:
-        issue['test_status'] = object_types[object_type]['test_status']
+    if 'build_valid' in test_types[test_type]:
+        issue['build_valid'] = test_types[test_type]['build_valid']
+    if 'test_status' in test_types[test_type]:
+        issue['test_status'] = test_types[test_type]['test_status']
     return issue
 
 
-def new_incident(result_id, issue_id, object_type, issue_version):
+def new_incident(result_id, issue_id, test_type, issue_version):
     """Generates a new KCIDB incident object for a specific object type
     from an issue id.
     Returns the incident as a dict.
@@ -195,7 +201,7 @@ def new_incident(result_id, issue_id, object_type, issue_version):
         'id': f"maestro:{incident_id}",
         'issue_id': issue_id,
         'issue_version': issue_version,
-        object_types[object_type]['incident_id_field']: result_id,
+        test_types[test_type]['incident_id_field']: result_id,
         'comment': "test incident, automatically generated",
         'origin': 'maestro',
         'present': True,
@@ -215,15 +221,15 @@ def process_log(log_url, parser, start_state):
     return get_logspec_errors(parsed_data, parser)
 
 
-def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
+def generate_issues_and_incidents(result_id, log_url, test_type, oo_client):
     parsed_data = {
         'issue_node': [],
         'incident_node': [],
     }
 
     """Generate issues and incidents"""
-    start_state = logspec.main.load_parser(object_types[object_type]['parser'])
-    parser = object_types[object_type]['parser']
+    start_state = logspec.main.load_parser(test_types[test_type]['parser'])
+    parser = test_types[test_type]['parser']
     error_list, new_status = process_log(log_url, parser, start_state)
     for error in error_list:
         if error and error['error'].get('signature'):
@@ -232,11 +238,11 @@ def generate_issues_and_incidents(result_id, log_url, object_type, oo_client):
             if error['error'].get('error_type') == 'linux.kernel.error_return_code':
                 continue
 
-            issue = new_issue(error, object_type)
+            issue = new_issue(error, test_type)
             parsed_data['issue_node'].append(issue)
             issue_id = issue["id"]
             issue_version = issue["version"]
-            parsed_data['incident_node'].append(new_incident(result_id, issue_id, object_type, issue_version))
+            parsed_data['incident_node'].append(new_incident(result_id, issue_id, test_type, issue_version))
 
     # Remove duplicate issues
     parsed_data['issue_node'] = list({issue["id"]: issue for issue in parsed_data['issue_node']}.values())
