@@ -932,6 +932,8 @@ jobs:
     rules:
       tree:
       - 'stable-rt'
+      - 'mainline'
+      - 'next'
 
   kbuild-gcc-12-arm-vexpress_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -1134,6 +1136,8 @@ jobs:
     rules:
       tree:
       - 'stable-rt'
+      - 'mainline'
+      - 'next'
 
   kbuild-gcc-12-arm64-preempt_rt_chromebook:
     <<: *kbuild-gcc-12-arm64-job
@@ -1146,6 +1150,8 @@ jobs:
     rules:
       tree:
       - 'stable-rt'
+      - 'mainline'
+      - 'next'
 
   kbuild-gcc-12-i386: &kbuild-gcc-12-i386-job
     <<: *kbuild-job
@@ -1524,6 +1530,8 @@ jobs:
     rules:
       tree:
       - 'stable-rt'
+      - 'mainline'
+      - 'next'
 
   kbuild-gcc-12-x86-preempt_rt_x86_board:
     <<: *kbuild-gcc-12-x86-job
@@ -1536,6 +1544,8 @@ jobs:
     rules:
       tree:
       - 'stable-rt'
+      - 'mainline'
+      - 'next'
 
   kbuild-gcc-12-x86-tinyconfig:
     <<: *kbuild-gcc-12-x86-job
