@@ -804,8 +804,8 @@ in {runtime}",
             return "build"
         elif parsed_node.get("path").startswith("boot"):
             return "boot"
-        elif "kselftest" in parsed_node.get("path"):
-            return "kselftest"
+        # elif "kselftest" in parsed_node.get("path"):
+        #    return "kselftest"
         return None
 
     def _parse_fail_node(self, parsed_node, context, node_type):
