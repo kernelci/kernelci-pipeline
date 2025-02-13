@@ -1738,6 +1738,13 @@ jobs:
       collections: timers
     kcidb_test_suite: kselftest.timers
 
+  kselftest-vdso:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: vDSO
+    kcidb_test_suite: kselftest.vdso
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
@@ -3119,6 +3126,18 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
+
+  - job: kselftest-vdso
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-vdso
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - meson-gxl-s905x-libretech-cc
 
   - job: kselftest-cpufreq
     event: *kbuild-gcc-12-arm64-node-event
