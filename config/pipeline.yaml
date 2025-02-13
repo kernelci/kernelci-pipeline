@@ -442,6 +442,10 @@ jobs:
     rules: &kbuild-kselftest-rules
       tree:
         - 'kselftest'
+        - 'mainline'
+        - 'next'
+        - 'stable'
+        - 'stable-rc'
       fragments:
         - kselftest
 
