@@ -1717,6 +1717,13 @@ jobs:
       collections: kvm
     kcidb_test_suite: kselftest.kvm
 
+  kselftest-landlock:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: landlock
+    kcidb_test_suite: kselftest.landlock
+
   # hugepages allocation suitable for machines with 2G of memory
   kselftest-mm-2g:
     <<: *kselftest-job
@@ -3098,6 +3105,22 @@ scheduler:
       name: kbuild-gcc-12-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
+
+  - job: kselftest-landlock
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+
+  - job: kselftest-landlock
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-mm-2g
     event:
