@@ -1692,6 +1692,13 @@ jobs:
       collections: ftrace
     kcidb_test_suite: kselftest.ftrace
 
+  kselftest-futex:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: futex
+    kcidb_test_suite: kselftest.futex
+
   kselftest-iommu:
     <<: *kselftest-job
     params:
@@ -3061,6 +3068,18 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - meson-gxl-s905x-libretech-cc
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
 
   - job: kselftest-kvm
     event:
