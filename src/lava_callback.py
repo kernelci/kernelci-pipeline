@@ -362,7 +362,7 @@ def find_tree(url, branch):
 
     for bconfig in YAMLCFG['build_configs']:
         data = YAMLCFG['build_configs'].get(bconfig)
-        if data.get('tree') == treename and data.get('branch') == branch:
+        if data.get('tree') == treename:
             return treename
 
     return None
