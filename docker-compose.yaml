@@ -145,7 +145,7 @@ services:
       - './pipeline/trigger.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
-      - '--trees=kernelci'
+      - '--trees=kernelci,netdev-testing'
       - '--name=trigger'
     extra_hosts:
       - "host.docker.internal:host-gateway"
