@@ -28,6 +28,8 @@ import kernelci.storage
 import kernelci.config
 from concurrent.futures import ThreadPoolExecutor
 
+from base import validate_url
+
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
@@ -630,27 +632,6 @@ async def checkout(data: ManualCheckout, request: Request,
         item['message'] = 'OK'
         item['node'] = r
         return JSONResponse(content=item, status_code=200)
-
-
-def validate_url(url):
-    '''
-    Validate URL by:
-    - checking if it's not empty
-    - checking if it starts with HTTP* scheme
-    - requesting HEAD to see if it can be accessed
-    '''
-    if not url:
-        return False
-    if not url.startswith('http'):
-        return False
-    try:
-        r = requests.head(url)
-        if r.status_code != 200:
-            return False
-    except Exception as e:
-        logging.error(f'Error accessing URL: {e}')
-        return False
-    return True
 
 
 @app.post('/api/patchset')
