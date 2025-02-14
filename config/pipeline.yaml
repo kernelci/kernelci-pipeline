@@ -2112,6 +2112,9 @@ trees:
   net-next:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git"
 
+  netdev-testing:
+    url: "https://github.com/linux-netdev/testing.git"
+
   next:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
@@ -3897,6 +3900,10 @@ build_configs:
   net-next:
     tree: net-next
     branch: 'main'
+
+  netdev-testing:
+    tree: netdev-testing
+    branch: 'https://netdev.bots.linux.dev/static/nipa/branches.json'
 
   next_master:
     tree: next
