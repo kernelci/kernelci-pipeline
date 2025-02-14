@@ -57,6 +57,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         for config in self._build_configs.values():
             if config.tree.name == tree and config.branch == branch:
                 return config
+            if config.tree.name == tree and config.branch.startswith('http'):
+                config._branch = branch
+                return config
 
     def _find_build_commit(self, node):
         revision = node['data'].get('kernel_revision')
