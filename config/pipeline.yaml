@@ -948,6 +948,15 @@ jobs:
 
   kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
 
+  kbuild-gcc-12-arm64-chromebook-main:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
+        - 'arm64-chromebook'
+
   kbuild-gcc-12-arm64-allnoconfig:
     <<: *kbuild-gcc-12-arm64-job
     params:
@@ -1995,6 +2004,19 @@ jobs:
         - media
     kcidb_test_suite: h26forge.debian
 
+  wifi-basic:
+    template: generic.jinja2
+    kind: job
+    params:
+      test_method: wifi-basic
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
+    rules:
+      tree:
+        - mainline
+        - stable-rc
+    kcidb_test_suite: kernelci_wifi_basic
+
 trees:
 
   aaptel:
@@ -2448,6 +2470,14 @@ scheduler:
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
+
+  - job: wifi-basic
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-chromebook-main
+    runtime: *lava-collabora-runtime
+    platforms:
+      - mt8390-genio-700-evk
 
   - job: baseline-arm64-android
     event:
