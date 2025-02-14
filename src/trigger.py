@@ -21,7 +21,7 @@ import urllib
 import requests
 import hashlib
 
-from base import Service
+from base import Service, validate_url
 
 
 class Trigger(Service):
@@ -44,6 +44,14 @@ class Trigger(Service):
                 return
 
         try:
+            if validate_url(build_config.branch):
+                response = requests.get(build_config.branch)
+                # Following extractor supports only NIPA JSON scheme.
+                # Adding support for other schemas will force moving it to a separate function.
+                branches = response.json()
+                latest = sorted(branches, key=lambda x: x['date'], reverse=True)[0]
+                build_config._branch = latest['branch']
+
             head_commit = kernelci.build.get_branch_head(build_config)
         except Exception as ex:
             self.log.error(f"Failed to get branch head for {build_config.name:32s}")
