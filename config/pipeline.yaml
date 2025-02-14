@@ -1558,6 +1558,18 @@ jobs:
       - 'stable-rc'
       - 'stable'
 
+  blktests-ddp-x86:
+    template: blktests-ddp.jinja2
+    kind: job
+    params:
+      test_method: blktests-ddp
+      job_timeout: 30
+      rootfs: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20250212.0/amd64'
+    rules:
+      tree:
+        - aaptel
+    kcidb_test_suite: blktests-ddp
+
   # Named so it sorts before all the actual kselftests, we need to
   # specify a kselftest suite for YAML validation.
   kselftest-aaa: &kselftest-job
@@ -2356,6 +2368,11 @@ platforms:
     dtb: dtbs/stm32mp157c-lxa-tac-gen1.dtb
     compatible: ['lxa,stm32mp157c-tac-gen1', 'oct,stm32mp15xx-osd32', 'st,stm32mp157']
 
+  supermicro-as-2015hr-tnr:
+    arch: x86_64
+    boot_method: grubhd0
+    mach: x86
+
   sun7i-a20-cubieboard2:
     <<: *arm-device
     mach: allwinner
@@ -2581,6 +2598,12 @@ scheduler:
     platforms:
       - qemu-x86
       - aaeon-UPN-EHLX4RE-A10-0864
+
+  - job: blktests-ddp-x86
+    event: *kbuild-gcc-12-x86-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - supermicro-as-2015hr-tnr
 
   - job: kbuild-clang-17-arm-allmodconfig
     <<: *build-k8s-all
