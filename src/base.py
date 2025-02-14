@@ -76,3 +76,24 @@ class Service:
             self._stop(context)
 
         return status
+
+
+def validate_url(url):
+    '''
+    Validate URL by:
+    - checking if it's not empty
+    - checking if it starts with HTTP* scheme
+    - requesting HEAD to see if it can be accessed
+    '''
+    if not url:
+        return False
+    if not url.startswith('http'):
+        return False
+    try:
+        r = requests.head(url)
+        if r.status_code != 200:
+            return False
+    except Exception as e:
+        logging.error(f'Error accessing URL: {e}')
+        return False
+    return True
