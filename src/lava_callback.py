@@ -632,20 +632,23 @@ async def checkout(data: ManualCheckout, request: Request,
         return JSONResponse(content=item, status_code=200)
 
 
-def validate_patch_url(patchurl):
+def validate_url(url):
     '''
-    Validate patch URL
+    Validate URL by:
+    - checking if it's not empty
+    - checking if it starts with HTTP* scheme
+    - requesting HEAD to see if it can be accessed
     '''
-    if not patchurl:
+    if not url:
         return False
-    if not patchurl.startswith('http'):
+    if not url.startswith('http'):
         return False
     try:
-        r = requests.get(patchurl)
+        r = requests.head(url)
         if r.status_code != 200:
             return False
     except Exception as e:
-        logging.error(f'Error fetching patch URL: {e}')
+        logging.error(f'Error accessing URL: {e}')
         return False
     return True
 
@@ -696,7 +699,7 @@ async def patchset(data: PatchSet, request: Request,
                 if not isinstance(patchurl, str):
                     item['message'] = 'Invalid patch URL element type'
                     return JSONResponse(content=item, status_code=400)
-                if not validate_patch_url(patchurl):
+                if not validate_url(patchurl):
                     item['message'] = 'Invalid patch URL'
                     return JSONResponse(content=item, status_code=400)
         else:
