@@ -28,6 +28,8 @@ import kernelci.storage
 import kernelci.config
 from concurrent.futures import ThreadPoolExecutor
 
+from base import validate_url
+
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
@@ -360,7 +362,7 @@ def find_tree(url, branch):
 
     for bconfig in YAMLCFG['build_configs']:
         data = YAMLCFG['build_configs'].get(bconfig)
-        if data.get('tree') == treename and data.get('branch') == branch:
+        if data.get('tree') == treename #and data.get('branch') == branch:
             return treename
 
     return None
@@ -632,24 +634,6 @@ async def checkout(data: ManualCheckout, request: Request,
         return JSONResponse(content=item, status_code=200)
 
 
-def validate_patch_url(patchurl):
-    '''
-    Validate patch URL
-    '''
-    if not patchurl:
-        return False
-    if not patchurl.startswith('http'):
-        return False
-    try:
-        r = requests.get(patchurl)
-        if r.status_code != 200:
-            return False
-    except Exception as e:
-        logging.error(f'Error fetching patch URL: {e}')
-        return False
-    return True
-
-
 @app.post('/api/patchset')
 async def patchset(data: PatchSet, request: Request,
                    Authorization: str = Header(None)):
@@ -696,7 +680,7 @@ async def patchset(data: PatchSet, request: Request,
                 if not isinstance(patchurl, str):
                     item['message'] = 'Invalid patch URL element type'
                     return JSONResponse(content=item, status_code=400)
-                if not validate_patch_url(patchurl):
+                if not validate_url(patchurl):
                     item['message'] = 'Invalid patch URL'
                     return JSONResponse(content=item, status_code=400)
         else:
