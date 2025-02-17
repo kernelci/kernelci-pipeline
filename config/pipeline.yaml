@@ -1584,6 +1584,7 @@ jobs:
     rules:
       tree:
         - aaptel
+        - netdev-testing
     kcidb_test_suite: blktests-ddp
 
   # Named so it sorts before all the actual kselftests, we need to
@@ -3970,7 +3971,7 @@ build_configs:
 
   netdev-testing:
     tree: netdev-testing
-    branch: 'https://netdev.bots.linux.dev/static/nipa/branches.json'
+    branch: 'https://netdev.bots.linux.dev/static/nipa/branches-hw.json'
 
   next_master:
     tree: next
