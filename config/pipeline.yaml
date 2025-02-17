@@ -1575,6 +1575,7 @@ jobs:
     rules:
       tree:
         - aaptel
+        - netdev-testing
     kcidb_test_suite: blktests-ddp
 
   # Named so it sorts before all the actual kselftests, we need to
