@@ -21,12 +21,14 @@ spec:
     spec:
       containers:
         - name: lava-callback
-          image: kernelci/kernelci:lava-callback@sha256:0037ee6df605a49938f61e11e071a9d730d1702a042dec4c3baa36beaa9b3262
+          image: kernelci/kernelci:lava-callback@sha256:255fdb9dfd0552f22c50cb60debf5de3ef7f1c675f9bd14231d14a31bc24368f
           imagePullPolicy: Always
+          # change directory to /home/kernelci/src
+          workingDir: /home/kernelci/src
           command:
             - 'uvicorn'
           args:
-            - 'src.lava_callback:app'
+            - 'lava_callback:app'
             - '--host=0.0.0.0'
             - '--port=8000'
             - '--proxy-headers'
