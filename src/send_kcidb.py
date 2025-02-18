@@ -277,6 +277,7 @@ class KCIDBBridge(Service):
             'misc': {
                 'platform': node['data'].get('platform'),
                 'runtime': node['data'].get('runtime'),
+                'lab': node['data'].get('runtime'),
                 'job_id': node['data'].get('job_id'),
                 'job_context': node['data'].get('job_context'),
                 'kernel_type': node['data'].get('kernel_type'),
