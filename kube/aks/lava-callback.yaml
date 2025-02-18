@@ -24,10 +24,12 @@ spec:
           image: kernelci/kernelci:lava-callback@sha256:255fdb9dfd0552f22c50cb60debf5de3ef7f1c675f9bd14231d14a31bc24368f
           imagePullPolicy: Always
           # change directory to /home/kernelci/src
-          workingDir: /home/kernelci/src
+          workingDir: /home/kernelci
           command:
             - 'uvicorn'
           args:
+            - '--app-dir'
+            - 'src'
             - 'lava_callback:app'
             - '--host=0.0.0.0'
             - '--port=8000'
