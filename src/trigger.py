@@ -50,6 +50,9 @@ class Trigger(Service):
                 # Adding support for other schemas will force moving it to a separate function.
                 branches = response.json()
                 latest = sorted(branches, key=lambda x: x['date'], reverse=True)[0]
+                tree = build_config.tree.name
+                print(f"NIPA Latest branch: {latest['branch']} Date: {latest['date']}"
+                      f" Tree: {tree}")
                 build_config._branch = latest['branch']
 
             head_commit = kernelci.build.get_branch_head(build_config)
