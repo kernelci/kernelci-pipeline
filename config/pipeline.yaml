@@ -3651,7 +3651,7 @@ build_configs:
 
   aaptel:
     tree: aaptel
-    branch: 'nvme-rx-offload-v25'
+    branch: 'nvme-rx-offload-v26'
 
   amlogic:
     tree: amlogic
