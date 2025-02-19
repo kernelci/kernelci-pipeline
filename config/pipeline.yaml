@@ -1758,6 +1758,13 @@ jobs:
       skipfile: https://storage.kernelci.org/skipfile-net.yaml
     kcidb_test_suite: kselftest.net
 
+  kselftest-perf-events:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: perf_events
+    kcidb_test_suite: kselftest.perf_events
+
   kselftest-signal:
     <<: *kselftest-job
     params:
@@ -3178,6 +3185,23 @@ scheduler:
 #      - rk3399-gru-kevin
 #      - rk3399-rock-pi-4b
 #      - sun50i-h6-pine-h64
+
+  - job: kselftest-perf-events
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-perf-events
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+      - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-timers
     event: *kbuild-gcc-12-arm-node-event
