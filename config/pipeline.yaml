@@ -1781,6 +1781,13 @@ jobs:
       collections: perf_events
     kcidb_test_suite: kselftest.perf_events
 
+  kselftest-seccomp:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: seccomp
+    kcidb_test_suite: kselftest.seccomp
+
   kselftest-signal:
     <<: *kselftest-job
     params:
@@ -3260,6 +3267,22 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - meson-gxl-s905x-libretech-cc
+      - sun50i-h5-libretech-all-h3-cc
+
+  - job: kselftest-seccomp
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-seccomp
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
       - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-signal
