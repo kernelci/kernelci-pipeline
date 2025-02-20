@@ -103,6 +103,11 @@ _anchors:
     result: pass
     kind: kbuild
 
+  job-event: &job-event
+    channel: node
+    state: done
+    kind: job
+
 ### Frequently used rules
 
   build-only-trees-rules: &build-only-trees-rules
@@ -2071,6 +2076,13 @@ jobs:
         - mainline
         - stable-rc
     kcidb_test_suite: kernelci_wifi_basic
+  
+  nipa-update:
+    template: nipa-update.jinja2
+    kind: test
+    image: kernelci/{image_prefix}kernelci
+    kcidb_test_suite: kernelci_nipa-update
+
 
 trees:
 
@@ -3681,6 +3693,17 @@ scheduler:
     platforms:
       - rk3399-gru-kevin
       - rk3399-rock-pi-4b
+
+  # Execute nipa-update on the blktests-ddp-x86 node
+  # complete with the blktests-ddp-x86 event
+  - job: nipa-update
+    event:
+      <<: *job-event
+      name: blktests-ddp-x86
+    runtime:
+      type: shell
+
+
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
