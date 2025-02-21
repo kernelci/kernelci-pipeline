@@ -1,0 +1,90 @@
+---
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2024 Collabora Limited
+# Authors: Guillaume Tucker <guillaume.tucker@collabora.com>
+#          Denys Fedoryshchenko <denys.f@collabora.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler-shell
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler-shell
+  template:
+    metadata:
+      labels:
+        app: scheduler-shell
+    spec:
+      containers:
+        - name: scheduler
+          image: kernelci/kernelci:pipeline@sha256:34b13865be01a90b600604b7612f4cc048463d72626c2175ba2d2b40375eee12
+          imagePullPolicy: Always
+          command:
+            - ./src/scheduler.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config
+            - loop
+            - --name=scheduler_shell
+            - --runtimes
+            - shell
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+            - name: KCI_SSH_KEY
+              value: "/secrets/id_rsa"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+            - name: tmpsecrets
+              mountPath: /home/kernelci/secrets
+            - name: tmpsecrets
+              mountPath: /home/kernelci/.kube
+              subPath: k8s-credentials/.kube
+            - name: tmpsecrets
+              mountPath: /home/kernelci/.config/gcloud
+              subPath: k8s-credentials/.config/gcloud
+            - name: tmpsecrets
+              mountPath: /home/kernelci/.azure
+              subPath: k8s-credentials/.azure
+      initContainers:
+        - name: credentials
+          image: kernelci/kernelci:pipeline
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tmpsecrets
+              mountPath: /tmp/secrets
+            - name: k8scredentials
+              mountPath: /tmp/k8s
+              readOnly: true
+          command:
+            - tar
+            - xzf
+            - /tmp/k8s/k8s-credentials.tgz
+            - -C
+            - /tmp/secrets
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
+        - name: k8scredentials
+          secret:
+            secretName: k8scredentials
+        - name: tmpsecrets
+          emptyDir: {}
