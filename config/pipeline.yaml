@@ -1756,6 +1756,13 @@ jobs:
       collections: iommu
     kcidb_test_suite: kselftest.iommu
 
+  kselftest-ipc:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: ipc
+    kcidb_test_suite: kselftest.ipc
+
   kselftest-kvm:
     <<: *kselftest-job
     params:
@@ -3203,6 +3210,22 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: kselftest-ipc
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-ipc
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-kvm
     event:
