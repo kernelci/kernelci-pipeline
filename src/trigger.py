@@ -133,8 +133,7 @@ class Trigger(Service):
                                timeout, trees):
         for name, config in self._build_configs.items():
             if not build_configs_list or name in build_configs_list:
-                cfg_copy = config.copy()
-                self._run_trigger(cfg_copy, force, timeout, trees)
+                self._run_trigger(config, force, timeout, trees)
 
     def _setup(self, args):
         return {
