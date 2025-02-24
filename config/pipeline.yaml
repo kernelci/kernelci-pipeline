@@ -4018,7 +4018,7 @@ build_configs:
 
   netdev-testing:
     tree: netdev-testing
-    branch: 'https://netdev.bots.linux.dev/static/nipa/branches-hw.json'
+    branch: 'https://storage.staging.kernelci.org/experimental/branches-hw.json'
 
   next_master:
     tree: next
