@@ -92,8 +92,7 @@ def validate_url(url):
         return False
     try:
         r = requests.head(url)
-        if r.status_code != 200:
-            return False
+        r.raise_for_status()
     except Exception as e:
         logging.error(f'Error accessing URL: {e}')
         return False
