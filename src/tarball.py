@@ -7,6 +7,7 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 # Author: Nikolay Yurin <yurinnick@meta.com>
 
+import copy
 from datetime import datetime, timedelta
 import os
 import re
@@ -58,8 +59,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             if config.tree.name == tree and config.branch == branch:
                 return config
             if config.tree.name == tree and config.branch.startswith('http'):
-                config._branch = branch
-                return config
+                current = copy.copy(config)
+                current._branch = branch
+                return current
 
     def _find_build_commit(self, node):
         revision = node['data'].get('kernel_revision')
