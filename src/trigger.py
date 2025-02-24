@@ -44,20 +44,21 @@ class Trigger(Service):
                 return
 
         try:
-            if validate_url(build_config.branch):
-                response = requests.get(build_config.branch)
+            current_config = build_config.copy()
+            if validate_url(current_config.branch):
+                response = requests.get(current_config.branch)
                 # Following extractor supports only NIPA JSON scheme.
                 # Adding support for other schemas will force moving it to a separate function.
                 branches = response.json()
                 latest = sorted(branches, key=lambda x: x['date'], reverse=True)[0]
-                tree = build_config.tree.name
+                tree = current_config.tree.name
                 self.log.info(f"NIPA Latest branch: {latest['branch']} Date: {latest['date']}"
                               f" Tree: {tree}")
-                build_config._branch = latest['branch']
+                current_config._branch = latest['branch']
 
-            head_commit = kernelci.build.get_branch_head(build_config)
+            head_commit = kernelci.build.get_branch_head(current_config)
         except Exception as ex:
-            self.log.error(f"Failed to get branch head for {build_config.name:32s}")
+            self.log.error(f"Failed to get branch head for {current_config.name:32s}")
             self.traceback(ex)
             return
         search_terms = {
@@ -74,7 +75,7 @@ class Trigger(Service):
         # it means we retry the same commit 3 times and it still fails
         if incomplete_node_count >= 3:
             self._log_revision(
-                "Too many incomplete checkouts", build_config, head_commit
+                "Too many incomplete checkouts", current_config, head_commit
             )
             return
 
@@ -82,22 +83,22 @@ class Trigger(Service):
         if node_count > 0 and incomplete_node_count != node_count:
             if force:
                 self._log_revision(
-                    "Resubmitting existing revision", build_config, head_commit
+                    "Resubmitting existing revision", current_config, head_commit
                 )
             else:
                 self._log_revision(
-                    "Existing revision", build_config, head_commit
+                    "Existing revision", current_config, head_commit
                 )
                 return
         else:
             self._log_revision(
-                "New revision", build_config, head_commit
+                "New revision", current_config, head_commit
             )
 
         revision = {
-            'tree': build_config.tree.name,
-            'url': build_config.tree.url,
-            'branch': build_config.branch,
+            'tree': current_config.tree.name,
+            'url': current_config.tree.url,
+            'branch': current_config.branch,
             'commit': head_commit,
         }
         checkout_timeout = datetime.utcnow() + timedelta(minutes=timeout)
