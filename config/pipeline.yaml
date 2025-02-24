@@ -1770,6 +1770,13 @@ jobs:
       collections: mm
     kcidb_test_suite: kselftest.mm
 
+  kselftest-mqueue:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: mqueue
+    kcidb_test_suite: kselftest.mqueue
+
   kselftest-net:
     <<: *kselftest-job
     params:
@@ -3225,6 +3232,18 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: kselftest-mqueue
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-mqueue
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - meson-gxl-s905x-libretech-cc
 
 #  - job: kselftest-net
 #    event: *kbuild-gcc-12-x86-node-event
