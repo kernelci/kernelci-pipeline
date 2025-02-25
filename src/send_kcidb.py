@@ -272,7 +272,7 @@ class KCIDBBridge(Service):
             'start_time': self._set_timezone(node['created']),
             'architecture': node['data'].get('arch'),
             'compiler': node['data'].get('compiler'),
-            'config_name': node['data'].get('defconfig'),
+            'config_name': node['data'].get('config_full'),
             'valid': valid,
             'misc': {
                 'platform': node['data'].get('platform'),
