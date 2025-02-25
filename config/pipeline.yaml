@@ -1875,6 +1875,18 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "cap_bounds"
 
+  ltp-containers:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "containers"
+
+  ltp-controllers:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "controllers"
+
   ltp-cpuhotplug:
     <<: *ltp-job
     params:
@@ -1890,6 +1902,13 @@ jobs:
       fragments:
         - 'crypto'
         - '!kselftest'
+
+  ltp-cve:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "cve"
+      job_timeout: 45
 
   ltp-dio:
     <<: *ltp-job
@@ -1908,6 +1927,30 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "filecaps"
+
+  ltp-fs:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs"
+
+  ltp-fs-bind:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs_bind"
+
+  ltp-fs-perms-simple:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs_perms_simple"
+
+  ltp-fs-readonly:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs_readonly"
 
   ltp-fsx:
     <<: *ltp-job
@@ -1930,6 +1973,12 @@ jobs:
       fragments:
         - 'ima'
         - '!kselftest'
+
+  ltp-input:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "input"
 
   ltp-io:
     <<: *ltp-job
@@ -1976,6 +2025,12 @@ jobs:
       tst_cmdfiles: "syscalls"
       job_timeout: 120
 
+  ltp-syscalls-ipc:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "syscalls"
+
   ltp-timers:
     <<: *ltp-job
     params:
@@ -1995,6 +2050,12 @@ jobs:
         - 'defconfig'
       fragments:
         - '!kselftest'
+
+  ltp-watchqueue:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "watchqueue"
 
   rt-tests: &rt-tests
     template: rt-tests.jinja2
@@ -3465,6 +3526,18 @@ scheduler:
     platforms:
       - beaglebone-black
 
+  - job: ltp-containers
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: ltp-controllers
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
   - job: ltp-crypto
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
@@ -3476,6 +3549,12 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
+
+  - job: ltp-cve
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
 
   - job: ltp-dio
     event: *kbuild-gcc-12-arm-node-event
@@ -3489,6 +3568,12 @@ scheduler:
     platforms:
       - rk3399-gru-kevin
 
+  - job: ltp-fs-bind
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
   - job: ltp-fsx
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
@@ -3500,6 +3585,12 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: ltp-input
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
 
   - job: ltp-ipc
     event: *kbuild-gcc-12-arm-node-event
@@ -3537,6 +3628,12 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
+  - job: ltp-syscalls-ipc
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
   - job: ltp-timers
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
@@ -3555,6 +3652,12 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - qemu-x86
+
+  - job: ltp-watchqueue
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt-node-event
