@@ -7,8 +7,6 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import datetime
-import json
-import logging
 import sys
 
 import kernelci
