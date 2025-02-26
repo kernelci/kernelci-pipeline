@@ -12,7 +12,7 @@ This manual describes how to enable trees in [`kernelci-pipeline`](https://githu
 
 
 ### Pipeline configuration
-The pipeline [configuration](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) file has `trees` section.
+The pipeline [trees](https://github.com/kernelci/kernelci-pipeline/blob/main/config/trees.yaml) configuration file has `trees` section.
 In order to enable a new tree, we need to add an entry there.
 
 ```yaml
@@ -28,7 +28,8 @@ trees:
 ```
 
 The `<tree-name>` will be used in the other sections to refer to the newly added tree.
-After adding a `trees` entry, we need to define build and test configurations for it. In the same [configuration](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) file, `jobs` section is there to specify them. `ChromeOS` specific job definitions are located in [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) file. Depending upon the type of the job such as build or test job, different parameters are specified:
+
+After adding a `trees` entry, we need to define build and test configurations for it. In the same [jobs](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs.yaml) cofiguration file, the `jobs` section is there to specify them. `ChromeOS` specific job definitions are located in [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) file. Depending upon the type of the job such as build or test job, different parameters are specified:
 
 For instance,
 ```yaml
@@ -110,7 +111,7 @@ The test job example is:
       job_timeout: 10
     kcidb_test_suite: kselftest.exec
 ```
-Please have a look at [config/pipeline.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) and [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) files to check currently added job definitions for reference.
+Please have a look at [config/jobs.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs.yaml) and [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) files to check currently added job definitions for reference.
 
 We need to specify which branch to monitor of a particular tree for trigering jobs in `build_configs`.
 
@@ -125,11 +126,11 @@ build_configs:
     branch: <branch-name1>
 ```
 
-That's it! The tree is enabled now. All the jobs defined under `jobs` section of [config file](https://github.com/kernelci/kernelci-pipeline/blob/main/config/pipeline.yaml) would run on the specified branched for this tree.
+That's it! The tree is enabled now. All the jobs defined under `jobs` section of [config file](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs.yaml) would run on the specified branched for this tree.
 
 ### Schedule the job
 
-We also need a `scheduler` entry for the newly added job to specify pre-conditions for scheduling, and defining runtime and platforms for job submissions.
+We also need a `scheduler` entry in [config/scheduler.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/scheduler.yaml) for the newly added job to specify pre-conditions for scheduling, and defining runtime and platforms for job submissions. 
 
 For example,
 ```yaml

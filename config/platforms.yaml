@@ -1,0 +1,271 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2021, 2022, 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+# Not directly loaded into the config, only used for YAML aliases in this file
+_anchors:
+
+### Device definition templates
+
+  arm64-device: &arm64-device
+    arch: arm64
+    boot_method: u-boot
+
+  arm-device: &arm-device
+    <<: *arm64-device
+    arch: arm
+
+  x86_64-device: &x86_64-device
+    arch: x86_64
+    boot_method: grub
+    mach: x86
+
+
+platforms:
+
+  aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
+
+  bcm2711-rpi-4-b:
+    <<: *arm64-device
+    mach: broadcom
+    dtb: dtbs/broadcom/bcm2711-rpi-4-b.dtb
+    compatible: ['raspberrypi,4-model-b', 'brcm,bcm2711']
+
+  # No job is being scheduled on these board as its infrastructure errors need to be fixed first.
+  bcm2836-rpi-2-b:
+    <<: *arm-device
+    mach: broadcom
+    dtb: dtbs/bcm2836-rpi-2-b.dtb
+    compatible: ['raspberrypi,2-model-b', 'brcm,bcm2836']
+
+  beaglebone-black:
+    <<: *arm-device
+    mach: omap
+    dtb: dtbs/am335x-boneblack.dtb
+    compatible: ['ti,am335x-bone-black', 'ti,am335x-bone', 'ti,am33xx']
+
+  docker:
+
+  imx53-qsrb:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx53-qsrb.dtb
+    compatible: ['fsl,imx53-qsrb', 'fsl,imx53']
+
+  imx6dl-udoo:
+    <<: *arm-device
+    mach: imx
+    dtb: dtbs/imx6dl-udoo.dtb
+    compatible: ['udoo,imx6dl-udoo', 'fsl,imx6dl']
+
+  imx6dl-riotboard:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx6dl-riotboard.dtb
+    compatible: ['riot,imx6s-riotboard', 'fsl,imx6dl']
+
+  imx6q-sabrelite:
+    <<: *arm-device
+    mach: imx
+    dtb: dtbs/imx6q-sabrelite.dtb
+    compatible: ['fsl,imx6q-sabrelite', 'fsl,imx6q']
+
+  imx6q-udoo:
+    <<: *arm-device
+    mach: imx
+    dtb: dtbs/imx6q-udoo.dtb
+    compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
+
+  imx8mm-innocomm-wb15-evk:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/freescale/imx8mm-innocomm-wb15-evk.dtb
+    compatible: ['innocomm,wb15-evk', 'fsl,imx8mm']
+
+  imx8mp-evk:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-evk.dtb
+    compatible: ["fsl,imx8mp-evk", "fsl,imx8mp"]
+
+  imx8mp-tqma8mpql-mba8mpxl:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-tqma8mpql-mba8mpxl.dtb
+    compatible: ['tq,imx8mp-tqma8mpql-mba8mpxl', 'tq,imx8mp-tqma8mpql', 'fsl,imx8mp']
+
+  imx8mp-verdin-nonwifi-dahlia:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx8mp-verdin-nonwifi-dahlia.dtb
+    compatible: ['toradex,verdin-imx8mp-nonwifi-dahlia',
+                 'toradex,verdin-imx8mp-nonwifi',
+                 'toradex,verdin-imx8mp',
+                 'fsl,imx8mp']
+  juno:
+    <<: *arm64-device
+    mach: vexpress
+    dtb: dtbs/arm/juno.dtb
+    compatible: ['arm,juno', 'arm,vexpress']
+
+
+  kubernetes:
+
+  meson-g12b-a311d-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12b-a311d-libretech-cc.dtb
+    compatible: ['libretech,aml-a311d-cc', 'amlogic,a311d', 'amlogic,g12b']
+
+  meson-g12b-a311d-khadas-vim3:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
+    compatible: ['khadas,vim3', 'amlogic,a311d', 'amlogic,g12b']
+
+  meson-gxl-s905x-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-gxl-s905x-libretech-cc.dtb
+    compatible: ['libretech,aml-s905x-cc', 'amlogic,s905x', 'amlogic,meson-gxl']
+
+  meson-sm1-s905d3-libretech-cc:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-sm1-s905d3-libretech-cc.dtb
+    compatible: ['libretech,aml-s905d3-cc', 'amlogic,sm1']
+
+  # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
+  minnowboard-turbot-E3826: *x86_64-device
+
+  mt8365-genio-350-evk:
+    <<: *arm64-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8365-evk.dtb
+    compatible: ['mediatek,mt8365-evk', 'mediatek,mt8365']
+
+  mt8390-genio-700-evk:
+    <<: *arm64-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8390-genio-700-evk.dtb
+    compatible: ['mediatek,mt8390-evk', 'mediatek,mt8390', 'mediatek,mt8188']
+
+  mt8395-genio-1200-evk:
+    <<: *arm64-device
+    mach: mediatek
+    dtb: dtbs/mediatek/mt8395-genio-1200-evk.dtb
+    compatible: ['mediatek,mt8395-evk', 'mediatek,mt8395', 'mediatek,mt8195']
+
+  odroid-xu3:
+    <<: *arm-device
+    mach: samsung
+    dtb: dtbs/exynos5422-odroidxu3.dtb
+    compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
+
+  qcs6490-rb3gen2:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
+    compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
+
+  qemu: &qemu-device
+    base_name: qemu
+    arch: x86_64
+    boot_method: qemu
+    mach: qemu
+    context:
+      arch: x86_64
+      cpu: qemu64
+      guestfs_interface: ide
+
+  qemu-x86: *qemu-device
+
+  rk3288-rock2-square:
+    <<: *arm-device
+    mach: rockchip
+    dtb: dtbs/rk3288-rock2-square.dtb
+    compatible: ['radxa,rock2-square', 'rockchip,rk3288']
+
+  rk3288-veyron-jaq:
+    <<: *arm-device
+    boot_method: depthcharge
+    mach: rockchip
+    dtb: dtbs/rk3288-veyron-jaq.dtb
+    compatible: ['google,veyron-jaq-rev5', 'google,veyron-jaq-rev4']
+
+  rk3399-gru-kevin:
+    <<: *arm64-device
+    boot_method: depthcharge
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
+    compatible: ['google,kevin-rev15', 'google,kevin-rev14']
+
+  rk3399-rock-pc:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-roc-pc.dtb
+    compatible: ['firefly,roc-rk3399-pc', 'rockchip,rk3399']
+
+  rk3399-rock-pi-4b:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-rock-pi-4b.dtb
+    compatible: ['radxa,rockpi4b', 'radxa,rockpi4', 'rockchip,rk3399']
+
+  rk3588-rock-5b:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3588-rock-5b.dtb
+    compatible: ['radxa,rock-5b', 'rockchip,rk3588']
+
+  shell:
+
+  stm32mp157a-dhcor-avenger96:
+    <<: *arm-device
+    mach: st
+    dtb: dtbs/stm32mp157a-dhcor-avenger96.dtb
+    compatible: ['arrow,stm32mp157a-avenger96', 'dh,stm32mp157a-dhcor-som',
+                     'st,stm32mp157']
+
+  stm32mp157c-lxa-tac-gen1:
+    <<: *arm-device
+    boot_method: barebox
+    mach: st
+    dtb: dtbs/stm32mp157c-lxa-tac-gen1.dtb
+    compatible: ['lxa,stm32mp157c-tac-gen1', 'oct,stm32mp15xx-osd32', 'st,stm32mp157']
+
+  supermicro-as-2015hr-tnr:
+    arch: x86_64
+    boot_method: grubhd0
+    mach: x86
+
+  sun7i-a20-cubieboard2:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun7i-a20-cubieboard2.dtb
+    compatible: ['cubietech,cubieboard2', 'allwinner,sun7i-a20']
+
+  sun50i-a64-pine64-plus:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-a64-pine64-plus.dtb
+    compatible: ['pine64,pine64-plus', 'allwinner,sun50i-a64']
+
+  sun50i-h5-libretech-all-h3-cc:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
+    compatible: ['libretech,all-h3-cc-h5', 'allwinner,sun50i-h5']
+
+  sun50i-h6-pine-h64:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
+    compatible: ['pine64,pine-h64', 'allwinner,sun50i-h6']
+
