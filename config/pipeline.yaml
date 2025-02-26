@@ -1837,6 +1837,13 @@ jobs:
       collections: timers
     kcidb_test_suite: kselftest.timers
 
+  kselftest-uevent:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: uevent
+    kcidb_test_suite: kselftest.uevent
+
   kselftest-user-events:
     <<: *kselftest-job
     params:
@@ -3293,6 +3300,22 @@ scheduler:
 
   - job: kselftest-signal
     event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - sun50i-h5-libretech-all-h3-cc
+
+  - job: kselftest-uevent
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-uevent
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
