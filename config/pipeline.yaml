@@ -1423,6 +1423,15 @@ jobs:
         - 'x86-board'
         - 'kselftest'
 
+  kbuild-gcc-12-x86-drm:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'lab-setup'
+        - 'x86-drm'
+        - 'kselftest'
+
   kbuild-gcc-12-x86-allnoconfig:
     <<: *kbuild-gcc-12-x86-job
     params:
