@@ -1854,6 +1854,9 @@ jobs:
     kind: job
     image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kunit-kernelci
     kcidb_test_suite: kunit
+    rules:
+      tree:
+      - '!chromiumos'
 
   kunit-x86_64:
     <<: *kunit-job
