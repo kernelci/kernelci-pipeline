@@ -283,6 +283,7 @@ class KCIDBBridge(Service):
                 'kernel_type': node['data'].get('kernel_type'),
                 'error_code': error_code,
                 'error_msg': node['data'].get('error_msg'),
+                'maestro_viewer': f"https://api.kernelci.org/viewer?node_id={node['id']}"
             }
         }
         artifacts = node.get('artifacts')
@@ -493,6 +494,8 @@ in {runtime}",
                 'kernel_type': test_node['data'].get('kernel_type'),
                 'arch': test_node['data'].get('arch'),
                 'runtime': runtime,
+                'maestro_viewer': f"https://api.kernelci.org/viewer?node_id={test_node['id']}"
+
             }
         }
 
