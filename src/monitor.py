@@ -52,7 +52,7 @@ class Monitor(Service):
             None: "-",
         }
 
-        self.log.info("Listening for events... ")
+        self.log.info("Monitor: Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
         print(self._log_titles, flush=True)
 
