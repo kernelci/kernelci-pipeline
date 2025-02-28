@@ -124,13 +124,6 @@ _anchors:
     rules:
       <<: *tast-decoder-rules
 
-  tast-basic: &tast-basic-job
-    <<: *tast-job
-    params:
-      tests:
-        - platform.CheckDiskSpace
-        - platform.TPMResponsive
-
   tast-decoder-chromestack: &tast-decoder-chromestack-job
     <<: *tast-decoder-job
     params: &tast-decoder-chromestack-params
@@ -450,17 +443,6 @@ _anchors:
         - ui.DesksAnimationPerf
         - ui.OverviewWithExpandedDesksBarPerf
 
-  tast-perf-long-duration: &tast-perf-long-duration-job
-    <<: *tast-job
-    params:
-      tests:
-        - filemanager.ZipPerf
-        - storage.WriteZeroPerf
-        - ui.WindowCyclePerf
-        - ui.WindowResizePerf
-        - ui.BubbleLauncherAnimationPerf
-        - ui.DragMaximizedWindowPerf
-
   tast-platform: &tast-platform-job
     <<: *tast-job
     params:
@@ -729,16 +711,9 @@ jobs:
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.device_error_logs
 
-  tast-basic-arm64-mediatek: *tast-basic-job
-  tast-basic-arm64-qualcomm: *tast-basic-job
-  tast-basic-x86-amd: *tast-basic-job
-  tast-basic-x86-intel: *tast-basic-job
-
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
-  tast-debian-decoder-chromestack-arm64-mediatek: *tast-debian-decoder-chromestack-job
 
   tast-decoder-chromestack-verification-arm64-mediatek: *tast-decoder-chromestack-verification-job
-  tast-debian-decoder-chromestack-verification-arm64-mediatek: *tast-debian-decoder-chromestack-verification-job
 
   tast-decoder-chromestack-arm64-qualcomm:
     <<: *tast-decoder-chromestack-job
@@ -754,12 +729,6 @@ jobs:
 
   tast-decoder-chromestack-verification-arm64-qualcomm:
     <<: *tast-decoder-chromestack-verification-job
-    rules:
-      <<: *tast-decoder-rules
-      <<: *min-6_7-rules
-
-  tast-debian-decoder-chromestack-verification-arm64-qualcomm:
-    <<: *tast-debian-decoder-chromestack-verification-job
     rules:
       <<: *tast-decoder-rules
       <<: *min-6_7-rules
@@ -812,9 +781,6 @@ jobs:
     rules:
       <<: *tast-decoder-rules
       <<: *max-6_6-rules
-
-  tast-decoder-chromestack-x86-amd: *tast-decoder-chromestack-job
-  tast-decoder-chromestack-x86-intel: *tast-decoder-chromestack-job
 
   tast-decoder-chromestack-verification-x86-amd: *tast-decoder-chromestack-verification-job
   tast-decoder-chromestack-verification-x86-intel: *tast-decoder-chromestack-verification-job
@@ -925,9 +891,6 @@ jobs:
   tast-kernel-x86-amd: *tast-kernel-job
   tast-kernel-x86-intel: *tast-kernel-job
 
-  tast-mm-decode-arm64-mediatek: *tast-mm-decode-job
-  tast-mm-decode-arm64-qualcomm: *tast-mm-decode-job
-
   tast-debian-mm-decode-arm64-mediatek: *tast-debian-mm-decode-job
   tast-debian-mm-decode-arm64-qualcomm: *tast-debian-mm-decode-job
 
@@ -983,11 +946,6 @@ jobs:
 
   tast-perf-arm64-mediatek: *tast-perf-job
   tast-perf-arm64-qualcomm: *tast-perf-job
-
-  tast-perf-long-duration-arm64-mediatek: *tast-perf-long-duration-job
-  tast-perf-long-duration-arm64-qualcomm: *tast-perf-long-duration-job
-  tast-perf-long-duration-x86-amd: *tast-perf-long-duration-job
-  tast-perf-long-duration-x86-intel: *tast-perf-long-duration-job
 
   tast-perf-x86-amd: *tast-perf-job
   tast-perf-x86-intel: *tast-perf-job
