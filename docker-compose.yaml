@@ -18,7 +18,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     volumes: &base-volumes
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './logs:/home/kernelci/logs'
     extra_hosts:
@@ -36,7 +36,7 @@ services:
       - 'run'
       - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
@@ -54,7 +54,7 @@ services:
       - '--runtimes=shell'
       - '--name=scheduler'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
@@ -77,7 +77,7 @@ services:
       - '--runtimes=docker'
       - '--name=scheduler_docker'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './.docker-env:/home/kernelci/.docker-env'
@@ -129,7 +129,7 @@ services:
       - 'run'
       - '--name=tarball'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
@@ -222,7 +222,7 @@ services:
       - 'run'
       - '--name=patchset'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
