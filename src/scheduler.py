@@ -13,7 +13,6 @@ import json
 import yaml
 import requests
 import re
-import time
 import datetime
 
 import kernelci
