@@ -773,15 +773,6 @@ jobs:
       <<: *tast-decoder-rules
       <<: *max-6_6-rules
 
-  tast-debian-decoder-chromestack-verification-arm64-qualcomm-pre6_7:
-    <<: *tast-debian-decoder-chromestack-verification-job
-    params:
-      <<: *tast-decoder-chromestack-verification-params
-      excluded_tests: *tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7-excluded_tests
-    rules:
-      <<: *tast-decoder-rules
-      <<: *max-6_6-rules
-
   tast-decoder-chromestack-verification-x86-amd: *tast-decoder-chromestack-verification-job
   tast-decoder-chromestack-verification-x86-intel: *tast-decoder-chromestack-verification-job
 
