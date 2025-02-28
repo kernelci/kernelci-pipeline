@@ -10,7 +10,7 @@ services:
 
   monitor: &base-service
     container_name: 'kernelci-pipeline-monitor'
-    image: 'kernelci/staging-kernelci'
+    image: 'kernelci/staging-kernelci:pipeline'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     command:
@@ -18,7 +18,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     volumes: &base-volumes
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './logs:/home/kernelci/logs'
     extra_hosts:
@@ -27,16 +27,16 @@ services:
 
   result_summary:
     container_name: 'kernelci-pipeline-result-summary'
-    image: 'kernelci/staging-kernelci'
+    image: 'kernelci/staging-kernelci:pipeline'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     entrypoint:
-      - './pipeline/result_summary.py'
+      - './src/result_summary.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
@@ -44,17 +44,17 @@ services:
 
   scheduler: &scheduler
     container_name: 'kernelci-pipeline-scheduler'
-    image: 'kernelci/staging-kernelci'
+    image: 'kernelci/staging-kernelci:pipeline'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=shell'
       - '--name=scheduler'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
@@ -69,15 +69,15 @@ services:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-docker'
     user: root  # Docker-in-Docker
-    working_dir: /home/kernelci
+    #working_dir: /home/kernelci
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=docker'
       - '--name=scheduler_docker'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './.docker-env:/home/kernelci/.docker-env'
@@ -90,7 +90,7 @@ services:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_lava'
@@ -108,9 +108,9 @@ services:
   scheduler-k8s:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-k8s'
-    image: 'kernelci/staging-k8s:kernelci'
+    image: 'kernelci/staging-kernelci:pipeline'
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_k8s'
@@ -124,12 +124,12 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-tarball'
     command:
-      - './pipeline/tarball.py'
+      - './src/tarball.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--name=tarball'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
@@ -142,7 +142,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-trigger'
     command:
-      - './pipeline/trigger.py'
+      - './src/trigger.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--trees=kernelci,netdev-testing'
@@ -156,7 +156,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/regression_tracker.py'
+      - '/home/kernelci/src/regression_tracker.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     extra_hosts:
@@ -168,7 +168,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/test_report.py'
+      - '/home/kernelci/src/test_report.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
     extra_hosts:
@@ -180,7 +180,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/timeout.py'
+      - '/home/kernelci/src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=timeout'
@@ -193,7 +193,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/timeout.py'
+      - '/home/kernelci/src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=closing'
@@ -206,7 +206,7 @@ services:
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/timeout.py'
+      - '/home/kernelci/src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=holdoff'
@@ -217,12 +217,12 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-patchset'
     command:
-      - './pipeline/patchset.py'
+      - './src/patchset.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--name=patchset'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
