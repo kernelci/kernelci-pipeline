@@ -10,10 +10,7 @@
 # Author: Alexandra Pereira <alexandra.pereira@collabora.com>
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-import logging
-import os
 import sys
-import traceback
 
 import kernelci.config
 import kernelci.db

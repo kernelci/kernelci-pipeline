@@ -8,17 +8,13 @@
 
 import copy
 from datetime import datetime, timedelta
-import json
-import logging
 import sys
 import time
 
-import kernelci
 import kernelci.build
 import kernelci.config
-import kernelci.db
+
 from kernelci.legacy.cli import Args, Command, parse_opts
-import urllib
 import requests
 import hashlib
 
