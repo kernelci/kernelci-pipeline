@@ -56,14 +56,6 @@ class Job(BaseJob):
             subprocess.run(["git", "pull"], cwd=nipa_path)
         # chdir to the nipa_path
         os.chdir(nipa_path)
-        # run the nipa-update
-        args = ["/tmp/kernelci-nipa/nipa-results", "--id", parent_job]
-        # if api_name is not production, add --staging
-        if self._api_name != "production":
-            args.append("--staging")
-        r = subprocess.run(args, cwd=nipa_path)
-        if r.returncode != 0:
-            raise Exception(f"Failed to run nipa-update for node {self._nodeid}: {r.stderr}")
         # Upload results to the storage
         # Check key env var KCI_SSH_KEY
         ssh_key_path = os.getenv("KCI_SSH_KEY")
@@ -78,7 +70,25 @@ class Job(BaseJob):
         if self._api_name != "production":
             ssh_username = "nipa-staging"
             ssh_host = "storage.staging.kernelci.org"
-            
+        
+        # create a local directory for the nipa-results
+        local_nipa_results = "/tmp/kernelci-nipa/netdev-results"
+        if not os.path.exists(local_nipa_results):
+            os.makedirs(local_nipa_results)
+
+        # copy current(remote) nipa-results to a local directory
+        cmd = f"scp -P {ssh_port} -r -i {ssh_key_path} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {ssh_username}@{ssh_host}:* {local_nipa_results}/netdev-results"
+        subprocess.run(cmd, shell=True)
+
+        # run the nipa-update
+        args = ["/tmp/kernelci-nipa/nipa-results", "--id", parent_job]
+        # if api_name is not production, add --staging
+        if self._api_name != "production":
+            args.append("--staging")
+        r = subprocess.run(args, cwd=nipa_path)
+        if r.returncode != 0:
+            raise Exception(f"Failed to run nipa-update for node {self._nodeid}: {r.stderr}")
+
         cmd = f"scp -P {ssh_port} -r -i {ssh_key_path} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {nipa_path}/netdev-results/* {ssh_username}@{ssh_host}:"
         # scp nipa-results to the storage, recursive
         subprocess.run(cmd, shell=True, cwd=nipa_path)
