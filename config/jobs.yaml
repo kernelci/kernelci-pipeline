@@ -2011,3 +2011,6 @@ jobs:
     kind: test
     image: kernelci/{image_prefix}kernelci
     kcidb_test_suite: kernelci_nipa-update
+    rules:
+      tree:
+        - netdev-testing
