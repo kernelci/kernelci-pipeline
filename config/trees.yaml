@@ -81,6 +81,9 @@ trees:
   media:
     url: 'https://git.linuxtv.org/media.git'
 
+  media-committers:
+    url: 'https://gitlab.freedesktop.org/linux-media/media-committers.git'
+
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
 
@@ -457,6 +460,14 @@ build_configs:
 
   media_next:
     tree: media
+    branch: 'next'
+
+  media-committers_fixes:
+    tree: media-committers
+    branch: 'fixes'
+
+  media-committers_next:
+    tree: media-committers
     branch: 'next'
 
   mediatek_for_next:
