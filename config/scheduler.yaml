@@ -119,7 +119,7 @@ scheduler:
       - bcm2837-rpi-3-b-plus
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
-      - juno
+      - juno-uboot
       - meson-g12b-a311d-libretech-cc
       - meson-gxl-s905x-libretech-cc
       - meson-sm1-s905d3-libretech-cc
