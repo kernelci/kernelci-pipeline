@@ -116,6 +116,7 @@ scheduler:
       name: lava-broonie
     platforms: &lava-broonie-arm64
       - bcm2711-rpi-4-b
+      - bcm2837-rpi-3-b-plus
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
       - juno
@@ -662,6 +663,7 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
+      - bcm2837-rpi-3-b-plus
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
       - meson-g12b-a311d-libretech-cc
