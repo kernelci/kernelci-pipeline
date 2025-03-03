@@ -113,7 +113,7 @@ platforms:
                  'toradex,verdin-imx8mp-nonwifi',
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
-  juno:
+  juno-uboot:
     <<: *arm64-device
     mach: vexpress
     dtb: dtbs/arm/juno.dtb
