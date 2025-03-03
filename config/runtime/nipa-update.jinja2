@@ -51,7 +51,7 @@ class Job(BaseJob):
         if not os.path.exists(nipa_path):
             subprocess.run(["git", "clone", "https://github.com/nuclearcat/kernelci-nipa.git", nipa_path])
             # branch various-improvements
-            subprocess.run(["git", "checkout", "various-improvements"], cwd=nipa_path)            
+            subprocess.run(["git", "checkout", "add-device"], cwd=nipa_path)
         else:
             subprocess.run(["git", "pull"], cwd=nipa_path)
         # chdir to the nipa_path
@@ -77,8 +77,14 @@ class Job(BaseJob):
             os.makedirs(local_nipa_results)
 
         # copy current(remote) nipa-results to a local directory
-        cmd = f"scp -P {ssh_port} -r -i {ssh_key_path} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {ssh_username}@{ssh_host}:* {local_nipa_results}/netdev-results"
+        cmd = f"scp -P {ssh_port} -r -i {ssh_key_path} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {ssh_username}@{ssh_host}:* {local_nipa_results}"
         subprocess.run(cmd, shell=True)
+
+        # temporary
+        # show the file list in the local_nipa_results
+        print(f"File list in {local_nipa_results}:")
+        for file in os.listdir(local_nipa_results):
+            print(file)
 
         # run the nipa-update
         args = ["/tmp/kernelci-nipa/nipa-results", "--id", parent_job]
