@@ -364,19 +364,6 @@ scheduler:
       - asus-C523NA-A20057-coral
       - hp-11A-G6-EE-grunt
 
-#  - job: tast-basic-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
-
-#  - job: tast-basic-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
-
-#  - job: tast-basic-x86-amd
-#    <<: *test-job-chromeos-amd
-
-#  - job: tast-basic-x86-intel
-#    <<: *test-job-chromeos-intel
-
-
 # Some of this tests running too long, must be max 30 min
   - job: tast-decoder-chromestack-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -384,23 +371,11 @@ scheduler:
   - job: tast-decoder-chromestack-verification-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 
-#  - job: tast-debian-decoder-chromestack-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
-
-#  - job: tast-debian-decoder-chromestack-verification-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
-
   - job: tast-decoder-chromestack-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
   - job: tast-decoder-chromestack-verification-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
-
-#  - job: tast-debian-decoder-chromestack-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
-
-  #- job: tast-debian-decoder-chromestack-verification-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
 
   - job: tast-decoder-chromestack-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
@@ -408,86 +383,45 @@ scheduler:
   - job: tast-decoder-chromestack-verification-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
-# Disabled as per daniels request to reduce load on LAVA
-#  - job: tast-decoder-chromestack-x86-amd
-#    <<: *test-job-chromeos-amd
-
-# Disabled as per daniels request to reduce load on LAVA
-#  - job: tast-decoder-chromestack-x86-intel
-#    <<: *test-job-chromeos-intel
-
   - job: tast-decoder-v4l2-sl-av1-arm64-mediatek
     <<: *test-job-chromeos-mediatek
-    platforms: &tast-decoder-v4l2-sl-av1-arm64-mediatek-platforms
+    platforms:
       - mt8195-cherry-tomato-r2
-
-  - job: tast-debian-decoder-v4l2-sl-av1-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
-    platforms: *tast-decoder-v4l2-sl-av1-arm64-mediatek-platforms
 
 
   - job: tast-decoder-v4l2-sl-h264-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 
-  - job: tast-debian-decoder-v4l2-sl-h264-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
-
   - job: tast-decoder-v4l2-sl-vp8-arm64-mediatek
     <<: *test-job-chromeos-mediatek
-    platforms: &tast-decoder-v4l2-sl-vp8-arm64-mediatek-platforms
+    platforms:
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
-
-  - job: tast-debian-decoder-v4l2-sl-vp8-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
-    platforms: *tast-decoder-v4l2-sl-vp8-arm64-mediatek-platforms
 
   - job: tast-decoder-v4l2-sl-vp9-arm64-mediatek
     <<: *test-job-chromeos-mediatek
-    platforms: &tast-decoder-v4l2-sl-vp9-arm64-mediatek-platforms
+    platforms:
       - mt8186-corsola-steelix-sku131072
       - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
-  - job: tast-debian-decoder-v4l2-sl-vp9-arm64-mediatek
-    <<: *test-job-chromeos-mediatek
-    platforms: *tast-decoder-v4l2-sl-vp9-arm64-mediatek-platforms
-
   - job: tast-decoder-v4l2-sf-h264-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
-
-  - job: tast-debian-decoder-v4l2-sf-h264-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
   - job: tast-decoder-v4l2-sf-vp8-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-debian-decoder-v4l2-sf-vp8-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
-
   - job: tast-decoder-v4l2-sf-vp9-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
-
-  - job: tast-debian-decoder-v4l2-sf-vp9-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
   - job: tast-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-debian-decoder-v4l2-sf-vp9-arm64-qualcomm-pre6_7
-    <<: *test-job-chromeos-qualcomm
-
   - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
 
-  - job: tast-debian-decoder-v4l2-sf-vp9-extra-arm64-qualcomm
-    <<: *test-job-chromeos-qualcomm
-
   - job: tast-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7
-    <<: *test-job-chromeos-qualcomm
-
-  - job: tast-debian-decoder-v4l2-sf-vp9-extra-arm64-qualcomm-pre6_7
     <<: *test-job-chromeos-qualcomm
 
   - job: tast-hardware-arm64-mediatek
@@ -514,15 +448,6 @@ scheduler:
   - job: tast-kernel-x86-intel
     <<: *test-job-chromeos-intel
 
-#  - job: tast-mm-decode-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
-#    platforms:
-#      - mt8192-asurada-spherion-r0
-#      - mt8195-cherry-tomato-r2
-
-#  - job: tast-mm-decode-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
-
   - job: tast-mm-misc-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 
@@ -546,18 +471,6 @@ scheduler:
 
   - job: tast-perf-x86-intel
     <<: *test-job-chromeos-intel
-
-#  - job: tast-perf-long-duration-arm64-mediatek
-#    <<: *test-job-chromeos-mediatek
-
- # - job: tast-perf-long-duration-arm64-qualcomm
-#    <<: *test-job-chromeos-qualcomm
-
-#  - job: tast-perf-long-duration-x86-amd
-#    <<: *test-job-chromeos-amd
-
-#  - job: tast-perf-long-duration-x86-intel
-#    <<: *test-job-chromeos-intel
 
   - job: tast-platform-arm64-mediatek
     <<: *test-job-chromeos-mediatek
