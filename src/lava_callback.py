@@ -9,7 +9,6 @@ import tempfile
 
 import gzip
 import json
-import requests
 import toml
 import threading
 import uvicorn
