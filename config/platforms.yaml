@@ -26,6 +26,12 @@ platforms:
 
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
 
+  at91sam9g20ek:
+    <<: *arm-device
+    mach: atmel
+    dtb: dtbs/at91sam9g20ek.dtb
+    compatible: ['atmel,at91sam9g20ek', 'atmel,at91sam9g20', 'atmel,at91sam9']
+
   bcm2711-rpi-4-b:
     <<: *arm64-device
     mach: broadcom

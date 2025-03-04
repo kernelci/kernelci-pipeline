@@ -78,6 +78,14 @@ scheduler:
       - imx6dl-riotboard
       - stm32mp157c-lxa-tac-gen1
 
+  - job: baseline-arm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-multi_v5_defconfig
+    runtime: *lava-broonie-runtime
+    platforms: &lava-broonie-armv5
+      - at91sam9g20ek
+
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
       <<: *node-event-kbuild
