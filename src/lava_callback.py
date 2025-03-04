@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2023,2024 Collabora Limited
+# Copyright (C) 2023-2025 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Denys Fedoryshchenko <denys.fedoryshchenko@collabora.com>
 
@@ -62,6 +62,7 @@ class PatchSet(BaseModel):
 
 class JobRetry(BaseModel):
     nodeid: str
+    jobfilter: Optional[list] = None
 
 
 class Metrics():
@@ -415,6 +416,8 @@ async def jobretry(data: JobRetry, request: Request,
 
     jobfilter = [knode['name'], node['name']]
     knode['jobfilter'] = jobfilter
+    if data.jobfilter:
+        knode['jobfilter'].extend(data.jobfilter)
     knode['op'] = 'updated'
     knode['data'].pop('artifacts', None)
     # state - done, result - pass
