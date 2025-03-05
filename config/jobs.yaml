@@ -1686,12 +1686,6 @@ jobs:
     params:
       arch: x86_64
 
-  kver:
-    template: kver.jinja2
-    kind: test
-    image: kernelci/{image_prefix}kernelci
-    kcidb_test_suite: kernelci_kver
-
   ltp-cap-bounds:
     <<: *ltp-job
     params:
