@@ -964,11 +964,6 @@ scheduler:
     runtime:
       name: k8s-gke-eu-west4
 
-  - job: kver
-    event: *checkout-event
-    runtime:
-      type: shell
-
   - job: ltp-cap-bounds
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
