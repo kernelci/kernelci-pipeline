@@ -445,20 +445,6 @@ _anchors:
         - next
         - collabora-chromeos-kernel
 
-  fluster-chromeos: &fluster-chromeos-job
-    template: 'fluster-chromeos.jinja2'
-    kind: job
-    params: &fluster-chromeos-params
-      test_method: fluster-chromeos
-      job_timeout: 30
-      videodec_parallel_jobs: 1
-      videodec_timeout: 90
-    rules:
-      tree:
-        - mainline
-        - next
-        - collabora-chromeos-kernel
-
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
     kind: job
@@ -886,72 +872,6 @@ jobs:
         - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.debian.v4l2.gstreamer_vp9
-
-  fluster-chromeos-av1:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'AV1-TEST-VECTORS'
-      decoders:
-        - 'GStreamer-AV1-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_av1
-
-  fluster-chromeos-av1-chromium-10bit:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'CHROMIUM-10bit-AV1-TEST-VECTORS'
-      decoders:
-        - 'GStreamer-AV1-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_av1_chromium
-
-  fluster-chromeos-h264:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'JVT-AVC_V1'
-      decoders:
-        - 'GStreamer-H.264-V4L2-Gst1.0'
-        - 'GStreamer-H.264-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_h264
-  fluster-chromeos-h264-frext:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'JVT-FR-EXT'
-      decoders:
-        - 'GStreamer-H.264-V4L2-Gst1.0'
-        - 'GStreamer-H.264-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_h264_frext
-
-  fluster-chromeos-h265:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'JCT-VC-HEVC_V1'
-      decoders:
-        - 'GStreamer-H.265-V4L2-Gst1.0'
-        - 'GStreamer-H.265-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_h265
-
-  fluster-chromeos-vp8:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'VP8-TEST-VECTORS'
-      decoders:
-        - 'GStreamer-VP8-V4L2-Gst1.0'
-        - 'GStreamer-VP8-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_vp8
-  fluster-chromeos-vp9:
-    <<: *fluster-chromeos-job
-    params:
-      <<: *fluster-chromeos-params
-      testsuite: 'VP9-TEST-VECTORS'
-      decoders:
-        - 'GStreamer-VP9-V4L2-Gst1.0'
-        - 'GStreamer-VP9-V4L2SL-Gst1.0'
-    kcidb_test_suite: fluster.chromeos.v4l2.gstreamer_vp9
 
   watchdog-reset-arm64-mediatek: *watchdog-reset-job
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job
