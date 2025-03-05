@@ -110,24 +110,9 @@ _anchors:
         - collabora-chromeos-kernel
         - stable
 
-  tast-debian: &tast-debian-job
-    template: 'generic.jinja2'
-    kind: job
-    kcidb_test_suite: tast.debian
-    params: &tast-debian-params
-      test_method: tast-debian
-      boot_commands: nfs
-      nfsroot: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bookworm-tast/{debarch}/'
-      job_timeout: 30
-      videodec_parallel_jobs: 1
-      videodec_timeout: 90
-    rules:
-      <<: *tast-decoder-rules
-
   tast-decoder-chromestack: &tast-decoder-chromestack-job
     <<: *tast-decoder-job
     params: &tast-decoder-chromestack-params
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.ChromeStackDecoder.*
@@ -137,7 +122,6 @@ _anchors:
   tast-decoder-chromestack-verification: &tast-decoder-chromestack-verification-job
     <<: *tast-job
     params: &tast-decoder-chromestack-verification-params
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.ChromeStackDecoderVerification.*
@@ -151,7 +135,6 @@ _anchors:
   tast-decoder-v4l2-sf-h264: &tast-decoder-v4l2-sf-h264-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateful_h264_*
@@ -159,14 +142,12 @@ _anchors:
   tast-decoder-v4l2-sf-hevc: &tast-decoder-v4l2-sf-hevc-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.v4l2_stateful_hevc_*
 
   tast-decoder-v4l2-sf-vp8: &tast-decoder-v4l2-sf-vp8-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp8_*
@@ -174,7 +155,6 @@ _anchors:
   tast-decoder-v4l2-sf-vp9: &tast-decoder-v4l2-sf-vp9-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-params
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_group1_*
@@ -188,7 +168,6 @@ _anchors:
   tast-decoder-v4l2-sf-vp9-extra: &tast-decoder-v4l2-sf-vp9-extra-job
     <<: *tast-decoder-job
     params: &tast-decoder-v4l2-sf-vp9-extra-params
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateful_vp9_0_level5_*
@@ -196,7 +175,6 @@ _anchors:
   tast-decoder-v4l2-sl-av1: &tast-decoder-v4l2-sl-av1-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_av1_*
@@ -208,7 +186,6 @@ _anchors:
   tast-decoder-v4l2-sl-h264: &tast-decoder-v4l2-sl-h264-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateless_h264_*
@@ -216,7 +193,6 @@ _anchors:
   tast-decoder-v4l2-sl-hevc: &tast-decoder-v4l2-sl-hevc-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_hevc_*
@@ -224,7 +200,6 @@ _anchors:
   tast-decoder-v4l2-sl-vp8: &tast-decoder-v4l2-sl-vp8-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 12h
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp8_*
@@ -232,7 +207,6 @@ _anchors:
   tast-decoder-v4l2-sl-vp9: &tast-decoder-v4l2-sl-vp9-job
     <<: *tast-decoder-job
     params:
-      <<: *tast-debian-params
       frequency: 2d
       tests:
         - video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
@@ -288,7 +262,6 @@ _anchors:
   tast-mm-decode: &tast-mm-decode-job
     <<: *tast-job
     params:
-      <<: *tast-debian-params
       tests:
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
         - video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group2_buf
