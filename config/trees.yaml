@@ -150,6 +150,8 @@ trees:
   vireshk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/vireshk/linux.git"
 
+  hyperv:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git"
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
@@ -669,3 +671,11 @@ build_configs:
   vireshk:
     tree: vireshk
     branch: 'for-kernelci'
+
+  hyperv-next:
+    tree: hyperv
+    branch: 'hyperv-next'
+
+  hyperv-fixes:
+    tree: hyperv
+    branch: 'hyperv-fixes'
