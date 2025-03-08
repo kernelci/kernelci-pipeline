@@ -179,6 +179,15 @@ platforms:
     dtb: dtbs/exynos5422-odroidxu3.dtb
     compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
 
+  # TODO: verify why this platform appears in test results
+  # probably mistake and its same as qcs6490-rb3gen2
+  qcs6490:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
+    compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
+
   qcs6490-rb3gen2:
     <<: *arm64-device
     boot_method: fastboot
