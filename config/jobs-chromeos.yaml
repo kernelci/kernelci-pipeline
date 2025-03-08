@@ -519,7 +519,7 @@ jobs:
       <<: *kbuild-clang-17-x86-chromeos-params
       flavour: intel-pineview
 
-  kbuild-gcc-12-arm64-chromebook:
+  kbuild-gcc-12-arm64-chromebook: &kbuild-gcc-12-arm64-chromebook-job
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
       <<: *kbuild-gcc-12-arm64-chromeos-params
@@ -530,6 +530,14 @@ jobs:
       tree:
         - '!android'
         - '!chromiumos'
+        - '!media-committers'
+
+  kbuild-gcc-12-arm64-chromebook-media-committers:
+    <<: *kbuild-gcc-12-arm64-chromebook-job
+    # Don't copy parent Job rules because they would get overwritten anyway
+    rules:
+      tree:
+        - 'media-committers'
 
   kbuild-gcc-12-arm64-chromeos-mediatek:
     <<: *kbuild-gcc-12-arm64-chromeos-job
