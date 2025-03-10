@@ -51,15 +51,25 @@ _anchors:
 
   test-job-arm64-mediatek: &test-job-arm64-mediatek
     <<: *lava-job-collabora
-    event:
+    event: &test-job-arm64-mediatek-event
       channel: node
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
     platforms: *mediatek-platforms
 
+  test-job-arm64-mediatek-media-committers: &test-job-arm64-mediatek-media-committers
+    <<: *test-job-arm64-mediatek
+    event:
+      <<: *test-job-arm64-mediatek-event
+      name: kbuild-gcc-12-arm64-chromebook-media-committers
+
   test-job-arm64-qualcomm: &test-job-arm64-qualcomm
     <<: *test-job-arm64-mediatek
+    platforms: *qualcomm-platforms
+
+  test-job-arm64-qualcomm: &test-job-arm64-qualcomm-media-committers
+    <<: *test-job-arm64-mediatek-media-committers
     platforms: *qualcomm-platforms
 
   test-job-chromeos-amd: &test-job-chromeos-amd
@@ -569,6 +579,56 @@ scheduler:
 
   - job: fluster-debian-vp9
     <<: *test-job-arm64-qualcomm
+
+  - job: fluster-debian-av1
+    <<: *test-job-arm64-mediatek-media-committers
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: fluster-debian-av1-chromium-10bit
+    <<: *test-job-arm64-mediatek-media-committers
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: fluster-debian-h264
+    <<: *test-job-arm64-mediatek-media-committers
+
+  - job: fluster-debian-h264-frext
+    <<: *test-job-arm64-mediatek-media-committers
+
+  - job: fluster-debian-h265
+    <<: *test-job-arm64-mediatek-media-committers
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: fluster-debian-vp8
+    <<: *test-job-arm64-mediatek-media-committers
+    platforms:
+      - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: fluster-debian-vp9
+    <<: *test-job-arm64-mediatek-media-committers
+    platforms:
+      - mt8186-corsola-steelix-sku131072
+      - mt8192-asurada-spherion-r0
+      - mt8195-cherry-tomato-r2
+
+  - job: fluster-debian-h264
+    <<: *test-job-arm64-qualcomm-media-committers
+
+  - job: fluster-debian-h264-frext
+    <<: *test-job-arm64-qualcomm-media-committers
+
+  - job: fluster-debian-h265
+    <<: *test-job-arm64-qualcomm-media-committers
+
+  - job: fluster-debian-vp8
+    <<: *test-job-arm64-qualcomm-media-committers
+
+  - job: fluster-debian-vp9
+    <<: *test-job-arm64-qualcomm-media-committers
 
   - job: watchdog-reset-arm64-mediatek
     <<: *test-job-arm64-mediatek
