@@ -544,6 +544,10 @@ build_configs:
     tree: soc
     branch: 'for-next'
 
+  stable_master:
+    tree: stable
+    branch: 'master'
+
   stable_5.4:
     tree: stable
     branch: 'linux-5.4.y'
