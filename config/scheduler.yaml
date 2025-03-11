@@ -657,6 +657,9 @@ scheduler:
   - job: kbuild-gcc-12-x86-tinyconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-drm
+    <<: *build-k8s-all
+
   - job: kselftest-alsa
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
