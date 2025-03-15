@@ -37,7 +37,7 @@ trees:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
 
   chromiumos:
-    url: "https://chromium.googlesource.com/chromiumos/third_party/kernel"
+    url: "https://chromium.googlesource.com/chromiumos/third_party/kernel.git"
 
   cip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
