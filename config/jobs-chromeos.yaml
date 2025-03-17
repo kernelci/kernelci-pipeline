@@ -5,6 +5,7 @@ _anchors:
       defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
       flavour: '{crosarch}-generic'
       kselftest: disable
+      frequency: 1d
 
   kbuild-clang-17-arm64-chromeos: &kbuild-clang-17-arm64-chromeos-job
     template: kbuild.jinja2
@@ -56,6 +57,7 @@ _anchors:
     rules: &kbuild-gcc-12-arm64-chromeos-rules
       tree:
       - '!android'
+      - '!chromiumos'
 
   kbuild-gcc-12-x86-chromeos: &kbuild-gcc-12-x86-chromeos-job
     <<: *kbuild-gcc-12-arm64-chromeos-job
@@ -73,6 +75,7 @@ _anchors:
     rules: &kbuild-gcc-12-x86-chromeos-rules
       tree:
       - '!android'
+      - '!chromiumos'
 
   min-5_4-rules: &min-5_4-rules
     min_version:
@@ -480,7 +483,7 @@ jobs:
   baseline-x86-amd-staging-chromebook: *baseline-job
   baseline-x86-intel-chromebook: *baseline-job
 
-  kbuild-clang-17-arm64-chromeos-mediatek:
+  kbuild-clang-17-arm64-chromeos-daily-mediatek:
     <<: *kbuild-clang-17-arm64-chromeos-job
     params:
       <<: *kbuild-clang-17-arm64-chromeos-params
@@ -491,7 +494,7 @@ jobs:
         - '!chromiumos:chromeos-5.4'
         - '!chromiumos:chromeos-6.6'
 
-  kbuild-clang-17-arm64-chromeos-qualcomm:
+  kbuild-clang-17-arm64-chromeos-daily-qualcomm:
     <<: *kbuild-clang-17-arm64-chromeos-job
     params:
       <<: *kbuild-clang-17-arm64-chromeos-params
@@ -501,7 +504,7 @@ jobs:
       branch:
         - 'chromeos-6.6'
 
-  kbuild-clang-17-x86-chromeos-amd:
+  kbuild-clang-17-x86-chromeos-daily-amd:
     <<: *kbuild-clang-17-x86-chromeos-job
     params:
       <<: *kbuild-clang-17-x86-chromeos-params
@@ -513,7 +516,7 @@ jobs:
         - '!chromiumos:chromeos-6.1'
         - '!chromiumos:chromeos-6.12'
 
-  kbuild-clang-17-x86-chromeos-intel:
+  kbuild-clang-17-x86-chromeos-daily-intel:
     <<: *kbuild-clang-17-x86-chromeos-job
     params:
       <<: *kbuild-clang-17-x86-chromeos-params
@@ -541,7 +544,7 @@ jobs:
 
   kbuild-gcc-12-arm64-chromeos-mediatek:
     <<: *kbuild-gcc-12-arm64-chromeos-job
-    params:
+    params: &kbuild-gcc-12-arm64-chromeos-mediatek-params
       <<: *kbuild-gcc-12-arm64-chromeos-params
       flavour: mediatek
     rules:
@@ -549,26 +552,53 @@ jobs:
       min_version:
         version: 6
         patchlevel: 1
+  
+  kbuild-gcc-12-arm64-chromeos-daily-mediatek:
+    <<: *kbuild-gcc-12-arm64-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-arm64-chromeos-mediatek-params
+      frequency: 1d
+    rules:
+      <<: *kbuild-gcc-12-arm64-chromeos-rules
+      tree:
+        - 'chromiumos'
       branch:
-      - '!chromiumos:chromeos-6.6'
+        - '!chromiumos:chromeos-5.4'
+        - '!chromiumos:chromeos-6.6'
 
   kbuild-gcc-12-arm64-chromeos-qualcomm:
     <<: *kbuild-gcc-12-arm64-chromeos-job
-    params:
+    params: &kbuild-gcc-12-arm64-chromeos-qualcomm-params
       <<: *kbuild-gcc-12-arm64-chromeos-params
       flavour: qualcomm
+
+  kbuild-gcc-12-arm64-chromeos-daily-qualcomm:
+    <<: *kbuild-gcc-12-arm64-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-arm64-chromeos-qualcomm-params
+      frequency: 1d
     rules:
       <<: *kbuild-gcc-12-arm64-chromeos-rules
+      tree:
+        - 'chromiumos'
       branch:
-      - 'chromiumos:chromeos-6.6'
+        - 'chromiumos:chromeos-6.6'
 
   kbuild-gcc-12-x86-chromeos-amd:
     <<: *kbuild-gcc-12-x86-chromeos-job
-    params:
+    params: &kbuild-gcc-12-x86-chromeos-amd-params
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: amd-stoneyridge
+
+  kbuild-gcc-12-x86-chromeos-daily-amd:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-x86-chromeos-amd-params
+      frequency: 1d
     rules:
       <<: *kbuild-gcc-12-x86-chromeos-rules
+      tree:
+        - 'chromiumos'
       branch:
         - '!chromiumos:chromeos-5.15'
         - '!chromiumos:chromeos-6.1'
@@ -576,9 +606,19 @@ jobs:
 
   kbuild-gcc-12-x86-chromeos-intel:
     <<: *kbuild-gcc-12-x86-chromeos-job
-    params:
+    params: &kbuild-gcc-12-x86-chromeos-intel-params
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: intel-pineview
+
+  kbuild-gcc-12-x86-chromeos-daily-intel:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-x86-chromeos-intel-params
+      frequency: 1d
+    rules:
+      <<: *kbuild-gcc-12-x86-chromeos-rules
+      tree:
+        - 'chromiumos'
 
   kselftest-acpi:
     template: generic.jinja2

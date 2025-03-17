@@ -180,16 +180,16 @@ scheduler:
   - job: baseline-x86-intel-chromebook
     <<: *test-job-x86-intel
 
-  - job: kbuild-clang-17-arm64-chromeos-mediatek
+  - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-chromeos-qualcomm
+  - job: kbuild-clang-17-arm64-chromeos-daily-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-chromeos-amd
+  - job: kbuild-clang-17-x86-chromeos-daily-amd
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-chromeos-intel
+  - job: kbuild-clang-17-x86-chromeos-daily-intel
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-chromebook
@@ -198,13 +198,25 @@ scheduler:
   - job: kbuild-gcc-12-arm64-chromeos-mediatek
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-chromeos-daily-mediatek
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-chromeos-qualcomm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-chromeos-amd
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-chromeos-daily-amd
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86-chromeos-intel
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-chromeos-daily-intel
     <<: *build-k8s-all
 
   - job: kselftest-acpi
