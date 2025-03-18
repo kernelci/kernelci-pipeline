@@ -288,6 +288,19 @@ class Scheduler(Service):
             return False
         return True
 
+    def _verify_architecture_filter(self, job, node):
+        """Verify if the job can be run, if node has architecture filter
+        """
+        if job.kind == 'kbuild' and 'architecture_filter' in node['data'] and \
+           node['data']['architecture_filter'] and \
+           job.params['arch'] not in node['data']['architecture_filter']:
+            msg = f"Node {node['id']} has architecture filter "
+            msg += f"{node['data']['architecture_filter']} "
+            msg += f"job {job.name} is kbuild and arch {job.params['arch']}"
+            print(msg)
+            return False
+        return True
+
     def _run(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
@@ -304,6 +317,8 @@ class Scheduler(Service):
                 if job.params.get('frequency', None):
                     if not self._verify_frequency(job, input_node, platform):
                         continue
+                if not self._verify_architecture_filter(job, input_node):
+                    continue
                 if self._api_helper.should_create_node(rules, input_node):
                     self._run_job(job, runtime, platform, input_node)
 
