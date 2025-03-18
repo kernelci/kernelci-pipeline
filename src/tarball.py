@@ -160,6 +160,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             'commit_message': commit_message,
             'tip_of_branch': branch_tip,
         })
+        if 'architecture_filter' in checkout_node['data']:
+            node['data']['architecture_filter'] = checkout_node['data']['architecture_filter']
+
         node.update({
             'state': 'available',
             'artifacts': {
