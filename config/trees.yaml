@@ -519,10 +519,14 @@ build_configs:
   riscv_fixes:
     tree: riscv
     branch: 'fixes'
+    architectures:
+      - riscv
 
   riscv_for-next:
     tree: riscv
     branch: 'for-next'
+    architectures:
+      - riscv
 
   robh:
     tree: robh
