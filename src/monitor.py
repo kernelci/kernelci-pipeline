@@ -8,7 +8,7 @@
 
 import datetime
 import sys
-
+import time
 import kernelci
 import kernelci.config
 from kernelci.legacy.cli import Args, Command, parse_opts
@@ -53,9 +53,21 @@ class Monitor(Service):
         self.log.info("Monitor: Listening for events... ")
         self.log.info("Press Ctrl-C to stop.")
         print(self._log_titles, flush=True)
-
+        subscribe_retries = 0
         while True:
-            event = self._api.receive_event(sub_id)
+            event = None
+            try:
+                event = self._api.receive_event(sub_id)
+            except Exception as e:
+                self.log.error(f"Error receiving event: {e}")
+                time.sleep(10)
+                sub_id = self._api.subscribe('node')
+                subscribe_retries += 1
+                if subscribe_retries > 3:
+                    self.log.error("Failed to subscribe to node events")
+                    return False
+                continue
+            subscribe_retries = 0
             obj = event.data
             dt = datetime.datetime.fromisoformat(event['time'])
             try:

@@ -112,6 +112,10 @@ class Trigger(Service):
             'timeout': checkout_timeout.isoformat(),
             'treeid': treeid,
         }
+        if current_config.architectures:
+            self.log.info(f"Architecture filter: {current_config.architectures}")
+            node['data']['architecture_filter'] = current_config.architectures
+
         if self._current_user['username'] in ('staging.kernelci.org',
                                               'production'):
             node['submitter'] = 'service:pipeline'

@@ -14,6 +14,7 @@ import yaml
 import requests
 import re
 import datetime
+import time
 
 import kernelci
 import kernelci.config
@@ -288,12 +289,38 @@ class Scheduler(Service):
             return False
         return True
 
+    def _verify_architecture_filter(self, job, node):
+        """Verify if the job can be run, if node has architecture filter
+        """
+        if job.kind == 'kbuild' and 'architecture_filter' in node['data'] and \
+           node['data']['architecture_filter'] and \
+           job.params['arch'] not in node['data']['architecture_filter']:
+            msg = f"Node {node['id']} has architecture filter "
+            msg += f"{node['data']['architecture_filter']} "
+            msg += f"job {job.name} is kbuild and arch {job.params['arch']}"
+            print(msg)
+            return False
+        return True
+
     def _run(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
+        subscribe_retries = 0
 
         while True:
-            event = self._api_helper.receive_event_data(sub_id)
+            event = None
+            try:
+                event = self._api_helper.receive_event_data(sub_id)
+            except Exception as e:
+                self.log.error(f"Error receiving event: {e}")
+                time.sleep(10)
+                sub_id = self._api.subscribe('node')
+                subscribe_retries += 1
+                if subscribe_retries > 3:
+                    self.log.error("Failed to re-subscribe to node events")
+                    return False
+                continue
+            subscribe_retries = 0
             for job, runtime, platform, rules in self._sched.get_schedule(event):
                 input_node = self._api.node.get(event['id'])
                 jobfilter = event.get('jobfilter')
@@ -304,6 +331,8 @@ class Scheduler(Service):
                 if job.params.get('frequency', None):
                     if not self._verify_frequency(job, input_node, platform):
                         continue
+                if not self._verify_architecture_filter(job, input_node):
+                    continue
                 if self._api_helper.should_create_node(rules, input_node):
                     self._run_job(job, runtime, platform, input_node)
 
