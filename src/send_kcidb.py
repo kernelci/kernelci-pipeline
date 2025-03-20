@@ -656,7 +656,7 @@ in {runtime}",
         self.log.info("Listening for events... Press Ctrl-C to stop.")
 
         chunksize = 20
-
+        subscribe_retries = 0
         while True:
             is_hierarchy = False
 
@@ -666,7 +666,23 @@ in {runtime}",
             if not nodes:
                 # Switch to event mode if no unprocessed nodes
                 # Listen and wait for a node instead of processing the queue
-                node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                node = None
+                try:
+                    node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                except Exception as e:
+                    self.log.error(f"Error receiving event: {e}")
+                    time.sleep(10)
+                    context['sub_id'] = self._api_helper.subscribe_filters({
+                        'op': 'created',
+                        'kind': 'node',
+                        'state': 'done',
+                    })
+                    subscribe_retries += 1
+                    if subscribe_retries > 3:
+                        self.log.error("Failed to re-subscribe to node events")
+                        return False
+                    continue
+                subscribe_retries = 0
                 self.log.info(f"Processing event node: {node['id']}")
                 nodes = [node]
             else:

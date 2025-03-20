@@ -14,6 +14,7 @@ import yaml
 import requests
 import re
 import datetime
+import time
 
 import kernelci
 import kernelci.config
@@ -304,9 +305,22 @@ class Scheduler(Service):
     def _run(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
+        subscribe_retries = 0
 
         while True:
-            event = self._api_helper.receive_event_data(sub_id)
+            event = None
+            try:
+                event = self._api_helper.receive_event_data(sub_id)
+            except Exception as e:
+                self.log.error(f"Error receiving event: {e}")
+                time.sleep(10)
+                sub_id = self._api.subscribe('node')
+                subscribe_retries += 1
+                if subscribe_retries > 3:
+                    self.log.error("Failed to re-subscribe to node events")
+                    return False
+                continue
+            subscribe_retries = 0
             for job, runtime, platform, rules in self._sched.get_schedule(event):
                 input_node = self._api.node.get(event['id'])
                 jobfilter = event.get('jobfilter')
