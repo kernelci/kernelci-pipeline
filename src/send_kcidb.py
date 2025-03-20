@@ -670,7 +670,7 @@ in {runtime}",
                 try:
                     node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 except Exception as e:
-                    self.log.error(f"Error receiving event: {e}")
+                    self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                     time.sleep(10)
                     context['sub_id'] = self._api_helper.subscribe_filters({
                         'op': 'created',

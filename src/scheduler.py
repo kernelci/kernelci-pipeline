@@ -312,7 +312,7 @@ class Scheduler(Service):
             try:
                 event = self._api_helper.receive_event_data(sub_id)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}")
+                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
                 sub_id = self._api.subscribe('node')
                 subscribe_retries += 1

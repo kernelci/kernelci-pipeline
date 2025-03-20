@@ -59,12 +59,12 @@ class Monitor(Service):
             try:
                 event = self._api.receive_event(sub_id)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}")
+                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
                 sub_id = self._api.subscribe('node')
                 subscribe_retries += 1
                 if subscribe_retries > 3:
-                    self.log.error("Failed to subscribe to node events")
+                    self.log.error("Failed to re-subscribe to node events")
                     return False
                 continue
             subscribe_retries = 0
