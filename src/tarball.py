@@ -14,7 +14,7 @@ import re
 import sys
 import json
 import requests
-
+import time
 import kernelci
 import kernelci.build
 import kernelci.config
@@ -206,9 +206,27 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
     def _run(self, sub_id):
         self.log.info("Listening for new trigger events")
         self.log.info("Press Ctrl-C to stop.")
+        subscribe_retries = 0
 
         while True:
-            checkout_node, _ = self._api_helper.receive_event_node(sub_id)
+            checkout_node = None
+            try:
+                checkout_node, _ = self._api_helper.receive_event_node(sub_id)
+            except Exception as e:
+                self.log.error(f"Error receiving event: {e}")
+                time.sleep(10)
+                # try to resubscribe
+                sub_id = self._api_helper.subscribe_filters({
+                    'op': 'created',
+                    'kind': 'checkout',
+                    'state': 'running',
+                })
+                subscribe_retries += 1
+                if subscribe_retries > 3:
+                    self.log.error("Failed to re-subscribe to checkout events")
+                    return False
+                continue
+            subscribe_retries = 0
 
             build_config = self._find_build_config(checkout_node)
             if build_config is None:
