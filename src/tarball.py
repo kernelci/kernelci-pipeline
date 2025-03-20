@@ -213,7 +213,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             try:
                 checkout_node, _ = self._api_helper.receive_event_node(sub_id)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}")
+                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
                 # try to resubscribe
                 sub_id = self._api_helper.subscribe_filters({
