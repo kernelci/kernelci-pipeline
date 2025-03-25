@@ -60,6 +60,14 @@ scheduler:
       - imx6q-udoo
       - stm32mp157a-dhcor-avenger96
 
+  - job: baseline-arm-clabbe
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-clabbe-runtime
+      type: lava
+      name: lava-clabbe
+    platforms:
+      - sun7i-a20-cubieboard2
+
   - job: baseline-arm-mfd
     event:
       <<: *node-event-kbuild
@@ -134,6 +142,15 @@ scheduler:
       - rk3399-roc-pc
       - sun50i-a64-pine64-plus
       - sun50i-h5-libretech-all-h3-cc
+
+  - job: baseline-arm64-clabbe
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-clabbe
+    platforms: &lava-clabbe-arm64
+      - rk3399-roc-pc
+      - sun50i-h6-pine-h64
 
   - job: baseline-arm64-kcidebug-mediatek
     event: &kbuild-gcc-12-arm64-chromebook-kcidebug-node-event

@@ -34,6 +34,7 @@ spec:
             - lava-collabora-staging
             - lava-broonie
             - lava-baylibre
+            - lava-clabbe
             - lava-qualcomm
             - lava-cip
           env:

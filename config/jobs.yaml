@@ -116,11 +116,13 @@ jobs:
   baseline-arm: *baseline-job
   baseline-arm-broonie: *baseline-job
   baseline-arm-baylibre: *baseline-job
+  baseline-arm-clabbe: *baseline-job
   baseline-arm-mfd: *baseline-job
   baseline-arm-pengutronix: *baseline-job
   baseline-arm64: *baseline-job
   baseline-arm64-android: *baseline-job
   baseline-arm64-broonie: *baseline-job
+  baseline-arm64-clabbe: *baseline-job
   baseline-arm64-kcidebug-mediatek: *baseline-job
   baseline-arm64-kcidebug-qualcomm: *baseline-job
   baseline-arm64-mfd: *baseline-job
