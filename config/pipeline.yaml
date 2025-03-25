@@ -115,6 +115,18 @@ runtimes:
       callback:
         token: kernel-ci-new-api
 
+  lava-clabbe:
+    lab_type: lava
+    url: 'https://lava.montjoie.ovh/'
+    notify:
+      callback:
+        token: kernelci-new-api
+    rules:
+      tree:
+      - kernelci
+      - 'mainline'
+      - next
+
   lava-collabora: &lava-collabora-staging
     lab_type: lava
     url: https://lava.collabora.dev/
