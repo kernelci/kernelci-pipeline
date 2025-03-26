@@ -97,6 +97,7 @@ services:
       - '--runtimes'
       - 'lava-collabora'
       - 'lava-collabora-staging'
+      - 'lava-clabbe'
       - 'lava-broonie'
       - 'lava-baylibre'
       - 'lava-qualcomm'
