@@ -227,6 +227,12 @@ platforms:
     dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
     compatible: ['google,kevin-rev15', 'google,kevin-rev14']
 
+  rk3399-roc-pc:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-roc-pc.dtb
+    compatible: ['firefly,roc-rk3399-pc', 'rockchip,rk3399']
+
   rk3399-rock-pc:
     <<: *arm64-device
     mach: rockchip
