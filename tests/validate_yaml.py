@@ -79,7 +79,7 @@ def validate_scheduler_jobs(data):
             raise yaml.YAMLError(
                 f"Job {entry.get('job')} not found in jobs"
             )
-        # if we have parameter: platforms, we need to make sure it exist in config
+        # if we have parameter: platforms, we need to make sure it exists in config
         if entry.get('platforms'):
             for platform in entry.get('platforms'):
                 if platform not in data.get('platforms'):
