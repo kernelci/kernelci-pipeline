@@ -16,6 +16,10 @@ _anchors:
     <<: *arm64-device
     arch: arm
 
+  riscv-device: &riscv-device
+    arch: riscv
+    boot_method: u-boot
+
   x86_64-device: &x86_64-device
     arch: x86_64
     boot_method: grub
@@ -119,6 +123,13 @@ platforms:
                  'toradex,verdin-imx8mp-nonwifi',
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
+
+  jh7100-starfive-visionfive-v1:
+    <<: *riscv-device
+    mach: starfive
+    dtb: starfive/jh7100-starfive-visionfive-v1.dtb
+    compatible: ["starfive,visionfive-v1", "starfive,jh7100"]
+
   juno-uboot:
     <<: *arm64-device
     mach: vexpress
@@ -271,6 +282,12 @@ platforms:
     arch: x86_64
     boot_method: grubhd0
     mach: x86
+
+  sun20i-d1-nezha:
+    <<: *riscv-device
+    mach: allwinner
+    dtb: dtbs/sun20i-d1-nezha.dtb
+    compatible: ["allwinner,d1-nezha", "allwinner,sun20i-d1"]
 
   sun7i-a20-cubieboard2:
     <<: *arm-device
