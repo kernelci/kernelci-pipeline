@@ -194,6 +194,15 @@ scheduler:
       - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
 
+  - job: baseline-riscv-clabbe
+    event: &kbuild-gcc-12-riscv-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-riscv
+    runtime: *lava-clabbe-runtime
+    platforms:
+      - sun20i-d1-nezha
+      - jh7100-starfive-visionfive-v1
+
   - job: baseline-x86
     event: &kbuild-gcc-12-x86-node-event
       <<: *node-event-kbuild
