@@ -877,6 +877,14 @@ scheduler:
     platforms:
       - stm32mp157a-dhcor-avenger96
 
+  - job: kselftest-mm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
+
   - job: kselftest-mm-2g
     event:
       <<: *node-event-kbuild

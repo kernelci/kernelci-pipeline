@@ -1606,6 +1606,15 @@ jobs:
       collections: landlock
     kcidb_test_suite: kselftest.landlock
 
+  # No hugepages allocation (for architectures without it)
+  kselftest-mm:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      extra_kernel_args: "secretmem.enable kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
   # hugepages allocation suitable for machines with 2G of memory
   kselftest-mm-2g:
     <<: *kselftest-job
