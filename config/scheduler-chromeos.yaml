@@ -151,11 +151,23 @@ scheduler:
   - job: baseline-arm64-mediatek-chromebook
     <<: *test-job-arm64-mediatek
 
+  - job: baseline-arm64-mediatek-chromebook
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r3
+      - mt8173-elm-hana
+
   - job: baseline-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
 
   - job: baseline-arm64-mediatek-chromebook
     <<: *test-job-chromeos-mediatek
+
+  - job: baseline-arm64-mediatek-chromebook
+    <<: *test-job-chromeos-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r3
+      - mt8173-elm-hana
 
   - job: baseline-arm64-qualcomm-chromebook
     <<: *test-job-chromeos-qualcomm
@@ -164,7 +176,19 @@ scheduler:
     <<: *test-job-arm64-mediatek
 
   - job: baseline-nfs-arm64-mediatek-chromebook
+    <<: *test-job-arm64-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r3
+      - mt8173-elm-hana
+
+  - job: baseline-nfs-arm64-mediatek-chromebook
     <<: *test-job-chromeos-mediatek
+
+  - job: baseline-nfs-arm64-mediatek-chromebook
+    <<: *test-job-chromeos-mediatek
+    platforms:
+      - mt8195-cherry-tomato-r3
+      - mt8173-elm-hana
 
   - job: baseline-nfs-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
@@ -182,7 +206,19 @@ scheduler:
     <<: *test-job-chromeos-intel
 
   - job: baseline-nfs-x86-intel-chromebook
+    <<: *test-job-chromeos-intel
+    platforms:
+      - acer-chromebox-cxi5-brask
+      - acer-n20q11-r856ltn-p1s2-nissa
+
+  - job: baseline-nfs-x86-intel-chromebook
     <<: *test-job-x86-intel
+
+  - job: baseline-nfs-x86-intel-chromebook
+    <<: *test-job-x86-intel
+    platforms:
+      - acer-chromebox-cxi5-brask
+      - acer-n20q11-r856ltn-p1s2-nissa
 
   - job: baseline-x86-amd-chromebook
     <<: *test-job-chromeos-amd
@@ -200,6 +236,12 @@ scheduler:
 
   - job: baseline-x86-intel-chromebook
     <<: *test-job-chromeos-intel
+
+  - job: baseline-x86-intel-chromebook
+    <<: *test-job-chromeos-intel
+    platforms:
+      - acer-chromebox-cxi5-brask
+      - acer-n20q11-r856ltn-p1s2-nissa
 
   - job: baseline-x86-intel-chromebook
     <<: *test-job-x86-intel
@@ -227,6 +269,12 @@ scheduler:
 
   - job: baseline-nfs-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
+
+  - job: baseline-x86-intel-chromebook
+    <<: *test-job-x86-intel
+    platforms:
+      - acer-chromebox-cxi5-brask
+      - acer-n20q11-r856ltn-p1s2-nissa
 
   - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
