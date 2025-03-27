@@ -1654,6 +1654,13 @@ jobs:
       collections: timers
     kcidb_test_suite: kselftest.timers
 
+  kselftest-ublk:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: ublk
+    kcidb_test_suite: kselftest.ublk
+
   kselftest-uevent:
     <<: *kselftest-job
     params:
