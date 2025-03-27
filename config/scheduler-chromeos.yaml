@@ -58,6 +58,12 @@ _anchors:
       kind: kbuild
     platforms: *mediatek-platforms
 
+  test-job-arm64-mediatek-cros-kernel: &test-job-arm64-mediatek-cros-kernel
+    <<: *test-job-arm64-mediatek
+    event:
+      <<: *test-job-arm64-mediatek-event
+      name: kbuild-gcc-12-arm64-chromeos-daily-mediatek
+
   test-job-arm64-mediatek-media-committers: &test-job-arm64-mediatek-media-committers
     <<: *test-job-arm64-mediatek
     event:
@@ -67,6 +73,12 @@ _anchors:
   test-job-arm64-qualcomm: &test-job-arm64-qualcomm
     <<: *test-job-arm64-mediatek
     platforms: *qualcomm-platforms
+
+  test-job-arm64-qualcomm-cros-kernel: &test-job-arm64-qualcomm-cros-kernel
+    <<: *test-job-arm64-qualcomm
+    event:
+      <<: *test-job-arm64-mediatek-event
+      name: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
 
   test-job-arm64-qualcomm: &test-job-arm64-qualcomm-media-committers
     <<: *test-job-arm64-mediatek-media-committers
@@ -108,7 +120,7 @@ _anchors:
 
   test-job-x86: &test-job-x86
     <<: *lava-job-collabora
-    event:
+    event: &test-job-x86-event
       channel: node
       name: kbuild-gcc-12-x86
       result: pass
@@ -118,9 +130,21 @@ _anchors:
     <<: *test-job-x86
     platforms: *amd-platforms
 
+  test-job-x86-amd-cros-kernel: &test-job-x86-amd-cros-kernel
+    <<: *test-job-x86-amd
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-daily-amd
+
   test-job-x86-intel: &test-job-x86-intel
     <<: *test-job-x86
     platforms: *intel-platforms
+
+  test-job-x86-intel-cros-kernel: &test-job-x86-intel-cros-kernel
+    <<: *test-job-x86-intel
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-daily-intel
 
 scheduler:
 
@@ -179,6 +203,30 @@ scheduler:
 
   - job: baseline-x86-intel-chromebook
     <<: *test-job-x86-intel
+
+  - job: baseline-arm64-mediatek-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: baseline-arm64-qualcomm-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: baseline-x86-amd-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: baseline-x86-intel-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: baseline-nfs-arm64-mediatek-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: baseline-nfs-arm64-qualcomm-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: baseline-nfs-x86-amd-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: baseline-nfs-x86-intel-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
 
   - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
