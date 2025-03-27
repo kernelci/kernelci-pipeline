@@ -30,6 +30,12 @@ platforms:
 
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
 
+  armada-388-clearfog-pro:
+    <<: *arm-device
+    mach: marvell
+    dtb: dtbs/armada-388-clearfog-pro.dtb
+    compatible: ['solidrun,clearfog-pro-a1', 'solidrun,clearfog-a1', 'marvell,armada388', 'marvell,armada385', 'marvell,armada380']
+
   at91sam9g20ek:
     <<: *arm-device
     mach: atmel
@@ -123,6 +129,12 @@ platforms:
                  'toradex,verdin-imx8mp-nonwifi',
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
+
+  jetson-tk1:
+    <<: *arm-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra124-jetson-tk1.dtb
+    compatible: ['nvidia,jetson-tk1', 'nvidia,tegra124']
 
   jh7100-starfive-visionfive-v1:
     <<: *riscv-device
@@ -238,6 +250,12 @@ platforms:
     dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
     compatible: ['google,kevin-rev15', 'google,kevin-rev14']
 
+  rk3399-khadas-edge-v:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3399-khadas-edge-v.dtb
+    compatible: ['khadas,edge-v', 'rockchip,rk3399']
+
   rk3399-roc-pc:
     <<: *arm64-device
     mach: rockchip
@@ -295,6 +313,48 @@ platforms:
     dtb: dtbs/sun7i-a20-cubieboard2.dtb
     compatible: ['cubietech,cubieboard2', 'allwinner,sun7i-a20']
 
+  sun8i-a33-olinuxino:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-a33-olinuxino.dtb
+    compatible: ['olimex,a33-olinuxino','allwinner,sun8i-a33']
+
+  sun8i-a83t-bananapi-m3:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-a83t-bananapi-m3.dtb
+    compatible: ['sinovoip,bpi-m3', 'allwinner,sun8i-a83t']
+
+  sun8i-h2-plus-orangepi-r1:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-h2-plus-orangepi-r1.dtb
+    compatible: ['xunlong,orangepi-r1', 'allwinner,sun8i-h2-plus']
+
+  sun8i-h2-plus-orangepi-zero:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-h2-plus-orangepi-zero.dtb
+    compatible: ['xunlong,orangepi-zero', 'allwinner,sun8i-h2-plus']
+
+  sun8i-h3-orangepi-pc:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-h3-orangepi-pc.dtb
+    compatible: ['xunlong,orangepi-pc-plus', 'allwinner,sun8i-h3']
+
+  sun8i-r40-bananapi-m2-ultra:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun8i-r40-bananapi-m2-ultra.dtb
+    compatible: ['sinovoip,bpi-m2-ultra', 'allwinner,sun8i-r40']
+
+  sun9i-a80-cubieboard4:
+    <<: *arm-device
+    mach: allwinner
+    dtb: dtbs/sun9i-a80-cubieboard4.dtb
+    compatible: ['cubietech,a80-cubieboard4", "allwinner,sun9i-a80']
+
   sun50i-a64-pine64-plus:
     <<: *arm64-device
     mach: allwinner
@@ -306,6 +366,24 @@ platforms:
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
     compatible: ['libretech,all-h3-cc-h5', 'allwinner,sun50i-h5']
+
+  sun50i-a64-bananapi-m64:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-a64-bananapi-m64.dtb
+    compatible: ['sinovoip,bananapi-m64', 'allwinner,sun50i-a64']
+
+  sun50i-h6-orangepi-one-plus:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h6-orangepi-one-plus.dtb
+    compatible: ['xunlong,orangepi-one-plus', 'allwinner,sun50i-h6']
+
+  sun50i-h6-orangepi-3:
+    <<: *arm64-device
+    mach: allwinner
+    dtb: dtbs/allwinner/sun50i-h6-orangepi-3.dtb
+    compatible: ['xunlong,orangepi-3', 'allwinner,sun50i-h6']
 
   sun50i-h6-pine-h64:
     <<: *arm64-device
