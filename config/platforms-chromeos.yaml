@@ -80,6 +80,18 @@ platforms:
         - 'stable-rc:linux-5.15.y'
         - 'stable-rc:linux-6.12.y'
 
+  acer-chromebox-cxi5-brask:
+    <<: *x86-chromebook-device
+    base_name: brask
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
+
   acer-cp514-2h-1130g7-volteer: &chromebook-volteer-device
     <<: *x86-chromebook-device
     base_name: volteer
@@ -97,6 +109,18 @@ platforms:
   acer-cp514-3wh-r0qs-guybrush:
     <<: *x86-chromebook-device
     base_name: guybrush
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
+
+  acer-n20q11-r856ltn-p1s2-nissa:
+    <<: *x86-chromebook-device
+    base_name: nissa
     rules:
       <<: *x86-chromebook-device-rules
       branch:
@@ -211,14 +235,32 @@ platforms:
   hp-x360-14a-cb0001xx-zork: *chromebook-zork-device
   lenovo-TPad-C13-Yoga-zork: *chromebook-zork-device
 
-  mt8183-kukui-jacuzzi-juniper-sku16: &mediatek-chromebook-device
+  mt8173-elm-hana: &mediatek-chromebook-device
     <<: *arm64-chromebook-device
-    base_name: jacuzzi
+    base_name: hana
     mach: mediatek
-    dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
-    compatible: ['google,juniper-sku16', 'google,juniper', 'mediatek,mt8183']
+    dtb: dtbs/mediatek/mt8173-elm-hana.dtb
+    compatible: ['google,hana-rev6', 'google,hana-rev5', 'google,hana-rev4', 'google,hana-rev3', 'google,hana', 'mediatek,mt8173']
     context:
       test_character_delay: 10
+    rules:
+      <<: *arm64-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'stable:linux-5.15.y'
+        - 'stable:linux-6.1.y'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.15.y'
+        - 'stable-rc:linux-6.1.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
+
+  mt8183-kukui-jacuzzi-juniper-sku16:
+    <<: *mediatek-chromebook-device
+    base_name: jacuzzi
+    dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
+    compatible: ['google,juniper-sku16', 'google,juniper', 'mediatek,mt8183']
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
@@ -263,11 +305,27 @@ platforms:
 
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
-    base_name: cherry
+    base_name: cherry-r2
     dtb:
       - 'dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
       - 'dtbs/mediatek/mt8195-tomato-rev2.dtb'
     compatible: ['google,tomato-rev2', 'google,tomato', 'mediatek,mt8195']
+    rules:
+      <<: *arm64-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
+
+  mt8195-cherry-tomato-r3:
+    <<: *mediatek-chromebook-device
+    base_name: cherry-r3
+    dtb:
+      - 'dtbs/mediatek/mt8195-cherry-tomato-r3.dtb'
+      - 'dtbs/mediatek/mt8195-tomato-rev3.dtb'
+    compatible: ['google,tomato-rev4', 'google,tomato-rev3','google,tomato', 'mediatek,mt8195']
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
