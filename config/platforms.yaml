@@ -387,7 +387,7 @@ platforms:
   sun20i-d1-nezha:
     <<: *riscv-device
     mach: allwinner
-    dtb: dtbs/sun20i-d1-nezha.dtb
+    dtb: dtbs/allwinner/sun20i-d1-nezha.dtb
     compatible: ["allwinner,d1-nezha", "allwinner,sun20i-d1"]
 
   sun7i-a20-cubieboard2:
