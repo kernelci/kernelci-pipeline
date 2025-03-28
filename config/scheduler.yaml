@@ -47,6 +47,24 @@ scheduler:
       type: lava
       name: lava-baylibre
     platforms:
+      - am57xx-beagle-x15
+      - at91-sama5d4_xplained
+      - beagle-xm
+      - beaglebone-black
+      - da850-lcdk
+      - k3-j721e-sk
+      - k3-j721e-beagleboneai64
+      - jetson-tk1
+      - meson-axg-s400
+      - meson-g12a-u200
+      - meson-g12a-x96-max
+      - meson-g12b-odroid-n2
+      - meson-gxl-s905d-p230
+      - meson-gxl-s905x-libretech-cc
+      - meson-sm1-khadas-vim3l
+      - meson-sm1-sei610
+      - mt7629-rfb
+      - sun50i-a64-pine64-plus
       - sun7i-a20-cubieboard2
 
   - job: baseline-arm-broonie
