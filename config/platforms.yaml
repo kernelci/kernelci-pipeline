@@ -36,6 +36,18 @@ platforms:
     dtb: dtbs/armada-388-clearfog-pro.dtb
     compatible: ['solidrun,clearfog-pro-a1', 'solidrun,clearfog-a1', 'marvell,armada388', 'marvell,armada385', 'marvell,armada380']
 
+  am57xx-beagle-x15:
+    <<: *arm-device
+    mach: omap
+    dtb: dtbs/am57xx-beagle-x15.dtb
+    compatible: ['ti,am572x-beagle-x15', 'ti,am5728', 'ti,dra742', 'ti,dra74', 'ti,dra7']
+
+  at91-sama5d4_xplained:
+    <<: *arm-device
+    mach: microchip
+    dtb: dtbs/at91-sama5d4_xplained.dtb
+    compatible: ['atmel,sama5d4-xplained', 'atmel,sama5d4', 'atmel,sama5']
+
   at91sam9g20ek:
     <<: *arm-device
     mach: atmel
@@ -61,11 +73,23 @@ platforms:
     dtb: dtbs/bcm2836-rpi-2-b.dtb
     compatible: ['raspberrypi,2-model-b', 'brcm,bcm2836']
 
+  beagle-xm:
+    <<: *arm-device
+    mach: omap
+    dtb: dtbs/omap3-beagle-xm.dtb
+    compatible: ['ti,omap3-beagle-xm', 'ti,omap3630', 'ti,omap3']
+
   beaglebone-black:
     <<: *arm-device
     mach: omap
     dtb: dtbs/am335x-boneblack.dtb
     compatible: ['ti,am335x-bone-black', 'ti,am335x-bone', 'ti,am33xx']
+
+  da850-lcdk:
+    <<: *arm-device
+    mach: davinci
+    dtb: dtbs/da850-lcdk.dtb
+    compatible: ['ti,da850-lcdk', 'ti,da850']
 
   docker:
 
@@ -148,8 +172,37 @@ platforms:
     dtb: dtbs/arm/juno.dtb
     compatible: ['arm,juno', 'arm,vexpress']
 
+  k3-j721e-sk:
+    <<: *arm64-device
+    mach: ti
+    dtb: dtbs/ti/k3-j721e-sk.dtb
+    compatible: ['ti,j721e-sk', 'ti,j721e']
+
+  k3-j721e-beagleboneai64:
+    <<: *arm64-device
+    mach: ti
+    dtb: dtbs/ti/k3-j721e-beagleboneai64.dtb
+    compatible: ['beagle,j721e-beagleboneai64', 'ti,j721e']
 
   kubernetes:
+
+  meson-axg-s400:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-axg-s400.dtb
+    compatible: ['amlogic,s400', 'amlogic,a113d', 'amlogic,meson-axg']
+
+  meson-g12a-u200:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12a-u200.dtb
+    compatible: ['amlogic,u200', 'amlogic,g12a']
+
+  meson-g12a-x96-max:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-g12a-x96-max.dtb
+    compatible: ['amediatech,x96-max', 'amlogic,g12a']
 
   meson-g12b-a311d-libretech-cc:
     <<: *arm64-device
@@ -163,11 +216,29 @@ platforms:
     dtb: dtbs/amlogic/meson-g12b-a311d-khadas-vim3.dtb
     compatible: ['khadas,vim3', 'amlogic,a311d', 'amlogic,g12b']
 
+  meson-g12b-odroid-n2:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/meson-g12b-odroid-n2.dtb
+    compatible: ['hardkernel,odroid-n2', 'amlogic,s922x', 'amlogic,g12b']
+
+  meson-gxl-s905d-p230:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/meson-gxl-s905d-p230.dtb
+    compatible: ['amlogic,p230', 'amlogic,s905d', 'amlogic,meson-gxl']
+
   meson-gxl-s905x-libretech-cc:
     <<: *arm64-device
     mach: amlogic
     dtb: dtbs/amlogic/meson-gxl-s905x-libretech-cc.dtb
     compatible: ['libretech,aml-s905x-cc', 'amlogic,s905x', 'amlogic,meson-gxl']
+
+  meson-sm1-khadas-vim3l:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-sm1-khadas-vim3l.dtb
+    compatible: ['khadas,vim3l', 'amlogic,sm1']
 
   meson-sm1-s905d3-libretech-cc:
     <<: *arm64-device
@@ -175,8 +246,20 @@ platforms:
     dtb: dtbs/amlogic/meson-sm1-s905d3-libretech-cc.dtb
     compatible: ['libretech,aml-s905d3-cc', 'amlogic,sm1']
 
+  meson-sm1-sei610:
+    <<: *arm64-device
+    mach: amlogic
+    dtb: dtbs/amlogic/meson-sm1-sei610.dtb
+    compatible: ['seirobotics,sei610', 'amlogic,sm1']
+
   # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
   minnowboard-turbot-E3826: *x86_64-device
+
+  mt7629-rfb:
+    <<: *arm-device
+    mach: mediatek
+    dtb: dtbs/mt7629-rfb.dtb
+    compatible: ['mediatek,mt7629-rfb', 'mediatek,mt7629']
 
   mt8365-genio-350-evk:
     <<: *arm64-device
