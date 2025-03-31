@@ -26,7 +26,7 @@ _anchors:
         url: https://storage.chromeos.kernelci.org/images/kernel/cros-20230815-amd64/clang-14
         image: 'kernel/bzImage'
       tast_tarball: https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-{base_name}/20240918.0/{debarch}/tast.tgz
-    rules:
+    rules: &x86-chromebook-device-rules
       <<: *arm64-chromebook-device-rules
       fragments:
         - 'x86-board'
@@ -35,52 +35,148 @@ platforms:
   acer-R721T-grunt: &chromebook-grunt-device
     <<: *x86-chromebook-device
     base_name: grunt
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-5.10.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.10.y'
+        - 'stable-rc:linux-6.12.y'
 
   acer-cb317-1h-c3z6-dedede:
     <<: *x86-chromebook-device
     base_name: dedede
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.1'
+        - 'stable:linux-6.1.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.1.y'
+        - 'stable-rc:linux-6.12.y'
 
   acer-cbv514-1h-34uz-brya:
     <<: *x86-chromebook-device
     base_name: brya
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   acer-chromebox-cxi4-puff:
     <<: *x86-chromebook-device
     base_name: puff
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'stable:linux-5.15.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.15.y'
+        - 'stable-rc:linux-6.12.y'
 
   acer-cp514-2h-1130g7-volteer: &chromebook-volteer-device
     <<: *x86-chromebook-device
     base_name: volteer
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.4'
+        - 'stable:linux-5.4.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.4.y'
+        - 'stable-rc:linux-6.12.y'
 
   acer-cp514-2h-1160g7-volteer: *chromebook-volteer-device
 
   acer-cp514-3wh-r0qs-guybrush:
     <<: *x86-chromebook-device
     base_name: guybrush
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   asus-C433TA-AJ0005-rammus:
     <<: *x86-chromebook-device
     base_name: rammus
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-5.10.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.10.y'
+        - 'stable-rc:linux-6.12.y'
 
   asus-C436FA-Flip-hatch:
     <<: *x86-chromebook-device
     base_name: hatch
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'stable:linux-5.15.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.15.y'
+        - 'stable-rc:linux-6.12.y'
 
   asus-C523NA-A20057-coral:
     <<: *x86-chromebook-device
     base_name: coral
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-5.10.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.10.y'
+        - 'stable-rc:linux-6.12.y'
 
   asus-CM1400CXA-dalboz: &chromebook-zork-device
     <<: *x86-chromebook-device
     base_name: zork
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.4'
+        - 'stable:linux-5.4.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.4.y'
+        - 'stable-rc:linux-6.12.y'
 
   dell-latitude-3445-7520c-skyrim:
     <<: *x86-chromebook-device
     base_name: skyrim
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   dell-latitude-5300-8145U-arcada: &chromebook-sarien-device
     <<: *x86-chromebook-device
     base_name: sarien
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-5.10.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.10.y'
+        - 'stable-rc:linux-6.12.y'
 
   dell-latitude-5400-4305U-sarien: *chromebook-sarien-device
   dell-latitude-5400-8665U-sarien: *chromebook-sarien-device
@@ -91,10 +187,26 @@ platforms:
   hp-x360-14-G1-sona:
     <<: *x86-chromebook-device
     base_name: nami
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.4'
+        - 'stable:linux-5.4.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.4.y'
+        - 'stable-rc:linux-6.12.y'
 
   hp-x360-12b-ca0010nr-n4020-octopus:
     <<: *x86-chromebook-device
     base_name: octopus
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'stable:linux-5.15.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-5.15.y'
+        - 'stable-rc:linux-6.12.y'
 
   hp-x360-14a-cb0001xx-zork: *chromebook-zork-device
   lenovo-TPad-C13-Yoga-zork: *chromebook-zork-device
@@ -109,9 +221,14 @@ platforms:
       test_character_delay: 10
     rules:
       <<: *arm64-chromebook-device-rules
-      min_version:
-        version: 6
-        patchlevel: 1
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-6.1.y'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.1.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   mt8186-corsola-steelix-sku131072:
     <<: *mediatek-chromebook-device
@@ -125,9 +242,10 @@ platforms:
         image: 'Image'
     rules:
       <<: *arm64-chromebook-device-rules
-      min_version:
-        version: 6
-        patchlevel: 9
+      branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.12.y'
 
   mt8192-asurada-spherion-r0:
     <<: *mediatek-chromebook-device
@@ -136,20 +254,28 @@ platforms:
     compatible: ['google,spherion-rev3', 'google,spherion-rev2']
     rules:
       <<: *arm64-chromebook-device-rules
-      min_version:
-        version: 6
-        patchlevel: 4
+      branch:
+        - 'chromiumos:chromeos-6.1'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
     base_name: cherry
-    dtb: dtbs/mediatek/mt8195-cherry-tomato-r2.dtb
+    dtb:
+      - 'dtbs/mediatek/mt8195-cherry-tomato-r2.dtb'
+      - 'dtbs/mediatek/mt8195-tomato-rev2.dtb'
     compatible: ['google,tomato-rev2', 'google,tomato', 'mediatek,mt8195']
     rules:
       <<: *arm64-chromebook-device-rules
-      min_version:
-        version: 6
-        patchlevel: 7
+      branch:
+        - 'chromiumos:chromeos-5.10'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   sc7180-trogdor-kingoftown: &trogdor-chromebook-device
     <<: *arm64-chromebook-device
@@ -165,6 +291,13 @@ platforms:
         url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm
         image: 'kernel/Image'
         dtb: 'dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
+    rules:
+      branch:
+        - 'chromiumos:chromeos-6.6'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
 
   sc7180-trogdor-lazor-limozeen:
     <<: *trogdor-chromebook-device
