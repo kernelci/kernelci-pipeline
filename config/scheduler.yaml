@@ -95,6 +95,15 @@ scheduler:
       - sun8i-r40-bananapi-m2-ultra
       - sun9i-a80-cubieboard4
 
+  - job: baseline-arm-kontron
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-kontron-runtime
+      type: lava
+      name: lava-kontron
+    platforms:
+      - kontron-kswitch-d10-mmt-6g-2gs
+      - kontron-kswitch-d10-mmt-8g
+
   - job: baseline-arm-mfd
     event:
       <<: *node-event-kbuild
@@ -210,6 +219,14 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: baseline-arm64-kontron
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-kontron-runtime
+    platforms:
+      - kontron-bl-imx8mm
+      - kontron-kbox-a-230-ls
+      - kontron-sl28-var3-ads2
 
   - job: baseline-arm64-pengutronix
     event: *kbuild-gcc-12-arm64-node-event
