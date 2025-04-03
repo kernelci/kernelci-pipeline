@@ -103,6 +103,7 @@ services:
       - 'lava-qualcomm'
       - 'lava-cip'
       - 'lava-pengutronix'
+      - 'lava-kontron'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
