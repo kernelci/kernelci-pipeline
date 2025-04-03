@@ -143,6 +143,13 @@ runtimes:
       callback:
         token: kernelci-api-token-lava-staging
 
+  lava-kontron:
+    lab_type: lava
+    url: 'https://lavalab.kontron.com'
+    notify:
+      callback:
+        token: kernel-ci-callback
+
   lava-pengutronix:
     lab_type: lava
     url: 'https://lava.pengutronix.de'
