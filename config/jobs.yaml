@@ -102,6 +102,7 @@ _anchors:
     - 'tip'
     - 'ulfh'
     - 'vireshk'
+    - 'linux-pci'
 
 
 jobs:
