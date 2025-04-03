@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kernelci-pipeline-timeout-holdoff
+  name: kernelci-pipeline-timeout-task-holdoff
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kernelci-pipeline-timeout-holdoff
+      app: kernelci-pipeline-timeout-task-holdoff
   template:
     metadata:
       labels:
-        app: kernelci-pipeline-timeout-holdoff
+        app: kernelci-pipeline-timeout-task-holdoff
     spec:
       containers:
-        - name: kernelci-pipeline-timeout-holdoff
+        - name: kernelci-pipeline-timeout-task-holdoff
           image: kernelci/staging-kernelci
           env:
             - name: KCI_API_TOKEN

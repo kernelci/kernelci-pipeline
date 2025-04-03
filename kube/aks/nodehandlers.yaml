@@ -20,7 +20,7 @@ spec:
         app: timeout
     spec:
       containers:
-        - name: timeout
+        - name: timeout-task
           image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
@@ -68,7 +68,7 @@ spec:
         app: closing
     spec:
       containers:
-        - name: timeout
+        - name: timeout-task
           image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:
@@ -112,7 +112,7 @@ spec:
         app: holdoff
     spec:
       containers:
-        - name: timeout
+        - name: timeout-task
           image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
           command:

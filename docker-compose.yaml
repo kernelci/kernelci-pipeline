@@ -176,7 +176,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  timeout:
+  timeout-task:
     <<: *base-service
     container_name: 'kernelci-pipeline-timeout'
     command:
@@ -189,7 +189,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  timeout-closing:
+  timeout-task-closing:
     <<: *base-service
     container_name: 'kernelci-pipeline-closing'
     command:
@@ -202,7 +202,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  timeout-holdoff:
+  timeout-task-holdoff:
     <<: *base-service
     container_name: 'kernelci-pipeline-holdoff'
     command:
