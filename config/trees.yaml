@@ -153,6 +153,9 @@ trees:
   hyperv:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git"
 
+  linux-pci:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git"
+
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
 #
@@ -683,3 +686,11 @@ build_configs:
   hyperv-fixes:
     tree: hyperv
     branch: 'hyperv-fixes'
+
+  linux-pci:
+    tree: linux-pci
+    branch: 'next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
