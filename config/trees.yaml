@@ -364,8 +364,16 @@ build_configs:
     <<: *chrome-platform
     branch: 'for-firmware-next'
 
-  chromiumos-5.4: &chromiumos
+  chromiumos: &chromiumos
     tree: chromiumos
+    branch: 'master'  # To be overridden.
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  chromiumos-5.4:
+    <<: *chromiumos
     branch: 'chromeos-5.4'
 
   chromiumos-5.10:
