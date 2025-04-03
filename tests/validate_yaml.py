@@ -110,6 +110,15 @@ def validate_build_configs(data):
             raise yaml.YAMLError(
                 f"Tree {entry.get('tree')} not found in trees"
             )
+        # each build config must have fields tree and branch
+        if not build_configs[entry].get('tree'):
+            raise yaml.YAMLError(
+                f"Tree not found for build config: {entry}'"
+            )
+        if not build_configs[entry].get('branch'):
+            raise yaml.YAMLError(
+                f"Branch not found for build config: {entry}'"
+            )
 
 def validate_unused_trees(data):
     '''
