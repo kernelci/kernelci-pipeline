@@ -761,7 +761,7 @@ in {runtime}",
 
     def _should_skip_node(self, node):
         """Check if node should be skipped based on environment"""
-        if self._current_user['username'] in ('staging.kernelci.org', 'production'):
+        if self._current_user['username'] in ('staging.kernelci.org', 'production', 'qualcomm'):
             return node['submitter'] != 'service:pipeline'
         return False
 
