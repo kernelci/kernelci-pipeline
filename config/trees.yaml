@@ -396,44 +396,52 @@ build_configs:
     <<: *chromiumos
     branch: 'chromeos-6.12'
 
-  cip-4.4:
+  cip: &cip
     tree: cip
+    branch: 'master'  # To be overridden.
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  cip-4.4:
+    <<: *cip
     branch: 'linux-4.4.y-cip'
 
   cip-4.4-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-cip-rt'
 
   cip-4.4-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-st'
 
   cip-4.19:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip'
 
   cip-4.19-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip-rt'
 
   cip-4.19-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-st'
 
   cip-5.10:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip'
 
   cip-5.10-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip-rt'
 
   cip-6.1:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip'
 
   cip-6.1-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip-rt'
 
   clk:
