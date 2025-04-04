@@ -470,6 +470,10 @@ build_configs:
   efi:
     tree: efi
     branch: 'next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
 
   kernelci_staging-mainline:
     tree: kernelci
