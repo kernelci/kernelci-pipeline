@@ -74,7 +74,7 @@ Each environment needs to have its own API token set up locally to be able to su
 
 ### Timeout
 
-The timeout service periodically checks all nodes' state. If a node is not in "done" state, then it checks whether the maximum wait time (timeout) is over. If so, it sets the node and all its child nodes to "done" state.
+The timeout-task service periodically checks all nodes' state. If a node is not in "done" state, then it checks whether the maximum wait time (timeout) is over. If so, it sets the node and all its child nodes to "done" state.
 If the node is in "available" state and not timed-out, it will check for holdoff time. If the holdoff reached, and all its child nodes are completed, the node state will be moved to "done", otherwise the state will be set to "closing".
 The parent node with "closing" state can not have any new child nodes.
 This will generate pub/sub event of node update.

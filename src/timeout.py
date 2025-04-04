@@ -105,7 +105,7 @@ class TimeoutService(Service):
 class Timeout(TimeoutService):
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout')
+        super().__init__(configs, args, 'timeout-task')
 
     def _check_pending_nodes(self, pending_nodes):
         timeout_nodes = {}
@@ -132,7 +132,7 @@ class Timeout(TimeoutService):
 class Holdoff(TimeoutService):
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout-holdoff')
+        super().__init__(configs, args, 'timeout-task-holdoff')
 
     def _get_available_nodes(self):
         nodes = self._api.node.find({
@@ -177,7 +177,7 @@ class Holdoff(TimeoutService):
 class Closing(TimeoutService):
 
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout-closing')
+        super().__init__(configs, args, 'timeout-task-closing')
 
     def _get_closing_nodes(self):
         nodes = self._api.node.find({'state': 'closing'})
