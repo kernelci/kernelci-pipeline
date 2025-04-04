@@ -188,13 +188,21 @@ build_variants:
 
 build_configs:
 
-  aaptel:
-    tree: aaptel
-    branch: 'nvme-rx-offload-ci'
+  mainline: &mainline
+    tree: mainline
+    branch: 'master'
+
+  mainline-standard: &mainline-standard
+    <<: *mainline
     architectures:
       - x86_64
       - arm64
       - arm
+
+  aaptel:
+    <<: *mainline-standard
+    tree: aaptel
+    branch: 'nvme-rx-offload-ci'
 
   amlogic:
     tree: amlogic
@@ -204,8 +212,8 @@ build_configs:
       - arm
 
   android: &android
+    <<: *mainline-standard
     tree: android
-    branch: 'master'  # To be overridden.
     architectures:
       - arm64
       - arm
@@ -283,12 +291,9 @@ build_configs:
     branch: 'android16-6.12'
 
   ardb:
+    <<: *mainline-standard
     tree: ardb
     branch: 'for-kernelci'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   arm64:
     tree: arm64
@@ -297,20 +302,17 @@ build_configs:
       - arm64
 
   arnd:
+    <<: *mainline-standard
     tree: arnd
     branch: 'to-build'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
-  broonie-misc: &broonie
+  broonie: &broonie
+    <<: *mainline-standard
+
+  broonie-misc:
+    <<: *broonie
     tree: broonie-misc
     branch: 'for-kernelci'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   broonie-regmap:
     <<: *broonie
@@ -353,24 +355,17 @@ build_configs:
     branch: 'for-linus'
 
   chrome-platform: &chrome-platform
+    <<: *mainline-standard
     tree: chrome-platform
     branch: 'for-next'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   chrome-platform-firmware:
     <<: *chrome-platform
     branch: 'for-firmware-next'
 
   chromiumos: &chromiumos
+    <<: *mainline-standard
     tree: chromiumos
-    branch: 'master'  # To be overridden.
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   chromiumos-5.4:
     <<: *chromiumos
@@ -397,12 +392,8 @@ build_configs:
     branch: 'chromeos-6.12'
 
   cip: &cip
+    <<: *mainline-standard
     tree: cip
-    branch: 'master'  # To be overridden.
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   cip-4.4:
     <<: *cip
@@ -451,37 +442,26 @@ build_configs:
       - arm64
       - arm
 
-  collabora-chromeos-kernel_for-kernelci:
-    tree: collabora-chromeos-kernel
+  collabora: &collabora
+    <<: *mainline-standard
     branch: 'for-kernelci'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
-  collabora-next_for-kernelci:
+  collabora-chromeos-kernel:
+    <<: *collabora
+    tree: collabora-chromeos-kernel
+
+  collabora-next:
+    <<: *collabora
     tree: collabora-next
-    branch: 'for-kernelci'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   efi:
+    <<: *mainline-standard
     tree: efi
     branch: 'next'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   kernelci: &kernelci
+    <<: *mainline-standard
     tree: kernelci
-    branch: 'master'  # To be overridden.
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   kernelci_staging-mainline:
     <<: *kernelci
@@ -510,12 +490,8 @@ build_configs:
       - arm
 
   kselftest: &kselftest
+    <<: *mainline-standard
     tree: kselftest
-    branch: 'master'  # To be overridden.
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   kselftest_fixes:
     <<: *kselftest
@@ -525,13 +501,13 @@ build_configs:
     <<: *kselftest
     branch: 'next'
 
-  lee_backlight: &lee
+  lee: &lee
+    <<: *mainline-standard
+
+  lee_backlight:
+    <<: *lee
     tree: lee-backlight
     branch: 'for-backlight-next'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
 
   lee_mfd:
     <<: *lee
@@ -549,10 +525,6 @@ build_configs:
   linusw_for-next:
     tree: linusw
     branch: 'for-next'
-
-  mainline:
-    tree: mainline
-    branch: 'master'
 
   media_fixes:
     tree: media
