@@ -10,8 +10,6 @@ services:
   lava-callback:
     container_name: 'kernelci-pipeline-lava-callback'
     networks: ['lava-callback']
-    build:
-      context: 'docker/lava-callback'
     env_file: ['.env']
     ports:
       - '${LAVA_CALLBACK_PORT:-8100}:8000'

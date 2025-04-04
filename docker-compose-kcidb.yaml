@@ -9,7 +9,7 @@ services:
 
   kcidb:
     container_name: 'kernelci-pipeline-kcidb'
-    image: 'ghcr.io/kernelci/staging-kernelci:pipeline'
+    image: 'kernelci/staging-kernelci:pipeline'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     networks: ['kcidb']
