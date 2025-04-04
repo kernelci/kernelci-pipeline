@@ -475,16 +475,24 @@ build_configs:
       - arm64
       - arm
 
-  kernelci_staging-mainline:
+  kernelci: &kernelci
     tree: kernelci
+    branch: 'master'  # To be overridden.
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  kernelci_staging-mainline:
+    <<: *kernelci
     branch: 'staging-mainline'
 
   kernelci_staging-next:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-next'
 
   kernelci_staging-stable:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-stable'
 
   khilman:
