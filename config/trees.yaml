@@ -447,6 +447,9 @@ build_configs:
   clk:
     tree: clk
     branch: 'clk-next'
+    architectures:
+      - arm64
+      - arm
 
   collabora-chromeos-kernel_for-kernelci:
     tree: collabora-chromeos-kernel
