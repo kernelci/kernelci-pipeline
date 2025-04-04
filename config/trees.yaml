@@ -1,5 +1,10 @@
 trees:
 
+  _base:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+  # NOTE: Please keep the trees list below in sorted order.
+
   aaptel:
     url: "https://github.com/aaptel/linux.git"
 
@@ -54,6 +59,9 @@ trees:
   efi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
 
+  hyperv:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -75,14 +83,17 @@ trees:
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git"
 
+  linux-pci:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git"
+
   mainline:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
-  media:
-    url: 'https://git.linuxtv.org/media.git'
-
   media-committers:
     url: 'https://gitlab.freedesktop.org/linux-media/media-committers.git'
+
+  media:
+    url: 'https://git.linuxtv.org/media.git'
 
   mediatek:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/mediatek/linux.git'
@@ -126,14 +137,14 @@ trees:
   soc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
 
-  stable:
-    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git'
-
   stable-rc:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git'
 
   stable-rt:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git'
+
+  stable:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git'
 
   tegra:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"
@@ -149,12 +160,6 @@ trees:
 
   vireshk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/vireshk/linux.git"
-
-  hyperv:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git"
-
-  linux-pci:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git"
 
 # -----------------------------------------------------------------------------
 # Legacy configuration data (still used by trigger service)
@@ -191,144 +196,192 @@ build_variants:
 
 build_configs:
 
+  # Includes all supported architectures.
+  _base: &base
+    tree: _base
+    branch: 'master'
+
+  # Includes most common and/or widely deployed architectures.
+  # The 32-bit x86 architecture is considered legacy nowadays,
+  # and as such, not included here.
+  _base-standard: &base-standard
+    <<: *base
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  # Includes ARM-specific architectures only.
+  _base-arm: &base-arm
+    <<: *base
+    architectures:
+      - arm64
+      - arm
+
+  # NOTE: Please keep the trees list below in sorted order.
+
   aaptel:
+    <<: *base-standard
     tree: aaptel
     branch: 'nvme-rx-offload-ci'
 
   amlogic:
+    <<: *base-arm
     tree: amlogic
     branch: 'for-next'
 
-  android_mainline:
+  android_mainline: &android
+    <<: *base-arm
     tree: android
     branch: 'android-mainline'
 
   android_mainline_tracking:
-    tree: android
+    <<: *android
     branch: 'android-mainline-tracking'
 
   android11-5.4:
-    tree: android
+    <<: *android
     branch: 'android11-5.4'
 
   android12-5.4:
-    tree: android
+    <<: *android
     branch: 'android12-5.4'
 
   android12-5.4-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.4-lts'
 
   android12-5.10:
-    tree: android
+    <<: *android
     branch: 'android12-5.10'
 
   android12-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.10-lts'
 
   android13-5.10:
-    tree: android
+    <<: *android
     branch: 'android13-5.10'
 
   android13-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.10-lts'
 
   android13-5.15:
-    tree: android
+    <<: *android
     branch: 'android13-5.15'
 
   android13-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.15-lts'
 
   android14-5.15:
-    tree: android
+    <<: *android
     branch: 'android14-5.15'
 
   android14-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android14-5.15-lts'
 
   android14-6.1:
-    tree: android
+    <<: *android
     branch: 'android14-6.1'
 
   android14-6.1-lts:
-    tree: android
+    <<: *android
     branch: 'android14-6.1-lts'
 
   android15-6.6:
-    tree: android
+    <<: *android
     branch: 'android15-6.6'
 
   android15-6.6-lts:
-    tree: android
+    <<: *android
     branch: 'android15-6.6-lts'
 
   android16-6.12:
-    tree: android
+    <<: *android
     branch: 'android16-6.12'
 
   ardb:
+    <<: *base-standard
     tree: ardb
     branch: 'for-kernelci'
 
   arm64:
     tree: arm64
     branch: 'for-kernelci'
+    architectures:
+      - arm64
 
   arnd:
+    <<: *base-standard
     tree: arnd
     branch: 'to-build'
 
+  broonie: &broonie
+    <<: *base-standard
+
   broonie-misc:
+    <<: *broonie
     tree: broonie-misc
     branch: 'for-kernelci'
 
   broonie-regmap:
+    <<: *broonie
     tree: broonie-regmap
     branch: 'for-next'
 
   broonie-regmap-fixes:
+    <<: *broonie
     tree: broonie-regmap
     branch: 'for-linus'
 
   broonie-regulator:
+    <<: *broonie
     tree: broonie-regulator
     branch: 'for-next'
 
   broonie-regulator-fixes:
+    <<: *broonie
     tree: broonie-regulator
     branch: 'for-linus'
 
   broonie-sound:
+    <<: *broonie
     tree: broonie-sound
     branch: 'for-next'
 
   broonie-sound-fixes:
+    <<: *broonie
     tree: broonie-sound
     branch: 'for-linus'
 
   broonie-spi:
+    <<: *broonie
     tree: broonie-spi
     branch: 'for-next'
 
   broonie-spi-fixes:
+    <<: *broonie
     tree: broonie-spi
     branch: 'for-linus'
 
-  chrome-platform:
+  chrome-platform: &chrome-platform
+    <<: *base-standard
     tree: chrome-platform
     branch: 'for-next'
 
   chrome-platform-firmware:
-    tree: chrome-platform
+    <<: *chrome-platform
     branch: 'for-firmware-next'
 
-  chromiumos-5.4: &chromiumos
+  chromiumos: &chromiumos
+    <<: *base-standard
     tree: chromiumos
+
+  chromiumos-5.4:
+    <<: *chromiumos
     branch: 'chromeos-5.4'
 
   chromiumos-5.10:
@@ -351,231 +404,254 @@ build_configs:
     <<: *chromiumos
     branch: 'chromeos-6.12'
 
-  cip-4.4:
+  cip-4.4: &cip
+    <<: *base
     tree: cip
     branch: 'linux-4.4.y-cip'
 
   cip-4.4-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-cip-rt'
 
   cip-4.4-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-st'
 
   cip-4.19:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip'
 
   cip-4.19-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip-rt'
 
   cip-4.19-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-st'
 
   cip-5.10:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip'
 
   cip-5.10-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip-rt'
 
   cip-6.1:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip'
 
   cip-6.1-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip-rt'
 
   clk:
+    <<: *base-arm
     tree: clk
     branch: 'clk-next'
 
-  collabora-chromeos-kernel_for-kernelci:
-    tree: collabora-chromeos-kernel
+  collabora-chromeos-kernel_for-kernelci: &collabora
+    <<: *base-standard
     branch: 'for-kernelci'
+    tree: collabora-chromeos-kernel
 
   collabora-next_for-kernelci:
+    <<: *collabora
     tree: collabora-next
-    branch: 'for-kernelci'
 
   efi:
+    <<: *base-standard
     tree: efi
     branch: 'next'
 
-  kernelci_staging-mainline:
+  hyperv-next: &hyperv
+    <<: *base-standard
+    tree: hyperv
+    branch: 'hyperv-next'
+    architectures:
+      - x86_64
+
+  hyperv-fixes:
+    <<: *hyperv
+    branch: 'hyperv-fixes'
+
+  kernelci_staging-mainline: &kernelci
+    <<: *base-standard
     tree: kernelci
     branch: 'staging-mainline'
 
   kernelci_staging-next:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-next'
 
   kernelci_staging-stable:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-stable'
 
   khilman:
+    <<: *base-arm
     tree: khilman
     branch: 'to-build'
 
   krzysztof:
+    <<: *base-arm
     tree: krzysztof
     branch: 'for-next'
 
-  kselftest_fixes:
+  kselftest_fixes: &kselftest
+    <<: *base
     tree: kselftest
     branch: 'fixes'
 
   kselftest_next:
-    tree: kselftest
+    <<: *kselftest
     branch: 'next'
 
-  lee_backlight:
+  lee_backlight: &lee
+    <<: *base-standard
     tree: lee-backlight
     branch: 'for-backlight-next'
 
   lee_mfd:
+    <<: *lee
     tree: lee-mfd
     branch: 'for-mfd-next'
 
-  linusw_devel:
+  linusw: &linusw
+    <<: *base-arm
     tree: linusw
+
+  linusw_devel:
+    <<: *linusw
     branch: 'devel'
 
   linusw_fixes:
-    tree: linusw
+    <<: *linusw
     branch: 'fixes'
 
   linusw_for-next:
-    tree: linusw
+    <<: *linusw
     branch: 'for-next'
 
+  linux-pci:
+    tree: linux-pci
+    branch: 'next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
   mainline:
+    <<: *base
     tree: mainline
     branch: 'master'
 
-  media_fixes:
-    tree: media
-    branch: 'fixes'
-
-  media_next:
-    tree: media
-    branch: 'next'
-
-  media-committers_fixes:
+  media-committers_fixes: &media-committers
+    <<: *base-standard
     tree: media-committers
     branch: 'fixes'
 
   media-committers_next:
-    tree: media-committers
+    <<: *media-committers
+    branch: 'next'
+
+  media_fixes: &media
+    <<: *base-standard
+    tree: media
+    branch: 'fixes'
+
+  media_next:
+    <<: *media
     branch: 'next'
 
   mediatek_for_next:
+    <<: *base-arm
     tree: mediatek
     branch: 'for-next'
 
   net-next:
+    <<: *base
     tree: net-next
     branch: 'main'
 
   netdev-testing:
+    <<: *base
     tree: netdev-testing
     branch: 'https://netdev.bots.linux.dev/static/nipa/branches-hw.json'
 
-  next_master:
+  next_master: &next
+    <<: *base
     tree: next
-    branch: 'master'
 
   next_pending-fixes:
-    tree: next
+    <<: *next
     branch: 'pending-fixes'
 
   omap:
+    <<: *base-arm
     tree: omap
     branch: 'for-next'
 
   padovan:
+    <<: *base-standard
     tree: padovan
     branch: 'for-kernelci'
 
   pm:
+    <<: *base-standard
     tree: pm
     branch: 'testing'
 
   qcom:
+    <<: *base-arm
     tree: qcom
     branch: 'for-next'
 
-  renesas:
+  renesas: &renesas
+    <<: *base-arm
     tree: renesas
-    branch: 'master'
 
   renesas_next:
-    tree: renesas
+    <<: *renesas
     branch: 'next'
 
-  riscv_fixes:
+  riscv_fixes: &riscv
     tree: riscv
     branch: 'fixes'
     architectures:
       - riscv
 
   riscv_for-next:
-    tree: riscv
+    <<: *riscv
     branch: 'for-next'
-    architectures:
-      - riscv
 
   robh:
+    <<: *base-standard
     tree: robh
     branch: 'for-kernelci'
 
   rppt:
+    <<: *base-standard
     tree: rppt
     branch: 'for-kernelci'
 
   sashal-next:
+    <<: *base
     tree: sashal-next
     branch: 'linus-next'
 
-  soc_fixes:
+  soc_fixes: &soc
+    <<: *base-arm
     tree: soc
     branch: 'arm/fixes'
 
   soc_for-next:
-    tree: soc
+    <<: *soc
     branch: 'for-next'
 
-  stable_5.4:
-    tree: stable
-    branch: 'linux-5.4.y'
-
-  stable_5.10:
-    tree: stable
-    branch: 'linux-5.10.y'
-
-  stable_5.15:
-    tree: stable
-    branch: 'linux-5.15.y'
-
-  stable_6.1:
-    tree: stable
-    branch: 'linux-6.1.y'
-
-  stable_6.6:
-    tree: stable
-    branch: 'linux-6.6.y'
-
-  stable_6.12:
-    tree: stable
-    branch: 'linux-6.12.y'
-
   stable-rc_5.4: &stable-rc
+    <<: *stable-rc
+    <<: *base
     tree: stable-rc
     branch: 'linux-5.4.y'
 
@@ -619,78 +695,104 @@ build_configs:
     <<: *stable-rc
     branch: 'linux-6.13.y'
 
-  stable-rt_v4.14-rt:
+  stable-rc_6.14:
+    <<: *stable-rc
+    branch: 'linux-6.14.y'
+
+  stable-rt_v4.14-rt: &stable-rt
+    <<: *base
     tree: stable-rt
     branch: 'v4.14-rt'
 
   stable-rt_v4.14-rt-next:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v4.14-rt-next'
 
   stable-rt_v5.4-rt:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v5.4-rt'
 
   stable-rt_v5.10-rt:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v5.10-rt'
 
   stable-rt_v5.10-rt-next:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v5.10-rt-next'
 
   stable-rt_v5.15-rt:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v5.15-rt'
 
   stable-rt_v5.15-rt-next:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v5.15-rt-next'
 
   stable-rt_v6.1-rt:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v6.1-rt'
 
   stable-rt_v6.1-rt-next:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v6.1-rt-next'
 
   stable-rt_v6.6-rt:
-    tree: stable-rt
+    <<: *stable-rt
     branch: 'v6.6-rt'
 
+  stable_5.4: &stable
+    <<: *base
+    tree: stable
+    branch: 'linux-5.4.y'
+
+  stable_5.10:
+    <<: *stable
+    branch: 'linux-5.10.y'
+
+  stable_5.15:
+    <<: *stable
+    branch: 'linux-5.15.y'
+
+  stable_6.1:
+    <<: *stable
+    branch: 'linux-6.1.y'
+
+  stable_6.6:
+    <<: *stable
+    branch: 'linux-6.6.y'
+
+  stable_6.12:
+    <<: *stable
+    branch: 'linux-6.12.y'
+
+  stable_6.13:
+    <<: *stable
+    branch: 'linux-6.13.y'
+
+  stable_6.14:
+    <<: *stable
+    branch: 'linux-6.14.y'
+
   tegra:
+    <<: *base-arm
     tree: tegra
     branch: 'for-next'
 
   thermal:
+    <<: *base-standard
     tree: thermal
     branch: 'testing'
 
   tip:
+    <<: *base-standard
     tree: tip
-    branch: 'master'
 
   ulfh:
+    <<: *base-standard
     tree: ulfh
     branch: 'next'
 
   vireshk:
+    <<: *base-standard
     tree: vireshk
     branch: 'for-kernelci'
-
-  hyperv-next:
-    tree: hyperv
-    branch: 'hyperv-next'
-
-  hyperv-fixes:
-    tree: hyperv
-    branch: 'hyperv-fixes'
-
-  linux-pci:
-    tree: linux-pci
-    branch: 'next'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
