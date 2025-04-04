@@ -509,12 +509,20 @@ build_configs:
       - arm64
       - arm
 
-  kselftest_fixes:
+  kselftest: &kselftest
     tree: kselftest
+    branch: 'master'  # To be overridden.
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  kselftest_fixes:
+    <<: *kselftest
     branch: 'fixes'
 
   kselftest_next:
-    tree: kselftest
+    <<: *kselftest
     branch: 'next'
 
   lee_backlight:
