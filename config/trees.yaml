@@ -188,144 +188,187 @@ build_variants:
 
 build_configs:
 
+  mainline: &mainline
+    tree: mainline
+    branch: 'master'
+
+  mainline-standard: &mainline-standard
+    <<: *mainline
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
   aaptel:
+    <<: *mainline-standard
     tree: aaptel
     branch: 'nvme-rx-offload-ci'
 
   amlogic:
     tree: amlogic
     branch: 'for-next'
+    architectures:
+      - arm64
+      - arm
+
+  android: &android
+    <<: *mainline-standard
+    tree: android
+    architectures:
+      - arm64
+      - arm
 
   android_mainline:
-    tree: android
+    <<: *android
     branch: 'android-mainline'
 
   android_mainline_tracking:
-    tree: android
+    <<: *android
     branch: 'android-mainline-tracking'
 
   android11-5.4:
-    tree: android
+    <<: *android
     branch: 'android11-5.4'
 
   android12-5.4:
-    tree: android
+    <<: *android
     branch: 'android12-5.4'
 
   android12-5.4-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.4-lts'
 
   android12-5.10:
-    tree: android
+    <<: *android
     branch: 'android12-5.10'
 
   android12-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.10-lts'
 
   android13-5.10:
-    tree: android
+    <<: *android
     branch: 'android13-5.10'
 
   android13-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.10-lts'
 
   android13-5.15:
-    tree: android
+    <<: *android
     branch: 'android13-5.15'
 
   android13-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.15-lts'
 
   android14-5.15:
-    tree: android
+    <<: *android
     branch: 'android14-5.15'
 
   android14-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android14-5.15-lts'
 
   android14-6.1:
-    tree: android
+    <<: *android
     branch: 'android14-6.1'
 
   android14-6.1-lts:
-    tree: android
+    <<: *android
     branch: 'android14-6.1-lts'
 
   android15-6.6:
-    tree: android
+    <<: *android
     branch: 'android15-6.6'
 
   android15-6.6-lts:
-    tree: android
+    <<: *android
     branch: 'android15-6.6-lts'
 
   android16-6.12:
-    tree: android
+    <<: *android
     branch: 'android16-6.12'
 
   ardb:
+    <<: *mainline-standard
     tree: ardb
     branch: 'for-kernelci'
 
   arm64:
     tree: arm64
     branch: 'for-kernelci'
+    architectures:
+      - arm64
 
   arnd:
+    <<: *mainline-standard
     tree: arnd
     branch: 'to-build'
 
+  broonie: &broonie
+    <<: *mainline-standard
+
   broonie-misc:
+    <<: *broonie
     tree: broonie-misc
     branch: 'for-kernelci'
 
   broonie-regmap:
+    <<: *broonie
     tree: broonie-regmap
     branch: 'for-next'
 
   broonie-regmap-fixes:
+    <<: *broonie
     tree: broonie-regmap
     branch: 'for-linus'
 
   broonie-regulator:
+    <<: *broonie
     tree: broonie-regulator
     branch: 'for-next'
 
   broonie-regulator-fixes:
+    <<: *broonie
     tree: broonie-regulator
     branch: 'for-linus'
 
   broonie-sound:
+    <<: *broonie
     tree: broonie-sound
     branch: 'for-next'
 
   broonie-sound-fixes:
+    <<: *broonie
     tree: broonie-sound
     branch: 'for-linus'
 
   broonie-spi:
+    <<: *broonie
     tree: broonie-spi
     branch: 'for-next'
 
   broonie-spi-fixes:
+    <<: *broonie
     tree: broonie-spi
     branch: 'for-linus'
 
-  chrome-platform:
+  chrome-platform: &chrome-platform
+    <<: *mainline-standard
     tree: chrome-platform
     branch: 'for-next'
 
   chrome-platform-firmware:
-    tree: chrome-platform
+    <<: *chrome-platform
     branch: 'for-firmware-next'
 
-  chromiumos-5.4: &chromiumos
+  chromiumos: &chromiumos
+    <<: *mainline-standard
     tree: chromiumos
+
+  chromiumos-5.4:
+    <<: *chromiumos
     branch: 'chromeos-5.4'
 
   chromiumos-5.10:
@@ -348,95 +391,126 @@ build_configs:
     <<: *chromiumos
     branch: 'chromeos-6.12'
 
-  cip-4.4:
+  cip: &cip
+    <<: *mainline-standard
     tree: cip
+
+  cip-4.4:
+    <<: *cip
     branch: 'linux-4.4.y-cip'
 
   cip-4.4-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-cip-rt'
 
   cip-4.4-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.4.y-st'
 
   cip-4.19:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip'
 
   cip-4.19-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-cip-rt'
 
   cip-4.19-st:
-    tree: cip
+    <<: *cip
     branch: 'linux-4.19.y-st'
 
   cip-5.10:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip'
 
   cip-5.10-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-5.10.y-cip-rt'
 
   cip-6.1:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip'
 
   cip-6.1-rt:
-    tree: cip
+    <<: *cip
     branch: 'linux-6.1.y-cip-rt'
 
   clk:
     tree: clk
     branch: 'clk-next'
+    architectures:
+      - arm64
+      - arm
 
-  collabora-chromeos-kernel_for-kernelci:
+  collabora: &collabora
+    <<: *mainline-standard
+    branch: 'for-kernelci'
+
+  collabora-chromeos-kernel:
+    <<: *collabora
     tree: collabora-chromeos-kernel
-    branch: 'for-kernelci'
 
-  collabora-next_for-kernelci:
+  collabora-next:
+    <<: *collabora
     tree: collabora-next
-    branch: 'for-kernelci'
 
   efi:
+    <<: *mainline-standard
     tree: efi
     branch: 'next'
 
-  kernelci_staging-mainline:
+  kernelci: &kernelci
+    <<: *mainline-standard
     tree: kernelci
+
+  kernelci_staging-mainline:
+    <<: *kernelci
     branch: 'staging-mainline'
 
   kernelci_staging-next:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-next'
 
   kernelci_staging-stable:
-    tree: kernelci
+    <<: *kernelci
     branch: 'staging-stable'
 
   khilman:
     tree: khilman
     branch: 'to-build'
+    architectures:
+      - arm64
+      - arm
 
   krzysztof:
     tree: krzysztof
     branch: 'for-next'
+    architectures:
+      - arm64
+      - arm
+
+  kselftest: &kselftest
+    <<: *mainline-standard
+    tree: kselftest
 
   kselftest_fixes:
-    tree: kselftest
+    <<: *kselftest
     branch: 'fixes'
 
   kselftest_next:
-    tree: kselftest
+    <<: *kselftest
     branch: 'next'
 
+  lee: &lee
+    <<: *mainline-standard
+
   lee_backlight:
+    <<: *lee
     tree: lee-backlight
     branch: 'for-backlight-next'
 
   lee_mfd:
+    <<: *lee
     tree: lee-mfd
     branch: 'for-mfd-next'
 
@@ -451,10 +525,6 @@ build_configs:
   linusw_for-next:
     tree: linusw
     branch: 'for-next'
-
-  mainline:
-    tree: mainline
-    branch: 'master'
 
   media_fixes:
     tree: media
