@@ -525,11 +525,16 @@ build_configs:
     <<: *kselftest
     branch: 'next'
 
-  lee_backlight:
+  lee_backlight: &lee
     tree: lee-backlight
     branch: 'for-backlight-next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
 
   lee_mfd:
+    <<: *lee
     tree: lee-mfd
     branch: 'for-mfd-next'
 
