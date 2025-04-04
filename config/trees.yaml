@@ -352,12 +352,16 @@ build_configs:
     tree: broonie-spi
     branch: 'for-linus'
 
-  chrome-platform:
+  chrome-platform: &chrome-platform
     tree: chrome-platform
     branch: 'for-next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
 
   chrome-platform-firmware:
-    tree: chrome-platform
+    <<: *chrome-platform
     branch: 'for-firmware-next'
 
   chromiumos-5.4: &chromiumos
