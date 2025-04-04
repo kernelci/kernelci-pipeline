@@ -203,76 +203,83 @@ build_configs:
       - arm64
       - arm
 
-  android_mainline:
+  android: &android
     tree: android
+    branch: 'master'  # To be overridden.
+    architectures:
+      - arm64
+      - arm
+
+  android_mainline:
+    <<: *android
     branch: 'android-mainline'
 
   android_mainline_tracking:
-    tree: android
+    <<: *android
     branch: 'android-mainline-tracking'
 
   android11-5.4:
-    tree: android
+    <<: *android
     branch: 'android11-5.4'
 
   android12-5.4:
-    tree: android
+    <<: *android
     branch: 'android12-5.4'
 
   android12-5.4-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.4-lts'
 
   android12-5.10:
-    tree: android
+    <<: *android
     branch: 'android12-5.10'
 
   android12-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android12-5.10-lts'
 
   android13-5.10:
-    tree: android
+    <<: *android
     branch: 'android13-5.10'
 
   android13-5.10-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.10-lts'
 
   android13-5.15:
-    tree: android
+    <<: *android
     branch: 'android13-5.15'
 
   android13-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android13-5.15-lts'
 
   android14-5.15:
-    tree: android
+    <<: *android
     branch: 'android14-5.15'
 
   android14-5.15-lts:
-    tree: android
+    <<: *android
     branch: 'android14-5.15-lts'
 
   android14-6.1:
-    tree: android
+    <<: *android
     branch: 'android14-6.1'
 
   android14-6.1-lts:
-    tree: android
+    <<: *android
     branch: 'android14-6.1-lts'
 
   android15-6.6:
-    tree: android
+    <<: *android
     branch: 'android15-6.6'
 
   android15-6.6-lts:
-    tree: android
+    <<: *android
     branch: 'android15-6.6-lts'
 
   android16-6.12:
-    tree: android
+    <<: *android
     branch: 'android16-6.12'
 
   ardb:
