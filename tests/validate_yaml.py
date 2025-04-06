@@ -100,24 +100,24 @@ def validate_unused_jobs(data):
 
 def validate_build_configs(data):
     '''
-    Each entry in build_configs have a tree parameter
-    This tree should exist in the trees: section
+    Each entry in build_configs must have a tree and branch attribute
+    When referenced, a given tree must exist in the trees: section
     '''
     build_configs = data.get('build_configs')
     trees = data.get('trees')
     for entry in build_configs:
-        if build_configs[entry].get('tree') not in trees.keys():
-            raise yaml.YAMLError(
-                f"Tree {entry.get('tree')} not found in trees"
-            )
-        # each build config must have fields tree and branch
-        if not build_configs[entry].get('tree'):
+        tree = build_configs[entry].get('tree')
+        if not tree:
             raise yaml.YAMLError(
                 f"Tree not found for build config: {entry}'"
             )
         if not build_configs[entry].get('branch'):
             raise yaml.YAMLError(
                 f"Branch not found for build config: {entry}'"
+            )
+        if not tree in trees.keys():
+            raise yaml.YAMLError(
+                f"Tree {tree} not found in trees"
             )
 
 def validate_unused_trees(data):
