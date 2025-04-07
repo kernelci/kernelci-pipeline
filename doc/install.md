@@ -22,3 +22,21 @@ And several secrets:
 - name:`kci-api-jwt-early access` (or `kci-api-jwt-staging` for staging), key:`token` - contains the JWT token for the KernelCI API
 
 This secrets is subject to change soon, to make it more consistent with the rest of the secrets.
+
+## JWT secret for kernelci-pipeline API
+
+The lava-callback provides an API to the kci-dev tool, providing endpoints for custom checkouts, patchset testing, job retries, etc.
+
+## TOML
+
+In the configuration file, you need to have the following section:
+```
+[jwt]
+secret = "ABCDEFGH..."
+```
+
+## Generating tokens for user
+
+You can use the `jwt_generator.py` script in the tools directory to generate user tokens.
+
+`jwt_generator.py --secret ABCDEFGH... --email user@email.com`
