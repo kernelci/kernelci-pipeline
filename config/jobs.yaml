@@ -75,9 +75,10 @@ _anchors:
 
 ### Frequently used rules
 
+  # A list of trees for which to run the build-only jobs.
   build-only-trees-rules: &build-only-trees-rules
+    # NOTE: Please keep the trees list in sorted order.
     tree:
-    - 'qcom'
     - 'amlogic'
     - 'ardb'
     - 'arnd'
@@ -88,9 +89,11 @@ _anchors:
     - 'krzysztof'
     - 'lee-backlight'
     - 'linusw'
+    - 'linux-pci'
     - 'net-next'
     - 'next'
     - 'pm'
+    - 'qcom'
     - 'renesas'
     - 'robh'
     - 'rppt'
@@ -102,7 +105,6 @@ _anchors:
     - 'tip'
     - 'ulfh'
     - 'vireshk'
-    - 'linux-pci'
 
 
 jobs:
