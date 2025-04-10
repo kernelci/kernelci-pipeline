@@ -15,6 +15,7 @@ services:
     stop_signal: 'SIGINT'
     command:
       - './src/monitor.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     volumes: &base-volumes
@@ -32,6 +33,7 @@ services:
     stop_signal: 'SIGINT'
     entrypoint:
       - './src/result_summary.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
@@ -49,6 +51,7 @@ services:
     stop_signal: 'SIGINT'
     command:
       - './src/scheduler.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=shell'
@@ -72,6 +75,7 @@ services:
     #working_dir: /home/kernelci
     command:
       - './src/scheduler.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--runtimes=docker'
@@ -91,6 +95,7 @@ services:
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
       - './src/scheduler.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_lava'
@@ -113,6 +118,7 @@ services:
     image: 'kernelci/staging-kernelci:pipeline'
     command:
       - './src/scheduler.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_k8s'
@@ -127,6 +133,7 @@ services:
     container_name: 'kernelci-pipeline-tarball'
     command:
       - './src/tarball.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--name=tarball'
@@ -145,6 +152,7 @@ services:
     container_name: 'kernelci-pipeline-trigger'
     command:
       - './src/trigger.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--trees=kernelci,netdev-testing'
@@ -157,6 +165,7 @@ services:
     container_name: 'kernelci-pipeline-regression_tracker'
     command:
       - './src/regression_tracker.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     extra_hosts:
@@ -167,6 +176,7 @@ services:
     container_name: 'kernelci-pipeline-test_report'
     command:
       - './src/test_report.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
     extra_hosts:
@@ -177,6 +187,7 @@ services:
     container_name: 'kernelci-pipeline-timeout'
     command:
       - './src/timeout.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=timeout'
@@ -188,6 +199,7 @@ services:
     container_name: 'kernelci-pipeline-closing'
     command:
       - './src/timeout.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=closing'
@@ -199,6 +211,7 @@ services:
     container_name: 'kernelci-pipeline-holdoff'
     command:
       - './src/timeout.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=holdoff'
@@ -210,6 +223,7 @@ services:
     container_name: 'kernelci-pipeline-patchset'
     command:
       - './src/patchset.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--name=patchset'
