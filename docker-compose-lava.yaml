@@ -15,9 +15,7 @@ services:
       - '${LAVA_CALLBACK_PORT:-8100}:8000'
     # With Werkzeug development server, not suitable for a public instance
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/lava_callback.py'
+      - './src/lava_callback.py'
     volumes:
       - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'

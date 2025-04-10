@@ -156,9 +156,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-regression_tracker'
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/regression_tracker.py'
+      - './src/regression_tracker.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
     extra_hosts:
@@ -168,9 +166,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-test_report'
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/test_report.py'
+      - './src/test_report.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
     extra_hosts:
@@ -180,9 +176,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-timeout'
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/timeout.py'
+      - './src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=timeout'
@@ -193,9 +187,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-closing'
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/timeout.py'
+      - './src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=closing'
@@ -206,9 +198,7 @@ services:
     <<: *base-service
     container_name: 'kernelci-pipeline-holdoff'
     command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/timeout.py'
+      - './src/timeout.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--mode=holdoff'
