@@ -10,6 +10,7 @@ services:
   lava-callback:
     container_name: 'kernelci-pipeline-lava-callback'
     networks: ['lava-callback']
+    image: 'kernelci/staging-kernelci:lava-callback'
     env_file: ['.env']
     ports:
       - '${LAVA_CALLBACK_PORT:-8100}:8000'
@@ -17,7 +18,7 @@ services:
     command:
       - './src/lava_callback.py'
     volumes:
-      - './src:/home/kernelci/pipeline'
+#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
     restart: on-failure
