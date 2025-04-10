@@ -234,3 +234,41 @@ services:
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
+
+  lava-callback:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-lava-callback'
+    image: 'kernelci/staging-kernelci:lava-callback'
+    ports:
+      - '${LAVA_CALLBACK_PORT:-8100}:8000'
+    # With Werkzeug development server, not suitable for a public instance
+    command:
+      - './src/lava_callback.py'
+    volumes:
+#      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/ssh:/home/kernelci/data/ssh'
+
+  kcidb:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-kcidb'
+    command:
+      - './src/send_kcidb.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+      - '--name=pipeline_kcidb'
+    volumes:
+#      - './src:/home/kernelci/pipeline'
+      - './config:/home/kernelci/config'
+      - './data/kcidb:/home/kernelci/data/kcidb'
+      - './logs:/home/kernelci/logs'
+
+  postgres:
+    container_name: 'kernelci-pipeline-postgres-proxy'
+    image: 'gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest'
+    command:
+      - 'kernelci-production:us-central1:postgresql2'
+      - '-c/home/kernelci/data/kcidb/kernelci-production-ci-kernelci.json'
+      - '-a0.0.0.0'
+    volumes:
+      - './data/kcidb:/home/kernelci/data/kcidb'
