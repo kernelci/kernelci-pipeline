@@ -39,6 +39,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.10.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.10.y'
@@ -51,6 +54,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-6.1'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.1.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.1.y'
@@ -63,6 +69,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-6.6'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
@@ -75,6 +84,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.15'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.15.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.15.y'
@@ -87,6 +99,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.4'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.4.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.4.y'
@@ -101,6 +116,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-6.6'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
@@ -113,6 +131,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.10.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.10.y'
@@ -125,6 +146,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.15'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.15.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.15.y'
@@ -137,6 +161,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.10.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.10.y'
@@ -149,6 +176,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.4'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.4.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.4.y'
@@ -161,6 +191,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-6.6'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
@@ -173,6 +206,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.10.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.10.y'
@@ -191,6 +227,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.4'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.4.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.4.y'
@@ -203,6 +242,9 @@ platforms:
       <<: *x86-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.15'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-5.15.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.15.y'
@@ -223,6 +265,9 @@ platforms:
       <<: *arm64-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.1.y'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
@@ -244,6 +289,9 @@ platforms:
       <<: *arm64-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.15'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.12.y'
 
@@ -256,6 +304,9 @@ platforms:
       <<: *arm64-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-6.1'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
@@ -272,6 +323,9 @@ platforms:
       <<: *arm64-chromebook-device-rules
       branch:
         - 'chromiumos:chromeos-5.10'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
@@ -294,6 +348,9 @@ platforms:
     rules:
       branch:
         - 'chromiumos:chromeos-6.6'
+        - 'collabora-chromeos-kernel:for-kernelci'
+        - 'mainline:master'
+        - 'next:master'
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
