@@ -6,19 +6,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kernelci-pipeline-timeout-task-closing
+  name: kernelci-pipeline-timeout-closing
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kernelci-pipeline-timeout-task-closing
+      app: kernelci-pipeline-timeout-closing
   template:
     metadata:
       labels:
-        app: kernelci-pipeline-timeout-task-closing
+        app: kernelci-pipeline-timeout-closing
     spec:
       containers:
-        - name: kernelci-pipeline-timeout-task-closing
+        - name: kernelci-pipeline-timeout-closing
           image: kernelci/staging-kernelci
           env:
             - name: KCI_API_TOKEN
