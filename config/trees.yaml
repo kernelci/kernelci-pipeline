@@ -532,13 +532,17 @@ build_configs:
     <<: *linusw
     branch: 'for-next'
 
-  linux-pci:
+  linux-pci: &linux-pci
     tree: linux-pci
     branch: 'next'
     architectures:
       - x86_64
       - arm64
       - arm
+
+  linux-pci_for-linus:
+    <<: *linux-pci
+    branch: 'for-linus'
 
   mainline:
     <<: *base
