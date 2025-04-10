@@ -75,7 +75,7 @@ runtime_token="N0tAS3creTT0k3n"
 ### `docker-compose` file
 
 We are running all the pipeline services as docker containers.
-You need to provide lab name to `--runtimes` argument to the [`scheduler-lava`](https://github.com/kernelci/kernelci-pipeline/blob/main/docker-compose.yaml#L80)
+You need to provide lab name to `--runtimes` argument to the [`scheduler-lava`](https://github.com/kernelci/kernelci-pipeline/blob/main/docker-compose.yaml#L93)
 service in the `docker-compose.yml` file to enable the lab.
 For example, the following configuration adds the `lava-broonie` lab along with other labs:
 
@@ -84,13 +84,17 @@ scheduler-lava:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
+      - '--yaml-config=/home/kernelci/config'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
+      - '--name=scheduler_lava'
       - '--runtimes'
       - 'lava-collabora'
       - 'lava-collabora-staging'
       - 'lava-broonie'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 ```
 
 ### Jobs and devices specific to the lab
