@@ -45,11 +45,10 @@ jobs:
         run: |
           pycodestyle src/*.py
 
-      - name: Install python yaml package
+      - name: Install Python YAML package
         run: |
           pip install pyyaml
 
-      - name: Run basic yaml validation
+      - name: Run basic YAML validation
         run: |
           python tests/validate_yaml.py
-        
