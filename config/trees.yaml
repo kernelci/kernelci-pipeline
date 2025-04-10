@@ -1,7 +1,28 @@
-trees:
+_anchors:
 
-  _base:
-    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+  # Includes all supported architectures.
+  base: &base
+    tree: mainline
+    branch: 'master'
+
+  # Includes most common and/or widely deployed architectures.
+  # The 32-bit x86 architecture is considered legacy nowadays,
+  # and as such, not included here.
+  base-standard: &base-standard
+    <<: *base
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  # Includes ARM-specific architectures only.
+  base-arm: &base-arm
+    <<: *base
+    architectures:
+      - arm64
+      - arm
+
+trees:
 
   # NOTE: Please keep the trees list below in sorted order.
 
@@ -195,28 +216,6 @@ build_variants:
 
 
 build_configs:
-
-  # Includes all supported architectures.
-  _base: &base
-    tree: _base
-    branch: 'master'
-
-  # Includes most common and/or widely deployed architectures.
-  # The 32-bit x86 architecture is considered legacy nowadays,
-  # and as such, not included here.
-  _base-standard: &base-standard
-    <<: *base
-    architectures:
-      - x86_64
-      - arm64
-      - arm
-
-  # Includes ARM-specific architectures only.
-  _base-arm: &base-arm
-    <<: *base
-    architectures:
-      - arm64
-      - arm
 
   # NOTE: Please keep the trees list below in sorted order.
 
