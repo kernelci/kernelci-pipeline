@@ -4,6 +4,12 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
+x-config-arg: &config-arg
+  --yaml-config=/home/kernelci/config
+
+x-setting-arg: &setting-arg
+  --settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}
+
 services:
 
   monitor: &base-service
@@ -13,11 +19,10 @@ services:
     stop_signal: 'SIGINT'
     command:
       - './src/monitor.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
-    volumes: &base-volumes
-#      - './src:/home/kernelci/pipeline'
+    volumes:
       - './config:/home/kernelci/config'
       - './logs:/home/kernelci/logs'
     extra_hosts:
@@ -25,46 +30,36 @@ services:
     restart: on-failure
 
   result_summary:
+    <<: *base-service
     container_name: 'kernelci-pipeline-result-summary'
-    image: 'kernelci/staging-kernelci:pipeline'
-    env_file: ['.env']
-    stop_signal: 'SIGINT'
-    entrypoint:
+    command:
       - './src/result_summary.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
-    #restart: on-failure
 
   scheduler: &scheduler
+    <<: *base-service
     container_name: 'kernelci-pipeline-scheduler'
-    image: 'kernelci/staging-kernelci:pipeline'
-    env_file: ['.env']
-    stop_signal: 'SIGINT'
     command:
       - './src/scheduler.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'loop'
       - '--runtimes=shell'
       - '--name=scheduler'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
       - './logs:/home/kernelci/logs'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: on-failure
 
   scheduler-docker:
     <<: *scheduler
@@ -73,28 +68,25 @@ services:
     #working_dir: /home/kernelci
     command:
       - './src/scheduler.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'loop'
       - '--runtimes=docker'
       - '--name=scheduler_docker'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/output:/home/kernelci/data/output'
       - './.docker-env:/home/kernelci/.docker-env'
       - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
       - './logs:/home/kernelci/logs'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   scheduler-lava:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
       - './src/scheduler.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'loop'
       - '--name=scheduler_lava'
       - '--runtimes'
@@ -107,126 +99,105 @@ services:
       - 'lava-cip'
       - 'lava-pengutronix'
       - 'lava-kontron'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   scheduler-k8s:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-k8s'
-    image: 'kernelci/staging-kernelci:pipeline'
     command:
       - './src/scheduler.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'loop'
       - '--name=scheduler_k8s'
       - '--runtimes'
       - 'k8s-gke-eu-west4'
       - 'k8s-all'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   tarball:
     <<: *base-service
     container_name: 'kernelci-pipeline-tarball'
     command:
       - './src/tarball.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--name=tarball'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/logs'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   trigger:
     <<: *base-service
     container_name: 'kernelci-pipeline-trigger'
     command:
       - './src/trigger.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--trees=kernelci,netdev-testing'
       - '--name=trigger'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   regression_tracker:
     <<: *base-service
     container_name: 'kernelci-pipeline-regression_tracker'
     command:
       - './src/regression_tracker.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   test_report:
     <<: *base-service
     container_name: 'kernelci-pipeline-test_report'
     command:
       - './src/test_report.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'loop'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   timeout-task:
     <<: *base-service
     container_name: 'kernelci-pipeline-timeout'
     command:
       - './src/timeout.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--mode=timeout'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   timeout-task-closing:
     <<: *base-service
     container_name: 'kernelci-pipeline-closing'
     command:
       - './src/timeout.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--mode=closing'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   timeout-task-holdoff:
     <<: *base-service
     container_name: 'kernelci-pipeline-holdoff'
     command:
       - './src/timeout.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--mode=holdoff'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   patchset:
     <<: *base-service
     container_name: 'kernelci-pipeline-patchset'
     command:
       - './src/patchset.py'
-      - '--yaml-config=/home/kernelci/config'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--name=patchset'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
@@ -242,8 +213,9 @@ services:
     # With Werkzeug development server, not suitable for a public instance
     command:
       - './src/lava_callback.py'
+      - *config-arg
+      - *setting-arg
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/ssh:/home/kernelci/data/ssh'
 
@@ -252,11 +224,11 @@ services:
     container_name: 'kernelci-pipeline-kcidb'
     command:
       - './src/send_kcidb.py'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - *config-arg
+      - *setting-arg
       - 'run'
       - '--name=pipeline_kcidb'
     volumes:
-#      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
       - './logs:/home/kernelci/logs'
