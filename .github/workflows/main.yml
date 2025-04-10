@@ -35,6 +35,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      # Override version of pycodestyle for Python 3.7 to the
+      # latest available release that can be installed on this
+      # old Python release.
+      - name: Override pycodestyle version
+        if: ${{ matrix.python-version == '3.7' }}
+        run: |
+          echo 'pycodestyle==2.10.0' > requirements-dev.txt
+
       - name: Install Python packages
         run: |
           python --version
