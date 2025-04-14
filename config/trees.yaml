@@ -230,9 +230,15 @@ build_configs:
     branch: 'for-next'
 
   android_mainline: &android
-    <<: *base-arm
     tree: android
     branch: 'android-mainline'
+    architectures:
+      - x86_64
+      - i386
+      - arm64
+      - arm
+      - riscv
+      - um
 
   android_mainline_tracking:
     <<: *android
