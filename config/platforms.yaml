@@ -184,6 +184,36 @@ platforms:
     dtb: dtbs/ti/k3-j721e-beagleboneai64.dtb
     compatible: ['beagle,j721e-beagleboneai64', 'ti,j721e']
 
+  kontron-bl-imx8mm:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx8mm-kontron-bl.dtb
+    compatible: ['kontron,imx8mm-bl', 'kontron,imx8mm-sl', 'fsl,imx8mm']
+
+  kontron-kbox-a-230-ls:
+    <<: *arm64-device
+    mach: freescale
+    dtb: dtbs/freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dtb
+    compatible: ['kontron,kbox-a-230-ls', 'kontron,sl28-var4', 'kontron,sl28', 'fsl,ls1028a']
+
+  kontron-kswitch-d10-mmt-6g-2gs:
+    <<: *arm-device
+    mach: microchip
+    dtb: dtbs/microchip/lan966x-kontron-kswitch-d10-mmt-6g-2gs.dtb
+    compatible: ['kontron,kswitch-d10-mmt-6g-2gs', 'kontron,s1921', 'microchip,lan9668', 'microchip,lan966']
+
+  kontron-kswitch-d10-mmt-8g:
+    <<: *arm-device
+    mach: michrochip
+    dtb: dtbs/microchip/lan966x-kontron-kswitch-d10-mmt-8g.dtb
+    compatible: ['kontron,kswitch-d10-mmt-8g', 'kontron,s1921', 'microchip,lan9668', 'microchip,lan966']
+
+  kontron-sl28-var3-ads2:
+    <<: *arm64-device
+    mach: freescale
+    dtb: dtbs/freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dtb
+    compatible: ['kontron,sl28-var3-ads2', 'kontron,sl28-var3', 'kontron,sl28', 'fsl,ls1028a']
+
   kubernetes:
 
   meson-axg-s400:

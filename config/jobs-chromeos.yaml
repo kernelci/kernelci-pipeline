@@ -93,6 +93,27 @@ _anchors:
       version: 6
       patchlevel: 6
 
+  baseline-cros-kernel: &baseline-cros-kernel-job
+    template: baseline.jinja2
+    kind: job
+    kcidb_test_suite: boot
+    params: &baseline-cros-kernel-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+    rules:
+      tree:
+        - chromiumos
+
+  baseline-nfs-cros-kernel: &baseline-nfs-cros-kernel-job
+    <<: *baseline-cros-kernel-job
+    kcidb_test_suite: boot.nfs
+    params:
+      <<: *baseline-cros-kernel-params
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+    rules:
+      tree:
+        - chromiumos
+
   tast: &tast-job
     template: tast.jinja2
     kind: job
@@ -482,6 +503,16 @@ jobs:
   baseline-x86-amd-chromebook: *baseline-job
   baseline-x86-amd-staging-chromebook: *baseline-job
   baseline-x86-intel-chromebook: *baseline-job
+
+  baseline-arm64-mediatek-cros-kernel: *baseline-cros-kernel-job
+  baseline-arm64-qualcomm-cros-kernel: *baseline-cros-kernel-job
+  baseline-x86-amd-cros-kernel: *baseline-cros-kernel-job
+  baseline-x86-intel-cros-kernel: *baseline-cros-kernel-job
+
+  baseline-nfs-arm64-mediatek-cros-kernel: *baseline-nfs-cros-kernel-job
+  baseline-nfs-arm64-qualcomm-cros-kernel: *baseline-nfs-cros-kernel-job
+  baseline-nfs-x86-amd-cros-kernel: *baseline-nfs-cros-kernel-job
+  baseline-nfs-x86-intel-cros-kernel: *baseline-nfs-cros-kernel-job
 
   kbuild-clang-17-arm64-chromeos-daily-mediatek:
     <<: *kbuild-clang-17-arm64-chromeos-job

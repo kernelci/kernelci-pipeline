@@ -16,20 +16,32 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.7', '3.10']
+        python-version:
+          - '3.7'
+          - '3.10'
+          - '3.13'
 
     steps:
 
       - name: Check out source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@master
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      # Override version of pycodestyle for Python 3.7 to the
+      # latest available release that can be installed on this
+      # old Python release.
+      - name: Override pycodestyle version
+        if: ${{ matrix.python-version == '3.7' }}
+        run: |
+          echo 'pycodestyle==2.10.0' > requirements-dev.txt
 
       - name: Install Python packages
         run: |
@@ -41,11 +53,10 @@ jobs:
         run: |
           pycodestyle src/*.py
 
-      - name: Install python yaml package
+      - name: Install Python YAML package
         run: |
           pip install pyyaml
 
-      - name: Run basic yaml validation
+      - name: Run basic YAML validation
         run: |
           python tests/validate_yaml.py
-        
