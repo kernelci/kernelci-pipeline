@@ -13,7 +13,6 @@
 import sys
 
 import kernelci.config
-import kernelci.db
 from kernelci.legacy.cli import Args, Command, parse_opts
 import jinja2
 

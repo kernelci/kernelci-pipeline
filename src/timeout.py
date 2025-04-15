@@ -13,7 +13,6 @@ import requests
 
 import kernelci
 import kernelci.config
-import kernelci.db
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
