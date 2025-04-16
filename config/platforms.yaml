@@ -436,7 +436,7 @@ platforms:
     <<: *arm-device
     mach: allwinner
     dtb: dtbs/sun9i-a80-cubieboard4.dtb
-    compatible: ['cubietech,a80-cubieboard4", "allwinner,sun9i-a80']
+    compatible: ['cubietech,a80-cubieboard4', 'allwinner,sun9i-a80']
 
   sun50i-a64-pine64-plus:
     <<: *arm64-device
