@@ -120,6 +120,33 @@ def validate_build_configs(data):
                 f"Tree {tree} not found in trees"
             )
 
+def validate_platforms(data):
+    '''
+    Each entry in platforms must have arch, boot_method, mach
+    If have compatible, it is must be a list
+    '''
+    platforms = data.get('platforms')
+    for entry in platforms:
+        if entry == 'docker' or entry == 'kubernetes' or entry == 'shell':
+            continue
+        if not platforms[entry].get('arch'):
+            raise yaml.YAMLError(
+                f"Arch not found for platform: {entry}'"
+            )
+        if not platforms[entry].get('boot_method'):
+            raise yaml.YAMLError(
+                f"Boot method not found for platform: {entry}'"
+            )
+        if not platforms[entry].get('mach'):
+            raise yaml.YAMLError(
+                f"Mach not found for platform: {entry}'"
+            )
+        if platforms[entry].get('compatible'):
+            if not isinstance(platforms[entry].get('compatible'), list):
+                raise yaml.YAMLError(
+                    f"Compatible must be a list for platform: {entry}'"
+                )
+
 def validate_unused_trees(data):
     '''
     Check if all trees are used in build_configs
@@ -155,6 +182,8 @@ def validate_yaml(dir='config'):
     validate_unused_jobs(merged_data)
     validate_build_configs(merged_data)
     validate_unused_trees(merged_data)
+    validate_platforms(merged_data)
+    print("All yaml files are valid")
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
