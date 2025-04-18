@@ -50,8 +50,8 @@ storage:
 
   kci-storage:
     storage_type: backend
-    base_url: http://mon.kernelci.org:3000/
-    api_url: http://mon.kernelci.org:3000/
+    base_url: https://files-staging.kernelci.org/
+    api_url: https://files-staging.kernelci.org/
 
   kci-storage-production:
     storage_type: backend
