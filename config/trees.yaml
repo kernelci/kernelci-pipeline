@@ -601,9 +601,10 @@ build_configs:
     branch: 'pending-fixes'
 
   omap:
-    <<: *base-arm
     tree: omap
     branch: 'for-next'
+    architectures:
+      - arm
 
   padovan:
     <<: *base-standard
