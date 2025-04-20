@@ -200,6 +200,9 @@ jobs:
     params:
       <<: *kbuild-clang-17-arm-android-params
       defconfig: omap2plus_defconfig
+    rules:
+      tree:
+      - 'omap'
 
   kbuild-clang-17-arm-android-vexpress_defconfig:
     <<: *kbuild-clang-17-arm-android-job
@@ -617,6 +620,9 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-android-params
       defconfig: omap2plus_defconfig
+    rules:
+      tree:
+      - 'omap'
 
   kbuild-gcc-12-arm-android-vexpress_defconfig:
     <<: *kbuild-gcc-12-arm-android-job
@@ -740,17 +746,9 @@ jobs:
       tree:
       - 'chrome-platform'
       - 'kernelci'
-      - 'stable-rc'
-      - 'stable'
-
-  kbuild-gcc-12-arm-omap1_defconfig:
-    <<: *kbuild-gcc-12-arm-job
-    params:
-      <<: *kbuild-gcc-12-arm-params
-      defconfig: omap1_defconfig
-    rules:
-      tree:
       - 'omap'
+      - 'stable'
+      - 'stable-rc'
 
   kbuild-gcc-12-arm-omap2plus_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -759,10 +757,7 @@ jobs:
       defconfig: omap2plus_defconfig
     rules:
       tree:
-      - 'kernelci'
       - 'omap'
-      - 'stable-rc'
-      - 'stable'
 
   kbuild-gcc-12-arm-preempt_rt:
     <<: *kbuild-gcc-12-arm-job

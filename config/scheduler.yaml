@@ -509,9 +509,6 @@ scheduler:
   - job: kbuild-gcc-12-arm-multi_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-omap1_defconfig
-    <<: *build-k8s-all
-
   - job: kbuild-gcc-12-arm-omap2plus_defconfig
     <<: *build-k8s-all
 
