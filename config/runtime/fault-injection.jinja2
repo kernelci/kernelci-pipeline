@@ -1,0 +1,18 @@
+{% set test_method = 'fault-injection' %}
+{% set base_template = 'base/' + runtime + '.jinja2' %}
+{%- extends base_template %}
+
+{# Default parameters that can be overridden in job definitions #}
+{% set iterations = iterations|default(5) %}
+{% set fail_type = fail_type|default('failslab') %}
+
+{% block test_parameters %}
+    test_name: "{{ test_name }}",
+    test_command: "{{ test_command }}",
+    fail_type: "{{ fail_type }}",
+    probability: {{ probability|default(100) }},
+    times: {{ times|default(100) }},
+    interval: {{ interval|default(100) }},
+    sleep_time: {{ sleep_time|default(10) }},
+    iterations: {{ iterations }}
+{% endblock %}
