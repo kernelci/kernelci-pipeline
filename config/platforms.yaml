@@ -331,6 +331,20 @@ platforms:
     dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
     compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
 
+  qcs8300-ride:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs8300-ride.dtb
+    compatible: ['qcom,qcs8300-ride', 'qcom,qcs8300']
+
+  qcs9100-ride:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs9100-ride.dtb
+    compatible: ['qcom,qcs9100-ride', 'qcom,qcs9100']
+
   qemu: &qemu-device
     base_name: qemu
     arch: x86_64
