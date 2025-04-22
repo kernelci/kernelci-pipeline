@@ -9,20 +9,18 @@ services:
 
   kcidb:
     container_name: 'kernelci-pipeline-kcidb'
-    build:
-      context: 'docker/kcidb'
+    image: 'ghcr.io/kernelci/staging-kernelci:pipeline'
     env_file: ['.env']
     stop_signal: 'SIGINT'
     networks: ['kcidb']
     command:
       - '/usr/bin/env'
       - 'python3'
-      - '/home/kernelci/pipeline/send_kcidb.py'
+      - './src/send_kcidb.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'run'
       - '--name=pipeline_kcidb'
     volumes:
-      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
       - './logs:/home/kernelci/logs'
