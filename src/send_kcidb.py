@@ -110,11 +110,30 @@ class KCIDBBridge(Service):
                     self.log.debug(f"Sending to KCIDB: {field}: {id}")
 
     def _send_revision(self, client, revision):
-        revision = self._remove_none_fields(revision)
+        try:
+            revision = self._remove_none_fields(revision)
+        except Exception as exc:
+            self.log.error(f"Failed to remove None fields: {str(exc)}")
+            return
         if any(value for key, value in revision.items() if key != 'version'):
             # remove log_excerpt field, as it is filling up the logs
             self._print_debug(revision)
-            if kcidb.io.SCHEMA.is_valid(revision):
+            # TODO: Remove, this should generate exception
+            kcidb.io.SCHEMA.validate(revision)
+            validation = False
+            try:
+                # A bit verbose to know exact reason
+                if not kcidb.io.SCHEMA.is_valid(revision):
+                    self.log.error("Invalid data, is_valid failed")
+                    return
+                if not kcidb.io.SCHEMA.is_compatible(revision):
+                    self.log.error("Invalid data, is_compatible failed")
+                    return
+                validation = True
+            except Exception as exc:
+                self.log.error(f"Validation error: {str(exc)}")
+
+            if validation:
                 client.submit(revision)
             else:
                 self.log.error("Aborting, invalid data")
@@ -168,8 +187,7 @@ class KCIDBBridge(Service):
             'patchset_hash': '',
             'misc': {
                 'submitted_by': 'kernelci-pipeline'
-            },
-            'valid': valid,
+            }
         }]
 
     def _get_output_files(self, artifacts: dict, exclude_properties=None):
@@ -257,12 +275,14 @@ class KCIDBBridge(Service):
         if result == 'incomplete' and error_code == 'node_timeout':
             return []
 
-        result_map = {
-            'pass': True,
-            'fail': False,
-            'incomplete': None,
+        status_map = {
+            'pass': 'PASS',
+            'fail': 'FAIL',
+            'incomplete': 'ERROR',
         }
-        valid = result_map.get(result) if result else None
+        status = status_map.get(result) if result else None
+        if error_code:
+            status = 'ERROR'
 
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
@@ -273,7 +293,7 @@ class KCIDBBridge(Service):
             'architecture': node['data'].get('arch'),
             'compiler': node['data'].get('compiler'),
             'config_name': node['data'].get('config_full'),
-            'valid': valid,
+            'status': status,
             'misc': {
                 'platform': node['data'].get('platform'),
                 'runtime': node['data'].get('runtime'),
@@ -292,6 +312,7 @@ class KCIDBBridge(Service):
                 artifacts=artifacts,
                 exclude_properties=('build_log', '_config')
             )
+            parsed_build_node['input_files'] = None
             parsed_build_node['config_url'] = artifacts.get('_config')
             parsed_build_node['log_url'] = artifacts.get('build_log')
             log_url = parsed_build_node['log_url']
@@ -389,7 +410,6 @@ the test: {sub_path}")
             'comment': 'Dummy build for tests hanging from checkout',
             'origin': origin,
             'start_time': self._set_timezone(checkout_node['created']),
-            'valid': True,
             'architecture': arch,
         }
 
@@ -485,7 +505,6 @@ in {runtime}",
                     'measurement': misc.get('measurement') if misc else None
                 }
             },
-            'waived': False,
             'path': self._parse_node_path(test_node['path'], is_checkout_child),
             'misc': {
                 'test_source': test_node['data'].get('test_source'),
@@ -522,6 +541,7 @@ in {runtime}",
                 artifacts=artifacts,
                 exclude_properties=('lava_log', 'test_log')
             )
+            parsed_test_node['input_files'] = None
             if artifacts.get('lava_log'):
                 parsed_test_node['log_url'] = artifacts.get('lava_log')
             else:
@@ -630,11 +650,17 @@ in {runtime}",
             'issues': issues,
             'incidents': incidents,
             'version': {
-                'major': 4,
-                'minor': 5
+                'major': 5,
+                'minor': 3
             }
         }
-        self._send_revision(ctx_client, revision)
+
+        try:
+            self._send_revision(ctx_client, revision)
+        except Exception as exc:
+            self.log.error(f"Failed to _send-revision to KCIDB: {str(exc)}")
+            return False
+
         if len(checkouts) > 0:
             for checkout in checkouts:
                 self.log.info(f"Sent checkout node: {checkout['id']}")
