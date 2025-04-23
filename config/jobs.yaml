@@ -793,6 +793,9 @@ jobs:
         - 'lab-setup'
         - 'kselftest'
         - 'arm64-chromebook'
+    rules:
+      tree:
+      - '!omap'
 
   kbuild-gcc-12-arm64-allnoconfig:
     <<: *kbuild-gcc-12-arm64-job
@@ -889,6 +892,9 @@ jobs:
       fragments:
         - 'arm64-chromebook'
         - 'kselftest'
+    rules:
+      tree:
+      - '!omap'
 
   # Default config and build only job
   kbuild-gcc-12-arm64-build-only:
@@ -915,6 +921,9 @@ jobs:
         - arm64-chromebook
         - kcidebug
         - lab-setup
+    rules:
+      tree:
+      - '!omap'
 
   kbuild-gcc-12-arm64-dtbscheck:
     <<: *kbuild-gcc-12-arm64-job
@@ -933,6 +942,8 @@ jobs:
         - 'kselftest'
     rules:
       <<: *kbuild-kselftest-rules
+      tree:
+      - '!omap'
 
   kbuild-gcc-12-arm64-mainline: &kbuild-gcc-12-arm64-mainline-job
     <<: *kbuild-gcc-12-arm64-job
@@ -965,6 +976,9 @@ jobs:
         - 'debug'
         - 'kselftest'
         - 'tinyconfig'
+    rules:
+      tree:
+      - '!omap'
 
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
@@ -1248,6 +1262,9 @@ jobs:
         - 'lab-setup'
         - 'x86-board'
         - 'kselftest'
+    rules:
+      tree:
+      - '!omap'
 
   kbuild-gcc-12-x86-allnoconfig:
     <<: *kbuild-gcc-12-x86-job
