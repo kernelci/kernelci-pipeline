@@ -58,6 +58,7 @@ _anchors:
       tree:
       - '!android'
       - '!chromiumos'
+      - '!omap'
 
   kbuild-gcc-12-x86-chromeos: &kbuild-gcc-12-x86-chromeos-job
     <<: *kbuild-gcc-12-arm64-chromeos-job
