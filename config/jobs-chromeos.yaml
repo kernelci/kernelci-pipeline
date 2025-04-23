@@ -534,6 +534,7 @@ jobs:
       <<: *kbuild-clang-17-arm64-chromeos-rules
       branch:
         - 'chromeos-6.6'
+        - 'chromeos-6.12'
 
   kbuild-clang-17-x86-chromeos-daily-amd:
     <<: *kbuild-clang-17-x86-chromeos-job
@@ -545,7 +546,6 @@ jobs:
       branch:
         - '!chromiumos:chromeos-5.15'
         - '!chromiumos:chromeos-6.1'
-        - '!chromiumos:chromeos-6.12'
 
   kbuild-clang-17-x86-chromeos-daily-intel:
     <<: *kbuild-clang-17-x86-chromeos-job
@@ -583,7 +583,7 @@ jobs:
       min_version:
         version: 6
         patchlevel: 1
-  
+
   kbuild-gcc-12-arm64-chromeos-daily-mediatek:
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
@@ -633,7 +633,6 @@ jobs:
       branch:
         - '!chromiumos:chromeos-5.15'
         - '!chromiumos:chromeos-6.1'
-        - '!chromiumos:chromeos-6.12'
 
   kbuild-gcc-12-x86-chromeos-intel:
     <<: *kbuild-gcc-12-x86-chromeos-job
