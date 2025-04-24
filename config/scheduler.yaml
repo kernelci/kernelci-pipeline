@@ -697,6 +697,9 @@ scheduler:
   - job: kbuild-gcc-12-x86-build-only
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-coverage
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86-kcidebug
     <<: *build-k8s-all
 

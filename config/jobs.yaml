@@ -1315,6 +1315,23 @@ jobs:
       - '!android'
       - '!chromiumos'
 
+  kbuild-gcc-12-x86-coverage:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'coverage'
+        - 'lab-setup'
+        - 'x86-board'
+    rules:
+      tree:
+      - 'chromiumos'
+      - 'collabora-chromeos-kernel:for-kernelci'
+      - 'mainline:master'
+      - 'next:master'
+      - 'stable'
+      - 'stable-rc'
+
   kbuild-gcc-12-x86-kselftest:
     <<: *kbuild-gcc-12-x86-job
     params:
