@@ -204,7 +204,7 @@ platforms:
 
   kontron-kswitch-d10-mmt-8g:
     <<: *arm-device
-    mach: michrochip
+    mach: microchip
     dtb: dtbs/microchip/lan966x-kontron-kswitch-d10-mmt-8g.dtb
     compatible: ['kontron,kswitch-d10-mmt-8g', 'kontron,s1921', 'microchip,lan9668', 'microchip,lan966']
 
