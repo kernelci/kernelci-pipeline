@@ -199,13 +199,13 @@ platforms:
   kontron-kswitch-d10-mmt-6g-2gs:
     <<: *arm-device
     mach: microchip
-    dtb: dtbs/microchip/lan966x-kontron-kswitch-d10-mmt-6g-2gs.dtb
+    dtb: dtbs/lan966x-kontron-kswitch-d10-mmt-6g-2gs.dtb
     compatible: ['kontron,kswitch-d10-mmt-6g-2gs', 'kontron,s1921', 'microchip,lan9668', 'microchip,lan966']
 
   kontron-kswitch-d10-mmt-8g:
     <<: *arm-device
     mach: microchip
-    dtb: dtbs/microchip/lan966x-kontron-kswitch-d10-mmt-8g.dtb
+    dtb: dtbs/lan966x-kontron-kswitch-d10-mmt-8g.dtb
     compatible: ['kontron,kswitch-d10-mmt-8g', 'kontron,s1921', 'microchip,lan9668', 'microchip,lan966']
 
   kontron-sl28-var3-ads2:
