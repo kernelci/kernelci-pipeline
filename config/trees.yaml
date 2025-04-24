@@ -465,6 +465,10 @@ build_configs:
     <<: *cip
     branch: 'linux-6.1.y-cip-rt'
 
+  cip-6.12:
+    <<: *cip
+    branch: 'linux-6.12.y-cip'
+
   clk:
     <<: *base-arm
     tree: clk
