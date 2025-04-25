@@ -1,0 +1,11 @@
+build_configs:
+  soc_fixes: &soc
+    tree: soc
+    branch: 'arm/fixes'
+    architectures:
+      - arm64
+      - arm
+
+  soc_for-next:
+    <<: *soc
+    branch: 'for-next'

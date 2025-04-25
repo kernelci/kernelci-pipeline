@@ -1,0 +1,4 @@
+build_configs:
+  net-next:
+    tree: net-next
+    branch: 'main'

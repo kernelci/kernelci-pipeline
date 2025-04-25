@@ -1,0 +1,11 @@
+build_configs:
+  renesas: &renesas
+    tree: renesas
+    branch: 'master'
+    architectures:
+      - arm64
+      - arm
+
+  renesas_next:
+    <<: *renesas
+    branch: 'next'

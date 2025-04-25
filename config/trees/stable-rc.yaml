@@ -1,0 +1,48 @@
+build_configs:
+  stable-rc_5.4: &stable-rc
+    tree: stable-rc
+    branch: 'linux-5.4.y'
+
+  stable-rc_5.10:
+    <<: *stable-rc
+    branch: 'linux-5.10.y'
+
+  stable-rc_5.15:
+    <<: *stable-rc
+    branch: 'linux-5.15.y'
+
+  stable-rc_6.1:
+    <<: *stable-rc
+    branch: 'linux-6.1.y'
+
+  stable-rc_6.6:
+    <<: *stable-rc
+    branch: 'linux-6.6.y'
+
+  stable-rc_6.7:
+    <<: *stable-rc
+    branch: 'linux-6.7.y'
+
+  stable-rc_6.9:
+    <<: *stable-rc
+    branch: 'linux-6.9.y'
+
+  stable-rc_6.10:
+    <<: *stable-rc
+    branch: 'linux-6.10.y'
+
+  stable-rc_6.11:
+    <<: *stable-rc
+    branch: 'linux-6.11.y'
+
+  stable-rc_6.12:
+    <<: *stable-rc
+    branch: 'linux-6.12.y'
+
+  stable-rc_6.13:
+    <<: *stable-rc
+    branch: 'linux-6.13.y'
+
+  stable-rc_6.14:
+    <<: *stable-rc
+    branch: 'linux-6.14.y'

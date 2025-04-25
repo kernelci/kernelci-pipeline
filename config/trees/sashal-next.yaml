@@ -1,0 +1,4 @@
+build_configs:
+  sashal-next:
+    tree: sashal-next
+    branch: 'linus-next'

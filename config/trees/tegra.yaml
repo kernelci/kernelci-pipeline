@@ -1,0 +1,7 @@
+build_configs:
+  tegra:
+    tree: tegra
+    branch: 'for-next'
+    architectures:
+      - arm64
+      - arm

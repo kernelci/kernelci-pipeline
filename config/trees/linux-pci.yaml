@@ -1,0 +1,16 @@
+build_configs:
+  linux-pci_next: &linux-pci
+    tree: linux-pci
+    branch: 'next'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  linux-pci_for-linus:
+    <<: *linux-pci
+    branch: 'for-linus'
+
+  linux-pci_for-kernelci:
+    <<: *linux-pci
+    branch: 'for-kernelci'

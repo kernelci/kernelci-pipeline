@@ -1,0 +1,16 @@
+build_configs:
+  kernelci_staging-mainline: &kernelci
+    tree: kernelci
+    branch: 'staging-mainline'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  kernelci_staging-next:
+    <<: *kernelci
+    branch: 'staging-next'
+
+  kernelci_staging-stable:
+    <<: *kernelci
+    branch: 'staging-stable'

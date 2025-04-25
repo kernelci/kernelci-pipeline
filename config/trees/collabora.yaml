@@ -1,0 +1,12 @@
+build_configs:
+  collabora-chromeos-kernel_for-kernelci: &collabora
+    branch: 'for-kernelci'
+    tree: collabora-chromeos-kernel
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  collabora-next_for-kernelci:
+    <<: *collabora
+    tree: collabora-next
