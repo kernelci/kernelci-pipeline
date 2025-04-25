@@ -1,0 +1,79 @@
+build_configs:
+  android_mainline: &android
+    tree: android
+    branch: 'android-mainline'
+    architectures:
+      - x86_64
+      - i386
+      - arm64
+      - arm
+      - riscv
+      - um
+
+  android_mainline_tracking:
+    <<: *android
+    branch: 'android-mainline-tracking'
+
+  android11-5.4:
+    <<: *android
+    branch: 'android11-5.4'
+
+  android12-5.4:
+    <<: *android
+    branch: 'android12-5.4'
+
+  android12-5.4-lts:
+    <<: *android
+    branch: 'android12-5.4-lts'
+
+  android12-5.10:
+    <<: *android
+    branch: 'android12-5.10'
+
+  android12-5.10-lts:
+    <<: *android
+    branch: 'android12-5.10-lts'
+
+  android13-5.10:
+    <<: *android
+    branch: 'android13-5.10'
+
+  android13-5.10-lts:
+    <<: *android
+    branch: 'android13-5.10-lts'
+
+  android13-5.15:
+    <<: *android
+    branch: 'android13-5.15'
+
+  android13-5.15-lts:
+    <<: *android
+    branch: 'android13-5.15-lts'
+
+  android14-5.15:
+    <<: *android
+    branch: 'android14-5.15'
+
+  android14-5.15-lts:
+    <<: *android
+    branch: 'android14-5.15-lts'
+
+  android14-6.1:
+    <<: *android
+    branch: 'android14-6.1'
+
+  android14-6.1-lts:
+    <<: *android
+    branch: 'android14-6.1-lts'
+
+  android15-6.6:
+    <<: *android
+    branch: 'android15-6.6'
+
+  android15-6.6-lts:
+    <<: *android
+    branch: 'android15-6.6-lts'
+
+  android16-6.12:
+    <<: *android
+    branch: 'android16-6.12'

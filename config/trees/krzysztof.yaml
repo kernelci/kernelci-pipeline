@@ -1,0 +1,7 @@
+build_configs:
+  krzysztof:
+    tree: krzysztof
+    branch: 'for-next'
+    architectures:
+      - arm64
+      - arm

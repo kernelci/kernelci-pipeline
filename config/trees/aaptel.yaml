@@ -1,0 +1,8 @@
+build_configs:
+  aaptel:
+    tree: aaptel
+    branch: 'nvme-rx-offload-ci'
+    architectures:
+      - x86_64
+      - arm64
+      - arm

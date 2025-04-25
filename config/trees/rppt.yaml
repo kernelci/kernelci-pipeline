@@ -1,0 +1,8 @@
+build_configs:
+  rppt:
+    tree: rppt
+    branch: 'for-kernelci'
+    architectures:
+      - x86_64
+      - arm64
+      - arm

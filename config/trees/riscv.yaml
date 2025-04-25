@@ -1,0 +1,10 @@
+build_configs:
+  riscv_fixes: &riscv
+    tree: riscv
+    branch: 'fixes'
+    architectures:
+      - riscv
+
+  riscv_for-next:
+    <<: *riscv
+    branch: 'for-next'

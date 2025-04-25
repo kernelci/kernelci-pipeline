@@ -1,0 +1,8 @@
+build_configs:
+  next_master: &next
+    tree: next
+    branch: 'master'
+
+  next_pending-fixes:
+    <<: *next
+    branch: 'pending-fixes'

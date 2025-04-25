@@ -1,0 +1,6 @@
+build_configs:
+  arm64:
+    tree: arm64
+    branch: 'for-kernelci'
+    architectures:
+      - arm64

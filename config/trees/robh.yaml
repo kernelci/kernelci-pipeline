@@ -1,0 +1,8 @@
+build_configs:
+  robh:
+    tree: robh
+    branch: 'for-kernelci'
+    architectures:
+      - x86_64
+      - arm64
+      - arm
