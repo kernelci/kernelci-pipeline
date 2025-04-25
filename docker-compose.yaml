@@ -135,6 +135,19 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  trigger_daily:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-trigger-daily'
+    command:
+      - './src/trigger.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+      - '--poll-period=86400'
+      - '--trees=aaptel'
+      - '--name=trigger_daily'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   timeout:
     <<: *base-service
     container_name: 'kernelci-pipeline-timeout'
