@@ -564,6 +564,20 @@ jobs:
       fragments:
         - 'CONFIG_CPU_BIG_ENDIAN=y'
 
+  kbuild-gcc-12-arm-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.1.y-cip/arm/qemu_arm_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+        - 'cip:linux-6.1.y-cip-rt'
+
   kbuild-gcc-12-arm-SMP:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
