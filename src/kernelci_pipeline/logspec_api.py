@@ -26,20 +26,14 @@ test_types = {
         'parser': 'kbuild',
         # Object id field to match in the incidents table
         'incident_id_field': 'build_id',
-        # Additional incident parameters
-        'build_valid': False,
     },
     'boot': {
         'parser': 'generic_linux_boot',
         'incident_id_field': 'test_id',
-        # Additional incident parameters
-        'test_status': 'FAIL',
     },
     'kselftest': {
         'parser': 'test_kselftest',
         'incident_id_field': 'test_id',
-        # Additional incident parameters
-        'test_status': 'FAIL',
     },
 }
 
@@ -182,10 +176,6 @@ def new_issue(logspec_error, test_type):
             'tool': False
         }
     }
-    if 'build_valid' in test_types[test_type]:
-        issue['build_valid'] = test_types[test_type]['build_valid']
-    if 'test_status' in test_types[test_type]:
-        issue['test_status'] = test_types[test_type]['test_status']
     return issue
 
 
