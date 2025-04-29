@@ -761,12 +761,12 @@ in {runtime}",
                     batch['checkouts'], batch['builds'], batch['tests'],
                     batch['issues'], batch['incidents'], context['client']
                 )
-                self._nodes_processed(batch['nodes'])
             except Exception as exc:
                 self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
                 # Don't mark as processed since they were not sent to KCIDB
                 batch['nodes'] = []
                 return False
+        self._nodes_processed(batch['nodes'])
         return True
 
     def _reset_batch_data(self):
