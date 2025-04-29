@@ -54,8 +54,11 @@ class Trigger(Service):
                 current_config._branch = latest['branch']
 
             head_commit = kernelci.build.get_branch_head(current_config)
+            if not head_commit:
+                self.log.error(f"Failed to get branch head for {current_config.name:32s}, ignoring")
+                return
         except Exception as ex:
-            self.log.error(f"Failed to get branch head for {current_config.name:32s}")
+            self.log.error(f"Failed to get branch head for {current_config.name:32s}, ignoring")
             self.traceback(ex)
             return
         search_terms = {
