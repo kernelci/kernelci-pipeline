@@ -136,6 +136,12 @@ _anchors:
       <<: *test-job-x86-event
       name: kbuild-gcc-12-x86-chromeos-daily-amd
 
+  test-job-x86-coverage: &test-job-x86-coverage
+    <<: *test-job-x86
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-coverage
+
   test-job-x86-intel: &test-job-x86-intel
     <<: *test-job-x86
     platforms: *intel-platforms
@@ -440,8 +446,22 @@ scheduler:
       - hp-11A-G6-EE-grunt
       - hp-x360-12b-ca0010nr-n4020-octopus
 
+  - job: ltp-crypto
+    <<: *test-job-x86-coverage
+    platforms:
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
   - job: ltp-fcntl-locktests
     <<: *test-job-x86
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+
+  - job: ltp-fcntl-locktests
+    <<: *test-job-x86-coverage
     platforms:
       - asus-C433TA-AJ0005-rammus
       - asus-C523NA-A20057-coral
@@ -452,8 +472,21 @@ scheduler:
     platforms:
       - asus-C523NA-A20057-coral
 
+  - job: ltp-ima
+    <<: *test-job-x86-coverage
+    platforms:
+      - asus-C523NA-A20057-coral
+
   - job: ltp-ipc
     <<: *test-job-x86
+    platforms:
+      - acer-cp514-2h-1130g7-volteer
+      - asus-C436FA-Flip-hatch
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
+  - job: ltp-ipc
+    <<: *test-job-x86-coverage
     platforms:
       - acer-cp514-2h-1130g7-volteer
       - asus-C436FA-Flip-hatch
@@ -467,6 +500,13 @@ scheduler:
       - hp-11A-G6-EE-grunt
       - hp-x360-12b-ca0010nr-n4020-octopus
 
+  - job: ltp-mm
+    <<: *test-job-x86-coverage
+    platforms:
+      - asus-C436FA-Flip-hatch
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
   - job: ltp-pty
     <<: *test-job-x86
     platforms:
@@ -474,8 +514,23 @@ scheduler:
       - asus-C523NA-A20057-coral
       - hp-11A-G6-EE-grunt
 
-  - job: ltp-timers 
+  - job: ltp-pty
+    <<: *test-job-x86-coverage
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+
+  - job: ltp-timers
     <<: *test-job-x86
+    platforms:
+      - asus-C433TA-AJ0005-rammus
+      - asus-C436FA-Flip-hatch
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+
+  - job: ltp-timers
+    <<: *test-job-x86-coverage
     platforms:
       - asus-C433TA-AJ0005-rammus
       - asus-C436FA-Flip-hatch
