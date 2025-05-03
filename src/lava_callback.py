@@ -29,7 +29,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from base import validate_url
 
-
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
     SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config')
@@ -39,6 +38,24 @@ YAMLCFG = kernelci.config.load_yaml('config')
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
+
+# Most common images used in LAVA deploy actions
+# https://docs.lavasoftware.org/lava/actions-deploy.html#deploy-action-reference
+input_file_types = [
+  'nfsrootfs',
+  'rootfs',
+  'ramdisk',
+  'initrd',
+  'initramfs',
+  'ndbroot',
+  'persistent_nfs',
+  'nfsrootfs',
+  'boot',
+  'boot_part',
+  'recovery_image',
+  'system',
+  'partition',
+]
 
 
 class ManualCheckout(BaseModel):
@@ -211,6 +228,16 @@ def async_job_submit(api_helper, node_id, job_callback):
     job_result = job_callback.get_job_status()
     device_id = job_callback.get_device_id()
     storage_config_name = job_callback.get_meta('storage_config_name')
+
+    if job_actions := job_callback.get_job_definition('actions'):
+        if deploy_images := job_actions[0].get('deploy', {}):
+            # Some LAVA deploy actions have images key, others directly
+            # have the input file types in the deploy dict
+            if "images" in deploy_images:
+                deploy_images = deploy_images.get('images')
+            for input_file in input_file_types:
+                if url := deploy_images.get(input_file, {}).get('url'):
+                    job_node['artifacts']["input_"+input_file] = url
     storage = _get_storage(storage_config_name)
     log_txt_url = _upload_log(log_parser, job_node, storage)
     if log_txt_url:
