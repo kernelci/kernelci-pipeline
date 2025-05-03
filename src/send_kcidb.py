@@ -190,10 +190,32 @@ class KCIDBBridge(Service):
             }
         }]
 
+    def _get_input_files(self, artifacts: dict, exclude_properties=None):
+        input_files = []
+        for name, url in artifacts.items():
+            if exclude_properties and name in exclude_properties:
+                continue
+            if not name.startswith('input_'):
+                # Skip output files
+                continue
+            # Replace "/" with "_" to match with the allowed pattern
+            # for "name" property of "input_files" i.e. '^[^/]+$'
+            name = name.replace("/", "_")
+            input_files.append(
+                {
+                    'name': name,
+                    'url': url
+                }
+            )
+        return input_files
+
     def _get_output_files(self, artifacts: dict, exclude_properties=None):
         output_files = []
         for name, url in artifacts.items():
             if exclude_properties and name in exclude_properties:
+                continue
+            if name.startswith('input_'):
+                # Skip input files
                 continue
             # Replace "/" with "_" to match with the allowed pattern
             # for "name" property of "output_files" i.e. '^[^/]+$'
@@ -312,7 +334,6 @@ class KCIDBBridge(Service):
                 artifacts=artifacts,
                 exclude_properties=('build_log', '_config')
             )
-            parsed_build_node['input_files'] = None
             parsed_build_node['config_url'] = artifacts.get('_config')
             parsed_build_node['log_url'] = artifacts.get('build_log')
             log_url = parsed_build_node['log_url']
@@ -537,11 +558,14 @@ in {runtime}",
 
         artifacts = self._get_artifacts(test_node)
         if artifacts:
+            parsed_test_node['input_files'] = self._get_input_files(
+                artifacts=artifacts,
+                exclude_properties=None
+            )
             parsed_test_node['output_files'] = self._get_output_files(
                 artifacts=artifacts,
                 exclude_properties=('lava_log', 'test_log')
             )
-            parsed_test_node['input_files'] = None
             if artifacts.get('lava_log'):
                 parsed_test_node['log_url'] = artifacts.get('lava_log')
             else:
