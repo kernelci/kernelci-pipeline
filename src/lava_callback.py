@@ -234,6 +234,16 @@ def async_job_submit(api_helper, node_id, job_callback):
         job_node['error_msg'] = None
     if device_id:
         job_node['data']['device'] = device_id
+    # add artifacts uploaded from the running LAVA job
+    upload_result = results.pop('upload', {})
+    for (name, state) in upload_result.items():
+        if name.startswith("artifact-upload:") and state == 'pass':
+            artifact = name.split(':', 2)
+            if len(artifact) != 3:
+                logger.warn(f"Failed to extract artifact name and URL from {result}")
+                continue
+            job_node['artifacts'][artifact[1]] = artifact[2]
+            logger.info(f"Artifact {artifact[1]} added with URL {artifact[2]}")
     hierarchy = job_callback.get_hierarchy(results, job_node)
     api_helper.submit_results(hierarchy, job_node)
 
