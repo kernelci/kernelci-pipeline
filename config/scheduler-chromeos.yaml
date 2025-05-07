@@ -535,6 +535,126 @@ scheduler:
       - asus-C523NA-A20057-coral
       - hp-11A-G6-EE-grunt
 
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-arm64-qualcomm-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+
 # Some of this tests running too long, must be max 30 min
   - job: tast-decoder-chromestack-arm64-mediatek
     <<: *test-job-chromeos-mediatek

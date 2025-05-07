@@ -115,6 +115,22 @@ _anchors:
       tree:
         - chromiumos
 
+  ltp-cros-kernel: &ltp-cros-kernel-job
+    template: ltp.jinja2
+    kind: job
+    params: &ltp-cros-kernel-params
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250523.0/{debarch}'
+      skip_install: "true"
+      skipfile: skipfile-lkft.yaml
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+    kcidb_test_suite: ltp
+    rules: &ltp-cros-kernel-rules
+      fragments:
+        - '!kselftest'
+      tree:
+        - chromiumos
+
   tast: &tast-job
     template: tast.jinja2
     kind: job
@@ -715,6 +731,71 @@ jobs:
       tree:
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.device_error_logs
+
+  ltp-capability-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "capability"
+
+  ltp-containers-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "containers"
+
+  ltp-crypto-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "crypto"
+    rules:
+      <<: *ltp-cros-kernel-rules
+      fragments:
+        - 'crypto'
+        - '!kselftest'
+
+  ltp-ima-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "ima"
+
+  ltp-input-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "input"
+
+  ltp-ipc-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "ipc"
+
+  ltp-kernel-misc-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "kernel_misc"
+
+  ltp-mm-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "mm"
+
+  ltp-pty-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "pty"
+
+  ltp-sched-cros-kernel:
+    <<: *ltp-cros-kernel-job
+    params:
+      <<: *ltp-cros-kernel-params
+      tst_cmdfiles: "sched"
 
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
 
