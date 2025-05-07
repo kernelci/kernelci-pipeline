@@ -30,6 +30,11 @@ spec:
                 secretKeyRef:
                   name: kernelci-api-token
                   key: token
+            - name: KCIDB_REST
+              valueFrom:
+                configMapKeyRef:
+                  name: kernelci-pipeline-env
+                  key: KCIDB_REST
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /secrets/kcidb-credentials.json
           resources:
