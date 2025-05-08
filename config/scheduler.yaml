@@ -476,6 +476,9 @@ scheduler:
   - job: kbuild-gcc-12-arm-build-only
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm-cip-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
     <<: *build-k8s-all
 
