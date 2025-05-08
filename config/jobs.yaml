@@ -1735,6 +1735,9 @@ jobs:
     <<: *kunit-job
     params:
       arch: x86_64
+    rules:
+      tree:
+        - '!omap'
 
   ltp-cap-bounds:
     <<: *ltp-job
