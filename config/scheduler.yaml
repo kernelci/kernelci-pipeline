@@ -326,6 +326,9 @@ scheduler:
     platforms:
       - supermicro-as-2015hr-tnr
 
+  - job: kbuild-clang-17-arm
+    <<: *build-k8s-all
+
   - job: kbuild-clang-17-arm-allmodconfig
     <<: *build-k8s-all
 
