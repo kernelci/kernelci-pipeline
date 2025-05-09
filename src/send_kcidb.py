@@ -617,6 +617,7 @@ in {runtime}",
     def _find_unprocessed_node(self, chunksize):
         """
         Search for 96h nodes that were not sent to KCIDB
+        Also updated__lt is set to 5 minutes, so we give chance for events
         This is nodes in available/completed state, and where flag
         sent_kcidb is not set
         If we don't have anymore unprocessed nodes, we will wait for 5 minutes
@@ -630,6 +631,7 @@ in {runtime}",
                 'state': 'done',
                 'processed_by_kcidb_bridge': False,
                 'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
+                'updated__lt': datetime.datetime.now() - datetime.timedelta(minutes=5),
                 'limit': chunksize,
             })
         except Exception as exc:
@@ -681,7 +683,7 @@ in {runtime}",
         """Main run loop that processes nodes and sends data to KCIDB"""
         self.log.info("Listening for events... Press Ctrl-C to stop.")
 
-        chunksize = 20
+        chunksize = 500
         subscribe_retries = 0
         while True:
             is_hierarchy = False
@@ -720,9 +722,11 @@ in {runtime}",
             # Submit batch
             # Sometimes we get too much data and exceed gcloud limits,
             # so we reduce the chunk size to 50 and try again
-            chunksize = 5 if not self._submit_to_kcidb(batch, context) else 20
+            chunksize = 50 if not self._submit_to_kcidb(batch, context) else 500
 
             self._clean_caches()
+            # sleep 1 second to avoid busy loop
+            time.sleep(1)
 
         return True
 
