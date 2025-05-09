@@ -499,6 +499,14 @@ build_configs:
     <<: *hyperv
     branch: 'hyperv-fixes'
 
+  hyperv-fixes-staging:
+    <<: *hyperv
+    branch: 'hyperv-fixes-staging'
+
+  hyperv-next-staging:
+    <<: *hyperv
+    branch: 'hyperv-next-staging'
+
   kernelci_staging-mainline: &kernelci
     <<: *base-standard
     tree: kernelci
