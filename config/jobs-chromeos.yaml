@@ -443,6 +443,23 @@ _anchors:
         - next
         - collabora-chromeos-kernel
 
+  fault-injection-cros-kernel: &fault-injection-cros-kernel-job
+    template: generic.jinja2
+    kind: job
+    params: &fault-injection-cros-kernel-job-params
+      test_method: fault-injection
+      test_name: suspend-resume
+      test_command: 'rtcwake -m mem -s 15'
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-fault-injection/20250520.0/{debarch}/'
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+    rules:
+      tree:
+        - chromiumos
+      branch:
+        - 'chromiumos:chromeos-6.6'
+    kcidb_test_suite: kernelci_fault_injection
+
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
     kind: job
@@ -514,6 +531,8 @@ jobs:
   baseline-nfs-arm64-qualcomm-cros-kernel: *baseline-nfs-cros-kernel-job
   baseline-nfs-x86-amd-cros-kernel: *baseline-nfs-cros-kernel-job
   baseline-nfs-x86-intel-cros-kernel: *baseline-nfs-cros-kernel-job
+
+  fault-injection-x86-intel-cros-kernel: *fault-injection-cros-kernel-job
 
   kbuild-clang-17-arm64-chromeos-daily-mediatek:
     <<: *kbuild-clang-17-arm64-chromeos-job
