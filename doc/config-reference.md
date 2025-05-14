@@ -10,8 +10,105 @@ weight: 4
 This document is a reference for options available in the KernelCI pipeline
 config file.
 
+## Config file validation
+
+The config file is validated using the `tests/validate_yaml.py` script,
+including github actions workflow. It is recommended to run this script
+before committing the config file to the repository.
+The script will check the config file for syntax errors, mandatory
+parameters, references to non-existing keys, and other common errors.
+It might not catch all errors, so please double-check the config file
+before using it.
 
 ## Jobs configuration
+
+Each job is defined in the `jobs` section of the config file. Each job
+have mandatory and optional parameters.
+At current moment, two main types of jobs are supported: `job` and `kbuild`.
+`kbuild` jobs are used to build the kernel, while `job` jobs are used to
+run tests on the kernel.
+The `jobs` section is a dictionary of jobs. Each job is defined as a
+dictionary with a name and a set of parameters. The name of the job is
+the key of the dictionary, and will be used in `scheduler` section to
+define the job that will be run.
+
+### Mandatory parameters
+
+- **template**: string
+- **kind**: string
+- **kcidb_test_suite**: string (mandatory for `job` kinds of jobs)
+- **params**: dictionary (mandatory for `kbuild` jobs)
+
+The `template` parameter is the name of the template file that will be used
+to generate the job. The template file must be located in the `config/runtime`
+directory of the config file.
+
+The `kind` parameter is the type of job that will be created. The possible
+values are `job`, `kbuild`.
+
+The `kcidb_test_suite` parameter is the name of the test suite that will be
+reported to the KernelCI database (kcidb). This parameter is mandatory for
+`job` kinds of jobs. It is optional for `kbuild` kind of jobs.
+
+### params
+The `params` parameter is a dictionary of parameters that will be passed
+to the template file. The parameters are used to customize the job
+configuration. The parameters are defined in the template file and can
+be used to generate the job configuration.
+The parameters are defined as key-value pairs. The value can be a string,
+integer, boolean or a list of strings. The parameters can be used to
+customize the job configuration. 
+
+For kbuild jobs, the `params` possibly include:
+- **arch**: string (mandatory)
+- **compiler**: string (mandatory)
+- **tree**: string or list of strings (mandatory)
+- **branch**: string (mandatory)
+- **defconfig**: string or list of strings (optional)
+- **fragments**: list of strings (optional)
+- **cross_compile**: string (optional)
+
+`arch` is the architecture of the kernel that will be built. Possible values
+are `arm`, `arm64`, `i386`, `x86_64`, `mips`, `riscv`, `um`, might be
+extended in the future.
+
+`compiler` is the compiler that will be used to build the kernel. Possible
+values are `gcc-12`, `clang-17`, might be extended in the future.
+
+`tree` is permit/deny list of trees that will be used to build the kernel. This parameter
+is explained in separate section below.
+
+`branch` is permit/deny list of branches that will be used to build the kernel. This parameter
+is explained in separate section below.
+
+`defconfig` is the defconfig that will be used to build the kernel.
+
+`fragments` is the list of fragments that will be used to build the kernel, at current moment they
+are explained in `kernelci/kernelci-core` repository, in `config/core/build-configs.yaml`, section
+`fragments`. The fragments are used to customize the kernel configuration.
+IMPORTANT: also you can set parameter `CONFIG_EXTRA_FIRMWARE` in the `fragments` list, for example:
+```
+      - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/dcn_3_1_6_dmcub.bin
+      amdgpu/gc_10_3_7_ce.bin
+      amdgpu/gc_10_3_7_me.bin
+      amdgpu/gc_10_3_7_mec2.bin"
+```
+During the kernel build, kbuild process will download linux-firmware repository and add relevant
+firmware files to the kernel build.
+
+`cross_compile` is the cross compiler prefix that will be used to build the kernel, for example
+`aarch64-linux-gnu-`.
+
+### Optional parameters
+
+- **params**: dictionary
+- **rules**: dictionary
+- **frequency**: string
+
+`kbuild` only parameters:
+- **kselftest**: string (`disable` or `enable` kselftest build)
+- **dtbs_check**: string, true if set
 
 ### Parameter frequency (optional)
 
@@ -126,3 +223,18 @@ For example, the following rules definition mean the job can run only:
 * if the kernel has been built with any defconfig except `allnoconfig`,
   using the `kselftest` fragment but not the `arm64-chromebook` one
 
+### kselftest (optional)
+- **Value**: `enable` or `disable`
+- **Default**: `enable`
+
+The `kselftest` parameter is used to enable or disable the kselftest build.
+The kselftest build is additional component that is built in addition to the
+kernel. It is used in `kselftest`-related jobs.
+
+### dtbs_check (optional)
+- **Value**: any string
+- **Default**: disabled
+
+The `dtbs_check` parameter is used to enable or disable the dtbs_check build.
+The dtbs_check build is additional kind of build that will verify the
+device tree blobs.
