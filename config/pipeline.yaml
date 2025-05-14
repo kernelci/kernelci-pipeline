@@ -6,7 +6,7 @@
 api:
 
   docker-host:
-    url: http://172.17.0.1:8001
+    url: http://host.docker.internal:8001
 
   staging:
     url: https://staging.kernelci.org:9000
@@ -22,9 +22,9 @@ storage:
 
   docker-host:
     storage_type: ssh
-    host: 172.17.0.1
+    host: host.docker.internal
     port: 8022
-    base_url: http://172.17.0.1:8002/
+    base_url: http://host.docker.internal:8002/
 
   production-azure: &azure-files
     storage_type: azure
