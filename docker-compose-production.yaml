@@ -9,7 +9,7 @@ services:
 
   lava-callback:
     # With uWSGI in socket mode, to use with reverse proxy e.g. Nginx and SSL
-    command: uvicorn lava_callback:app --host 0.0.0.0 --port 8000 --app-dir /home/kernelci/pipeline/
+    command: uvicorn lava_callback:app --host 0.0.0.0 --port 8000 --app-dir /home/kernelci/pipeline/ --log-level debug
     #command:
     #  - '/usr/local/bin/uwsgi'
     #  - '--master'
