@@ -29,7 +29,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from base import validate_url
 
-
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
 CONFIGS = kernelci.config.load(
     SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config')
@@ -211,6 +210,23 @@ def async_job_submit(api_helper, node_id, job_callback):
     job_result = job_callback.get_job_status()
     device_id = job_callback.get_device_id()
     storage_config_name = job_callback.get_meta('storage_config_name')
+    input_file_types = [
+      'nfsrootfs',
+      'rootfs',
+      'ramdisk',
+      'initrd',
+      'ndbroot',
+      'persistent_nfs'
+    ]
+    job_actions = job_callback.get_job_definition('actions')
+    if job_actions and len(job_actions) > 0:
+        deploy = job_actions[0].get('deploy')
+        if deploy:
+            for input_file in input_file_types:
+                if deploy.get('images') and deploy['images'].get(input_file):
+                    url = deploy['images'][input_file].get('url')
+                    if url:
+                        job_node['artifacts']["input_"+input_file] = url
     storage = _get_storage(storage_config_name)
     log_txt_url = _upload_log(log_parser, job_node, storage)
     if log_txt_url:
