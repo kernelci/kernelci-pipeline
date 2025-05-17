@@ -1,0 +1,89 @@
+_anchors:
+  baseline-job: &baseline-job
+    template: baseline.jinja2
+    kind: job
+    kcidb_test_suite: boot
+
+  kbuild-job: &kbuild-job
+    template: kbuild.jinja2
+    kind: kbuild
+    rules:
+      tree:
+      - '!android'
+      - '!chromiumos'
+
+  kbuild-gcc-12-arm: &kbuild-gcc-12-arm-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm-kselftest-kernelci
+    params: &kbuild-gcc-12-arm-params
+      arch: arm
+      compiler: gcc-12
+      cross_compile: 'arm-linux-gnueabihf-'
+      defconfig: multi_v7_defconfig
+
+jobs:
+  baseline-x86-cip: *baseline-job
+
+  kbuild-gcc-12-arm-allnoconfig: &kbuild-gcc-12-arm-allnoconfig-job
+    <<: *kbuild-gcc-12-arm-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+    rules:
+      tree:
+        - 'next'
+        - 'sashal-next'
+
+  kbuild-gcc-12-arm-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.12.y-cip/arm/qemu_arm_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-arm-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.1.y-cip/arm/qemu_arm_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-arm-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://5.10.y-cip/arm/qemu_arm_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-12-arm-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - multi_v7_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
