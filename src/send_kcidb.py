@@ -34,7 +34,6 @@ from base import Service
 MISSED_TEST_CODES = (
     'Bug',
     'Configuration',
-    'Infrastructure',
     'invalid_job_params',
     'Job',
     'job_generation_error',
@@ -47,6 +46,7 @@ MISSED_TEST_CODES = (
 
 ERRORED_TEST_CODES = (
     'Canceled',
+    'Infrastructure',
     'LAVATimeout',
     'MultinodeTimeout',
     'Test',
