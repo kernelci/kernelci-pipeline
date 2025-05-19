@@ -282,8 +282,14 @@ scheduler:
       - acer-chromebox-cxi5-brask
       - acer-n20q11-r856ltn-p1s2-nissa
 
+  - job: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
+    <<: *build-k8s-all
+
   - job: fault-injection-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
 
   - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all

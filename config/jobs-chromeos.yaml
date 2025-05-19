@@ -670,6 +670,24 @@ jobs:
       tree:
         - 'chromiumos'
 
+  kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-x86-chromeos-intel-params
+      frequency: 1d
+      fragments:
+        - lab-setup
+        - x86-board
+        - fault-injection
+        - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
+    rules:
+      <<: *kbuild-gcc-12-x86-chromeos-rules
+      tree:
+        - 'chromiumos'
+      branch:
+        - 'chromiumos:chromeos-6.6'
+
   kselftest-acpi:
     template: generic.jinja2
     kind: job
