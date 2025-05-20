@@ -909,6 +909,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   # Default config and build only job
   kbuild-gcc-12-arm64-build-only:
@@ -938,6 +939,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-dtbscheck:
     <<: *kbuild-gcc-12-arm64-job
@@ -958,6 +960,7 @@ jobs:
       <<: *kbuild-kselftest-rules
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-mainline: &kbuild-gcc-12-arm64-mainline-job
     <<: *kbuild-gcc-12-arm64-job
@@ -993,6 +996,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
@@ -1279,6 +1283,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-x86-allnoconfig:
     <<: *kbuild-gcc-12-x86-job
@@ -1755,6 +1760,7 @@ jobs:
     rules:
       tree:
         - '!omap'
+        - '!chromiumos'
 
   ltp-cap-bounds:
     <<: *ltp-job
