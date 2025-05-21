@@ -40,16 +40,11 @@ def main():
     # remove spaces
     args.permissions = args.permissions.replace(" ", "")
 
-    # Basic email validation
-    if '@' not in args.email:
-        print("Invalid email")
-        sys.exit(1)
-
     # if comma separated permissions are provided, split them into a list
     permissions = args.permissions.split(',')
     payload = {}
-    payload['permissions'] = permissions
-    payload['email'] = args.email
+    #payload['permissions'] = permissions
+    payload['origin'] = args.email
 
     if args.secret is None:
         if args.toml is None:
