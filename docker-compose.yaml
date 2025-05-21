@@ -25,23 +25,6 @@ services:
       - "host.docker.internal:host-gateway"
     restart: on-failure
 
-  result_summary:
-    container_name: 'kernelci-pipeline-result-summary'
-    image: 'kernelci/staging-kernelci:pipeline'
-    env_file: ['.env']
-    stop_signal: 'SIGINT'
-    entrypoint:
-      - './src/result_summary.py'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
-      - 'run'
-      - '--config=${CONFIG:-/home/kernelci/config/result-summary.yaml}'
-    volumes:
-#      - './src:/home/kernelci/pipeline'
-      - './config:/home/kernelci/config'
-      - './data/output:/home/kernelci/data/output'
-      - './logs:/home/kernelci/logs'
-    #restart: on-failure
-
   scheduler: &scheduler
     container_name: 'kernelci-pipeline-scheduler'
     image: 'kernelci/staging-kernelci:pipeline'
@@ -149,30 +132,6 @@ services:
       - 'run'
       - '--trees=kernelci,netdev-testing'
       - '--name=trigger'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  regression_tracker:
-    <<: *base-service
-    container_name: 'kernelci-pipeline-regression_tracker'
-    command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/regression_tracker.py'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
-      - 'run'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  test_report:
-    <<: *base-service
-    container_name: 'kernelci-pipeline-test_report'
-    command:
-      - '/usr/bin/env'
-      - 'python3'
-      - '/home/kernelci/pipeline/src/test_report.py'
-      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
-      - 'loop'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
