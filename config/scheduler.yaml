@@ -17,7 +17,6 @@ _anchors:
 
   node-event: &node-event-kbuild
     channel: node
-    result: pass
     kind: kbuild
     state: available
 
