@@ -133,6 +133,7 @@ jobs:
   baseline-arm64-mfd: *baseline-job
   baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
+  baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job

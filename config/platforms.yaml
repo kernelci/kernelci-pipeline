@@ -166,6 +166,12 @@ platforms:
     dtb: starfive/jh7100-starfive-visionfive-v1.dtb
     compatible: ["starfive,visionfive-v1", "starfive,jh7100"]
 
+  jh7100-starfive-visionfive-v1-3b:
+    <<: *riscv-device
+    mach: starfive
+    dtb: starfive/jh7100-starfive-visionfive-v1.dtb
+    compatible: ["starfive,visionfive-v1.3b", "starfive,jh7100"]
+
   juno-uboot:
     <<: *arm64-device
     mach: vexpress
