@@ -165,6 +165,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
 
         node.update({
             'state': 'available',
+            'result': 'pass',
             'artifacts': {
                 'tarball': tarball_url,
             },
