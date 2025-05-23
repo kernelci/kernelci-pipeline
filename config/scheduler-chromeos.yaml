@@ -83,7 +83,7 @@ _anchors:
       <<: *kbuild-event
       name: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
 
-  test-job-arm64-qualcomm: &test-job-arm64-qualcomm-media-committers
+  test-job-arm64-qualcomm-media-committers: &test-job-arm64-qualcomm-media-committers
     <<: *test-job-arm64-mediatek-media-committers
     platforms: *qualcomm-platforms
 
