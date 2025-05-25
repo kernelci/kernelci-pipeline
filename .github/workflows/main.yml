@@ -60,3 +60,9 @@ jobs:
       - name: Run basic YAML validation
         run: |
           python tests/validate_yaml.py
+
+      - name: Run basic JWT test
+        run: |
+          pip install PyJWT
+          pip install toml
+          python tests/validate_jwt.py
