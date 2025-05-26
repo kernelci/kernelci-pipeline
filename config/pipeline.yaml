@@ -159,13 +159,6 @@ runtimes:
       callback:
         token: kernel-ci-callback
 
-  lava-qualcomm:
-    lab_type: lava
-    url: 'https://lava.infra.foundries.io'
-    notify:
-      callback:
-        token: kernelci-lab-qualcomm
-
   shell:
     lab_type: shell
 
