@@ -54,8 +54,6 @@ email_recipient = "kernelci-results-staging@groups.io"
 
 [timeout]
 
-[regression_tracker]
-
 [storage.docker-host]
 storage_cred = "/home/kernelci/data/ssh/id_rsa_tarball"
 

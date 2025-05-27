@@ -1,0 +1,42 @@
+_anchors:
+  build-k8s-all: &build-k8s-all
+    event: &checkout-event
+      channel: node
+      kind: checkout
+      state: available
+    runtime:
+      name: k8s-all
+
+  node-event: &node-event-kbuild
+    channel: node
+    result: pass
+    kind: kbuild
+
+  job-event: &job-event
+    channel: node
+    state: done
+    kind: job
+
+  scheduler:
+    - job: baseline-x86
+      event: &kbuild-gcc-12-x86-node-event
+        <<: *node-event-kbuild
+        name: kbuild-gcc-12-x86
+      runtime: &lava-collabora-runtime
+        type: lava
+        name: lava-collabora
+      platforms: &collabora-x86-platforms
+        - qemu-x86
+        - aaeon-UPN-EHLX4RE-A10-0864
+
+    - job: baseline-x86-cip
+      event: *kbuild-gcc-12-x86-node-event
+      runtime:
+        type: lava
+        name: lava-cip
+      platforms:
+        - qemu
+
+    - job: kbuild-gcc-12-arm-cip-allnoconfig
+      <<: *build-k8s-all
+

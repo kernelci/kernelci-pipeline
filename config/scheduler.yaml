@@ -268,14 +268,6 @@ scheduler:
     platforms:
       - qemu
 
-  - job: baseline-x86-cip
-    event: *kbuild-gcc-12-x86-node-event
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu
-
   - job: baseline-x86-kcidebug-amd
     event: &kbuild-gcc-12-x86-kcidebug-node-event
       <<: *node-event-kbuild
@@ -325,6 +317,9 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - supermicro-as-2015hr-tnr
+
+  - job: kbuild-clang-17-arm
+    <<: *build-k8s-all
 
   - job: kbuild-clang-17-arm-allmodconfig
     <<: *build-k8s-all
@@ -695,6 +690,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-build-only
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-coverage
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-kcidebug

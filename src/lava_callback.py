@@ -41,6 +41,7 @@ YAMLCFG = kernelci.config.load_yaml('config')
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
+logger = logging.getLogger('uvicorn.error')
 
 
 class ManualCheckout(BaseModel):
@@ -202,7 +203,7 @@ def async_job_submit(api_helper, node_id, job_callback):
     job_node = api_helper.api.node.get(node_id)
     if not job_node:
         metrics.add('lava_callback_late_fail_total', 1)
-        logging.error(f'Node {node_id} not found')
+        logger.error(f'Node {node_id} not found')
         return
     # TODO: Verify lab_name matches job node lab name
     # Also extract job_id and compare with node job_id (future)
@@ -217,14 +218,14 @@ def async_job_submit(api_helper, node_id, job_callback):
     log_txt_url = _upload_log(log_parser, job_node, storage)
     if log_txt_url:
         job_node['artifacts']['lava_log'] = log_txt_url
-        print(f"Log uploaded to {log_txt_url}")
+        logger.info(f"Log uploaded to {log_txt_url}")
     else:
-        print("Failed to upload log")
+        logger.warning("Failed to upload log")
         metrics.add('lava_callback_late_fail_total', 1)
     callback_json_url = _upload_callback_data(callback_data, job_node, storage)
     if callback_json_url:
         job_node['artifacts']['callback_data'] = callback_json_url
-        print(f"Callback data uploaded to {callback_json_url}")
+        logger.info(f"Callback data uploaded to {callback_json_url}")
     else:
         metrics.add('lava_callback_late_fail_total', 1)
     # failed LAVA job should have result set to 'incomplete'
@@ -284,7 +285,7 @@ async def callback(node_id: str, request: Request):
     try:
         data = await request.json()
     except Exception as e:
-        logging.error(f'Error decoding JSON: {e}')
+        logger.error(f'Error decoding JSON: {e}')
         item = {}
         item['message'] = 'Error decoding JSON'
         return JSONResponse(content=item, status_code=400)
@@ -308,7 +309,7 @@ def decode_jwt(jwtstr):
     '''
     secret = SETTINGS.get('jwt', {}).get('secret')
     if not secret:
-        logging.error('No JWT secret configured')
+        logger.error('No JWT secret configured')
         return None
     return jwt.decode(jwtstr, secret, algorithms=['HS256'])
 
@@ -319,17 +320,17 @@ def validate_permissions(jwtoken, permission):
     try:
         decoded = decode_jwt(jwtoken)
     except Exception as e:
-        logging.error(f'Error decoding JWT: {e}')
+        logger.error(f'Error decoding JWT: {e}')
         return False
     if not decoded:
-        logging.error('Invalid JWT')
+        logger.error('Invalid JWT')
         return False
     permissions = decoded.get('permissions')
     if not permissions:
-        logging.error('No permissions in JWT')
+        logger.error('No permissions in JWT')
         return False
     if permission not in permissions:
-        logging.error(f'Permission {permission} not in JWT')
+        logger.error(f'Permission {permission} not in JWT')
         return False
     return decoded
 
@@ -390,7 +391,7 @@ async def jobretry(data: JobRetry, request: Request,
         return JSONResponse(content=item, status_code=401)
 
     email = decoded.get('email')
-    logging.info(f"User {email} is retrying job {data.nodeid}")
+    logger.info(f"User {email} is retrying job {data.nodeid}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
         item['message'] = 'No default API name set'
@@ -400,7 +401,7 @@ async def jobretry(data: JobRetry, request: Request,
     try:
         node = api_helper.api.node.get(data.nodeid)
     except Exception as e:
-        logging.error(f'Error getting node {data.nodeid}: {e}')
+        logger.error(f'Error getting node {data.nodeid}: {e}')
         item['message'] = 'Error getting node'
         return JSONResponse(content=item, status_code=500)
     if not node:
@@ -439,7 +440,7 @@ async def jobretry(data: JobRetry, request: Request,
     evnode = {'data': knode}
     # Now we can submit custom kbuild node to the API(pub/sub)
     api_helper.api.send_event('node', evnode)
-    logging.info(f"Job retry for node {data.nodeid} submitted")
+    logger.info(f"Job retry for node {data.nodeid} submitted")
     item['message'] = 'OK'
     return JSONResponse(content=item, status_code=200)
 
@@ -526,7 +527,7 @@ async def checkout(data: ManualCheckout, request: Request,
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
-    logging.info(f"User {email} is checking out {data.nodeid} at custom commit {data.commit}")
+    logger.info(f"User {email} is checking out {data.nodeid} at custom commit {data.commit}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
         item['message'] = 'No default API name set'
@@ -632,7 +633,7 @@ async def checkout(data: ManualCheckout, request: Request,
         item['message'] = 'Failed to submit checkout node'
         return JSONResponse(content=item, status_code=500)
     else:
-        logging.info(f"Checkout node {r['id']} submitted")
+        logger.info(f"Checkout node {r['id']} submitted")
         item['message'] = 'OK'
         item['node'] = r
         return JSONResponse(content=item, status_code=200)
@@ -661,7 +662,7 @@ async def patchset(data: PatchSet, request: Request,
         item['message'] = 'Unauthorized'
         return JSONResponse(content=item, status_code=401)
 
-    logging.info(f"User {email} is testing patchset on {data.nodeid}")
+    logger.info(f"User {email} is testing patchset on {data.nodeid}")
     api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
     if not api_config_name:
         item['message'] = 'No default API name set'
@@ -735,7 +736,7 @@ async def patchset(data: PatchSet, request: Request,
         item['message'] = 'Failed to submit patchset node'
         return JSONResponse(content=item, status_code=500)
     else:
-        logging.info(f"Patchset node {r['id']} submitted")
+        logger.info(f"Patchset node {r['id']} submitted")
         item['message'] = 'OK'
         item['node'] = r
         return JSONResponse(content=item, status_code=200)
@@ -768,4 +769,4 @@ if __name__ == '__main__':
     api_token = os.getenv('KCI_API_TOKEN')
     if not api_token:
         print('No API token set')
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=8000, log_level="debug")

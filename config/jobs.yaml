@@ -65,7 +65,7 @@ _anchors:
     kind: job
     params: &ltp-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20240313.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250523.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
     kcidb_test_suite: ltp
@@ -136,7 +136,6 @@ jobs:
   baseline-riscv-clabbe: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
-  baseline-x86-cip: *baseline-job
   baseline-x86-kcidebug-amd: *baseline-job
   baseline-x86-kcidebug-intel: *baseline-job
   baseline-x86-mfd: *baseline-job
@@ -564,20 +563,6 @@ jobs:
       fragments:
         - 'CONFIG_CPU_BIG_ENDIAN=y'
 
-  kbuild-gcc-12-arm-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm-allnoconfig-job
-    params:
-      <<: *kbuild-gcc-12-arm-params
-      defconfig:
-        - multi_v7_defconfig
-        - allnoconfig
-      fragments:
-        - 'cip://6.1.y-cip/arm/qemu_arm_defconfig'
-    rules:
-      branch:
-        - 'cip:linux-6.1.y-cip'
-        - 'cip:linux-6.1.y-cip-rt'
-
   kbuild-gcc-12-arm-SMP:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
@@ -909,6 +894,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   # Default config and build only job
   kbuild-gcc-12-arm64-build-only:
@@ -938,6 +924,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-dtbscheck:
     <<: *kbuild-gcc-12-arm64-job
@@ -958,6 +945,7 @@ jobs:
       <<: *kbuild-kselftest-rules
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-mainline: &kbuild-gcc-12-arm64-mainline-job
     <<: *kbuild-gcc-12-arm64-job
@@ -993,6 +981,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-arm64-mfd:
     <<: *kbuild-gcc-12-arm64-job
@@ -1279,6 +1268,7 @@ jobs:
     rules:
       tree:
       - '!omap'
+      - '!chromiumos'
 
   kbuild-gcc-12-x86-allnoconfig:
     <<: *kbuild-gcc-12-x86-job
@@ -1328,6 +1318,23 @@ jobs:
       tree:
       - '!android'
       - '!chromiumos'
+
+  kbuild-gcc-12-x86-coverage:
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'coverage'
+        - 'lab-setup'
+        - 'x86-board'
+    rules:
+      tree:
+      - 'chromiumos'
+      - 'collabora-chromeos-kernel:for-kernelci'
+      - 'mainline:master'
+      - 'next:master'
+      - 'stable'
+      - 'stable-rc'
 
   kbuild-gcc-12-x86-kselftest:
     <<: *kbuild-gcc-12-x86-job
@@ -1735,6 +1742,10 @@ jobs:
     <<: *kunit-job
     params:
       arch: x86_64
+    rules:
+      tree:
+        - '!omap'
+        - '!chromiumos'
 
   ltp-cap-bounds:
     <<: *ltp-job

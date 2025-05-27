@@ -34,7 +34,6 @@ from base import Service
 MISSED_TEST_CODES = (
     'Bug',
     'Configuration',
-    'Infrastructure',
     'invalid_job_params',
     'Job',
     'job_generation_error',
@@ -47,6 +46,7 @@ MISSED_TEST_CODES = (
 
 ERRORED_TEST_CODES = (
     'Canceled',
+    'Infrastructure',
     'LAVATimeout',
     'MultinodeTimeout',
     'Test',
@@ -833,7 +833,7 @@ in {runtime}",
         """Handle failed builds and tests by generating issues/incidents"""
         # Handle failed builds
         for parsed_node in parsed_data['build_node']:
-            if parsed_node.get('valid') is False and parsed_node.get('log_url'):
+            if parsed_node.get("status") == "FAIL" and parsed_node.get('log_url'):
                 parsed_fail = self._parse_fail_node(parsed_node, context, 'build')
                 self._add_to_batch(batch, parsed_fail)
 
