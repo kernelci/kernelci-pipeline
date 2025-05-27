@@ -1680,6 +1680,13 @@ jobs:
       collections: perf_events
     kcidb_test_suite: kselftest.perf_events
 
+  kselftest-rlimits:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: rlimits
+    kcidb_test_suite: kselftest.rlimits
+
   kselftest-seccomp:
     <<: *kselftest-job
     params:
