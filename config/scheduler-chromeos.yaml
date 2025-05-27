@@ -264,6 +264,18 @@ scheduler:
   - job: baseline-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
+  # FIXME: random test to check for proper scheduling of post-processing jobs
+  - job: baseline-x86-intel-cros-kernel
+    <<: *test-job-x86-intel-cros-kernel
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-coverage
+      state: done
+    platforms:
+      - asus-C523NA-A20057-coral
+      - hp-11A-G6-EE-grunt
+      - hp-x360-12b-ca0010nr-n4020-octopus
+
   - job: baseline-nfs-arm64-mediatek-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
 
