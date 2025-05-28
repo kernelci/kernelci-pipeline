@@ -117,6 +117,39 @@ class Metrics():
             return promstr
 
 
+class LogSanitizer:
+    """Efficient log sanitization utility"""
+
+    # Pre-compute translation table
+    _TRANSLATION_TABLE = str.maketrans({
+        chr(i): '?'
+        for i in range(256)
+        if not (chr(i).isprintable() or chr(i) == '\n')
+    })
+
+    @classmethod
+    def sanitize(cls, data: str, max_size: int = None) -> str:
+        """
+        Sanitize log data by replacing non-printable characters.
+
+        Args:
+            data: Input string to sanitize
+            max_size: Optional maximum size limit
+
+        Returns:
+            Sanitized string
+        """
+        if not data:
+            return ''
+
+        # Truncate if needed
+        if max_size and len(data) > max_size:
+            data = data[:max_size]
+
+        # Remove null characters and apply translation
+        return data.replace('\x00', '').translate(cls._TRANSLATION_TABLE)
+
+
 metrics = Metrics('pipeline_callback')
 
 
@@ -165,13 +198,11 @@ def _upload_log(log_parser, job_node, storage):
             data = log_parser.get_text()
             if not data or len(data) == 0:
                 return None
-            # Delete NULL characters from log data
-            data = data.replace('\x00', '')
-            # Sanitize log data from non-printable characters (except newline)
-            # replace them with '?', original still exists in cb data
-            data = ''.join([c if c.isprintable() or c == '\n' else
-                            '?' for c in data])
-            f.write(data)
+
+            # Sanitize log data to remove non-printable characters
+            sanitized_data = LogSanitizer.sanitize(data)
+
+            f.write(sanitized_data)
         src = os.path.join(tmp_dir, 'lava_log.txt.gz')
         return _upload_file(storage, job_node, src, 'log.txt.gz')
 
@@ -766,6 +797,7 @@ async def apimetrics():
 
     return Response(content=export_str, media_type='text/plain')
 
+
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     logging.error(f"Unhandled exception: {exc}")
@@ -773,6 +805,7 @@ async def general_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"message": "Internal server error"}
     )
+
 
 # Default built-in development server, not suitable for production
 if __name__ == '__main__':
