@@ -17,7 +17,7 @@ import logging
 import hashlib
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Request, Header, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 import kernelci.api.helper
@@ -174,7 +174,7 @@ def _upload_log(log_parser, job_node, storage):
         return _upload_file(storage, job_node, src, 'log.txt.gz')
 
 
-@app.get('/')
+@app.get('/', response_class=HTMLResponse)
 async def read_root():
     page = '''
     <html>
@@ -187,7 +187,7 @@ async def read_root():
     </body>
     </html>
     '''
-    return page
+    return HTMLResponse(content=page)
 
 
 def async_job_submit(api_helper, node_id, job_callback):
