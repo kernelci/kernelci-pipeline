@@ -766,6 +766,13 @@ async def apimetrics():
 
     return Response(content=export_str, media_type='text/plain')
 
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    logging.error(f"Unhandled exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal server error"}
+    )
 
 # Default built-in development server, not suitable for production
 if __name__ == '__main__':
