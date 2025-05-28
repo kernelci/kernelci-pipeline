@@ -5,6 +5,7 @@
 # Author: Denys Fedoryshchenko <denys.fedoryshchenko@collabora.com>
 
 import os
+import sys
 import tempfile
 
 import gzip
@@ -26,6 +27,7 @@ import kernelci.runtime.lava
 import kernelci.storage
 import kernelci.config
 from concurrent.futures import ThreadPoolExecutor
+
 
 from base import validate_url
 
@@ -773,7 +775,9 @@ if __name__ == '__main__':
     jwt_secret = SETTINGS.get('jwt', {}).get('secret')
     if not jwt_secret:
         print('No JWT secret configured')
+        sys.exit(1)
     api_token = os.getenv('KCI_API_TOKEN')
     if not api_token:
         print('No API token set')
+        sys.exit(1)
     uvicorn.run(app, host='0.0.0.0', port=8000, log_level="debug")
