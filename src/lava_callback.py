@@ -47,7 +47,6 @@ class ManualCheckout(BaseModel):
     nodeid: Optional[str] = None
     url: Optional[str] = None
     branch: Optional[str] = None
-    commit: Optional[str] = None
     jobfilter: Optional[list] = None
     platformfilter: Optional[list] = None
 
