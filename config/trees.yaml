@@ -691,7 +691,6 @@ build_configs:
     branch: 'for-next'
 
   stable-rc_5.4: &stable-rc
-    <<: *stable-rc
     <<: *base
     tree: stable-rc
     branch: 'linux-5.4.y'
