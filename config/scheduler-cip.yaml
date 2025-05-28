@@ -9,7 +9,7 @@ _anchors:
 
   node-event: &node-event-kbuild
     channel: node
-    result: pass
+    state: available
     kind: kbuild
 
   job-event: &job-event
@@ -39,4 +39,3 @@ _anchors:
 
     - job: kbuild-gcc-12-arm-cip-allnoconfig
       <<: *build-k8s-all
-
