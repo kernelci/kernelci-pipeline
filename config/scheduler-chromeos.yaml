@@ -56,6 +56,7 @@ _anchors:
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
+      state: available
     platforms: *mediatek-platforms
 
   test-job-arm64-mediatek-cros-kernel: &test-job-arm64-mediatek-cros-kernel
@@ -91,6 +92,7 @@ _anchors:
       name: kbuild-gcc-12-x86-chromeos-amd
       result: pass
       kind: kbuild
+      state: available
     platforms: *amd-platforms
 
   test-job-chromeos-intel: &test-job-chromeos-intel
@@ -100,6 +102,7 @@ _anchors:
       name: kbuild-gcc-12-x86-chromeos-intel
       result: pass
       kind: kbuild
+      state: available
     platforms: *intel-platforms
 
   test-job-chromeos-mediatek: &test-job-chromeos-mediatek
@@ -109,6 +112,7 @@ _anchors:
       name: kbuild-gcc-12-arm64-chromeos-mediatek
       result: pass
       kind: kbuild
+      state: available
 
   test-job-chromeos-qualcomm: &test-job-chromeos-qualcomm
     <<: *test-job-arm64-qualcomm
@@ -117,6 +121,7 @@ _anchors:
       name: kbuild-gcc-12-arm64-chromeos-qualcomm
       result: pass
       kind: kbuild
+      state: available
 
   test-job-x86: &test-job-x86
     <<: *lava-job-collabora
@@ -125,6 +130,7 @@ _anchors:
       name: kbuild-gcc-12-x86
       result: pass
       kind: kbuild
+      state: available
 
   test-job-x86-amd: &test-job-x86-amd
     <<: *test-job-x86
@@ -340,6 +346,7 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
+      state: available
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8186-corsola-steelix-sku131072
@@ -355,6 +362,7 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
+      state: available
     platforms:
       - mt8195-cherry-tomato-r2
 
@@ -365,6 +373,7 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
+      state: available
     platforms: *mediatek-platforms
 
   - job: kselftest-devices-probe
@@ -374,6 +383,7 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
       result: pass
       kind: kbuild
+      state: available
     platforms: *mediatek-platforms
 
   - job: kselftest-cpufreq
