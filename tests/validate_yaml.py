@@ -73,8 +73,19 @@ def validate_scheduler_jobs(data):
     schedules = data.get("scheduler")
     jobs = data.get("jobs")
     for entry in schedules:
-        if entry.get("job") not in jobs.keys():
-            raise yaml.YAMLError(f"Job {entry.get('job')} not found in jobs")
+        jobname = entry.get("job")
+        if jobname not in jobs.keys():
+            raise yaml.YAMLError(f"Job {jobname} not found in jobs")
+        # scheduler entry must have defined in event: channel, (state or result), kind
+        event = entry.get("event")
+        if not event:
+            raise yaml.YAMLError(f"Event not found for scheduler entry: {jobname}: {entry}")
+        if not event.get("channel"):
+            raise yaml.YAMLError(f"Channel not found for event: {jobname}: {entry}")
+        if not event.get("state"):
+            raise yaml.YAMLError(f"State not found for event: {jobname}: {entry}")
+        if not event.get("kind"):
+            raise yaml.YAMLError(f"Kind not found for event: {jobname}: {entry}")
         # if we have parameter: platforms, we need to make sure it exists in config
         if entry.get("platforms"):
             for platform in entry.get("platforms"):
