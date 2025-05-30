@@ -19,6 +19,16 @@ spec:
       labels:
         app: scheduler-lava
     spec:
+      initContainers:
+        - name: wait-for-api
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
+                echo "Waiting for API endpoint..."; sleep 5;
+              done
       containers:
         - name: scheduler
           image: kernelci/kernelci:pipeline@sha256:5ecd9b94a22f064a15a9ded85cbe09ff10018fe7cf6fdfaca794121f3b4a4b5f

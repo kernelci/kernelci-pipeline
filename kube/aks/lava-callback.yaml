@@ -19,6 +19,16 @@ spec:
       labels:
         app: lava-callback
     spec:
+      initContainers:
+        - name: wait-for-api
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
+                echo "Waiting for API endpoint..."; sleep 5;
+              done
       containers:
         - name: lava-callback
           image: kernelci/kernelci:lava-callback@sha256:255fdb9dfd0552f22c50cb60debf5de3ef7f1c675f9bd14231d14a31bc24368f
