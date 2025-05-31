@@ -19,6 +19,16 @@ spec:
       labels:
         app: monitor
     spec:
+      initContainers:
+        - name: wait-for-api
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
+                echo "Waiting for API endpoint..."; sleep 5;
+              done
       containers:
         - name: monitor
           image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
