@@ -140,7 +140,8 @@ spec:
             - |
               until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
                 echo "Waiting for API endpoint..."; sleep 5;
-              done      containers:
+              done
+      containers:
         - name: timeout
           image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
           imagePullPolicy: Always
