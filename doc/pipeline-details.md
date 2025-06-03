@@ -28,17 +28,20 @@ flowchart
     end
     subgraph Run Builds/Tests
         runner_node --> runtime[Runtime Environment]
-        runtime --> set_available[Update node<br />state=available, result=None, set holdoff]
-        set_available --> run_job[Run build/test job]
+        runtime --> run_job[Run build/test job]
         run_job --> job_done{Job done?}
-        job_done --> |Yes| pass_runner_node[Update node<br />state=done, result=pass/fail/skip]
+        job_done --> |Yes| job_pass{Job successful?}
         job_done --> |No| run_job
+        job_pass --> |Yes| job_kind{Job kind?}
+        job_kind --> |Build| pass_build_node[Update build node<br />state=available, result=pass<br />set holdoff]
+        job_kind --> |Test| pass_test_node[Update test node<br />state=done, result=pass]
+        job_pass --> |No| fail_node[Update failed node<br />state=done, result=fail/skip]
     end
     subgraph timeout_service[Timeout Service]
         get_nodes[Get nodes <br /> with state=running/available/closing] --> node_timedout{Node timed out?}
         verify_avilable_nodes{Node state is available?} --> |Yes| hold_off_reached{Hold off reached?}
         hold_off_reached --> |Yes| child_nodes_completed{All child <br />nodes completed ?}
-        child_nodes_completed --> |Yes| set_done[Set parent and child nodes <br /> state=done]
+        child_nodes_completed --> |Yes| set_done[Set node <br /> state=done]
         child_nodes_completed --> |No| set_closing[Set node <br />state=closing]
         node_timedout --> |Yes| set_done
         node_timedout --> |No| verify_avilable_nodes
@@ -65,12 +68,12 @@ When the trigger pushes a new revision node (checkout), the tarball receives a p
 
 ### Runner
 
-The Runner step listens for pub/sub events about available checkout node.  It will then schedule some jobs (it can be any kind of job including build and test) to be run in various runtime environments as defined in the pipeline YAML configuration from the Core tools. A node is pushed to the API with "available" state e.g. "kunit" node. This will generate pub/sub event of build or test node creation.
+The Runner step listens for pub/sub events about available checkout node.  It will then schedule some jobs (it can be any kind of job including build and test) to be run in various runtime environments as defined in the pipeline YAML configuration from the Core tools. A node is pushed to the API with "running" state e.g. "kunit" node. This will generate pub/sub event of build or test node creation.
 
 ### Runtime Environment
 
 The jobs added by runner will be run in specified runtime environment i.e. shell, Kubernetes or LAVA lab.
-Each environment needs to have its own API token set up locally to be able to submit the results to API. It updates the node with state "done" and result (pass, fail, or skip). This will generate pub/sub event of node update.
+Each environment needs to have its own API token set up locally to be able to submit the results to API. It updates the node with state ("available" or "done" depending on the job type) and result (pass, fail, or skip). This will generate pub/sub event of node update.
 
 ### Timeout
 
