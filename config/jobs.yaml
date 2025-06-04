@@ -1702,6 +1702,13 @@ jobs:
       collections: signal
     kcidb_test_suite: kselftest.signal
 
+  kselftest-timens:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: timens
+    kcidb_test_suite: kselftest.timens
+
   kselftest-timers:
     <<: *kselftest-job
     params:
