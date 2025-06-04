@@ -811,6 +811,22 @@ scheduler:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
 
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
   - job: kselftest-ftrace
     event:
       <<: *node-event-kbuild
