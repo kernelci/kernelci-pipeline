@@ -3,6 +3,7 @@
 Validate all yaml files in the config/ directory
 """
 
+import glob
 import os
 import yaml
 import sys
@@ -161,17 +162,15 @@ def merge_files(dir="config"):
     Merge all yaml files in the config/ directory
     """
     merged_data = {}
-    for file in os.listdir(dir):
-        if file.endswith(".yaml"):
-            print(f"Merging {file}")
-            fpath = os.path.join(dir, file)
-            with open(fpath, "r") as stream:
-                try:
-                    data = yaml.safe_load(stream)
-                    merged_data = recursive_merge(merged_data, data)
-                except yaml.YAMLError as exc:
-                    print(f"Error in {file}: {exc}")
-                    sys.exit(1)
+    for file in glob.iglob(os.path.join(dir, "**", "*.yaml"), recursive=True):
+        print(f"Merging {file}")
+        with open(file, "r") as stream:
+            try:
+                data = yaml.safe_load(stream)
+                merged_data = recursive_merge(merged_data, data)
+            except yaml.YAMLError as exc:
+                print(f"Error in {file}: {exc}")
+                sys.exit(1)
     return merged_data
 
 
