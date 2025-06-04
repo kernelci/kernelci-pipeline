@@ -938,6 +938,22 @@ scheduler:
 #      - rk3399-rock-pi-4b
 #      - sun50i-h6-pine-h64
 
+  - job: kselftest-ptrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-ptrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: kselftest-perf-events
     event:
       <<: *node-event-kbuild
