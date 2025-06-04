@@ -1598,6 +1598,13 @@ jobs:
       collections: exec
     kcidb_test_suite: kselftest.exec
 
+  kselftest-fchmodat2:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: fchmodat2
+    kcidb_test_suite: kselftest.fchmodat2
+
   kselftest-ftrace:
     <<: *kselftest-job
     params:
