@@ -1626,6 +1626,13 @@ jobs:
       collections: ipc
     kcidb_test_suite: kselftest.ipc
 
+  kselftest-kcmp:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: kcmp
+    kcidb_test_suite: kselftest.kcmp
+
   kselftest-kvm:
     <<: *kselftest-job
     params:
