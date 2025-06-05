@@ -116,7 +116,7 @@ scheduler:
     event:
       channel: node
       name: kbuild-gcc-10-arm64
-      result: pass
+      state: available
     runtime:
       type: lava
       name: lava-broonie
