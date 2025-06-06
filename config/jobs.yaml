@@ -125,6 +125,7 @@ jobs:
   baseline-arm-pengutronix: *baseline-job
   baseline-arm64: *baseline-job
   baseline-arm64-android: *baseline-job
+  baseline-arm64-baylibre: *baseline-job
   baseline-arm64-broonie: *baseline-job
   baseline-arm64-clabbe: *baseline-job
   baseline-arm64-kcidebug-mediatek: *baseline-job
