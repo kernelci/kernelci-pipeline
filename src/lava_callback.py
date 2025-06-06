@@ -210,13 +210,33 @@ def _upload_log(log_parser, job_node, storage):
 @app.get('/', response_class=HTMLResponse)
 async def read_root():
     page = '''
-    <html>
+    <!DOCTYPE html>
+    <html lang="en">
     <head>
-    <title>KernelCI Pipeline Callback</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KernelCI Pipeline endpoint</title>
+        <style>
+            body { font-family: Arial, sans-serif; background: #f8f9fa; color: #222; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 60px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 32px; }
+            h1 { color: #0057b7; }
+            a { color: #0057b7; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            .logo { width: 120px; margin-bottom: 24px; }
+        </style>
     </head>
     <body>
-    <h1>KernelCI Pipeline Callback</h1>
-    <p>This is a callback endpoint for the KernelCI pipeline.</p>
+        <div class="container">
+            <img src="https://kernelci.org/wp-content/uploads/sites/92/2019/10/kernelci-horizontal-color.svg" alt="KernelCI Logo" class="logo"/>
+            <h1>KernelCI Pipeline endpoint</h1>
+            <p>Welcome! This is the <b>KernelCI Pipeline endpoint</b> REST API endpoint.</p>
+            <p>This service receives and processes callback data from LAVA and other test systems as part of the KernelCI continuous integration pipeline.</p>
+            <p>Also, it is used by kci-dev to interact with the pipeline.</p>
+            <p>For more information about KernelCI, please visit <a href="https://kernelci.org/" target="_blank">kernelci.org</a>.</p>
+            <p>API usage and integration details can be found in the <a href="https://docs.kernelci.org/" target="_blank">KernelCI documentation</a>.</p>
+            <hr/>
+            <p style="font-size: 0.95em; color: #888;">&copy; 2025 KernelCI Project</p>
+        </div>
     </body>
     </html>
     '''
