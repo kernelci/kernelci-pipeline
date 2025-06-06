@@ -1045,6 +1045,22 @@ scheduler:
       - bcm2711-rpi-4-b
       - sun50i-h5-libretech-all-h3-cc
 
+  - job: kselftest-proc
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-proc
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: kselftest-rlimits
     event:
       <<: *node-event-kbuild

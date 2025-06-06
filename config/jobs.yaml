@@ -1725,6 +1725,13 @@ jobs:
       collections: perf_events
     kcidb_test_suite: kselftest.perf_events
 
+  kselftest-proc:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: proc
+    kcidb_test_suite: kselftest.proc
+
   kselftest-ptrace:
     <<: *kselftest-job
     params:
