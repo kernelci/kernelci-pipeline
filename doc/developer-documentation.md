@@ -164,7 +164,15 @@ For a test that requires a successful completion of a build job such as `kbuild-
   event:
     channel: node
     name: kbuild-gcc-10-arm64
+    state: available
+```
+For a post-processing job that requires completion of all test jobs for a given build job such as `kbuild-gcc-10-arm64`, specify the event as follows:
+```yaml
+  event:
+    channel: node
+    name: kbuild-gcc-10-arm64
     result: pass
+    state: done
 ```
 Here, `node` refers to the name of API PubSub channel where node events are published.
 - **`runtime`**: Select a runtime for scheduling and running the job. Supported runtimes include `shell`, `docker`, `lava`, and `kubernetes`. Specify the runtime type from the `runtimes` section. Note that the `name` property is required for `lava` and `kubernetes` runtimes to specify which lab or Kubernetes context should execute the test. Several LAVA labs (such as BayLibre, Collabora, Qualcomm) and Kubernetes contexts have been enabled in KernelCI.
@@ -280,7 +288,7 @@ Tarball service creates/updates a local git repo and uses it to create a kernel 
 ```mermaid
 flowchart TD
   subgraph tarball_service[Tarball Service]
-    update_repo{Update git </br> repo failed?}
+    update_repo{Update git <br /> repo failed?}
     update_repo --> |Yes| fail_checkout[Set 'checkout' node <br />state=done, result=fail]
   end
 ```
@@ -289,7 +297,7 @@ Timeout service is responsible for detecting timed-out nodes and transiting them
 ```mermaid
 flowchart TD
   subgraph timeout_service[Timeout Service]
-    node_timedout{Checkout node </br> timed out?}
+    node_timedout{Checkout node <br /> timed out?}
     node_timedout --> |state=running| running_checkout[Set 'checkout' node <br />state=done, result=incomplete]
     node_timedout --> |state=available/closing| available_checkout[Set 'checkout' node <br />state=done, result=pass]
   end
