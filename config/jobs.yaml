@@ -1619,6 +1619,13 @@ jobs:
       collections: futex
     kcidb_test_suite: kselftest.futex
 
+  kselftest-gpio:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: gpio
+    kcidb_test_suite: kselftest.gpio
+
   kselftest-iommu:
     <<: *kselftest-job
     params:
