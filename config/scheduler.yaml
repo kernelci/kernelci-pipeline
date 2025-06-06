@@ -894,6 +894,15 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
+  - job: kselftest-kvm-pkvm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - imx8mp-evk
+      - imx8mp-verdin-nonwifi-dahlia
+
   - job: kselftest-landlock
     event:
       <<: *node-event-kbuild
