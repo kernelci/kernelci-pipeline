@@ -1492,6 +1492,13 @@ jobs:
       collections: arm64
     kcidb_test_suite: kselftest.arm64
 
+  kselftest-breakpoints:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: breakpoints
+    kcidb_test_suite: kselftest.breakpoints
+
   kselftest-capabilities:
     <<: *kselftest-job
     params:
