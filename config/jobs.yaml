@@ -1662,6 +1662,14 @@ jobs:
       collections: kvm
     kcidb_test_suite: kselftest.kvm
 
+  kselftest-kvm-pkvm:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      extra_kernel_args: "kvm-arm.mode=protected"
+      collections: pkvm
+    kcidb_test_suite: kselftest.pkvm
+
   kselftest-landlock:
     <<: *kselftest-job
     params:
