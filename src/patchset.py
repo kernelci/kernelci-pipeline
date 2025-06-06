@@ -61,8 +61,8 @@ patch -p1 < {patch_file}
 
         hashable_content = b"/n".join(hashable_patch_lines)
         self.log.debug(
-            "Hashable content:\n" +
-            hashable_content.decode("utf-8")
+            "Hashable content:\n"
+            + hashable_content.decode("utf-8")
         )
         patch_hash_digest = hashlib.sha256(hashable_content).hexdigest()
         self.log.debug(f"Patch {patch_name} hash: {patch_hash_digest}")
