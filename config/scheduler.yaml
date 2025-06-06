@@ -762,6 +762,21 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
+  - job: kselftest-breakpoints
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-breakpoints
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+      - bcm2837-rpi-3-b-plus
+      - meson-sm1-s905d3-libretech-cc
+
   - job: kselftest-capabilities
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
