@@ -225,13 +225,13 @@ class KCIDBBridge(Service):
             buffer_data = io.BytesIO(res.content)
             with gzip.open(buffer_data, mode='rt') as fp:
                 data = fp.read()
-                trunc_data = data[-(16*1024):]
+                trunc_data = data[-(16 * 1024):]
                 self._excerptcache[log_url] = trunc_data
                 return trunc_data
         except gzip.BadGzipFile:
             # parse text file such as kunit log file `test_log`
             data = res.content.decode("utf-8")
-            trunc_data = data[-(16*1024):]
+            trunc_data = data[-(16 * 1024):]
             self._excerptcache[log_url] = trunc_data
             return trunc_data
 
