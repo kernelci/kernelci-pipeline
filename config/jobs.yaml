@@ -1476,6 +1476,13 @@ jobs:
         - stable
     kcidb_test_suite: kselftest.aaa
 
+  kselftest-acct:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: acct
+    kcidb_test_suite: kselftest.acct
+
   kselftest-alsa:
     <<: *kselftest-job
     params:
