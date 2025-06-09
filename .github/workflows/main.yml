@@ -51,7 +51,7 @@ jobs:
 
       - name: Run pycodestyle
         run: |
-          pycodestyle --ignore=E501 src/*.py
+          pycodestyle --ignore=E501,W503,W504 src/*.py
 
       - name: Install Python YAML package
         run: |
