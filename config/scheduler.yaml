@@ -241,11 +241,11 @@ scheduler:
       - imx8mm-innocomm-wb15-evk
       - imx8mp-tqma8mpql-mba8mpxl
 
-  - job: baseline-arm64-qualcomm
+  - job: baseline-arm64-foundriesio
     event: *kbuild-gcc-12-arm64-node-event
     runtime:
       type: lava
-      name: lava-qualcomm
+      name: lava-foundriesio
     platforms:
       - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
