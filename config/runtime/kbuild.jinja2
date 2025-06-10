@@ -12,6 +12,8 @@
 from kernelci.kbuild import KBuild
 import os
 import sys
+import subprocess
+
 {%- endblock %}
 
 {%- block python_globals %}
@@ -61,10 +63,11 @@ def main(args):
     build.set_storage_config(STORAGE_CONFIG_YAML)
     build.write_script("build.sh")
     build.serialize("_build.json")
-    r = os.system("bash -e build.sh")
+    result = subprocess.run(["bash", "-e", "build.sh"])
+    exit_code = result.returncode
     build2 = KBuild.from_json("_build.json")
     build2.verify_build()
-    results = build2.submit(r)
+    results = build2.submit(exit_code)
     return results
 
 {% endblock %}
