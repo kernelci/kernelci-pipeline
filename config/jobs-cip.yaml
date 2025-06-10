@@ -21,9 +21,162 @@ _anchors:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-gcc-12-arm64: &kbuild-gcc-12-arm64-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm64-kselftest-kernelci
+    params: &kbuild-gcc-12-arm64-params
+      arch: arm64
+      compiler: gcc-12
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
+
+  kbuild-gcc-12-x86: &kbuild-gcc-12-x86-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
+    params: &kbuild-gcc-12-x86-params
+      arch: x86_64
+      compiler: gcc-12
+      defconfig: x86_64_defconfig
+      fragments:
+        - 'kselftest'
+
 jobs:
   baseline-x86-cip: *baseline-job
 
+# start of CIP x86 configuration
+  kbuild-gcc-12-x86-allnoconfig: &kbuild-gcc-12-x86-allnoconfig-job
+    <<: *kbuild-gcc-12-x86-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      defconfig: allnoconfig
+    rules:
+      tree:
+      - 'kernelci'
+      - 'stable-rc'
+      - 'stable'
+
+  kbuild-gcc-12-x86-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.12.y-cip/x86/cip_qemu_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-x86-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.1.y-cip/x86/cip_qemu_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-x86-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://5.10.y-cip/x86/cip_qemu_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-12-x86-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      defconfig:
+        - x86_64_defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
+
+# start of CIP arm64 configuration
+  kbuild-gcc-12-arm64-allnoconfig: &kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+    rules:
+      tree:
+      - 'arm64'
+      - 'next'
+      - 'sashal-next'
+
+  kbuild-gcc-12-arm64-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.12.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-arm64-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-arm64-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-12-arm64-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+      fragments:
+        - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
+
+# start of CIP arm configuration
   kbuild-gcc-12-arm-allnoconfig: &kbuild-gcc-12-arm-allnoconfig-job
     <<: *kbuild-gcc-12-arm-job
     params:

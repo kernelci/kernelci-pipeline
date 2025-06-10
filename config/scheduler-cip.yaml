@@ -39,3 +39,9 @@ _anchors:
 
     - job: kbuild-gcc-12-arm-cip-allnoconfig
       <<: *build-k8s-all
+
+    - job: kbuild-gcc-12-arm64-cip-allnoconfig
+      <<: *build-k8s-all
+    
+    - job: kbuild-gcc-12-x86-cip-allnoconfig
+      <<: *build-k8s-all
