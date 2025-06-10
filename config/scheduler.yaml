@@ -256,7 +256,7 @@ scheduler:
       name: kbuild-gcc-12-riscv
     runtime: *lava-broonie-runtime
     platforms:
-      - jh7100-starfive-visionfive-v1-3b
+      - jh7110-starfive-visionfive-2-v1-3b
 
   - job: baseline-riscv-clabbe
     event: *kbuild-gcc-12-riscv-node-event
