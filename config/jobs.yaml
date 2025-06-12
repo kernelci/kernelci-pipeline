@@ -60,6 +60,17 @@ _anchors:
       fragments:
         - 'kselftest'
 
+  kvm-unit-tests-job: &kvm-unit-tests-job
+    template: kvm-unit-tests.jinja2
+    kind: job
+    params: &kvm-unit-tests-params
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kvm-unit-tests/20240129.0/{debarch}'
+    kcidb_test_suite: kvm-unit-tests
+    rules:
+      fragments:
+        - '!kselftest'
+
   ltp-job: &ltp-job
     template: ltp.jinja2
     kind: job
@@ -1833,6 +1844,14 @@ jobs:
       tree:
         - '!omap'
         - '!chromiumos'
+
+  kvm-unit-tests:
+    <<: *kvm-unit-tests-job
+
+  kvm-unit-tests-pkvm:
+    <<: *kvm-unit-tests-job
+    params:
+      extra_kernel_args: "kvm-arm.mode=protected"
 
   ltp-cap-bounds:
     <<: *ltp-job
