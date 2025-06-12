@@ -47,6 +47,7 @@ spec:
             - lava-clabbe
             - lava-qualcomm
             - lava-cip
+            - lava-pengutronix
           env:
             - name: KCI_API_TOKEN
               valueFrom:
