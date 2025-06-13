@@ -17,31 +17,31 @@ _anchors:
     state: done
     kind: job
 
-  scheduler:
-    - job: baseline-x86
-      event: &kbuild-gcc-12-x86-node-event
-        <<: *node-event-kbuild
-        name: kbuild-gcc-12-x86
-      runtime: &lava-collabora-runtime
-        type: lava
-        name: lava-collabora
-      platforms: &collabora-x86-platforms
-        - qemu-x86
-        - aaeon-UPN-EHLX4RE-A10-0864
+scheduler:
+  - job: baseline-x86
+    event: &kbuild-gcc-12-x86-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-x86
+    runtime: &lava-collabora-runtime
+      type: lava
+      name: lava-collabora
+    platforms: &collabora-x86-platforms
+      - qemu-x86
+      - aaeon-UPN-EHLX4RE-A10-0864
 
-    - job: baseline-x86-cip
-      event: *kbuild-gcc-12-x86-node-event
-      runtime:
-        type: lava
-        name: lava-cip
-      platforms:
-        - qemu
+  - job: baseline-x86-cip
+    event: *kbuild-gcc-12-x86-node-event
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - qemu
 
-    - job: kbuild-gcc-12-arm-cip-allnoconfig
-      <<: *build-k8s-all
+  - job: kbuild-gcc-12-arm-cip-allnoconfig
+    <<: *build-k8s-all
 
-    - job: kbuild-gcc-12-arm64-cip-allnoconfig
-      <<: *build-k8s-all
-    
-    - job: kbuild-gcc-12-x86-cip-allnoconfig
-      <<: *build-k8s-all
+  - job: kbuild-gcc-12-arm64-cip-allnoconfig
+    <<: *build-k8s-all
+  
+  - job: kbuild-gcc-12-x86-cip-allnoconfig
+    <<: *build-k8s-all
