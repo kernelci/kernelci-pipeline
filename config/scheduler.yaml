@@ -948,7 +948,7 @@ scheduler:
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-kselftest
     runtime: *lava-broonie-runtime
-    platforms:
+    platforms: &lava-broonie-pkvm
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
 
@@ -1217,6 +1217,20 @@ scheduler:
     event: *checkout-event
     runtime:
       name: k8s-gke-eu-west4
+
+  - job: kvm-unit-tests
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-arm64
+
+  - job: kvm-unit-tests-pkvm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-broonie-runtime
+    platforms: *lava-broonie-pkvm
 
   - job: ltp-cap-bounds
     event: *kbuild-gcc-12-arm-node-event
