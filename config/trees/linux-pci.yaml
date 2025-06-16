@@ -10,7 +10,3 @@ build_configs:
   linux-pci_for-linus:
     <<: *linux-pci
     branch: 'for-linus'
-
-  linux-pci_for-kernelci:
-    <<: *linux-pci
-    branch: 'for-kernelci'
