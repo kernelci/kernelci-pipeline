@@ -1077,6 +1077,22 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
+  - job: kselftest-sync
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-sync
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: kselftest-timens
     event:
       <<: *node-event-kbuild
