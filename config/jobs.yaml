@@ -1684,6 +1684,13 @@ jobs:
       collections: landlock
     kcidb_test_suite: kselftest.landlock
 
+  kselftest-lsm:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: lsm
+    kcidb_test_suite: kselftest.lsm
+
   # No hugepages allocation (for architectures without it)
   kselftest-mm:
     <<: *kselftest-job
