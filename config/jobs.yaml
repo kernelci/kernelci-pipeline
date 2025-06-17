@@ -65,7 +65,7 @@ _anchors:
     kind: job
     params: &ltp-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250523.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250617.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
     kcidb_test_suite: ltp
