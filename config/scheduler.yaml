@@ -112,7 +112,7 @@ scheduler:
       - stm32mp157c-lxa-tac-gen1
 
   - job: baseline-arm
-    event:
+    event: &kbuild-gcc-12-armv5-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm-multi_v5_defconfig
     runtime: *lava-broonie-runtime
@@ -1444,6 +1444,12 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-smoketest
+    event: *kbuild-gcc-12-armv5-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - at91sam9g20ek
 
   - job: ltp-smoketest
     event: *kbuild-gcc-12-arm64-node-event
