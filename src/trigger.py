@@ -134,27 +134,23 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, build_configs_list,
-                               timeout, trees):
+    def _iterate_build_configs(self, force, timeout, trees):
         for name, config in self._build_configs.items():
-            if not build_configs_list or name in build_configs_list:
-                self._run_trigger(config, force, timeout, trees)
+            self._run_trigger(config, force, timeout, trees)
 
     def _setup(self, args):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
-            'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
             'timeout': args.timeout,
             'trees': args.trees,
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list, startup_delay, timeout, trees = (
+        poll_period, force, startup_delay, timeout, trees = (
             ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list', 'startup_delay',
-                'timeout', 'trees'
+                'poll_period', 'force', 'startup_delay', 'timeout', 'trees'
             )
         )
 
@@ -163,8 +159,7 @@ class Trigger(Service):
             time.sleep(startup_delay)
 
         while True:
-            self._iterate_build_configs(force, build_configs_list,
-                                        timeout, trees)
+            self._iterate_build_configs(force, timeout, trees)
             if poll_period:
                 self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
@@ -190,10 +185,6 @@ class cmd_run(Command):
             'name': '--force',
             'action': 'store_true',
             'help': "Always create a new checkout node",
-        },
-        {
-            'name': '--build-configs',
-            'help': "List of build configurations to monitor",
         },
         {
             'name': '--name',
