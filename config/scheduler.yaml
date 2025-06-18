@@ -1450,6 +1450,18 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
+  - job: ltp-syscalls
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
+
+  - job: ltp-syscalls
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+
   - job: ltp-syscalls-ipc
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
