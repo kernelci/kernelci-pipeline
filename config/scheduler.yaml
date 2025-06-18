@@ -175,6 +175,7 @@ scheduler:
     platforms: &lava-broonie-arm64
       - bcm2711-rpi-4-b
       - bcm2837-rpi-3-b-plus
+      - cd8180-orion-o6
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
       - juno-uboot

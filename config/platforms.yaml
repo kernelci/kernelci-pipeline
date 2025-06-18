@@ -85,6 +85,11 @@ platforms:
     dtb: dtbs/am335x-boneblack.dtb
     compatible: ['ti,am335x-bone-black', 'ti,am335x-bone', 'ti,am33xx']
 
+  cd8180-orion-o6:
+    <<: *arm64-device
+    mach: cix
+    boot_method: grub
+
   da850-lcdk:
     <<: *arm-device
     mach: davinci
