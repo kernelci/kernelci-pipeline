@@ -1256,11 +1256,23 @@ scheduler:
     platforms:
       - beaglebone-black
 
+  - job: ltp-cap-bounds
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-containers
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-containers
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
 
   - job: ltp-controllers
     event: *kbuild-gcc-12-arm-node-event
@@ -1268,6 +1280,12 @@ scheduler:
     platforms:
       - beaglebone-black
 
+  - job: ltp-controllers
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-crypto
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
@@ -1279,6 +1297,12 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
+
+  - job: ltp-crypto
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
 
   - job: ltp-cve
     event: *kbuild-gcc-12-arm-node-event
@@ -1286,11 +1310,23 @@ scheduler:
     platforms:
       - beaglebone-black
 
+  - job: ltp-cve
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-dio
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
+
+  - job: ltp-dio
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
 
   - job: ltp-fcntl-locktests
     event: *kbuild-gcc-12-arm64-node-event
@@ -1298,17 +1334,35 @@ scheduler:
     platforms:
       - rk3399-gru-kevin
 
+  - job: ltp-fcntl-locktests
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-fs-bind
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
+  - job: ltp-fs-bind
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-fsx
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-fsx
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
 
   - job: ltp-fsx
     event: *kbuild-gcc-12-arm64-node-event
@@ -1322,17 +1376,35 @@ scheduler:
     platforms:
       - beaglebone-black
 
+  - job: ltp-input
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: ltp-ipc
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
+  - job: ltp-ipc
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+
   - job: ltp-pty
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-pty
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
 
   - job: ltp-pty
     event: *kbuild-gcc-12-arm64-node-event
@@ -1345,6 +1417,12 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-sched
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
 
   - job: ltp-smoketest
     event: *kbuild-gcc-12-arm-node-event
@@ -1372,6 +1450,12 @@ scheduler:
 
   - job: ltp-timers
     event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
+  - job: ltp-timers
+    event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1388,6 +1472,12 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: ltp-watchqueue
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - juno-uboot
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-12-arm64-preempt_rt-node-event
