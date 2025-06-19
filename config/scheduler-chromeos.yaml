@@ -131,7 +131,7 @@ _anchors:
 
   test-job-x86-coverage: &test-job-x86-coverage
     <<: *test-job-x86
-    event:
+    event: &test-job-x86-coverage-event
       <<: *test-job-x86-event
       name: kbuild-gcc-12-x86-coverage
 
@@ -286,6 +286,14 @@ scheduler:
     platforms:
       - acer-chromebox-cxi5-brask
       - acer-n20q11-r856ltn-p1s2-nissa
+
+  - job: coverage-report
+    <<: *test-job-x86-coverage
+    event:
+      <<: *test-job-x86-coverage-event
+      state: done
+    runtime:
+      name: k8s-all
 
   - job: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
     <<: *build-k8s-all
