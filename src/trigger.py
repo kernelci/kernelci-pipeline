@@ -26,6 +26,7 @@ class Trigger(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
+        self._trees = configs['trees']
         self._current_user = self._api.user.whoami()
 
     def _log_revision(self, message, build_config, head_commit):
@@ -134,9 +135,11 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, timeout, trees):
-        for name, config in self._build_configs.items():
-            self._run_trigger(config, force, timeout, trees)
+    def _iterate_trees(self, force, timeout, trees):
+        for tree in self._trees.keys():
+            build_configs = {name: config for name, config in self._build_configs.items() if config.tree.name == tree}
+            for name, config in build_configs.items():
+                self._run_trigger(config, force, timeout, trees)
 
     def _setup(self, args):
         return {
@@ -159,7 +162,7 @@ class Trigger(Service):
             time.sleep(startup_delay)
 
         while True:
-            self._iterate_build_configs(force, timeout, trees)
+            self._iterate_trees(force, timeout, trees)
             if poll_period:
                 self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
