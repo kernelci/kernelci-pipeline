@@ -943,7 +943,13 @@ scheduler:
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64-kselftest
     runtime: *lava-broonie-runtime
-    platforms: *lava-broonie-arm64
+    platforms: &lava-broonie-kvm
+      - bcm2711-rpi-4-b
+      - bcm2837-rpi-3-b-plus
+      - imx8mp-evk
+      - imx8mp-verdin-nonwifi-dahlia
+      - meson-sm1-s905d3-libretech-cc
+      - sun50i-a64-pine64-plus
 
   - job: kselftest-kvm-pkvm
     event:
@@ -1267,7 +1273,7 @@ scheduler:
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64
     runtime: *lava-broonie-runtime
-    platforms: *lava-broonie-arm64
+    platforms: *lava-broonie-kvm
 
   - job: kvm-unit-tests-pkvm
     event:
