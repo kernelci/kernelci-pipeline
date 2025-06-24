@@ -87,6 +87,7 @@ services:
       - 'lava-cip'
       - 'lava-pengutronix'
       - 'lava-kontron'
+      - 'lava-foundriesio'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
