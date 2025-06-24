@@ -1720,6 +1720,15 @@ jobs:
       collections: mm
     kcidb_test_suite: kselftest.mm
 
+  # hugepages allocation suitable for machines with 8G and more of memory
+  kselftest-mm-8g:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      extra_kernel_args: "secretmem.enable hugepagesz=1G hugepages=0:4 hugepagesz=32M hugepages=0:4 default_hugepagesz=2M hugepages=0:128 hugepagesz=64K hugepages=0:4 kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
   kselftest-mqueue:
     <<: *kselftest-job
     params:
