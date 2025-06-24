@@ -1269,16 +1269,12 @@ scheduler:
       name: k8s-gke-eu-west4
 
   - job: kvm-unit-tests
-    event:
-      <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+    event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-kvm
 
   - job: kvm-unit-tests-pkvm
-    event:
-      <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+    event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-pkvm
 
