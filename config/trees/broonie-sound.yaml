@@ -1,0 +1,17 @@
+_anchors:
+  broonie: &broonie
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+build_configs:
+  broonie-sound:
+    <<: *broonie
+    tree: broonie-sound
+    branch: 'for-next'
+
+  broonie-sound-fixes:
+    <<: *broonie
+    tree: broonie-sound
+    branch: 'for-linus'

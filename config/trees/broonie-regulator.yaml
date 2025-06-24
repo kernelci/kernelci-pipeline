@@ -1,0 +1,17 @@
+_anchors:
+  broonie: &broonie
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+build_configs:
+  broonie-regulator:
+    <<: *broonie
+    tree: broonie-regulator
+    branch: 'for-next'
+
+  broonie-regulator-fixes:
+    <<: *broonie
+    tree: broonie-regulator
+    branch: 'for-linus'
