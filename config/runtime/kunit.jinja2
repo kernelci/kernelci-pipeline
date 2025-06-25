@@ -30,6 +30,7 @@ class Job(BaseJob):
     def _parse_results(self, group):
         node = {
             'name': group['name'],
+            'state': 'done',
         }
         child_nodes = []
         for test_case in group.get('test_cases', []):
@@ -37,6 +38,7 @@ class Job(BaseJob):
                 'node': {
                     'name': test_case['name'],
                     'result': RESULT_MAP[test_case['status']],
+                    'state': 'done',
                     'kind': 'test'
                 },
                 'child_nodes': [],
@@ -131,6 +133,7 @@ cd {src_path}
         results = {
             'node': {
                 'result': step_results['exec'][0] or 'fail',
+                'state': 'done',
                 'artifacts': artifacts,
                 'data': {'arch': ARCH if ARCH else 'um'}
             },
@@ -140,6 +143,7 @@ cd {src_path}
                         'kind': 'job' if child_nodes else 'test' ,
                         'name': name,
                         'result': result,
+                        'state': 'done',
                     },
                     'child_nodes': child_nodes,
                 } for name, (result, child_nodes) in step_results.items()
