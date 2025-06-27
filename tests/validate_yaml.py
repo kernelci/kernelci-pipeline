@@ -193,14 +193,119 @@ def dumper(o_filename, merged_data):
         f.write(raw)
     print(f"Dumped merged data to {o_filename}")
 
+def validate_rules(node, rules):
+    """
+    Validate rules for a given node
+    """
+    import kernelci.api.helper
+    helper = kernelci.api.helper.APIHelper(None)
+    if helper.should_create_node(rules, node):
+        #print(f"Node {node} matches rules: {rules}")
+        return True
+    else:
+        #print(f"Node {node} does not match rules: {rules}")
+        return False
 
-def help():
-    print("Usage: python validate_yaml.py -d <directory> -o <output_file>")
-    print("Options:")
-    print("-d, --dir       Directory to validate yaml files (default: config)")
-    print("-o, --output    Output file to dump merged yaml file without anchors")
-    print("-h, --help      Show this help message and exit")
-    sys.exit(1)
+def compare_builds(merged_data):
+    """
+    Compare kbuilds and print builds with identical params
+    """
+    r = ""
+    jobs = merged_data.get("jobs")
+    kbuilds_list = []
+    for job in jobs:
+        if jobs[job].get("kind") == "kbuild":
+            kbuilds_list.append(job)
+
+    kbuilds_dict = {}
+    import json
+    for kbuild in kbuilds_list:
+        params = jobs[kbuild].get("params", {})
+        # Convert params to a hashable type by serializing to JSON
+        key = json.dumps(params, sort_keys=True)
+        if key not in kbuilds_dict:
+            kbuilds_dict[key] = []
+        kbuilds_dict[key].append(kbuild)
+
+    # print builds with identical params
+    for params, kbuild_list in kbuilds_dict.items():
+        if len(kbuild_list) > 1:
+            r += f"Params {params}: {kbuild_list},"
+
+    return r
+
+
+def walker(merged_data):
+    """
+    We will simulate checkout event on each tree/branch
+    and try to build list of builds/tests it will run
+    """
+    checkouts = []
+    build_configs = merged_data.get("build_configs", {})
+    for bcfg in build_configs:
+        data = build_configs[bcfg]
+        if not data.get("architectures"):
+            data["architectures"] = None
+        checkouts.append(data)
+
+    # sort checkouts by tree and branch
+    checkouts.sort(key=lambda x: (x.get("tree", ""), x.get("branch", "")))
+
+    # iterate over checkouts
+    for checkout in checkouts:
+        checkout["kbuilds"] = []
+        # iterate over events (jobs)
+        jobs = merged_data.get("scheduler", [])
+        for job in jobs:
+            kind = job.get("event", {}).get("kind")
+            if kind != "checkout":
+                continue
+            job_name = job.get("job")
+            job_kind = merged_data.get("jobs", {}).get(job_name, {}).get("kind")
+            if job_kind == "kbuild":
+                # check "params" "arch"
+                job_params = merged_data.get("jobs", {}).get(job_name, {}).get("params", {})
+                arch = job_params.get("arch")
+                if checkout.get("architectures") and arch not in checkout.get("architectures"):
+                    continue
+            scheduler_rules = job.get("rules", [])
+            job = merged_data.get("jobs", {}).get(job_name, {})
+            job_rules = job.get("rules", [])
+            node = {
+                "kind": "checkout",
+                "data": {
+                    "kernel_revision": {
+                        "tree": checkout.get("tree"),
+                        "branch": checkout.get("branch"),
+                        "version": {
+                            "version": 6,
+                            "patchlevel": 16,
+                            "extra": "-rc3-973-gb7d1bbd97f77"
+                        },
+                    }
+                },
+            }
+            if not validate_rules(node, job_rules):
+                continue
+            if not validate_rules(node, scheduler_rules):
+                continue
+            checkout["kbuilds"].append(job_name)
+        checkout["kbuilds_identical"] = compare_builds(merged_data)
+
+    # print the results
+    for checkout in checkouts:
+        print(f"Checkout: {checkout.get('tree')}:{checkout.get('branch')}")
+        if checkout.get("kbuilds_identical"):
+            print(f"  Identical builds: {checkout['kbuilds_identical']}")
+        if checkout.get("kbuilds"):
+            num_builds = len(checkout["kbuilds"])
+            print(f"  Number of builds: {num_builds}")
+            print("  Builds:")
+            for build in checkout["kbuilds"]:
+                print(f"    - {build}")
+        else:
+            print("  No builds found for this checkout")
+    return
 
 
 if __name__ == "__main__":
@@ -215,9 +320,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "-o", "--output", type=str, help="Output file to dump yaml files"
     )
+    parser.add_argument(
+        "-w",
+        "--walker",
+        action="store_true",
+        help="Simulate checkout event on each tree/branch",
+    )
     args = parser.parse_args()
     merged_data = merge_files(args.dir)
     if args.output:
         dumper(args.output, merged_data)
+
+    if args.walker:
+        walker(merged_data)
+        sys.exit(0)
 
     validate_yaml(merged_data)
