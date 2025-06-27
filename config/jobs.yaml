@@ -177,6 +177,7 @@ jobs:
         - 'mainline'
         - 'stable-rc'
         - 'stable'
+        - 'sashal-next'
 
   kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
     <<: *kbuild-clang-17-arm-job
@@ -186,6 +187,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-clang-17-arm-android-allmodconfig:
     <<: *kbuild-clang-17-arm-android-job
@@ -215,6 +217,7 @@ jobs:
     rules:
       tree:
       - 'omap'
+      - 'sashal-next'
 
   kbuild-clang-17-arm-android-vexpress_defconfig:
     <<: *kbuild-clang-17-arm-android-job
@@ -234,6 +237,7 @@ jobs:
         - 'mainline'
         - 'stable-rc'
         - 'stable'
+        - 'sashal-next'
 
   kbuild-clang-17-arm64-allnoconfig:
     <<: *kbuild-clang-17-arm64-job
@@ -245,6 +249,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'sashal-next'
 
   kbuild-clang-17-arm64-android: &kbuild-clang-17-arm64-android-job
     <<: *kbuild-clang-17-arm64-job
@@ -254,6 +259,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-clang-17-arm64-android-allmodconfig:
     <<: *kbuild-clang-17-arm64-android-job
@@ -299,6 +305,7 @@ jobs:
         - 'next'
         - 'stable'
         - 'stable-rc'
+        - 'sashal-next'
       fragments:
         - kselftest
 
@@ -381,6 +388,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
     <<: *kbuild-job
@@ -420,6 +428,7 @@ jobs:
         patchlevel: 19
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-clang-17-riscv-smp:
     <<: *kbuild-clang-17-riscv-job
@@ -430,6 +439,7 @@ jobs:
     rules:
       tree:
       - 'riscv'
+      - 'sashal-next'
 
   kbuild-clang-17-x86:
     <<: *kbuild-clang-17-x86-job
@@ -445,6 +455,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-clang-17-x86-allmodconfig:
     <<: *kbuild-clang-17-x86-job
@@ -458,6 +469,7 @@ jobs:
       - 'mainline'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-clang-17-x86-allnoconfig:
     <<: *kbuild-clang-17-x86-job
@@ -539,6 +551,7 @@ jobs:
         patchlevel: 10
       tree:
         - 'mainline'
+        - 'sashal-next'
 
   kbuild-gcc-12-arc-mainline-allnoconfig:
     <<: *kbuild-gcc-12-arc-mainline-job
@@ -606,6 +619,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-android-allmodconfig:
     <<: *kbuild-gcc-12-arm-android-job
@@ -635,6 +649,7 @@ jobs:
     rules:
       tree:
       - 'omap'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-android-vexpress_defconfig:
     <<: *kbuild-gcc-12-arm-android-job
@@ -657,6 +672,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-kselftest:
     <<: *kbuild-gcc-12-arm-job
@@ -678,6 +694,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'sashal-next'
 
   kbuild-gcc-12-arm-mainline-allnoconfig:
     <<: *kbuild-gcc-12-arm-mainline-job
@@ -738,6 +755,7 @@ jobs:
       tree:
       - 'lee-mfd'
 
+
   kbuild-gcc-12-arm-multi_v5_defconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
@@ -748,6 +766,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-multi_v7_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -761,6 +780,7 @@ jobs:
       - 'omap'
       - 'stable'
       - 'stable-rc'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-omap2plus_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -770,6 +790,7 @@ jobs:
     rules:
       tree:
       - 'omap'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-preempt_rt:
     <<: *kbuild-gcc-12-arm-job
@@ -783,6 +804,7 @@ jobs:
       - 'stable-rt'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm-vexpress_defconfig:
     <<: *kbuild-gcc-12-arm-job
@@ -794,6 +816,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64: *kbuild-gcc-12-arm64-job
 
@@ -830,6 +853,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64-android-allmodconfig:
     <<: *kbuild-gcc-12-arm64-android-job
@@ -924,6 +948,7 @@ jobs:
       tree:
       - 'chrome-platform'
       - 'mediatek'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64-chromebook-kcidebug:
     <<: *kbuild-gcc-12-arm64-job
@@ -972,6 +997,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'sashal-next'
 
   kbuild-gcc-12-arm64-mainline-allnoconfig:
     <<: *kbuild-gcc-12-arm64-mainline-job
@@ -1014,6 +1040,7 @@ jobs:
       - 'stable-rt'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-arm64-preempt_rt_chromebook:
     <<: *kbuild-gcc-12-arm64-job
@@ -1028,6 +1055,7 @@ jobs:
       - 'stable-rt'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-i386: &kbuild-gcc-12-i386-job
     <<: *kbuild-job
@@ -1051,6 +1079,7 @@ jobs:
       - 'mainline'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-i386-allnoconfig:
     <<: *kbuild-gcc-12-i386-job
@@ -1076,6 +1105,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   # Default config and build only job
   kbuild-gcc-12-i386-build-only:
@@ -1127,6 +1157,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-mips-32r2el_defconfig: &kbuild-gcc-12-mips-job
     <<: *kbuild-job
@@ -1172,6 +1203,7 @@ jobs:
     rules:
       tree:
         - 'mainline'
+        - 'sashal-next'
 
   kbuild-gcc-12-mips-mainline-allnoconfig:
     <<: *kbuild-gcc-12-mips-mainline-job
@@ -1247,6 +1279,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-riscv-smp:
     <<: *kbuild-gcc-12-riscv-job
@@ -1257,6 +1290,7 @@ jobs:
     rules:
       tree:
       - 'riscv'
+      - 'sashal-next'
 
   kbuild-gcc-12-um:
     <<: *kbuild-job
@@ -1269,6 +1303,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-gcc-12-x86:
     <<: *kbuild-gcc-12-x86-job
@@ -1293,6 +1328,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-x86-android-allmodconfig: &kbuild-gcc-12-x86-android-allmodconfig-job
     <<: *kbuild-gcc-12-x86-job
@@ -1305,6 +1341,7 @@ jobs:
     rules:
       tree:
       - 'android'
+      - 'sashal-next'
 
   kbuild-gcc-12-x86-android-allnoconfig:
     <<: *kbuild-gcc-12-x86-android-allmodconfig-job
@@ -1444,6 +1481,7 @@ jobs:
       - 'stable-rt'
       - 'mainline'
       - 'next'
+      - 'sashal-next'
 
   kbuild-gcc-12-x86-tinyconfig:
     <<: *kbuild-gcc-12-x86-job
@@ -1455,6 +1493,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   blktests-ddp-x86:
     template: blktests-ddp.jinja2
