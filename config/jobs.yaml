@@ -79,6 +79,7 @@ _anchors:
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250618.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
+      workers: max
     kcidb_test_suite: ltp
     rules:
       fragments:
