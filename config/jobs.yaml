@@ -65,7 +65,7 @@ _anchors:
     kind: job
     params: &kvm-unit-tests-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kvm-unit-tests/20240129.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kvm-unit-tests/20250624.0/{debarch}'
     kcidb_test_suite: kvm-unit-tests
     rules:
       fragments:
