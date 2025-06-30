@@ -57,6 +57,7 @@ jobs:
       - 'kernelci'
       - 'stable-rc'
       - 'stable'
+      - 'sashal-next'
 
   kbuild-gcc-12-x86-cip-allnoconfig:
     <<: *kbuild-gcc-12-x86-allnoconfig-job
