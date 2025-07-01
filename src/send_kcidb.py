@@ -271,18 +271,20 @@ class KCIDBBridge(Service):
         result = node.get('result')
         error_code = node['data'].get('error_code')
 
-        # Skip timed-out build node submission
-        if result == 'incomplete' and error_code == 'node_timeout':
-            return []
-
         status_map = {
             'pass': 'PASS',
             'fail': 'FAIL',
             'incomplete': 'ERROR',
         }
-        status = status_map.get(result) if result else None
-        if error_code:
-            status = 'ERROR'
+
+        # Submit timed-out build nodes with 'MISS' status
+        if result == 'incomplete' and error_code == 'node_timeout':
+            status = 'MISS'
+
+        else:
+            status = status_map.get(result) if result else None
+            if error_code:
+                status = 'ERROR'
 
         parsed_build_node = {
             'checkout_id': f"{origin}:{node['parent']}",
