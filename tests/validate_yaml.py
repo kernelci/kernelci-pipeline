@@ -11,6 +11,7 @@ import argparse
 
 VERBOSE = False
 
+
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
         return True
@@ -81,7 +82,9 @@ def validate_scheduler_jobs(data):
         # scheduler entry must have defined in event: channel, (state or result), kind
         event = entry.get("event")
         if not event:
-            raise yaml.YAMLError(f"Event not found for scheduler entry: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"Event not found for scheduler entry: {jobname}: {entry}"
+            )
         if not event.get("channel"):
             raise yaml.YAMLError(f"Channel not found for event: {jobname}: {entry}")
         if not event.get("state"):
@@ -194,18 +197,21 @@ def dumper(o_filename, merged_data):
         f.write(raw)
     print(f"Dumped merged data to {o_filename}")
 
+
 def validate_rules(node, rules):
     """
     Validate rules for a given node
     """
     import kernelci.api.helper
+
     helper = kernelci.api.helper.APIHelper(None)
     if helper.should_create_node(rules, node):
-        #print(f"Node {node} matches rules: {rules}")
+        # print(f"Node {node} matches rules: {rules}")
         return True
     else:
-        #print(f"Node {node} does not match rules: {rules}")
+        # print(f"Node {node} does not match rules: {rules}")
         return False
+
 
 def compare_builds(merged_data):
     """
@@ -220,6 +226,7 @@ def compare_builds(merged_data):
 
     kbuilds_dict = {}
     import json
+
     for kbuild in kbuilds_list:
         params = jobs[kbuild].get("params", {})
         # Convert params to a hashable type by serializing to JSON
@@ -256,7 +263,9 @@ def walker(merged_data):
     for checkout in checkouts:
         checkout["kbuilds"] = []
         if VERBOSE:
-            print(f"Processing checkout: {checkout.get('tree')}:{checkout.get('branch')}")
+            print(
+                f"Processing checkout: {checkout.get('tree')}:{checkout.get('branch')}"
+            )
         # iterate over events (jobs)
         jobs = merged_data.get("scheduler", [])
         for job in jobs:
@@ -267,11 +276,17 @@ def walker(merged_data):
             job_kind = merged_data.get("jobs", {}).get(job_name, {}).get("kind")
             if job_kind == "kbuild":
                 # check "params" "arch"
-                job_params = merged_data.get("jobs", {}).get(job_name, {}).get("params", {})
+                job_params = (
+                    merged_data.get("jobs", {}).get(job_name, {}).get("params", {})
+                )
                 arch = job_params.get("arch")
-                if checkout.get("architectures") and arch not in checkout.get("architectures"):
+                if checkout.get("architectures") and arch not in checkout.get(
+                    "architectures"
+                ):
                     if VERBOSE:
-                        print(f"Skipping job: {job_name} due to architecture restrictions")
+                        print(
+                            f"Skipping job: {job_name} due to architecture restrictions"
+                        )
                     continue
             scheduler_rules = job.get("rules", [])
             job = merged_data.get("jobs", {}).get(job_name, {})
@@ -285,7 +300,7 @@ def walker(merged_data):
                         "version": {
                             "version": 6,
                             "patchlevel": 16,
-                            "extra": "-rc3-973-gb7d1bbd97f77"
+                            "extra": "-rc3-973-gb7d1bbd97f77",
                         },
                     }
                 },
@@ -297,7 +312,9 @@ def walker(merged_data):
                     print(f"Skipping job: {job_name} due to job rules")
                 continue
             if VERBOSE:
-                print(f"Validating scheduler entry for job: {job_name} with scheduler rules")
+                print(
+                    f"Validating scheduler entry for job: {job_name} with scheduler rules"
+                )
             if not validate_rules(node, scheduler_rules):
                 if VERBOSE:
                     print(f"Skipping job: {job_name} due to scheduler rules")
