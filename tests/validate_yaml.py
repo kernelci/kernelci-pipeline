@@ -201,13 +201,28 @@ def dumper(o_filename, merged_data):
     print(f"Dumped merged data to {o_filename}")
 
 
+def get_api_helper():
+    """
+    Lazy load the kernelci API helper
+    This is done to avoid heavy dependency in other functions
+    """
+    try:
+        import kernelci.api.helper
+
+        return kernelci.api.helper.APIHelper(None)
+    except ImportError:
+        print("kernelci.api.helper not found, forecasting not available.")
+        return None
+
+
 def validate_rules(node, rules):
     """
     Validate rules for a given node
     """
-    import kernelci.api.helper
+    helper = get_api_helper()
+    if helper is None:
+        raise ValueError("API helper is not available, please install kernelci module")
 
-    helper = kernelci.api.helper.APIHelper(None)
     if helper.should_create_node(rules, node):
         # print(f"Node {node} matches rules: {rules}")
         return True
