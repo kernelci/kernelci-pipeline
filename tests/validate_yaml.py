@@ -321,7 +321,8 @@ def walker(merged_data):
     return
 
 
-if __name__ == "__main__":
+def main():
+    global VERBOSE
     parser = argparse.ArgumentParser(description="Validate and dump yaml files")
     parser.add_argument(
         "-d",
@@ -358,3 +359,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     validate_yaml(merged_data)
+
+
+if __name__ == "__main__":
+    main()
