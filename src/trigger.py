@@ -9,6 +9,7 @@
 import copy
 from datetime import datetime, timedelta
 import sys
+import tempfile
 import time
 
 import kernelci.build
@@ -136,8 +137,28 @@ class Trigger(Service):
             self.traceback(ex)
 
     def _iterate_trees(self, force, timeout, trees):
-        for tree in self._trees.keys():
-            build_configs = {name: config for name, config in self._build_configs.items() if config.tree.name == tree}
+        for tree in self._trees.values():
+            build_configs = {name: config for name, config in self._build_configs.items() if config.tree.name == tree.name}
+            if not build_configs:
+                try:
+                    # Remove hardcoded remote build config paths
+                    if tree.url.startswith("https://git.kernel.org"):
+                        config_url = f"{tree.url}/plain/.kernelci.yaml?h=kernelci"
+                    elif tree.url.startswith("https://github.com"):
+                        config_url = f"https://raw.githubusercontent.com/{tree}/linux/refs/heads/kernelci/.kernelci.yaml"
+                    else:
+                        raise Exception("Hosting service not supported")
+                    remote_config = requests.get(config_url)
+                except Exception as ex:
+                    self.log.error(f"Failed to get remote build config for {tree.name}, ignoring")
+                    self.traceback(ex)
+                    continue
+                with tempfile.NamedTemporaryFile(suffix='.yaml', delete_on_close=False) as tmp:
+                    tmp.write(remote_config.text.encode())
+                    tmp.close()
+                    # Remove hardcoded trees config path
+                    tmp_configs = kernelci.config.load(['config/trees.yaml', tmp.name])
+                    build_configs = tmp_configs['build_configs']
             for name, config in build_configs.items():
                 self._run_trigger(config, force, timeout, trees)
 
