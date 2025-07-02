@@ -9,6 +9,7 @@ import yaml
 import sys
 import argparse
 
+VERBOSE = False
 
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
@@ -254,6 +255,8 @@ def walker(merged_data):
     # iterate over checkouts
     for checkout in checkouts:
         checkout["kbuilds"] = []
+        if VERBOSE:
+            print(f"Processing checkout: {checkout.get('tree')}:{checkout.get('branch')}")
         # iterate over events (jobs)
         jobs = merged_data.get("scheduler", [])
         for job in jobs:
@@ -267,6 +270,8 @@ def walker(merged_data):
                 job_params = merged_data.get("jobs", {}).get(job_name, {}).get("params", {})
                 arch = job_params.get("arch")
                 if checkout.get("architectures") and arch not in checkout.get("architectures"):
+                    if VERBOSE:
+                        print(f"Skipping job: {job_name} due to architecture restrictions")
                     continue
             scheduler_rules = job.get("rules", [])
             job = merged_data.get("jobs", {}).get(job_name, {})
@@ -285,9 +290,17 @@ def walker(merged_data):
                     }
                 },
             }
+            if VERBOSE:
+                print(f"Validating job: {job_name} with job rules")
             if not validate_rules(node, job_rules):
+                if VERBOSE:
+                    print(f"Skipping job: {job_name} due to job rules")
                 continue
+            if VERBOSE:
+                print(f"Validating scheduler entry for job: {job_name} with scheduler rules")
             if not validate_rules(node, scheduler_rules):
+                if VERBOSE:
+                    print(f"Skipping job: {job_name} due to scheduler rules")
                 continue
             checkout["kbuilds"].append(job_name)
         checkout["kbuilds_identical"] = compare_builds(merged_data)
@@ -326,7 +339,16 @@ if __name__ == "__main__":
         action="store_true",
         help="Simulate checkout event on each tree/branch",
     )
+
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
+    )
     args = parser.parse_args()
+    if args.verbose:
+        VERBOSE = True
     merged_data = merge_files(args.dir)
     if args.output:
         dumper(args.output, merged_data)
