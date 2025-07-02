@@ -9,6 +9,7 @@ import yaml
 import sys
 import argparse
 import re
+import json
 
 VERBOSE = False
 
@@ -243,7 +244,6 @@ def compare_builds(merged_data):
             kbuilds_list.append(job)
 
     kbuilds_dict = {}
-    import json
 
     for kbuild in kbuilds_list:
         params = jobs[kbuild].get("params", {})
