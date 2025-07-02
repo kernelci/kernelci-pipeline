@@ -8,6 +8,7 @@ import os
 import yaml
 import sys
 import argparse
+import re
 
 VERBOSE = False
 
@@ -171,6 +172,8 @@ def merge_files(dir="config"):
         with open(file, "r") as stream:
             try:
                 data = yaml.safe_load(stream)
+                # Check for duplicate jobs in this file before merging
+                validate_duplicate_jobs(data, file)
                 merged_data = recursive_merge(merged_data, data)
             except yaml.YAMLError as exc:
                 print(f"Error in {file}: {exc}")
@@ -336,6 +339,57 @@ def walker(merged_data):
         else:
             print("  No builds found for this checkout")
     return
+
+
+def validate_duplicate_jobs(data, filename):
+    """
+    Check for duplicate job keys in a single YAML file
+    This catches cases where the same job name appears multiple times
+    """
+    if "jobs" not in data:
+        return
+
+    # Parse the file as raw text to detect duplicate keys
+    with open(filename, "r") as f:
+        content = f.read()
+
+    # Look for job definitions in the jobs section
+    # Find the jobs section
+    jobs_match = re.search(r"^jobs:\s*$", content, re.MULTILINE)
+    if not jobs_match:
+        return
+
+    # Extract everything after the jobs: line until next top-level key or end of file
+    jobs_start = jobs_match.end()
+    jobs_section = content[jobs_start:]
+
+    # Find the end of jobs section (next top-level key or end of file)
+    next_section_match = re.search(r"^\S:", jobs_section, re.MULTILINE)
+    if next_section_match:
+        jobs_section = jobs_section[: next_section_match.start()]
+
+    # Find all job names (lines that start with 2 spaces and contain a colon)
+    job_pattern = r"^\s{2}([a-zA-Z0-9_\-]+):"
+    job_matches = re.findall(job_pattern, jobs_section, re.MULTILINE)
+    if VERBOSE:
+        print(f"Found {len(job_matches)} job definitions in {filename}")
+
+    # Count occurrences of each job name
+    job_counts = {}
+    for job_name in job_matches:
+        job_counts[job_name] = job_counts.get(job_name, 0) + 1
+
+    # Report duplicates
+    duplicates_found = False
+    for job_name, count in job_counts.items():
+        if count > 1:
+            print(
+                f"ERROR: Duplicate job '{job_name}' found {count} times in {filename}"
+            )
+            duplicates_found = True
+
+    if duplicates_found:
+        raise yaml.YAMLError(f"Duplicate job definitions found in {filename}")
 
 
 def main():
