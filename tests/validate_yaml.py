@@ -81,7 +81,9 @@ def validate_scheduler_jobs(data):
         # scheduler entry must have defined in event: channel, (state or result), kind
         event = entry.get("event")
         if not event:
-            raise yaml.YAMLError(f"Event not found for scheduler entry: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"Event not found for scheduler entry: {jobname}: {entry}"
+            )
         if not event.get("channel"):
             raise yaml.YAMLError(f"Channel not found for event: {jobname}: {entry}")
         if not event.get("state"):
@@ -156,7 +158,6 @@ def validate_unused_trees(data):
     for tree in trees.keys():
         if tree not in build_trees:
             print(f"Warning: Tree {tree} is not used in build_configs")
-
 
 
 def validate_duplicate_jobs(data, filename):
@@ -273,6 +274,7 @@ def main():
         dumper(args.output, merged_data)
 
     validate_yaml(merged_data)
+
 
 if __name__ == "__main__":
     main()
