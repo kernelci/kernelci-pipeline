@@ -203,7 +203,7 @@ def help():
     sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Validate and dump yaml files")
     parser.add_argument(
         "-d",
@@ -221,3 +221,7 @@ if __name__ == "__main__":
         dumper(args.output, merged_data)
 
     validate_yaml(merged_data)
+
+if __name__ == "__main__":
+    main()
+    
