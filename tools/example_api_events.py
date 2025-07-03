@@ -13,7 +13,7 @@ import time
 
 
 # This is staging server: "https://staging.kernelci.org:9000/latest"
-# For production use "https://kernelci-api.westus3.cloudapp.azure.com/latest/"
+# For production use "https://api.kernelci.org/latest/"
 BASE_URI = "https://staging.kernelci.org:9000/latest"
 EVENTS_PATH = "/events"
 
