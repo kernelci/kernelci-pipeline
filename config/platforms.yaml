@@ -425,6 +425,13 @@ platforms:
     dtb: dtbs/rockchip/rk3588-rock-5b.dtb
     compatible: ['radxa,rock-5b', 'rockchip,rk3588']
 
+  x1e80100:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/x1e80100-crd.dtb
+    compatible: ['qcom,x1e80100-crd', 'qcom,x1e80100']
+
   shell:
 
   stm32mp157a-dhcor-avenger96:
