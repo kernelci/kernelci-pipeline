@@ -88,6 +88,7 @@ cd {src_path}
         return artifacts
 
     def _run(self, src_path):
+        src_path = self._get_kernel_source()
         job_log = 'job.txt'
         kunit_json = 'kunit.json'
         job_log_path, kunit_json_path = (
