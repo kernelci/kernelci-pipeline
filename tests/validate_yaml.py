@@ -6,6 +6,7 @@ Validate all yaml files in the config/ directory
 import glob
 import os
 import yaml
+import re
 import sys
 import argparse
 
@@ -80,7 +81,9 @@ def validate_scheduler_jobs(data):
         # scheduler entry must have defined in event: channel, (state or result), kind
         event = entry.get("event")
         if not event:
-            raise yaml.YAMLError(f"Event not found for scheduler entry: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"Event not found for scheduler entry: {jobname}: {entry}"
+            )
         if not event.get("channel"):
             raise yaml.YAMLError(f"Channel not found for event: {jobname}: {entry}")
         if not event.get("state"):
@@ -157,6 +160,55 @@ def validate_unused_trees(data):
             print(f"Warning: Tree {tree} is not used in build_configs")
 
 
+def validate_duplicate_jobs(data, filename):
+    """
+    Check for duplicate job keys in a single YAML file
+    This catches cases where the same job name appears multiple times
+    """
+    if "jobs" not in data:
+        return
+
+    # Parse the file as raw text to detect duplicate keys
+    with open(filename, "r") as f:
+        content = f.read()
+
+    # Look for job definitions in the jobs section
+    # Find the jobs section
+    jobs_match = re.search(r"^jobs:\s*$", content, re.MULTILINE)
+    if not jobs_match:
+        return
+
+    # Extract everything after the jobs: line until next top-level key or end of file
+    jobs_start = jobs_match.end()
+    jobs_section = content[jobs_start:]
+
+    # Find the end of jobs section (next top-level key or end of file)
+    next_section_match = re.search(r"^\S:", jobs_section, re.MULTILINE)
+    if next_section_match:
+        jobs_section = jobs_section[: next_section_match.start()]
+
+    # Find all job names (lines that start with 2 spaces and contain a colon)
+    job_pattern = r"^\s{2}([a-zA-Z0-9_\-]+):"
+    job_matches = re.findall(job_pattern, jobs_section, re.MULTILINE)
+
+    # Count occurrences of each job name
+    job_counts = {}
+    for job_name in job_matches:
+        job_counts[job_name] = job_counts.get(job_name, 0) + 1
+
+    # Report duplicates
+    duplicates_found = False
+    for job_name, count in job_counts.items():
+        if count > 1:
+            print(
+                f"ERROR: Duplicate job '{job_name}' found {count} times in {filename}"
+            )
+            duplicates_found = True
+
+    if duplicates_found:
+        raise yaml.YAMLError(f"Duplicate job definitions found in {filename}")
+
+
 def merge_files(dir="config"):
     """
     Merge all yaml files in the config/ directory
@@ -167,6 +219,7 @@ def merge_files(dir="config"):
         with open(file, "r") as stream:
             try:
                 data = yaml.safe_load(stream)
+                validate_duplicate_jobs(data, file)
                 merged_data = recursive_merge(merged_data, data)
             except yaml.YAMLError as exc:
                 print(f"Error in {file}: {exc}")
@@ -203,7 +256,7 @@ def help():
     sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Validate and dump yaml files")
     parser.add_argument(
         "-d",
@@ -221,3 +274,7 @@ if __name__ == "__main__":
         dumper(args.output, merged_data)
 
     validate_yaml(merged_data)
+
+
+if __name__ == "__main__":
+    main()
