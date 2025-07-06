@@ -179,6 +179,7 @@ scheduler:
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
       - juno-uboot
+      - k3-am625-verdin-wifi-mallow
       - meson-g12b-a311d-libretech-cc
       - meson-gxl-s905x-libretech-cc
       - meson-sm1-s905d3-libretech-cc
@@ -948,6 +949,7 @@ scheduler:
       - bcm2837-rpi-3-b-plus
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
+      - k3-am625-verdin-wifi-mallow
       - meson-sm1-s905d3-libretech-cc
       - sun50i-a64-pine64-plus
 
@@ -959,6 +961,7 @@ scheduler:
     platforms: &lava-broonie-pkvm
       - imx8mp-evk
       - imx8mp-verdin-nonwifi-dahlia
+      - k3-am625-verdin-wifi-mallow
 
   - job: kselftest-landlock
     event:

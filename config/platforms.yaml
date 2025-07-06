@@ -183,6 +183,13 @@ platforms:
     dtb: dtbs/arm/juno.dtb
     compatible: ['arm,juno', 'arm,vexpress']
 
+  k3-am625-verdin-wifi-mallow:
+    <<: *arm64-device
+    mach: ti
+    dtb: dtbs/ti/k3-am625-verdin-wifi-mallow.dtb
+    compatible: ['toradex,verdin-am62-wifi-mallow', 'toradex,verdin-am62-wifi',
+                 'toradex,verdin-am62', 'ti,am625']
+
   k3-j721e-sk:
     <<: *arm64-device
     mach: ti
