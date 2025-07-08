@@ -15,6 +15,14 @@ _anchors:
     params:
       ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
 
+  baseline-nfs-job: &baseline-nfs-job
+    template: baseline-nfs.jinja2
+    kind: job
+    kcidb_test_suite: boot.nfs
+    params:
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -164,6 +172,7 @@ jobs:
   baseline-x86-qualcomm: *baseline-job
   baseline-x86-pull-labs-demo: *baseline-job
 
+  baseline-nfs-arm64: *baseline-nfs-job
   coverage-report-arm: &coverage-report-job
     template: coverage-report.jinja2
     kind: process

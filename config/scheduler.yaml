@@ -173,6 +173,11 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
   - job: wifi-basic
     event:
       <<: *node-event-kbuild
