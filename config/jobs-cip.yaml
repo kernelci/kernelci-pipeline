@@ -7,7 +7,7 @@ _anchors:
       ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
 
   baseline-nfs-job: &baseline-nfs-job
-    template: baseline.jinja2
+    template: baseline-nfs.jinja2
     kind: job
     kcidb_test_suite: boot.nfs
     params:
