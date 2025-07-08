@@ -17,6 +17,7 @@ import datetime
 import time
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import shutil
 
 import kernelci
 import kernelci.config
@@ -28,6 +29,8 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 from base import Service
 
 FAILURE_TIMEOUT = 60
+BACKUP_DIR = '/tmp/kci-backup'
+BACKUP_FILE_LIFETIME = 24 * 60 * 60  # 24 hours in seconds
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -108,6 +111,38 @@ class Scheduler(Service):
         if sub_id:
             self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
+
+    def backup_cleanup(self):
+        """
+        Cleanup the backup directory, removing files older than 24h
+        """
+        if not os.path.exists(BACKUP_DIR):
+            return
+        now = datetime.datetime.now()
+        for f in os.listdir(BACKUP_DIR):
+            fpath = os.path.join(BACKUP_DIR, f)
+            if os.path.isfile(fpath):
+                mtime = datetime.datetime.fromtimestamp(os.path.getmtime(fpath))
+                if (now - mtime).total_seconds() > BACKUP_FILE_LIFETIME:
+                    os.remove(fpath)
+
+    def backup_job(self, filename, nodeid):
+        """
+        Backup filename, rename to nodeid.submission and keep in BACKUP_DIR
+        Also check if BACKUP_DIR have files older than 24h, delete them
+        """
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR)
+        # cleanup old files
+        self.backup_cleanup()
+        # backup file
+        new_filename = os.path.join(BACKUP_DIR, f"{nodeid}.submission")
+        self.log.info(f"Backing up {filename} to {new_filename}")
+        # copy file to backup directory
+        try:
+            shutil.copy2(filename, new_filename)
+        except Exception as e:
+            self.log.error(f"Failed to backup {filename} to {new_filename}: {e}")
 
     def _run_job(self, job_config, runtime, platform, input_node):
         try:
@@ -217,6 +252,7 @@ class Scheduler(Service):
             return
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
+        self.backup_job(output_file, node['id'])
         try:
             running_job = runtime.submit(output_file)
         except Exception as e:
