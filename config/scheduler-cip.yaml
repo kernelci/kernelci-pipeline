@@ -37,11 +37,38 @@ scheduler:
     platforms:
       - qemu
 
-  - job: kbuild-gcc-12-arm-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
     <<: *build-k8s-all
-  
-  - job: kbuild-gcc-12-x86-cip-allnoconfig
+
+  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
     <<: *build-k8s-all
