@@ -59,7 +59,7 @@ jobs:
       - 'stable'
       - 'sashal-next'
 
-  kbuild-gcc-12-x86-cip-allnoconfig:
+  kbuild-gcc-12-x86-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-x86-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -72,7 +72,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-x86-cip-allnoconfig:
+  kbuild-gcc-12-x86-61-cip-allnoconfig:
     <<: *kbuild-gcc-12-x86-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -85,7 +85,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-x86-cip-allnoconfig:
+  kbuild-gcc-12-x86-510-cip-allnoconfig:
     <<: *kbuild-gcc-12-x86-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -98,7 +98,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip-rt'
 
-  kbuild-gcc-12-x86-cip-allnoconfig:
+  kbuild-gcc-12-x86-419-cip-allnoconfig:
     <<: *kbuild-gcc-12-x86-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -125,7 +125,7 @@ jobs:
       - 'next'
       - 'sashal-next'
 
-  kbuild-gcc-12-arm64-cip-allnoconfig:
+  kbuild-gcc-12-arm64-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm64-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -138,7 +138,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm64-cip-allnoconfig:
+  kbuild-gcc-12-arm64-61-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm64-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -151,7 +151,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm64-cip-allnoconfig:
+  kbuild-gcc-12-arm64-510-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm64-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -164,7 +164,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip-rt'
 
-  kbuild-gcc-12-arm64-cip-allnoconfig:
+  kbuild-gcc-12-arm64-419-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm64-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -190,7 +190,7 @@ jobs:
         - 'next'
         - 'sashal-next'
 
-  kbuild-gcc-12-arm-cip-allnoconfig:
+  kbuild-gcc-12-arm-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -203,7 +203,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm-cip-allnoconfig:
+  kbuild-gcc-12-arm-61-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -216,7 +216,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm-cip-allnoconfig:
+  kbuild-gcc-12-arm-510-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -229,7 +229,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip-rt'
 
-  kbuild-gcc-12-arm-cip-allnoconfig:
+  kbuild-gcc-12-arm-419-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-allnoconfig-job
     params:
       <<: *kbuild-gcc-12-arm-params
