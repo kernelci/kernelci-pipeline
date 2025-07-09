@@ -1200,6 +1200,14 @@ scheduler:
       - sun50i-h5-libretech-all-h3-cc
       - cd8180-orion-o6
 
+  - job: kselftest-tpm2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - k3-am625-verdin-wifi-mallow
+
   - job: kselftest-ublk
     event:
       <<: *node-event-kbuild
