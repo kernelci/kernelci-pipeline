@@ -620,6 +620,26 @@ jobs:
         version: 6
         patchlevel: 1
 
+  kbuild-gcc-12-arm64-chromeos-mediatek-coverage:
+    <<: *kbuild-gcc-12-arm64-chromeos-job
+    params: &kbuild-gcc-12-arm64-chromeos-mediatek-coverage-params
+      <<: *kbuild-gcc-12-arm64-chromeos-mediatek-params
+      fragments:
+        - arm64-chromebook
+        - coverage
+        - crypto
+        - kselftest
+        - lab-setup
+        - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
+    rules:
+      <<: *kbuild-gcc-12-arm64-chromeos-rules
+      min_version:
+        version: 6
+        patchlevel: 1
+      tree:
+        - chromiumos
+
   kbuild-gcc-12-arm64-chromeos-daily-mediatek:
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
@@ -639,6 +659,16 @@ jobs:
       <<: *kbuild-gcc-12-arm64-chromeos-params
       flavour: qualcomm
 
+  kbuild-gcc-12-arm64-chromeos-qualcomm-coverage:
+    <<: *kbuild-gcc-12-arm64-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-arm64-chromeos-mediatek-coverage-params
+      flavour: qualcomm
+    rules:
+      <<: *kbuild-gcc-12-arm64-chromeos-rules
+      tree:
+        - 'chromiumos'
+
   kbuild-gcc-12-arm64-chromeos-daily-qualcomm:
     <<: *kbuild-gcc-12-arm64-chromeos-job
     params:
@@ -656,6 +686,24 @@ jobs:
     params: &kbuild-gcc-12-x86-chromeos-amd-params
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: amd-stoneyridge
+
+  kbuild-gcc-12-x86-chromeos-amd-coverage:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params: &kbuild-gcc-12-x86-chromeos-amd-coverage-params
+      <<: *kbuild-gcc-12-x86-chromeos-params
+      flavour: amd-stoneyridge
+      fragments:
+        - coverage
+        - crypto
+        - kselftest
+        - lab-setup
+        - x86-board
+        - CONFIG_MODULE_COMPRESS=n
+        - CONFIG_MODULE_COMPRESS_NONE=y
+    rules:
+      <<: *kbuild-gcc-12-x86-chromeos-rules
+      tree:
+        - 'chromiumos'
 
   kbuild-gcc-12-x86-chromeos-daily-amd:
     <<: *kbuild-gcc-12-x86-chromeos-job
@@ -675,6 +723,16 @@ jobs:
     params: &kbuild-gcc-12-x86-chromeos-intel-params
       <<: *kbuild-gcc-12-x86-chromeos-params
       flavour: intel-pineview
+
+  kbuild-gcc-12-x86-chromeos-intel-coverage:
+    <<: *kbuild-gcc-12-x86-chromeos-job
+    params:
+      <<: *kbuild-gcc-12-x86-chromeos-amd-coverage-params
+      flavour: intel-pineview
+    rules:
+      <<: *kbuild-gcc-12-x86-chromeos-rules
+      tree:
+        - 'chromiumos'
 
   kbuild-gcc-12-x86-chromeos-daily-intel:
     <<: *kbuild-gcc-12-x86-chromeos-job
