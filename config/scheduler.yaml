@@ -882,6 +882,7 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
+      - cd8180-orion-o6
 
   - job: kselftest-ftrace
     event:
@@ -896,6 +897,7 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
+      - cd8180-orion-o6
 
   - job: kselftest-futex
     event: *kbuild-gcc-12-arm-node-event
@@ -1090,6 +1092,7 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
+      - cd8180-orion-o6
       - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-proc
