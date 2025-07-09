@@ -1234,6 +1234,18 @@ scheduler:
       - bcm2837-rpi-3-b-plus
       - cd8180-orion-o6
 
+  - job: kselftest-tmpfs
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-tmpfs
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: kselftest-seccomp
     event:
       <<: *node-event-kbuild
