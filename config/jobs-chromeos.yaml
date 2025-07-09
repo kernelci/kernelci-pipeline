@@ -710,7 +710,7 @@ jobs:
     params:
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
       collections: acpi
       job_timeout: 10
     rules:
@@ -724,7 +724,7 @@ jobs:
     params:
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
       collections: devices/error_logs
       job_timeout: 10
     rules:
