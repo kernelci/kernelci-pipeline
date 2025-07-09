@@ -1248,6 +1248,22 @@ scheduler:
     platforms:
       - meson-gxl-s905x-libretech-cc
 
+  - job: kselftest-zram
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - stm32mp157a-dhcor-avenger96
+
+  - job: kselftest-zram
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2711-rpi-4-b
+
   - job: kselftest-cpufreq
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-collabora-runtime
