@@ -859,6 +859,14 @@ scheduler:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
 
+  - job: kselftest-efivars
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - cd8180-orion-o6
+
   - job: kselftest-fchmodat2
     event:
       <<: *node-event-kbuild
