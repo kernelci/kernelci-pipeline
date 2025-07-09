@@ -61,6 +61,12 @@ _anchors:
       name: kbuild-gcc-12-arm64-chromebook
     platforms: *mediatek-platforms
 
+  test-job-arm64-mediatek-coverage: &test-job-arm64-mediatek-coverage
+    <<: *test-job-arm64-mediatek
+    event:
+      <<: *kbuild-event
+      name: kbuild-gcc-12-arm64-chromeos-mediatek-coverage
+
   test-job-arm64-mediatek-cros-kernel: &test-job-arm64-mediatek-cros-kernel
     <<: *test-job-arm64-mediatek
     event:
@@ -76,6 +82,12 @@ _anchors:
   test-job-arm64-qualcomm: &test-job-arm64-qualcomm
     <<: *test-job-arm64-mediatek
     platforms: *qualcomm-platforms
+
+  test-job-arm64-qualcomm-coverage: &test-job-arm64-qualcomm-coverage
+    <<: *test-job-arm64-qualcomm
+    event:
+      <<: *kbuild-event
+      name: kbuild-gcc-12-arm64-chromeos-qualcomm-coverage
 
   test-job-arm64-qualcomm-cros-kernel: &test-job-arm64-qualcomm-cros-kernel
     <<: *test-job-arm64-qualcomm
@@ -123,6 +135,12 @@ _anchors:
     <<: *test-job-x86
     platforms: *amd-platforms
 
+  test-job-x86-amd-coverage: &test-job-x86-amd-coverage
+    <<: *test-job-x86-amd
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-amd-coverage
+
   test-job-x86-amd-cros-kernel: &test-job-x86-amd-cros-kernel
     <<: *test-job-x86-amd
     event:
@@ -132,6 +150,12 @@ _anchors:
   test-job-x86-intel: &test-job-x86-intel
     <<: *test-job-x86
     platforms: *intel-platforms
+
+  test-job-x86-intel-coverage: &test-job-x86-intel-coverage
+    <<: *test-job-x86-intel
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-intel-coverage
 
   test-job-x86-intel-cros-kernel: &test-job-x86-intel-cros-kernel
     <<: *test-job-x86-intel
@@ -505,121 +529,241 @@ scheduler:
       - hp-11A-G6-EE-grunt
 
   - job: ltp-capability-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-capability-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-capability-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-capability-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-capability-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-capability-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-capability-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-containers-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-containers-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-containers-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-containers-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-containers-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-containers-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-containers-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-crypto-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-crypto-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-crypto-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-crypto-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-crypto-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-crypto-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-crypto-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-ima-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-ima-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-ima-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-ima-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-ima-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-ima-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-ima-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-input-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-input-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-input-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-input-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-input-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-input-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-input-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-ipc-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-ipc-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-ipc-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-ipc-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-ipc-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-ipc-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-ipc-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-kernel-misc-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-kernel-misc-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-kernel-misc-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-kernel-misc-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-kernel-misc-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-mm-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-mm-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-mm-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-mm-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-mm-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-mm-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-mm-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-pty-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-pty-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-pty-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-pty-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-pty-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-pty-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-pty-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
   - job: ltp-sched-cros-kernel
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: ltp-sched-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: ltp-sched-cros-kernel
     <<: *test-job-arm64-qualcomm-cros-kernel
 
   - job: ltp-sched-cros-kernel
+    <<: *test-job-x86-amd-coverage
+
+  - job: ltp-sched-cros-kernel
     <<: *test-job-x86-amd-cros-kernel
+
+  - job: ltp-sched-cros-kernel
+    <<: *test-job-x86-intel-coverage
 
   - job: ltp-sched-cros-kernel
     <<: *test-job-x86-intel-cros-kernel

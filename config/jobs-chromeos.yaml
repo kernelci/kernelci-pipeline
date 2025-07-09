@@ -126,8 +126,6 @@ _anchors:
       extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
     kcidb_test_suite: ltp
     rules: &ltp-cros-kernel-rules
-      fragments:
-        - '!kselftest'
       tree:
         - chromiumos
 
@@ -811,7 +809,6 @@ jobs:
       <<: *ltp-cros-kernel-rules
       fragments:
         - 'crypto'
-        - '!kselftest'
 
   ltp-ima-cros-kernel:
     <<: *ltp-cros-kernel-job
