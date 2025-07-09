@@ -312,10 +312,16 @@ scheduler:
   - job: kbuild-gcc-12-arm64-chromeos-mediatek
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-chromeos-mediatek-coverage
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-chromeos-qualcomm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-chromeos-qualcomm-coverage
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
@@ -324,10 +330,16 @@ scheduler:
   - job: kbuild-gcc-12-x86-chromeos-amd
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-x86-chromeos-amd-coverage
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-x86-chromeos-daily-amd
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-chromeos-intel
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-chromeos-intel-coverage
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-x86-chromeos-daily-intel
