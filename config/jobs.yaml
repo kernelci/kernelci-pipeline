@@ -1898,6 +1898,13 @@ jobs:
       collections: vDSO
     kcidb_test_suite: kselftest.vdso
 
+  kselftest-zram:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: zram
+    kcidb_test_suite: kselftest.zram
+
   kunit: &kunit-job
     template: kunit.jinja2
     kind: job
