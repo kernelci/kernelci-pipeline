@@ -372,6 +372,12 @@ scheduler:
   - job: kselftest-acpi
     <<: *test-job-x86-intel
 
+  - job: kselftest-acpi
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-acpi
+    <<: *test-job-x86-intel-coverage
+
   - job: kselftest-dt
     <<: *lava-job-collabora
     event:
@@ -385,11 +391,22 @@ scheduler:
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
 
+  - job: kselftest-dt
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-dt
+    <<: *test-job-arm64-qualcomm-coverage
+
   - job: kselftest-devices-exist
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
       name: kbuild-gcc-12-arm64-chromebook
+    platforms:
+      - mt8195-cherry-tomato-r2
+
+  - job: kselftest-devices-exist
+    <<: *test-job-arm64-mediatek-coverage
     platforms:
       - mt8195-cherry-tomato-r2
 
@@ -400,6 +417,9 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
     platforms: *mediatek-platforms
 
+  - job: kselftest-device-error-logs
+    <<: *test-job-arm64-mediatek-coverage
+
   - job: kselftest-devices-probe
     <<: *lava-job-collabora
     event:
@@ -407,23 +427,44 @@ scheduler:
       name: kbuild-gcc-12-arm64-chromebook
     platforms: *mediatek-platforms
 
+  - job: kselftest-devices-probe
+    <<: *test-job-arm64-mediatek-coverage
+
   - job: kselftest-cpufreq
     <<: *test-job-x86-intel
 
   - job: kselftest-cpufreq
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cpufreq
     <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-cpufreq
     <<: *test-job-arm64-qualcomm
 
   - job: kselftest-cpufreq
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cpufreq
     <<: *test-job-arm64-mediatek
+
+  - job: kselftest-cpufreq
+    <<: *test-job-arm64-mediatek-coverage
 
   - job: kselftest-cpufreq-hibernate
     <<: *test-job-x86-intel
 
   - job: kselftest-cpufreq-hibernate
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cpufreq-hibernate
     <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq-hibernate
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-cpufreq-hibernate
     <<: *test-job-arm64-qualcomm
@@ -435,7 +476,13 @@ scheduler:
     <<: *test-job-x86-intel
 
   - job: kselftest-cpufreq-suspend
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cpufreq-suspend
     <<: *test-job-x86-amd
+
+  - job: kselftest-cpufreq-suspend
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-cpufreq-suspend
     <<: *test-job-arm64-qualcomm
@@ -447,7 +494,13 @@ scheduler:
     <<: *test-job-x86-intel
 
   - job: kselftest-dmabuf-heaps
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-dmabuf-heaps
     <<: *test-job-x86-amd
+
+  - job: kselftest-dmabuf-heaps
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-dmabuf-heaps
     <<: *test-job-arm64-qualcomm
@@ -459,7 +512,13 @@ scheduler:
     <<: *test-job-x86-intel
 
   - job: kselftest-exec
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-exec
     <<: *test-job-x86-amd
+
+  - job: kselftest-exec
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-exec
     <<: *test-job-arm64-qualcomm
@@ -471,7 +530,13 @@ scheduler:
     <<: *test-job-x86-intel
 
   - job: kselftest-iommu
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-iommu
     <<: *test-job-x86-amd
+
+  - job: kselftest-iommu
+    <<: *test-job-x86-amd-coverage
 
   - job: kselftest-iommu
     <<: *test-job-arm64-qualcomm
