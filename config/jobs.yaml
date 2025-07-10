@@ -1657,6 +1657,13 @@ jobs:
         patchlevel: 7
     kcidb_test_suite: kselftest.dt
 
+  kselftest-efivars:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: efivars
+    kcidb_test_suite: kselftest.efivars
+
   kselftest-exec:
     <<: *kselftest-job
     params:
