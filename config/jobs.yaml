@@ -1504,6 +1504,7 @@ jobs:
       job_timeout: 10
     rules: &kselftest-rules
       tree:
+        - chromiumos
         - mainline
         - next
         - stable-rc

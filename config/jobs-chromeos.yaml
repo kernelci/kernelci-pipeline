@@ -771,6 +771,7 @@ jobs:
       job_timeout: 10
     rules:
       tree:
+        - chromiumos
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.acpi
 
@@ -785,6 +786,7 @@ jobs:
       job_timeout: 10
     rules:
       tree:
+        - chromiumos
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.device_error_logs
 
