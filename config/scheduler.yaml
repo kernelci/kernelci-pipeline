@@ -995,6 +995,22 @@ scheduler:
     platforms:
       - stm32mp157a-dhcor-avenger96
 
+  - job: kselftest-memfd
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
+  - job: kselftest-memfd
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
   - job: kselftest-mm
     event:
       <<: *node-event-kbuild
