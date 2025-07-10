@@ -1096,6 +1096,22 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
+  - job: kselftest-ring-buffer
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-ring-buffer
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-broonie-runtime
+    platforms:
+      - bcm2837-rpi-3-b-plus
+
   - job: kselftest-rlimits
     event:
       <<: *node-event-kbuild
