@@ -135,6 +135,11 @@ scheduler:
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
 
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-collabora-runtime
+    platforms: *collabora-arm64-platforms
+
   - job: wifi-basic
     event:
       <<: *node-event-kbuild

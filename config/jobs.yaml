@@ -13,6 +13,13 @@ _anchors:
     kind: job
     kcidb_test_suite: boot
 
+  baseline-nfs-job: &baseline-nfs-job
+    template: baseline.jinja2
+    kind: job
+    kcidb_test_suite: boot
+    params: &baseline-nfs-params
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm/20250708.0/{debarch}'
+
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -154,6 +161,8 @@ jobs:
   baseline-x86-kcidebug-intel: *baseline-job
   baseline-x86-mfd: *baseline-job
   baseline-x86-qualcomm: *baseline-job
+
+  baseline-nfs-arm64: *baseline-nfs-job
 
   kbuild-clang-17-arm: &kbuild-clang-17-arm-job
     <<: *kbuild-job
