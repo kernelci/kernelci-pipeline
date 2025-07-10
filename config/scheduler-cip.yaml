@@ -18,57 +18,131 @@ _anchors:
     kind: job
 
 scheduler:
-  - job: baseline-x86
-    event: &kbuild-gcc-12-x86-node-event
-      <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86
-    runtime: &lava-collabora-runtime
-      type: lava
-      name: lava-collabora
-    platforms: &collabora-x86-platforms
-      - qemu-x86
-      - aaeon-UPN-EHLX4RE-A10-0864
+#  - job: baseline-x86-cip
+#    event:
+#      <<: *node-event-kbuild
+#      name: kbuild-gcc-12-x86
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - qemu
 
-  - job: baseline-x86-cip
-    event: *kbuild-gcc-12-x86-node-event
+  - job: baseline-arm64-cip
+    event:
+      <<: *node-event-kbuild
+      name: baseline-arm64-cip
     runtime:
       type: lava
       name: lava-cip
     platforms:
-      - qemu
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
-  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
-    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
+#    <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
-    <<: *build-k8s-all
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
   - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
-    <<: *build-k8s-all
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-61-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
   - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
-    <<: *build-k8s-all
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
   - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
-    <<: *build-k8s-all
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-419-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
-  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
-    <<: *build-k8s-all
+#  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+#    <<: *build-k8s-all
+#
+#  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
+#    <<: *build-k8s-all
+#  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
+#    event:
+#      <<: *node-event-kbuild
+#      name: kbuild-gcc-12-arm64-61-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - beaglebone-black
+#
+#  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
+#    event:
+#      <<: *node-event-kbuild
+#      name: kbuild-gcc-12-arm64-61-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - beaglebone-black
+#
+#  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
+#    event:
+#      <<: *node-event-kbuild
+#      name: kbuild-gcc-12-arm64-510-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - beaglebone-black
+#
+#  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
+#    event:
+#      <<: *node-event-kbuild
+#      name: kbuild-gcc-12-arm64-419-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - beaglebone-black
