@@ -1757,6 +1757,13 @@ jobs:
       collections: lsm
     kcidb_test_suite: kselftest.lsm
 
+  kselftest-memfd:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: memfd
+    kcidb_test_suite: kselftest.memfd
+
   # No hugepages allocation (for architectures without it)
   kselftest-mm:
     <<: *kselftest-job
