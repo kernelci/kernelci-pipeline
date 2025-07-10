@@ -9,6 +9,7 @@
 import copy
 from datetime import datetime, timedelta
 import sys
+import tempfile
 import time
 
 import kernelci.build
@@ -26,6 +27,7 @@ class Trigger(Service):
     def __init__(self, configs, args):
         super().__init__(configs, args, 'trigger')
         self._build_configs = configs['build_configs']
+        self._trees = configs['trees']
         self._current_user = self._api.user.whoami()
 
     def _log_revision(self, message, build_config, head_commit):
@@ -134,27 +136,45 @@ class Trigger(Service):
         except Exception as ex:
             self.traceback(ex)
 
-    def _iterate_build_configs(self, force, build_configs_list,
-                               timeout, trees):
-        for name, config in self._build_configs.items():
-            if not build_configs_list or name in build_configs_list:
+    def _iterate_trees(self, force, timeout, trees):
+        for tree in self._trees.values():
+            build_configs = {name: config for name, config in self._build_configs.items() if config.tree.name == tree.name}
+            if not build_configs:
+                try:
+                    # Remove hardcoded remote build config paths
+                    if tree.url.startswith("https://git.kernel.org"):
+                        config_url = f"{tree.url}/plain/.kernelci.yaml?h=kernelci"
+                    elif tree.url.startswith("https://github.com"):
+                        config_url = f"https://raw.githubusercontent.com/{tree}/linux/refs/heads/kernelci/.kernelci.yaml"
+                    else:
+                        raise Exception("Hosting service not supported")
+                    remote_config = requests.get(config_url)
+                except Exception as ex:
+                    self.log.error(f"Failed to get remote build config for {tree.name}, ignoring")
+                    self.traceback(ex)
+                    continue
+                with tempfile.NamedTemporaryFile(suffix='.yaml', delete_on_close=False) as tmp:
+                    tmp.write(remote_config.text.encode())
+                    tmp.close()
+                    # Remove hardcoded trees config path
+                    tmp_configs = kernelci.config.load(['config/trees.yaml', tmp.name])
+                    build_configs = tmp_configs['build_configs']
+            for name, config in build_configs.items():
                 self._run_trigger(config, force, timeout, trees)
 
     def _setup(self, args):
         return {
             'poll_period': int(args.poll_period),
             'force': args.force,
-            'build_configs_list': (args.build_configs or '').split(),
             'startup_delay': int(args.startup_delay or 0),
             'timeout': args.timeout,
             'trees': args.trees,
         }
 
     def _run(self, ctx):
-        poll_period, force, build_configs_list, startup_delay, timeout, trees = (
+        poll_period, force, startup_delay, timeout, trees = (
             ctx[key] for key in (
-                'poll_period', 'force', 'build_configs_list', 'startup_delay',
-                'timeout', 'trees'
+                'poll_period', 'force', 'startup_delay', 'timeout', 'trees'
             )
         )
 
@@ -163,8 +183,7 @@ class Trigger(Service):
             time.sleep(startup_delay)
 
         while True:
-            self._iterate_build_configs(force, build_configs_list,
-                                        timeout, trees)
+            self._iterate_trees(force, timeout, trees)
             if poll_period:
                 self.log.info(f"Sleeping for {poll_period}s")
                 time.sleep(poll_period)
@@ -190,10 +209,6 @@ class cmd_run(Command):
             'name': '--force',
             'action': 'store_true',
             'help': "Always create a new checkout node",
-        },
-        {
-            'name': '--build-configs',
-            'help': "List of build configurations to monitor",
         },
         {
             'name': '--name',
