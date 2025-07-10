@@ -1849,6 +1849,13 @@ jobs:
       collections: signal
     kcidb_test_suite: kselftest.signal
 
+  kselftest-splice:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: splice
+    kcidb_test_suite: kselftest.splce
+
   kselftest-sync:
     <<: *kselftest-job
     params:
