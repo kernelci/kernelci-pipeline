@@ -26,6 +26,20 @@ _anchors:
     - hp-x360-14-G1-sona
     - hp-x360-12b-ca0010nr-n4020-octopus
 
+  intel-platforms-tast: &intel-platforms-tast
+    - acer-cb317-1h-c3z6-dedede
+    - acer-chromebox-cxi4-puff
+    - acer-cp514-2h-1130g7-volteer
+    - acer-cp514-2h-1160g7-volteer
+    - asus-C433TA-AJ0005-rammus
+    - asus-C436FA-Flip-hatch
+    - asus-C523NA-A20057-coral
+    - dell-latitude-5300-8145U-arcada
+    - dell-latitude-5400-4305U-sarien
+    - dell-latitude-5400-8665U-sarien
+    - hp-x360-14-G1-sona
+    - hp-x360-12b-ca0010nr-n4020-octopus
+
   mediatek-platforms: &mediatek-platforms
     - mt8183-kukui-jacuzzi-juniper-sku16
     - mt8186-corsola-steelix-sku131072
@@ -100,6 +114,10 @@ _anchors:
       <<: *kbuild-event
       name: kbuild-gcc-12-x86-chromeos-intel
     platforms: *intel-platforms
+
+  test-job-chromeos-intel-tast: &test-job-chromeos-intel-tast
+    <<: *test-job-chromeos-intel
+    platforms: *intel-platforms-tast
 
   test-job-chromeos-mediatek: &test-job-chromeos-mediatek
     <<: *test-job-arm64-mediatek
@@ -737,7 +755,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-hardware-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-kernel-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -749,7 +767,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-kernel-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-mm-misc-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -761,7 +779,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-mm-misc-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-perf-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -773,7 +791,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-perf-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-platform-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -785,7 +803,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-platform-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-power-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -797,7 +815,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-power-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-sound-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -809,7 +827,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-sound-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: tast-ui-arm64-mediatek
     <<: *test-job-chromeos-mediatek
@@ -821,7 +839,7 @@ scheduler:
     <<: *test-job-chromeos-amd
 
   - job: tast-ui-x86-intel
-    <<: *test-job-chromeos-intel
+    <<: *test-job-chromeos-intel-tast
 
   - job: fluster-debian-av1
     <<: *test-job-arm64-mediatek
