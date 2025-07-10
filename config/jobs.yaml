@@ -1806,6 +1806,13 @@ jobs:
       collections: ptrace
     kcidb_test_suite: kselftest.ptrace
 
+  kselftest-ring-buffer:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: ring-buffer
+    kcidb_test_suite: kselftest.ring-buffer
+
   kselftest-rlimits:
     <<: *kselftest-job
     params:
