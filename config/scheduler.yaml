@@ -822,6 +822,18 @@ scheduler:
     platforms:
       - meson-gxl-s905x-libretech-cc
 
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - beaglebone-black
+
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-broonie-runtime
+    platforms:
+      - meson-gxl-s905x-libretech-cc
+
   - job: kselftest-dt
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
