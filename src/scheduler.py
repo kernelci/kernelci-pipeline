@@ -15,6 +15,8 @@ import requests
 import re
 import datetime
 import time
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import kernelci
 import kernelci.config
@@ -24,6 +26,24 @@ import kernelci.storage
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
+
+FAILURE_TIMEOUT = 60
+
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/health':
+            if time.time() - self.server.last_heartbeat < FAILURE_TIMEOUT:
+                self.send_response(200)
+            else:
+                self.send_response(503)
+        self.end_headers()
+
+
+def run_health_server(last_heartbeat):
+    server = HTTPServer(('0.0.0.0', 8080), HealthHandler)
+    server.last_heartbeat = last_heartbeat
+    server.serve_forever()
 
 
 class Scheduler(Service):
@@ -308,9 +328,10 @@ class Scheduler(Service):
         subscribe_retries = 0
 
         while True:
+            last_heartbeat['time'] = time.time()
             event = None
             try:
-                event = self._api_helper.receive_event_data(sub_id)
+                event = self._api_helper.receive_event_data(sub_id, keep_alive=True)
             except Exception as e:
                 self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
@@ -319,6 +340,9 @@ class Scheduler(Service):
                 if subscribe_retries > 3:
                     self.log.error("Failed to re-subscribe to node events")
                     return False
+                continue
+            if not event:
+                # If we received a keep-alive event, just continue
                 continue
             subscribe_retries = 0
             for job, runtime, platform, rules in self._sched.get_schedule(event):
@@ -361,6 +385,16 @@ class cmd_loop(Command):
 
 
 if __name__ == '__main__':
+    last_heartbeat = {'time': time.time()}
+
+    # Start health server in background
+    health_thread = threading.Thread(
+        target=run_health_server,
+        args=(last_heartbeat,),
+        daemon=True
+    )
+    health_thread.start()
+
     opts = parse_opts('scheduler', globals())
     yaml_configs = opts.get_yaml_configs() or 'config'
     configs = kernelci.config.load(yaml_configs)
