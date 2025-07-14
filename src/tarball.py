@@ -18,6 +18,7 @@ import time
 import kernelci
 import kernelci.build
 import kernelci.config
+from kernelci.legacy.config.build import BuildConfig, Tree
 from kernelci.legacy.cli import Args, Command, parse_opts
 import kernelci.storage
 
@@ -41,7 +42,6 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
     def __init__(self, global_configs, service_config, name):
         super().__init__(global_configs, service_config, name)
         self._service_config = service_config
-        self._build_configs = global_configs['build_configs']
         if not os.path.exists(self._service_config.output):
             os.makedirs(self._service_config.output)
         storage_config = global_configs['storage_configs'][
@@ -51,17 +51,12 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             storage_config, service_config.storage_cred
         )
 
-    def _find_build_config(self, node):
+    def _create_build_config(self, node):
         revision = node['data']['kernel_revision']
         tree = revision['tree']
+        url = revision['url']
         branch = revision['branch']
-        for config in self._build_configs.values():
-            if config.tree.name == tree and config.branch == branch:
-                return config
-            if config.tree.name == tree and config.branch.startswith('http'):
-                current = copy.copy(config)
-                current._branch = branch
-                return current
+        return BuildConfig(tree, Tree(tree, url), branch, {})
 
     def _find_build_commit(self, node):
         revision = node['data'].get('kernel_revision')
@@ -229,10 +224,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 continue
             subscribe_retries = 0
 
-            build_config = self._find_build_config(checkout_node)
-            if build_config is None:
-                continue
-
+            build_config = self._create_build_config(checkout_node)
             if self._update_repo(build_config):
                 self.log.error("Failed to update repo, retrying")
                 if self._update_repo(build_config):
