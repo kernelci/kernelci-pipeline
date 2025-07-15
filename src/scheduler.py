@@ -344,7 +344,7 @@ class Scheduler(Service):
             last_heartbeat['time'] = time.time()
             event = None
             try:
-                event = self._api_helper.receive_event_data(sub_id, keep_alive=True)
+                event = self._api_helper.receive_event_data(sub_id, block=False)
             except Exception as e:
                 self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
