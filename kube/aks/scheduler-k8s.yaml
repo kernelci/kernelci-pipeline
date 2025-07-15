@@ -29,6 +29,21 @@ spec:
               until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
                 echo "Waiting for API endpoint..."; sleep 5;
               done
+        - name: credentials
+          image: kernelci/kernelci:pipeline
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: tmpsecrets
+              mountPath: /tmp/secrets
+            - name: k8scredentials
+              mountPath: /tmp/k8s
+              readOnly: true
+          command:
+            - tar
+            - xzf
+            - /tmp/k8s/k8s-credentials.tgz
+            - -C
+            - /tmp/secrets
       containers:
         - name: scheduler
           image: kernelci/kernelci:pipeline@sha256:5ecd9b94a22f064a15a9ded85cbe09ff10018fe7cf6fdfaca794121f3b4a4b5f
@@ -68,22 +83,6 @@ spec:
             - name: tmpsecrets
               mountPath: /home/kernelci/.azure
               subPath: k8s-credentials/.azure
-      initContainers:
-        - name: credentials
-          image: kernelci/kernelci:pipeline
-          imagePullPolicy: Always
-          volumeMounts:
-            - name: tmpsecrets
-              mountPath: /tmp/secrets
-            - name: k8scredentials
-              mountPath: /tmp/k8s
-              readOnly: true
-          command:
-            - tar
-            - xzf
-            - /tmp/k8s/k8s-credentials.tgz
-            - -C
-            - /tmp/secrets
       volumes:
         - name: secrets
           secret:
