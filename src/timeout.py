@@ -75,7 +75,8 @@ class TimeoutService(Service):
             if mode == 'TIMEOUT':
                 if 'data' not in node_update:
                     node_update['data'] = {}
-                if node.get('result') != 'pass':
+                if not node.get('result'):
+                    # Set result as "incomplete" only if any value is not set yet
                     node_update['result'] = 'incomplete'
                     node_update['data']['error_code'] = 'node_timeout'
                     node_update['data']['error_msg'] = 'Node timed-out'
