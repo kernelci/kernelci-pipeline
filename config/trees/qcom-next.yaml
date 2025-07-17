@@ -1,0 +1,6 @@
+build_configs:
+  qcom-next:
+    tree: qcom-next
+    branch: 'qcom-next'
+    architectures:
+      - arm64
