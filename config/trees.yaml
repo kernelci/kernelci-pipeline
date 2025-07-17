@@ -116,6 +116,9 @@ trees:
   qcom:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
 
+  qcom-next:
+    url: "https://github.com/qualcomm-linux/kernel.git"
+
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
