@@ -1571,6 +1571,13 @@ jobs:
       collections: clone3
     kcidb_test_suite: kselftest.clone3
 
+  kselftest-coredump:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: coredump
+    kcidb_test_suite: kselftest.coredump
+
   kselftest-cpufreq:
     <<: *kselftest-job
     template: generic.jinja2
