@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2025 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+
+import sys
+import time
+import kernelci.config
+from kernelci.legacy.cli import Args, Command, parse_opts
+
+from base import Service
+
+
+class JobRetry(Service):
+
+    subscription_filters = {
+        "state": "done",
+        "result": ("fail", "incomplete"),
+        "kind": ("kbuild", "job")
+    }
+
+    def __init__(self, configs, args):
+        super().__init__(configs, args, 'job_retry')
+
+    def _setup(self, args):
+        return self._api_helper.subscribe_filters(self.subscription_filters)
+
+    def _stop(self, sub_id):
+        if sub_id:
+            self._api_helper.unsubscribe_filters(sub_id)
+        sys.stdout.flush()
+
+    def _find_parent_kind(self, node, api_helper, kind):
+        parent_id = node.get('parent')
+        if not parent_id:
+            return None
+        parent_node = api_helper.api.node.get(parent_id)
+        if not parent_node:
+            return None
+        if parent_node.get('kind') == kind:
+            return parent_node
+        return self._find_parent_kind(parent_node, api_helper, kind)
+
+    def _run(self, sub_id):
+        self.log.info("JobRetry: Listening for events... ")
+        self.log.info("Press Ctrl-C to stop.")
+        subscribe_retries = 0
+        while True:
+            try:
+                node, _ = self._api_helper.receive_event_node(sub_id)
+            except Exception as e:
+                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
+                time.sleep(10)
+                sub_id = self._api_helper.subscribe_filters(self.subscription_filters)
+                subscribe_retries += 1
+                if subscribe_retries > 3:
+                    self.log.error("Failed to re-subscribe to node events")
+                    return False
+                continue
+            subscribe_retries = 0
+
+            # Check retry count before submitting a retry
+            retry_counter = node.get("retry_counter")
+            if retry_counter == 3:
+                self.log.info(f"{node["id"]} Job has already retried 3 times. \
+Not submitting a retry.")
+                continue
+
+            parent_kind = None
+            if node.get('kind') == 'job':
+                parent_kind = 'kbuild'
+            if node.get("kind") == "kbuild":
+                parent_kind = "checkout"
+            if parent_kind:
+                parent_node = self._find_parent_kind(node, self._api_helper, parent_kind)
+                parent_node["jobfilter"] = [node["name"]]
+                # check this
+                parent_node["retry_counter"] = retry_counter
+                event = {'data': parent_node}
+                self._api_helper.api.send_event('retry', event)
+                self.log.info(f"Job retry for node {node["id"]} submitted")
+            else:
+                self.log.error(f"Not able to retry the job as parent kind is unknown: {node["id"]}")
+        return True
+
+
+class cmd_run(Command):
+    help = "Retry failed/incomplete builds and tests"
+    args = [Args.api_config]
+
+    def __call__(self, configs, args):
+        return JobRetry(configs, args).run(args)
+
+
+if __name__ == '__main__':
+    opts = parse_opts('job_retry', globals())
+    yaml_configs = opts.get_yaml_configs() or 'config'
+    configs = kernelci.config.load(yaml_configs)
+    status = opts.command(configs, opts)
+    sys.exit(0 if status is True else 1)
