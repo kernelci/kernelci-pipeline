@@ -1518,7 +1518,7 @@ jobs:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250619.0/{debarch}'
+      nfsroot: 'https://storage.staging.kernelci.org/rootfs/bookworm-kselftest/20250709.0/{debarch}'
       job_timeout: 10
     rules: &kselftest-rules
       tree:
