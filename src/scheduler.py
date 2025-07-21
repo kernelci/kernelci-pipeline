@@ -144,11 +144,11 @@ class Scheduler(Service):
         except Exception as e:
             self.log.error(f"Failed to backup {filename} to {new_filename}: {e}")
 
-    def _run_job(self, job_config, runtime, platform, input_node):
+    def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(job_config,
                                                     input_node,
-                                                    runtime, platform)
+                                                    runtime, platform, retry_counter)
         except KeyError as e:
             self.log.error(' '.join([
                 input_node['id'],
@@ -407,7 +407,8 @@ class Scheduler(Service):
                 if not self._verify_architecture_filter(job, input_node):
                     continue
                 if self._api_helper.should_create_node(rules, input_node):
-                    self._run_job(job, runtime, platform, input_node)
+                    retry_counter = event.get('retry_counter', 0)
+                    self._run_job(job, runtime, platform, input_node, retry_counter)
 
         return True
 
