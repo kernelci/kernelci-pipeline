@@ -50,6 +50,11 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         self._storage = kernelci.storage.get_storage(
             storage_config, service_config.storage_cred
         )
+        self._filters = {
+            'op': 'created',
+            'kind': 'checkout',
+            'state': 'running',
+        }
 
     def _find_build_config(self, node):
         revision = node['data']['kernel_revision']
@@ -194,11 +199,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             self.log.error(err_msg)
 
     def _setup(self, args):
-        return self._api_helper.subscribe_filters({
-            'op': 'created',
-            'kind': 'checkout',
-            'state': 'running',
-        })
+        return self._api_helper.subscribe_filters(self._filters)
 
     def _stop(self, sub_id):
         if sub_id:
@@ -217,11 +218,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
                 # try to resubscribe
-                sub_id = self._api_helper.subscribe_filters({
-                    'op': 'created',
-                    'kind': 'checkout',
-                    'state': 'running',
-                })
+                sub_id = self._api_helper.subscribe_filters(self._filters)
                 subscribe_retries += 1
                 if subscribe_retries > 3:
                     self.log.error("Failed to re-subscribe to checkout events")
