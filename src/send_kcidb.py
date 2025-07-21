@@ -66,6 +66,9 @@ class KCIDBBridge(Service):
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
         self._current_user = self._api.user.whoami()
+        self._filters = {
+            'state': ('done', 'available'),
+        }
 
     def _setup(self, args):
         db_conn = (
@@ -81,9 +84,7 @@ class KCIDBBridge(Service):
                 topic_name=args.kcidb_topic_name
             ),
             'kcidb_oo_client': kcidb.oo.Client(db_client),
-            'sub_id': self._api_helper.subscribe_filters({
-                'state': ('done', 'available'),
-            }, promiscuous=True),
+            'sub_id': self._api_helper.subscribe_filters(self._filters, promiscuous=True),
             'origin': args.origin,
         }
 
@@ -702,11 +703,7 @@ in {runtime}",
                 except Exception as e:
                     self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                     time.sleep(10)
-                    context['sub_id'] = self._api_helper.subscribe_filters({
-                        'op': 'created',
-                        'kind': 'node',
-                        'state': 'done',
-                    })
+                    context['sub_id'] = self._api_helper.subscribe_filters(self._filters, promiscuous=True)
                     subscribe_retries += 1
                     if subscribe_retries > 3:
                         self.log.error("Failed to re-subscribe to node events")
