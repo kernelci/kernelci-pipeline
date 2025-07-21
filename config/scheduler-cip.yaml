@@ -36,6 +36,12 @@ scheduler:
       name: lava-cip
     platforms:
       - qemu
+      - beaglebone-black
+      - de0-nano-soc
+      - x86-simatic-ipc227e
+      - x86-siemens-mcom
+      - mcom-mtda
+      - x86-openblocks-iot-vx2
 
   - job: kbuild-gcc-12-x86-612-cip-allnoconfig
     <<: *build-k8s-all
