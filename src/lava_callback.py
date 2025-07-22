@@ -637,7 +637,10 @@ async def checkout(data: ManualCheckout, request: Request,
             if len(data.jobfilter) > 8:
                 item['message'] = 'Too many jobs in jobfilter'
                 return JSONResponse(content=item, status_code=400)
-            for jobname in data.jobfilter:
+            # jobfilter entries can be suffixed with '+', meaning this
+            # job and all of its child jobs are allowed; we should
+            # therefore drop the suffix when checking if job exists
+            for jobname in (f.rstrip('+') for f in data.jobfilter):
                 if not is_job_exist(jobname):
                     item['message'] = f'Job {jobname} not found'
                     return JSONResponse(content=item, status_code=404)
