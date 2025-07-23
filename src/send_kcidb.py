@@ -58,6 +58,7 @@ class KCIDBBridge(Service):
         super().__init__(configs, args, name)
         self._jobs = configs['jobs']
         self._platforms = configs['platforms']
+        self._api_url = self._api_config.url
         self._lava_labs = {}
         self._last_unprocessed_search = None
         self._nodecache = {}
@@ -306,7 +307,7 @@ class KCIDBBridge(Service):
                 'kernel_type': node['data'].get('kernel_type'),
                 'error_code': error_code,
                 'error_msg': node['data'].get('error_msg'),
-                'maestro_viewer': f"https://api.kernelci.org/viewer?node_id={node['id']}"
+                'maestro_viewer': f"{self._api_url}/viewer?node_id={node['id']}",
             }
         }
         artifacts = node.get('artifacts')
