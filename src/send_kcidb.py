@@ -700,7 +700,10 @@ in {runtime}",
                 # Listen and wait for a node instead of processing the queue
                 node = None
                 try:
-                    node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                    node, is_hierarchy, is_retry = self._api_helper.receive_event_node(context['sub_id'])
+                    if is_retry:
+                        # Do not re-submit parent node when a node is submitted for a retry
+                        continue
                 except Exception as e:
                     self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                     time.sleep(10)
