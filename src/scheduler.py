@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2021, 2022, 2023 Collabora Limited
+# Copyright (C) 2021-2025 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
@@ -105,11 +105,17 @@ class Scheduler(Service):
         # ToDo: if stat != 0 then report error to API?
 
     def _setup(self, args):
-        return self._api.subscribe('node')
+        # return self._api.subscribe('node')
+        node_sub_id = self._api.subscribe('node')
+        self.log.debug(f"Node channel sub id: {node_sub_id}")
+        retry_sub_id = self._api.subscribe('retry')
+        self.log.debug(f"Retry channel sub id: {retry_sub_id}")
+        return [node_sub_id, retry_sub_id]
 
-    def _stop(self, sub_id):
-        if sub_id:
-            self._api_helper.unsubscribe_filters(sub_id)
+    def _stop(self, sub_ids):
+        for sub_id in sub_ids:
+            if sub_id:
+                self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
 
     def backup_cleanup(self):
@@ -371,7 +377,17 @@ class Scheduler(Service):
             return False
         return True
 
-    def _run(self, sub_id):
+    def _run(self, sub_ids):
+        threads = []
+        for sub_id in sub_ids:
+            thread = threading.Thread(target=self._run_scheduler, args=(sub_id,))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+    def _run_scheduler(self, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
         subscribe_retries = 0
@@ -381,14 +397,15 @@ class Scheduler(Service):
             event = None
             try:
                 event = self._api_helper.receive_event_data(sub_id, block=False)
+                self.log.debug(f"Event received: {sub_id}:{event['id']}")
             except Exception as e:
                 self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
-                time.sleep(10)
-                sub_id = self._api.subscribe('node')
-                subscribe_retries += 1
-                if subscribe_retries > 3:
-                    self.log.error("Failed to re-subscribe to node events")
-                    return False
+                # time.sleep(10)
+                # sub_id = self._api.subscribe('node')
+                # subscribe_retries += 1
+                # if subscribe_retries > 3:
+                #     self.log.error("Failed to re-subscribe to node events")
+                #     return False
                 continue
             if not event:
                 # If we received a keep-alive event, just continue
@@ -448,5 +465,11 @@ if __name__ == '__main__':
     opts = parse_opts('scheduler', globals())
     yaml_configs = opts.get_yaml_configs() or 'config'
     configs = kernelci.config.load(yaml_configs)
+    # sub_ids = sch.setup(opts)
+    # threads = []
+    # for sub_id in sub_ids:
+    #     thread = threading.Thread(target=sch._run_scheduler, args=(sub_id,))
+    #     threads.append(thread)
+    #     thread.start()
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

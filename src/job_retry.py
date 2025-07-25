@@ -84,7 +84,7 @@ Not submitting a retry.")
                 # Added a flag `is_retry` to signal a job retry event
                 event_data["is_retry"] = True
                 event = {'data': event_data}
-                self._api_helper.api.send_event('node', event)
+                self._api_helper.api.send_event('retry', event)
                 self.log.info(f"Job retry for node {node['id']} submitted")
             else:
                 self.log.error(f"Not able to retry the job as parent kind is unknown: {node['id']}")
