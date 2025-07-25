@@ -85,6 +85,12 @@ class Scheduler(Service):
             self._storage_config, storage_cred
         )
         self._job_tmp_dirs = {}
+        self._threads = []
+        self._api_helper_lock = threading.Lock()
+        self._stop_thread_lock = threading.Lock()
+        self._context_lock = threading.Lock()
+        self._context = {}
+        self._stop_thread = False
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
@@ -105,11 +111,19 @@ class Scheduler(Service):
         # ToDo: if stat != 0 then report error to API?
 
     def _setup(self, args):
-        return self._api.subscribe('node')
+        node_sub_id = self._api.subscribe('node')
+        self.log.debug(f"Node channel sub id: {node_sub_id}")
+        retry_sub_id = self._api.subscribe('retry')
+        self.log.debug(f"Retry channel sub id: {retry_sub_id}")
+        self._context = {"node": node_sub_id, "retry": retry_sub_id}
+        return {"node": node_sub_id, "retry": retry_sub_id}
 
-    def _stop(self, sub_id):
-        if sub_id:
-            self._api_helper.unsubscribe_filters(sub_id)
+    def _stop(self, context):
+        self._stop_thread = True
+        for _, sub_id in self._context.items():
+            if sub_id:
+                self.log.info(f"Unsubscribing: {sub_id}")
+                self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
 
     def backup_cleanup(self):
@@ -144,11 +158,11 @@ class Scheduler(Service):
         except Exception as e:
             self.log.error(f"Failed to backup {filename} to {new_filename}: {e}")
 
-    def _run_job(self, job_config, runtime, platform, input_node):
+    def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(job_config,
                                                     input_node,
-                                                    runtime, platform)
+                                                    runtime, platform, retry_counter)
         except KeyError as e:
             self.log.error(' '.join([
                 input_node['id'],
@@ -162,6 +176,7 @@ class Scheduler(Service):
 
         if not node:
             return
+        self.log.debug(f"Job node created: {node['id']}. Parent: {node['parent']}")
         # Most of the time, the artifacts we need originate from the parent
         # node. Import those into the current node, working on a copy so the
         # original node doesn't get "polluted" with useless artifacts when we
@@ -371,27 +386,44 @@ class Scheduler(Service):
             return False
         return True
 
-    def _run(self, sub_id):
+    def _run(self, context):
+        for channel, sub_id in self._context.items():
+            thread = threading.Thread(target=self._run_scheduler, args=(channel, sub_id,))
+            self._threads.append(thread)
+            thread.start()
+
+        for thread in self._threads:
+            thread.join()
+
+    def _run_scheduler(self, channel, sub_id):
         self.log.info("Listening for available checkout events")
         self.log.info("Press Ctrl-C to stop.")
         subscribe_retries = 0
 
         while True:
+            with self._stop_thread_lock:
+                if self._stop_thread:
+                    break
             last_heartbeat['time'] = time.time()
             event = None
             try:
                 event = self._api_helper.receive_event_data(sub_id, block=False)
+                if not event:
+                    # If we received a keep-alive event, just continue
+                    continue
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
-                time.sleep(10)
-                sub_id = self._api.subscribe('node')
+                with self._stop_thread_lock:
+                    if self._stop_thread:
+                        break
+                self.log.error(f"Error receiving event: {e}")
+                self.log.debug(f"Re-subscribing to channel: {channel}")
+                sub_id = self._api.subscribe(channel)
+                with self._context_lock:
+                    self._context[channel] = sub_id
                 subscribe_retries += 1
                 if subscribe_retries > 3:
-                    self.log.error("Failed to re-subscribe to node events")
+                    self.log.error(f"Failed to re-subscribe to channel: {channel}")
                     return False
-                continue
-            if not event:
-                # If we received a keep-alive event, just continue
                 continue
             subscribe_retries = 0
             for job, runtime, platform, rules in self._sched.get_schedule(event):
@@ -400,14 +432,20 @@ class Scheduler(Service):
                 # Add to node data the jobfilter if it exists in event
                 if jobfilter and isinstance(jobfilter, list):
                     input_node['jobfilter'] = jobfilter
+                platform_filter = event.get('platform_filter')
+                if platform_filter and isinstance(platform_filter, list):
+                    input_node['platform_filter'] = platform_filter
                 # we cannot use rules, as we need to have info about job too
                 if job.params.get('frequency', None):
                     if not self._verify_frequency(job, input_node, platform):
                         continue
                 if not self._verify_architecture_filter(job, input_node):
                     continue
-                if self._api_helper.should_create_node(rules, input_node):
-                    self._run_job(job, runtime, platform, input_node)
+                with self._api_helper_lock:
+                    flag = self._api_helper.should_create_node(rules, input_node)
+                if flag:
+                    retry_counter = event.get('retry_counter', 0)
+                    self._run_job(job, runtime, platform, input_node, retry_counter)
 
         return True
 
