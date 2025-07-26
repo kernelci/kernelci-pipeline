@@ -791,7 +791,6 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
-      - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-breakpoints
     event: *kbuild-gcc-12-arm64-node-event
@@ -1019,7 +1018,7 @@ scheduler:
       name: kbuild-gcc-12-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
-      - stm32mp157a-dhcor-avenger96
+      - beaglebone-black
 
   - job: kselftest-memfd
     event:
@@ -1193,7 +1192,7 @@ scheduler:
       name: kbuild-gcc-12-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
-      - stm32mp157a-dhcor-avenger96
+      - beaglebone-black
 
   - job: kselftest-sync
     event:
@@ -1224,7 +1223,6 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
-      - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-timers
     event: *kbuild-gcc-12-arm64-node-event
@@ -1277,7 +1275,7 @@ scheduler:
       name: kbuild-gcc-12-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
-      - stm32mp157a-dhcor-avenger96
+      - beaglebone-black
 
   - job: kselftest-ublk
     event:
