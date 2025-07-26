@@ -213,7 +213,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         while True:
             checkout_node = None
             try:
-                checkout_node, _ = self._api_helper.receive_event_node(sub_id)
+                checkout_node, _, _ = self._api_helper.receive_event_node(sub_id)
             except Exception as e:
                 self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                 time.sleep(10)
