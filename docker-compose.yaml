@@ -20,7 +20,7 @@ services:
     volumes: &base-volumes
 #      - './src:/home/kernelci/pipeline'
       - './config:/home/kernelci/config'
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: on-failure
@@ -43,7 +43,7 @@ services:
       - './data/k8s-credentials/.kube:/home/kernelci/.kube'
       - './data/k8s-credentials/.config/gcloud:/home/kernelci/.config/gcloud'
       - './data/k8s-credentials/.azure:/home/kernelci/.azure'
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: on-failure
@@ -65,7 +65,7 @@ services:
       - './data/output:/home/kernelci/data/output'
       - './.docker-env:/home/kernelci/.docker-env'
       - '/var/run/docker.sock:/var/run/docker.sock'  # Docker-in-Docker
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -131,7 +131,7 @@ services:
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -200,4 +200,4 @@ services:
       - './data/ssh:/home/kernelci/data/ssh'
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
