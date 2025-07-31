@@ -74,10 +74,12 @@ def validate_scheduler_jobs(data):
     """
     schedules = data.get("scheduler")
     jobs = data.get("jobs")
+    runtimes = data.get("runtimes")
     for entry in schedules:
         jobname = entry.get("job")
         if jobname not in jobs.keys():
             raise yaml.YAMLError(f"Job {jobname} not found in jobs")
+        jobinfo = jobs[jobname]
         # scheduler entry must have defined in event: channel, (state or result), kind
         event = entry.get("event")
         if not event:
@@ -95,6 +97,37 @@ def validate_scheduler_jobs(data):
             for platform in entry.get("platforms"):
                 if platform not in data.get("platforms"):
                     raise yaml.YAMLError(f"Platform {platform} not found in platforms")
+        if jobinfo.get("kind") == "kbuild":
+            if entry.get("platforms"):
+                # kbuild jobs should not have platforms defined in scheduler
+                raise yaml.YAMLError(
+                    f"Platform not allowed for kbuild job {jobname} in scheduler entry: {entry}"
+                )
+            runtime = entry.get("runtime")
+            if not runtime:
+                raise yaml.YAMLError(
+                    f"Runtime not found for kbuild job {jobname} in scheduler entry: {entry}"
+                )
+            runtimename = runtime.get("name")
+            if not runtimename:
+                raise yaml.YAMLError(
+                    f"Runtime name not found for kbuild job {jobname} in scheduler entry: {entry}"
+                )
+            runtimeinfo = runtimes.get(runtimename)
+            if not runtimeinfo:
+                raise yaml.YAMLError(
+                    f"Runtime {runtimename} not found in runtimes for "
+                    f"kbuild job {jobname} in scheduler entry: {entry}"
+                )
+            lab_type = runtimeinfo.get("lab_type")
+            if not lab_type:
+                raise yaml.YAMLError(
+                    f"Lab type not found for runtime {runtimename} in scheduler entry: {jobname}: {entry}"
+                )
+            if lab_type not in ("kubernetes", "docker"):
+                raise yaml.YAMLError(
+                    f"Lab type {lab_type} not allowed for kbuild job {jobname} in scheduler entry: {entry}"
+                )
 
 
 def validate_unused_jobs(data):
