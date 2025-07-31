@@ -702,13 +702,15 @@ in {runtime}",
                 try:
                     node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
                 except Exception as e:
-                    self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
-                    time.sleep(10)
-                    context['sub_id'] = self._api_helper.subscribe_filters(self._filters, promiscuous=True)
-                    subscribe_retries += 1
-                    if subscribe_retries > 3:
-                        self.log.error("Failed to re-subscribe to node events")
-                        return False
+                    self.log.error(f"Error receiving event: {e}")
+                    if "404 Client Error" in str(e):
+                        self.log.error(f"Error receiving event: {e}. Re-subscribing...")
+                        context['sub_id'] = self._api_helper.subscribe_filters(self._filters, promiscuous=True)
+                        subscribe_retries += 1
+                        if subscribe_retries > 3:
+                            self.log.error("Failed to re-subscribe to node events")
+                            return False
+                        continue
                     continue
                 subscribe_retries = 0
                 self.log.info(f"Processing event node: {node['id']}")

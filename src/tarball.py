@@ -215,17 +215,18 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             try:
                 checkout_node, _ = self._api_helper.receive_event_node(sub_id)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
-                time.sleep(10)
-                # try to resubscribe
-                sub_id = self._api_helper.subscribe_filters(self._filters)
-                subscribe_retries += 1
-                if subscribe_retries > 3:
-                    self.log.error("Failed to re-subscribe to checkout events")
-                    return False
+                self.log.error(f"Error receiving event: {e}")
+                if "404 Client Error" in str(e):
+                    self.log.error(f"Error receiving event: {e}. Re-subscribing...")
+                    sub_id = self._setup(None)
+                    subscribe_retries += 1
+                    if subscribe_retries > 3:
+                        self.log.error("Failed to re-subscribe to checkout events")
+                        return False
+                    continue
                 continue
-            subscribe_retries = 0
 
+            subscribe_retries = 0
             build_config = self._find_build_config(checkout_node)
             if build_config is None:
                 continue
