@@ -434,6 +434,12 @@ platforms:
 
   shell:
 
+  spacemit-k1-bananapi-f3:
+    <<: *riscv-device
+    mach: spacemit
+    dtb: dtbs/spacemit/k1-bananapi-f3.dtb
+    compatible: ['bananapi,bpi-f3', 'spacemit,k1']
+
   stm32mp157a-dhcor-avenger96:
     <<: *arm-device
     mach: st
