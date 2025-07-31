@@ -382,13 +382,15 @@ class Scheduler(Service):
             try:
                 event = self._api_helper.receive_event_data(sub_id, block=False)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
-                time.sleep(10)
-                sub_id = self._api.subscribe('node')
-                subscribe_retries += 1
-                if subscribe_retries > 3:
-                    self.log.error("Failed to re-subscribe to node events")
-                    return False
+                self.log.error(f"Error receiving event: {e}")
+                if "404 Client Error" in str(e):
+                    self.log.error(f"Error receiving event: {e}. Re-subscribing...")
+                    sub_id = self._setup(None)
+                    subscribe_retries += 1
+                    if subscribe_retries > 3:
+                        self.log.error("Failed to re-subscribe to node events")
+                        return False
+                    continue
                 continue
             if not event:
                 # If we received a keep-alive event, just continue
