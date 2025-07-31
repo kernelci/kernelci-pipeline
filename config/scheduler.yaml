@@ -272,6 +272,12 @@ scheduler:
       - sun20i-d1-nezha
       - jh7100-starfive-visionfive-v1
 
+  - job: baseline-riscv-collabora
+    event: *kbuild-gcc-12-riscv-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - spacemit-k1-bananapi-f3
+
   - job: baseline-x86
     event: &kbuild-gcc-12-x86-node-event
       <<: *node-event-kbuild
