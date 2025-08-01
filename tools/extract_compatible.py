@@ -16,13 +16,16 @@ import subprocess
 import yaml
 import re
 
+script_path = os.getcwd()
+linux_path = os.path.join(script_path + "/linux")
+
 
 def get_kernel_sources():
     """
     Get kernel sources from kernelci-pipeline
     """
     repo_url = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/"
-    if not os.path.exists("linux"):
+    if not os.path.exists(linux_path):
         subprocess.run(["git", "clone", "--depth", "1", repo_url], check=True)
 
 
@@ -30,7 +33,7 @@ def find_file(filename):
     """
     Find file in kernel sources
     """
-    for root, dirs, files in os.walk("linux"):
+    for root, dirs, files in os.walk(linux_path):
         if filename in files:
             return os.path.join(root, filename)
     return None
@@ -43,7 +46,7 @@ def get_compatible(dtb, platform, ex_compat):
     get_kernel_sources()
     basename = os.path.basename(dtb)
     dtsbase = basename.replace(".dtb", ".dts")
-    os.chdir("linux")
+    os.chdir(linux_path)
     dtsfile = find_file(dtsbase)
     if not dtsfile:
         print(f"Could not find DTS file! {dtsbase}")
