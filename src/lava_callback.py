@@ -207,6 +207,14 @@ def _upload_log(log_parser, job_node, storage):
         return _upload_file(storage, job_node, src, 'log.txt.gz')
 
 
+def _upload_patch(data, upload_id, filename, storage):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        src = os.path.join(tmp_dir, filename)
+        with open(src, 'wt') as f:
+            f.write(data)
+        return _upload_file(storage, upload_id, src, filename)
+
+
 @app.get('/', response_class=HTMLResponse)
 async def read_root():
     page = '''
@@ -741,6 +749,11 @@ async def patchset(data: PatchSet, request: Request,
         item['message'] = 'Node is not a checkout'
         return JSONResponse(content=item, status_code=400)
 
+    # Maybe add field who requested the patchset?
+    treeidsrc = node['data']['kernel_revision']['url'] + \
+        node['data']['kernel_revision']['branch'] + str(datetime.now())
+    treeid = hashlib.sha256(treeidsrc.encode()).hexdigest()
+
     # validate patch URL
     if data.patchurl:
         if isinstance(data.patchurl, list):
@@ -754,20 +767,22 @@ async def patchset(data: PatchSet, request: Request,
         else:
             return 'Invalid patch URL type', 400
     elif data.patch:
-        # We need to implement upload to storage and return URL
-        item['message'] = 'Not implemented yet'
-        return JSONResponse(content=item, status_code=501)
+        if isinstance(data.patch, list):
+            data.patchurl = []
+            upload_id = {
+                'name': 'patchset',
+                'id': treeid,
+            }
+            for i, patch in enumerate(data.patch):
+                patchurl = _upload_patch(patch, upload_id, f'patch{i}', storage)
+                data.patchurl.append(patchurl)
     else:
         item['message'] = 'Missing patch URL or patch'
         return JSONResponse(content=item, status_code=400)
 
     # Now we can submit custom patchset node to the API
-    # Maybe add field who requested the patchset?
     timeout = 300
     patchset_timeout = datetime.utcnow() + timedelta(minutes=timeout)
-    treeidsrc = node['data']['kernel_revision']['url'] + \
-        node['data']['kernel_revision']['branch'] + str(datetime.now())
-    treeid = hashlib.sha256(treeidsrc.encode()).hexdigest()
     # copy node to newnode
     newnode = node.copy()
     # delete some fields, like id, created, updated, timeout
