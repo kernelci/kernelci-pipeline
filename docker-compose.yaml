@@ -201,3 +201,16 @@ services:
       - './data/src:/home/kernelci/data/src'
       - './data/output:/home/kernelci/data/output'
       - './logs:/home/kernelci/pipeline/logs'
+
+  job-retry:
+    <<: *base-service
+    container_name: 'kernelci-pipeline-job-retry'
+    command:
+      - './src/job_retry.py'
+      - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
+      - 'run'
+    volumes:
+      - './config:/home/kernelci/config'
+      - './logs:/home/kernelci/pipeline/logs'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
