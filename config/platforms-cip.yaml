@@ -1,0 +1,49 @@
+_anchors:
+
+  arm64-device: &arm64-device
+    arch: arm64
+    boot_method: u-boot
+
+  arm-device: &arm-device
+    <<: *arm64-device
+    arch: arm
+
+  riscv-device: &riscv-device
+    arch: riscv
+    boot_method: u-boot
+
+  x86_64-device: &x86_64-device
+    arch: x86_64
+    boot_method: grub
+    mach: x86
+
+platforms:
+  zynqmp-zcu102:
+    <<: *arm64-device
+    mach: zynqmp
+    dtb: dtbs/zynqmp-zcu102-rev1.0.dtb
+    compatible: ['xlnx,zynqmp-zcu102-rev1.0', 'xlnx,zynqmp-zcu102', 'xlnx,zynqmp']
+
+  de0-nano-soc:
+    <<: *arm-device
+    mach: intel
+    dtb: dtbs/socfpga_cyclone5_de0_nano_soc.dtb
+    compatible: ['terasic,de0-atlas', 'altr,socfpga-cyclone5', 'altr,socfpga']
+
+  r8a7743-iwg20d-q7:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a7743-iwg20d-q7-dbcm-ca.dtb
+    compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
+
+  r8a774a1-hihope-rzg2m-ex:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/r8a774a1-hihope-rzg2m-ex.dtb
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m']
+
+  r9a07g043f01-smarc-rzfive:
+    <<: *riscv-device
+    mach: riscv
+    dtb: dtbs/r9a07g043f01-smarc.dtb
+    compatible: ['renesas,smarc-evk', 'renesas,r9a07g043f01', 'renesas,r9a07g043']
