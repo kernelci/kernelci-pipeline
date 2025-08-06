@@ -91,12 +91,6 @@ jobs:
         - 'lab-setup'
         - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
     rules:
-      tree:
-        - 'mainline'
-        - 'stable-rc'
-        - 'next'
-        - 'stable'
-        - 'cip'
       branch:
         - 'cip:linux-6.1.y-cip'
 
