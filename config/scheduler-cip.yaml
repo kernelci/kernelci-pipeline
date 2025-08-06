@@ -96,17 +96,20 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-#  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
-#    <<: *build-k8s-all
-#
-#  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
-#    <<: *build-k8s-all
-#
-#  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
-#    <<: *build-k8s-all
-#
-#  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
-#    <<: *build-k8s-all
+  - job: kbuild-gcc-12-arm64-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-612-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-61-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-510-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-419-cip-k8s
+    <<: *build-k8s-all
 #  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
 #    event:
 #      <<: *node-event-kbuild

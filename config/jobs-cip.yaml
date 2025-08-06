@@ -47,71 +47,89 @@ jobs:
 #  baseline-x86-cip: *baseline-job
   baseline-arm64-cip: *baseline-job
 
-## start of CIP arm64 configuration
-#  kbuild-gcc-12-arm64-allnoconfig: &kbuild-gcc-12-arm64-allnoconfig-job
-#    <<: *kbuild-gcc-12-arm64-job
-#    params:
-#      <<: *kbuild-gcc-12-arm64-params
-#      defconfig:
-#        - defconfig
-#        - allnoconfig
-#    rules:
-#      tree:
-#      - 'arm64'
-#      - 'next'
-#      - 'sashal-next'
-#
-#  kbuild-gcc-12-arm64-612-cip-allnoconfig:
-#    <<: *kbuild-gcc-12-arm64-allnoconfig-job
-#    params:
-#      <<: *kbuild-gcc-12-arm64-params
-#      defconfig:
-#        - defconfig
-#        - allnoconfig
-#      fragments:
-#        - 'cip://6.12.y-cip/arm64/qemu_arm64_defconfig'
-#    rules:
-#      branch:
-#        - 'cip:linux-6.12.y-cip'
-#
-#  kbuild-gcc-12-arm64-61-cip-allnoconfig:
-#    <<: *kbuild-gcc-12-arm64-allnoconfig-job
-#    params:
-#      <<: *kbuild-gcc-12-arm64-params
-#      defconfig:
-#        - defconfig
-#        - allnoconfig
-#      fragments:
-#        - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
-#    rules:
-#      branch:
-#        - 'cip:linux-6.1.y-cip'
-#
-#  kbuild-gcc-12-arm64-510-cip-allnoconfig:
-#    <<: *kbuild-gcc-12-arm64-allnoconfig-job
-#    params:
-#      <<: *kbuild-gcc-12-arm64-params
-#      defconfig:
-#        - defconfig
-#        - allnoconfig
-#      fragments:
-#        - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
-#    rules:
-#      branch:
-#        - 'cip:linux-5.10.y-cip-rt'
-#
-#  kbuild-gcc-12-arm64-419-cip-allnoconfig:
-#    <<: *kbuild-gcc-12-arm64-allnoconfig-job
-#    params:
-#      <<: *kbuild-gcc-12-arm64-params
-#      defconfig:
-#        - defconfig
-#        - allnoconfig
-#      fragments:
-#        - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
-#    rules:
-#      branch:
-#        - 'cip:linux-4.19.y-cip-rt'
+# start of CIP arm64 configuration
+  kbuild-gcc-12-arm64-cip-k8s: &kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+    rules:
+      tree:
+      - 'arm64'
+      - 'next'
+      - 'sashal-next'
+
+  kbuild-gcc-12-arm64-612-cip-k8s:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.12.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-arm64-61-cip-k8s:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      tree:
+        - 'mainline'
+        - 'stable-rc'
+        - 'next'
+        - 'stable'
+        - 'cip'
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-arm64-510-cip-k8s:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-12-arm64-419-cip-k8s:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
 
 # start of CIP x86 configuration
 #  kbuild-gcc-12-x86-612-cip-allnoconfig:
