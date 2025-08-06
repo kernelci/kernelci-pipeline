@@ -482,13 +482,15 @@ async def jobretry(data: JobRetry, request: Request,
         knode['jobfilter'].extend(data.jobfilter)
     knode['op'] = 'updated'
     knode['data'].pop('artifacts', None)
-    # state - done, result - pass
-    if knode.get('state') != 'done':
-        item['message'] = 'Kernel build is not done'
+    # state - closing, available or done / result - pass
+    if knode.get('state') == 'running':
+        item['message'] = 'Kernel build is not complete yet'
         return JSONResponse(content=item, status_code=400)
     if knode.get('result') != 'pass':
         item['message'] = 'Kernel build result is not pass'
         return JSONResponse(content=item, status_code=400)
+    # set state to available so retried test job is scheduled as expected
+    knode['state'] = 'available'
     # remove created, updated, timeout, owner, submitter, usergroups
     knode.pop('created', None)
     knode.pop('updated', None)
