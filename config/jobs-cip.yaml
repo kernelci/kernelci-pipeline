@@ -45,6 +45,7 @@ _anchors:
 
 jobs:
 #  baseline-x86-cip: *baseline-job
+  baseline-arm-cip: *baseline-job
   baseline-arm64-cip: *baseline-job
 
 # start of CIP arm64 configuration

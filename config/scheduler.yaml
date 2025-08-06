@@ -67,6 +67,18 @@ scheduler:
       - imx6q-udoo
       - stm32mp157a-dhcor-avenger96
 
+# baseline cip
+  - job: baseline-arm-cip
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-cip-runtime
+      type: lava
+      name: lava-cip
+    platforms: &lava-cip-arm
+      - beaglebone-black
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+# baseline cip
+
   - job: baseline-arm-clabbe
     event: *kbuild-gcc-12-arm-node-event
     runtime: &lava-clabbe-runtime
@@ -143,6 +155,17 @@ scheduler:
     platforms:
       - mt8390-genio-700-evk
 
+# CIP added test job
+  - job: baseline-arm64-cip
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms: &lava-cip-arm64
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
+# CIP added test job
+
   - job: baseline-arm64-android
     event:
       <<: *node-event-kbuild
@@ -186,6 +209,7 @@ scheduler:
       - rk3399-roc-pc
       - sun50i-a64-pine64-plus
       - sun50i-h5-libretech-all-h3-cc
+
 
   - job: baseline-arm64-clabbe
     event: *kbuild-gcc-12-arm64-node-event
@@ -785,6 +809,19 @@ scheduler:
     event: *kbuild-gcc-12-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
+
+# CIP test kselftest
+  - job: kselftest-arm64
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-breakpoints
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms:
+      - beaglebone-black
+# CIP test kselftest
 
   - job: kselftest-breakpoints
     event: *kbuild-gcc-12-arm-node-event
