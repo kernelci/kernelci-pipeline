@@ -20,6 +20,11 @@ _anchors:
     kind: kbuild
     state: available
 
+  node-event-kbuild-done: &node-event-kbuild-done
+    <<: *node-event-kbuild
+    state: done
+    result: pass
+
   job-event: &job-event
     channel: node
     state: done
@@ -332,12 +337,17 @@ scheduler:
     platforms:
       - supermicro-as-2015hr-tnr
 
-  - job: coverage-report
+  - job: coverage-report-arm
     <<: *build-k8s-all
-    event:
-      <<: *node-event-kbuild
-      state: done
-      result: pass
+    event: *node-event-kbuild-done
+
+  - job: coverage-report-arm64
+    <<: *build-k8s-all
+    event: *node-event-kbuild-done
+
+  - job: coverage-report-x86
+    <<: *build-k8s-all
+    event: *node-event-kbuild-done
 
   - job: kbuild-clang-17-arm
     <<: *build-k8s-all
