@@ -43,10 +43,3 @@ platforms:
     mach: renesas
     dtb: dtbs/r8a7743-iwg20d-q7-dbcm-ca.dtb
     compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
-
-# riscv platforms
-  r9a07g043f01-smarc-rzfive:
-    <<: *riscv-device
-    mach: riscv
-    dtb: dtbs/r9a07g043f01-smarc.dtb
-    compatible: ['renesas,smarc-evk', 'renesas,r9a07g043f01', 'renesas,r9a07g043']
