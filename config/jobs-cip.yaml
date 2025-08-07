@@ -108,7 +108,6 @@ jobs:
         - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
-        - 'cip:linux-5.10.y-cip-rt'
         - 'cip:linux-5.10.y-cip'
 
   kbuild-gcc-12-arm64-419-cip-k8s:
@@ -125,7 +124,6 @@ jobs:
         - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
-        - 'cip:linux-4.19.y-cip-rt'
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm64 configuration for boot tests
@@ -176,7 +174,6 @@ jobs:
         - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
-        - 'cip:linux-5.10.y-cip-rt'
         - 'cip:linux-5.10.y-cip'
 
   kbuild-gcc-12-arm64-419-cip-allnoconfig:
@@ -192,7 +189,6 @@ jobs:
         - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
-        - 'cip:linux-4.19.y-cip-rt'
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP x86 configuration
