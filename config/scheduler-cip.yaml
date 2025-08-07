@@ -174,6 +174,121 @@ scheduler:
   - job: kselftest-breakpoints
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-cip-runtime
-    platforms:
-      - beaglebone-black
+    platforms: *lava-cip-arm
+
+  - job: kselftest-capabilities
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-capabilities
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-acct
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-acct
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-device-error-logs-main
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-device-error-logs-main
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-efivars
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
 # CIP test kselftest
