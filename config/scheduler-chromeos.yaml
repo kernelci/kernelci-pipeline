@@ -869,14 +869,26 @@ scheduler:
   - job: tast-platform-arm64-mediatek
     <<: *test-job-chromeos-mediatek
 
+  - job: tast-platform-arm64-mediatek
+    <<: *test-job-arm64-mediatek-coverage
+
   - job: tast-platform-arm64-qualcomm
     <<: *test-job-chromeos-qualcomm
+
+  - job: tast-platform-arm64-qualcomm
+    <<: *test-job-arm64-qualcomm-coverage
 
   - job: tast-platform-x86-amd
     <<: *test-job-chromeos-amd
 
+  - job: tast-platform-x86-amd
+    <<: *test-job-x86-amd-coverage
+
   - job: tast-platform-x86-intel
     <<: *test-job-chromeos-intel-tast
+
+  - job: tast-platform-x86-intel
+    <<: *test-job-x86-intel-coverage
 
   - job: tast-power-arm64-mediatek
     <<: *test-job-chromeos-mediatek
