@@ -18,6 +18,7 @@ _anchors:
     kind: job
 
 scheduler:
+
 #  - job: baseline-x86-cip
 #    event:
 #      <<: *node-event-kbuild
@@ -28,14 +29,28 @@ scheduler:
 #    platforms:
 #      - qemu
 
+# baseline cip
+  - job: baseline-arm-cip
+    event: &kbuild-gcc-12-arm-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-cip
+    runtime: &lava-cip-runtime
+      type: lava
+      name: lava-cip
+    platforms: &lava-cip-arm
+      - beaglebone-black
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+# baseline cip
+
   - job: baseline-arm64-cip
-    event:
+    event: &kbuild-gcc-12-arm64-node-event
       <<: *node-event-kbuild
       name: baseline-arm64-cip
     runtime:
       type: lava
       name: lava-cip
-    platforms:
+    platforms: &lava-cip-arm64
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
@@ -149,3 +164,16 @@ scheduler:
 #      name: lava-cip
 #    platforms:
 #      - beaglebone-black
+
+# CIP test kselftest
+  - job: kselftest-arm64
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-breakpoints
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms:
+      - beaglebone-black
+# CIP test kselftest
