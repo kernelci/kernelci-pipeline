@@ -110,6 +110,9 @@ trees:
   padovan:
     url: "https://github.com/padovan/linux.git"
 
+  pawiecz:
+    url: "https://github.com/pawiecz/linux.git"
+
   pm:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
 
