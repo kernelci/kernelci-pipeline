@@ -4,8 +4,6 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-version: '3'
-
 services:
 
   monitor: &base-service
