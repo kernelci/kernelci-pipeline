@@ -122,13 +122,25 @@ scheduler:
   - job: kbuild-gcc-12-arm64-612-cip-k8s
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-61-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-510-cip-k8s
     <<: *build-k8s-all
+  
+  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-419-cip-k8s
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
     <<: *build-k8s-all
 
 # CIP test kselftest
