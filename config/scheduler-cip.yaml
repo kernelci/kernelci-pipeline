@@ -23,11 +23,30 @@ scheduler:
     event: &kbuild-gcc-12-arm-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm
+    runtime: &lava-collabora-runtime
+      type: lava
+      name: lava-collabora
+    platforms: &collabora-arm-platforms
+      - imx6q-sabrelite
+      - odroid-xu3
+      - rk3288-rock2-square
+      - rk3288-veyron-jaq
 
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-12-arm64
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm64-platforms
+      - bcm2711-rpi-4-b
+      - meson-g12b-a311d-khadas-vim3
+      - mt8365-genio-350-evk
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
 
 # baseline cip
   - job: baseline-arm-cip
