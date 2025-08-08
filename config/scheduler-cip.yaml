@@ -72,17 +72,17 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
-    event:
-      <<: *kbuild-gcc-12-arm64-node-event
-      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - zynqmp-zcu102
-      - r8a774a1-hihope-rzg2m-ex
-
+#  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+#    event:
+#      <<: *kbuild-gcc-12-arm64-node-event
+#      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - zynqmp-zcu102
+#      - r8a774a1-hihope-rzg2m-ex
+#
   - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
     event:
       <<: *kbuild-gcc-12-arm64-node-event
@@ -120,6 +120,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-612-cip-k8s
+    <<: *build-k8s-all
+  
+  - job: kbuild-gcc-12-arm64-cip-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-612-cip-allnoconfig

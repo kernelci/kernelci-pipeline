@@ -49,7 +49,7 @@ jobs:
   baseline-arm64-cip: *baseline-job
 
 # start of CIP arm64 configuration for k8s
-  kbuild-gcc-12-arm64-cip-k8s: &kbuild-gcc-12-arm64-allnoconfig-job
+  kbuild-gcc-12-arm64-cip-k8s: &kbuild-gcc-12-arm64-k8s-job
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -63,7 +63,7 @@ jobs:
       - 'sashal-next'
 
   kbuild-gcc-12-arm64-612-cip-k8s:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-k8s-job
     params:
       <<: *kbuild-gcc-12-arm64-params
       defconfig:
@@ -79,7 +79,7 @@ jobs:
         - 'cip:linux-6.12.y-cip'
 
   kbuild-gcc-12-arm64-61-cip-k8s:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-k8s-job
     params:
       <<: *kbuild-gcc-12-arm64-params
       defconfig:
@@ -95,7 +95,7 @@ jobs:
         - 'cip:linux-6.1.y-cip'
 
   kbuild-gcc-12-arm64-510-cip-k8s:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-k8s-job
     params:
       <<: *kbuild-gcc-12-arm64-params
       defconfig:
@@ -111,7 +111,7 @@ jobs:
         - 'cip:linux-5.10.y-cip'
 
   kbuild-gcc-12-arm64-419-cip-k8s:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-k8s-job
     params:
       <<: *kbuild-gcc-12-arm64-params
       defconfig:
@@ -127,8 +127,21 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm64 configuration for boot tests
+  kbuild-gcc-12-arm64-cip-allnoconfig: &kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+    rules:
+      tree:
+      - 'arm64'
+      - 'next'
+      - 'sashal-next'
+
   kbuild-gcc-12-arm64-612-cip-allnoconfig:
-    <<: *baseline-job
+    <<: *kbuild-gcc-12-arm64-job
     params:
       defconfig:
         - defconfig
