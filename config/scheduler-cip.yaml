@@ -60,7 +60,9 @@ scheduler:
 
 # baseline cip
   - job: baseline-arm-cip
-    event: *kbuild-gcc-12-arm-node-event
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-cip
     runtime: &lava-cip-runtime
       type: lava
       name: lava-cip
@@ -70,7 +72,9 @@ scheduler:
       - r8a7743-iwg20d-q7
 
   - job: baseline-arm64-cip
-    event: *kbuild-gcc-12-arm64-node-event
+    event: 
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-cip
     runtime:
       type: lava
       name: lava-cip
