@@ -94,7 +94,7 @@ scheduler:
 
   - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
     event:
-      <<: *node-event-kbuild
+      <<: *kbuild-gcc-12-arm64-node-event
       name: kbuild-gcc-12-arm64-612-cip-allnoconfig
     runtime:
       type: lava
@@ -105,7 +105,7 @@ scheduler:
 
   - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
     event:
-      <<: *node-event-kbuild
+      <<: *kbuild-gcc-12-arm64-node-event
       name: kbuild-gcc-12-arm64-61-cip-allnoconfig
     runtime:
       type: lava
@@ -116,7 +116,7 @@ scheduler:
 
   - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
     event:
-      <<: *node-event-kbuild
+      <<: *kbuild-gcc-12-arm64-node-event
       name: kbuild-gcc-12-arm64-510-cip-allnoconfig
     runtime:
       type: lava
@@ -127,7 +127,7 @@ scheduler:
 
   - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
     event:
-      <<: *node-event-kbuild
+      <<: *kbuild-gcc-12-arm64-node-event
       name: kbuild-gcc-12-arm64-419-cip-allnoconfig
     runtime:
       type: lava
