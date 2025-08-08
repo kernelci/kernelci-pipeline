@@ -156,13 +156,31 @@ jobs:
   baseline-x86-mfd: *baseline-job
   baseline-x86-qualcomm: *baseline-job
 
-  coverage-report:
+  coverage-report-arm: &coverage-report-job
     template: coverage-report.jinja2
     kind: job
-    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
-    rules:
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm-kselftest-kernelci
+    rules: &coverage-report-rules
+      arch:
+      - arm
       fragments:
       - coverage
+
+  coverage-report-arm64:
+    <<: *coverage-report-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm64-kselftest-kernelci
+    rules:
+      <<: *coverage-report-rules
+      arch:
+      - arm64
+
+  coverage-report-x86:
+    <<: *coverage-report-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
+    rules:
+      <<: *coverage-report-rules
+      arch:
+      - x86_64
 
   kbuild-clang-17-arm: &kbuild-clang-17-arm-job
     <<: *kbuild-job
