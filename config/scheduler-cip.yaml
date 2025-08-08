@@ -18,57 +18,258 @@ _anchors:
     kind: job
 
 scheduler:
-  - job: baseline-x86
-    event: &kbuild-gcc-12-x86-node-event
+
+  - job: baseline-arm
+    event: &kbuild-gcc-12-arm-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86
+      name: kbuild-gcc-12-arm
     runtime: &lava-collabora-runtime
       type: lava
       name: lava-collabora
-    platforms: &collabora-x86-platforms
-      - qemu-x86
-      - aaeon-UPN-EHLX4RE-A10-0864
+    platforms: &collabora-arm-platforms
+      - imx6q-sabrelite
+      - odroid-xu3
+      - rk3288-rock2-square
+      - rk3288-veyron-jaq
 
-  - job: baseline-x86-cip
-    event: *kbuild-gcc-12-x86-node-event
+  - job: baseline-arm64
+    event: &kbuild-gcc-12-arm64-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm64-platforms
+      - bcm2711-rpi-4-b
+      - meson-g12b-a311d-khadas-vim3
+      - mt8365-genio-350-evk
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
+
+# baseline cip
+  - job: baseline-arm-cip
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-cip
+    runtime: &lava-cip-runtime
+      type: lava
+      name: lava-cip
+    platforms: &lava-cip-arm
+      - beaglebone-black
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+
+  - job: baseline-arm64-cip
+    event: 
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-cip
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms: &lava-cip-arm64
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
+
+#  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+#    event:
+#      <<: *kbuild-gcc-12-arm64-node-event
+#      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
+#    runtime:
+#      type: lava
+#      name: lava-cip
+#    platforms:
+#      - zynqmp-zcu102
+#      - r8a774a1-hihope-rzg2m-ex
+#
+  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-61-cip-allnoconfig
     runtime:
       type: lava
       name: lava-cip
     platforms:
-      - qemu
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
-  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
+
+  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-419-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
+
+  - job: kbuild-gcc-12-arm64-cip-k8s
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-612-cip-k8s
     <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
+  
+  - job: kbuild-gcc-12-arm64-cip-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-61-cip-k8s
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-12-arm64-510-cip-k8s
+    <<: *build-k8s-all
+  
   - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm64-419-cip-k8s
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
-    <<: *build-k8s-all
+# CIP test kselftest
+  - job: kselftest-arm64
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
 
-  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
-    <<: *build-k8s-all
+  - job: kselftest-breakpoints
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
 
-  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
-    <<: *build-k8s-all
+  - job: kselftest-capabilities
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
 
-  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
-    <<: *build-k8s-all
+  - job: kselftest-capabilities
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-acct
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-acct
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-alsa
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-clone3
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-coredump
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-device-error-logs-main
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-device-error-logs-main
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-dt
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-efivars
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-fchmodat2
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-ftrace
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm-kselftest
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm64
+
+  - job: kselftest-futex
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: *lava-cip-runtime
+    platforms: *lava-cip-arm
+
+# CIP test kselftest
