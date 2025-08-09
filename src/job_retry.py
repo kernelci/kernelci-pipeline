@@ -73,6 +73,11 @@ Not submitting a retry.")
                 if not event_data:
                     self.log.error(f"Not able to find parent node for {node['id']}")
                     continue
+                # Test jobs are triggered on `available` state only
+                # Note: post-processing jobs such as coverage report generation are triggered
+                # when kbuild node changes state to `done`, but we don't care about retrying
+                # those (at least for now)
+                event_data["state"] = "available"
                 event_data["jobfilter"] = [node["name"]]
                 event_data["platform_filter"] = [node["data"].get("platform")]
                 event_data["retry_counter"] = retry_counter + 1
