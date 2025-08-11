@@ -377,7 +377,7 @@ class Scheduler(Service):
         """Verify if the job can be run, if node has architecture filter
         """
         if job.kind == 'kbuild' and 'architecture_filter' in node['data'] and \
-           node['data']['architecture_filter'] and \
+           node['data']['architecture_filter'] and 'arch' in job.params and \
            job.params['arch'] not in node['data']['architecture_filter']:
             msg = f"Node {node['id']} has architecture filter "
             msg += f"{node['data']['architecture_filter']} "
