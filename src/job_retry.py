@@ -21,9 +21,7 @@ class JobRetry(Service):
         return self._api_helper.subscribe_filters({
             "state": "done",
             "result": ("fail", "incomplete"),
-            "kind": "job"
-            # ToDo: Retry for build jobs
-            # "kind": ("kbuild", "job")
+            "kind": ("kbuild", "job"),
         })
 
     def _stop(self, sub_id):
@@ -63,18 +61,23 @@ Not submitting a retry.")
                 continue
 
             parent_kind = None
-            if node.get('kind') == 'job':
-                parent_kind = 'kbuild'
-            # ToDo: retry build jobs
-            # if node.get("kind") == "kbuild":
-            #     parent_kind = "checkout"
+            if node.get("kind") == "job":
+                parent_kind = "kbuild"
+            if node.get("kind") == "kbuild":
+                parent_kind = "checkout"
             if parent_kind:
                 event_data = self._find_parent_kind(node, self._api_helper, parent_kind)
                 if not event_data:
                     self.log.error(f"Not able to find parent node for {node['id']}")
                     continue
-                event_data["jobfilter"] = [node["name"]]
-                event_data["platform_filter"] = [node["data"].get("platform")]
+                if node["kind"] == "kbuild":
+                    event_data["jobfilter"] = [f'{node["name"]}+']
+                else:
+                    event_data["jobfilter"] = [node["name"]]
+                # Change event data state to available to trigger jobs based on scheduler configs
+                event_data["state"] = "available"
+                if node["kind"] == "job":
+                    event_data["platform_filter"] = [node["data"].get("platform")]
                 event_data["retry_counter"] = retry_counter + 1
                 event_data["debug"] = {"retry_by": str(node["id"])}
                 self.log.debug(f"{node['id']}:Event data retry_counter: {event_data['retry_counter']}")
