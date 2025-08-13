@@ -8,7 +8,7 @@
 # Author: Nikolay Yurin <yurinnick@meta.com>
 
 import copy
-from datetime import datetime, timedelta
+import datetime
 import os
 import re
 import sys
@@ -174,7 +174,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             'artifacts': {
                 'tarball': tarball_url,
             },
-            'holdoff': str(datetime.utcnow() + timedelta(minutes=10))
+            'holdoff': str(datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=10))
         })
         try:
             self._api.node.update(node)

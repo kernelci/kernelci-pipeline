@@ -7,7 +7,7 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import copy
-from datetime import datetime, timedelta
+import datetime
 import sys
 import time
 
@@ -102,9 +102,9 @@ class Trigger(Service):
             'branch': current_config.branch,
             'commit': head_commit,
         }
-        checkout_timeout = datetime.utcnow() + timedelta(minutes=timeout)
+        checkout_timeout = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=timeout)
         # treeid is sha256(url+branch+timestamp)
-        hashstr = revision['url'] + revision['branch'] + str(datetime.now())
+        hashstr = revision['url'] + revision['branch'] + str(datetime.datetime.now())
         treeid = hashlib.sha256(hashstr.encode()).hexdigest()
         node = {
             'name': 'checkout',
