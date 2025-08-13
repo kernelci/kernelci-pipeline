@@ -6,7 +6,7 @@
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 import sys
-from datetime import datetime
+import datetime
 from time import sleep
 import json
 import requests
@@ -100,7 +100,7 @@ class Timeout(TimeoutService):
 
         while True:
             timeout_nodes = self._get_pending_nodes({
-                'timeout__lt': datetime.isoformat(datetime.utcnow())
+                'timeout__lt': datetime.datetime.isoformat(datetime.datetime.now(datetime.UTC))
             })
             self._submit_lapsed_nodes(timeout_nodes, 'done', 'TIMEOUT')
             sleep(ctx['poll_period'])
