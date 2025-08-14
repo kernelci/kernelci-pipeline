@@ -20,7 +20,7 @@ class JobRetry(Service):
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
             "state": "done",
-            "result": ("fail", "incomplete"),
+            "result": "incomplete",
             "kind": ("kbuild", "job"),
         })
 
