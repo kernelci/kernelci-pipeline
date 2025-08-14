@@ -7,6 +7,7 @@
 {{ super() }}
 import gzip
 import json
+import re
 import shutil
 import subprocess
 {%- endblock %}
@@ -14,6 +15,7 @@ import subprocess
 {%- block python_local_imports %}
 {{ super() }}
 import kernelci.api.helper
+from kernelci import shell_cmd
 {%- endblock %}
 
 {%- block python_globals %}
@@ -37,37 +39,20 @@ class Job(BaseJob):
                     artifacts[name] = file_url
         return artifacts
 
-    def _extract_coverage(self, summary_file, node=None):
+    def _extract_coverage(self, summary, node=None):
         if node is None:
             node = self._node
 
         child_nodes = []
 
-        with open(summary_file, encoding='utf-8') as summary_json:
-            summary = json.load(summary_json)
+        m = re.search(r'lines.*: ([\d\.]*)%.*functions.*: ([\d\.]*)%', summary, flags=re.DOTALL)
+        if m:
             node_data = node['data']
+            (line_percent, func_percent) = m.groups()
 
-            func_data = node_data.copy()
-            func_percent = summary.get('function_percent')
-            if func_percent is not None:
-                func_data['misc'] = {'measurement': func_percent}
-                child_nodes += [
-                    {
-                        'node': {
-                            'kind': 'test',
-                            'name': 'coverage.functions',
-                            'result': 'pass',
-                            'state': 'done',
-                            'data': func_data,
-                        },
-                        'child_nodes': [],
-                    },
-                ]
-
-            line_data = node_data.copy()
-            line_percent = summary.get('line_percent')
-            if line_percent is not None:
-                line_data['misc'] = {'measurement': line_percent}
+            try:
+                line_data = node_data.copy()
+                line_data['misc'] = {'measurement': float(line_percent)}
                 child_nodes += [
                     {
                         'node': {
@@ -80,6 +65,26 @@ class Job(BaseJob):
                         'child_nodes': [],
                     },
                 ]
+            except ValueError:
+                print(f"'{line_percent}' is not a floating-point value!")
+
+            try:
+                func_data = node_data.copy()
+                func_data['misc'] = {'measurement': float(func_percent)}
+                child_nodes += [
+                    {
+                        'node': {
+                            'kind': 'test',
+                            'name': 'coverage.functions',
+                            'result': 'pass',
+                            'state': 'done',
+                            'data': func_data,
+                        },
+                        'child_nodes': [],
+                    },
+                ]
+            except ValueError:
+                print(f"'{func_percent}' is not a floating-point value!")
 
         return {
             'node': {
@@ -105,8 +110,14 @@ class Job(BaseJob):
         # just use that
         src_path = os.path.join(self._workspace, 'linux')
         log_file.write(f"Coverage source downloaded from {tarball_url}\n")
+        nproc = shell_cmd("nproc")
+        log_file.write(f"Calling lcov with {nproc} threads\n")
 
-        base_cmd = ['gcovr', '--root', src_path]
+        base_cmd = [
+            'lcov',
+            '--parallel', nproc,
+            '--ignore-errors', 'inconsistent,inconsistent,negative,negative',
+        ]
         tracefiles = []
 
         # Download and process coverage data for all child nodes
@@ -116,10 +127,9 @@ class Job(BaseJob):
                 continue
 
             coverage_dir = os.path.join(self._workspace, f"coverage-{cnode['id']}")
-            json_summary = coverage_dir + '.summary.json'
             try:
                 data_url = self._get_artifact_url(cnode, 'coverage_data')
-                tracefile = coverage_dir + '.json'
+                tracefile = coverage_dir + '.info'
                 self._get_source(data_url, path=coverage_dir)
                 log_file.write(f"Downloaded coverage data from {data_url}\n")
             except:
@@ -129,10 +139,10 @@ class Job(BaseJob):
             # We now have raw coverage data available, process it
             log_file.write(f"--- Processing coverage data for {cnode['id']} ---\n")
             cmd = subprocess.run(base_cmd + [
-                '--gcov-ignore-parse-errors',
-                '--object-directory', coverage_dir,
-                '--json', tracefile,
-                '--json-summary', json_summary,
+                '--capture',
+                '--base-directory', src_path,
+                '--directory', coverage_dir,
+                '--output-file', tracefile,
             ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             log_file.write(cmd.stdout)
 
@@ -143,7 +153,7 @@ class Job(BaseJob):
                 continue
 
             tracefiles += [tracefile]
-            results = self._extract_coverage(json_summary, node=cnode)
+            results = self._extract_coverage(cmd.stdout, node=cnode)
             # We only want to create child nodes reporting coverage percentages, not actually
             # update the test node
             if len(results['child_nodes']) > 0:
@@ -155,16 +165,26 @@ class Job(BaseJob):
             args += ['--add-tracefile', trace]
 
         output_base = os.path.join(self._workspace, f"coverage-{self._node['parent']}")
-        json_summary = output_base + '.summary.json'
-        html_report = output_base + '.html'
-        lcov_tracefile = output_base + '.info'
-        args += [
-            '--json-summary', json_summary,
-            '--html', html_report,
-            '--lcov', lcov_tracefile,
-        ]
+        html_report = os.path.join(self._workspace, f"html-{self._node['parent']}")
+        tracefile = output_base + '.info'
+        args += ['--output-file', tracefile]
 
         log_file.write("--- Merging tracefiles ---\n")
+        cmd = subprocess.run(args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True)
+        log_file.write(cmd.stdout)
+
+        log_file.write("--- Generating HTML report ---\n")
+        args = [
+            'genhtml',
+            '--flat',
+            '--no-sourceview',
+            '--no-sort',
+            '--output-directory', html_report,
+            tracefile,
+        ]
         cmd = subprocess.run(args,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -188,22 +208,32 @@ class Job(BaseJob):
             }
 
         log_file.write("--- Compressing artifacts ---\n")
-        compressed_lcov = lcov_tracefile + '.gz'
-        with open(lcov_tracefile, 'rb') as f_in:
-            with gzip.open(compressed_lcov, 'wb') as f_out:
+        compressed_trace = tracefile + '.gz'
+        with open(tracefile, 'rb') as f_in:
+            with gzip.open(compressed_trace, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
+
+        html_tarball = html_report + '.tar.gz'
+        # Delete existing tarball if any
+        if os.path.isfile(html_tarball):
+            os.unlink(html_tarball)
+        with tarfile.open(html_tarball, 'x:gz') as tarball:
+            for entry in os.scandir(html_report):
+                if entry.is_file():
+                    tar_path = entry.path.removeprefix(self._workspace)
+                    tarball.add(entry.path, arcname=tar_path)
 
         # Finish writing the job log and upload it along with other artifacts
         log_file.write("--- Job successful ---\n")
         log_file.close()
 
         self._artifacts = {
-            'coverage_report': html_report,
-            'tracefile': compressed_lcov,
+            'coverage_report': html_tarball,
+            'tracefile': compressed_trace,
             'log': log_path,
         }
 
-        return self._extract_coverage(json_summary)
+        return self._extract_coverage(cmd.stdout)
 
         return results
 
