@@ -60,7 +60,7 @@ class Trigger(Service):
                 return
         except Exception as ex:
             self.log.error(f"Failed to get branch head for {current_config.name:32s}, ignoring")
-            self.traceback(ex)
+            self.log.traceback()
             return
         search_terms = {
             "kind": "checkout",
@@ -133,7 +133,7 @@ class Trigger(Service):
             if detail:
                 self.log.error(detail)
         except Exception as ex:
-            self.traceback(ex)
+            self.log.traceback()
 
     def _iterate_trees(self, force, timeout, trees):
         for tree in self._trees.keys():
