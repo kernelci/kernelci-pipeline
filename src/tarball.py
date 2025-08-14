@@ -11,6 +11,7 @@ import copy
 import datetime
 import os
 import re
+import subprocess
 import sys
 import json
 import requests
@@ -270,10 +271,14 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 tarball_name
             )
             tarball_url = self._push_tarball(tarball_path)
-            commit_tags, commit_message, branch_tip = self._get_commit_info(
-                self._service_config.kdir, commitid, config_tree, config_branch)
-            self._update_node(checkout_node, describe, version, tarball_url,
-                              commit_tags, commit_message, branch_tip)
+            try:
+                commit_tags, commit_message, branch_tip = self._get_commit_info(
+                    self._service_config.kdir, commitid, config_tree, config_branch)
+                self._update_node(checkout_node, describe, version, tarball_url,
+                                  commit_tags, commit_message, branch_tip)
+            except subprocess.CalledProcessError as err:
+                self._logger.error(f"Git commit info retrieval failed: {err}")
+                self._update_failed_checkout_node(checkout_node, "git_commit_error", str(err))
 
 
 class cmd_run(Command):
