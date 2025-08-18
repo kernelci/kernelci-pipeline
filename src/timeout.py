@@ -116,7 +116,7 @@ class Holdoff(TimeoutService):
     def _get_available_nodes(self):
         nodes = self._api.node.find({
             'state': 'available',
-            'holdoff__lt': datetime.isoformat(datetime.utcnow()),
+            'holdoff__lt': datetime.datetime.isoformat(datetime.datetime.now(datetime.UTC)),
         })
         return {node['id']: node for node in nodes}
 
