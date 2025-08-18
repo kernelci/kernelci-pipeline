@@ -474,6 +474,16 @@ _anchors:
         - 'chromiumos:chromeos-6.6'
     kcidb_test_suite: kernelci_fault_injection
 
+  ltp-fault-injection-cros-kernel: &ltp-fault-injection-cros-kernel-job
+    <<: *ltp-cros-kernel-job
+    params: &ltp-fault-injection-cros-kernel-params
+      <<: *ltp-cros-kernel-params
+      extra_kirk_args: "-F 50"
+    rules: &ltp-fault-injection-cros-kernel-rules
+      <<: *ltp-cros-kernel-rules
+      branch:
+        - chromeos-6.6
+
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
     kind: job
@@ -547,6 +557,7 @@ jobs:
   baseline-nfs-x86-intel-cros-kernel: *baseline-nfs-cros-kernel-job
 
   fault-injection-x86-intel-cros-kernel: *fault-injection-cros-kernel-job
+  ltp-fault-injection-x86-intel-cros-kernel: *ltp-fault-injection-cros-kernel-job
 
   kbuild-clang-17-arm64-chromeos-daily-mediatek:
     <<: *kbuild-clang-17-arm64-chromeos-job
