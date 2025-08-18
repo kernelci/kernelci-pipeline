@@ -181,6 +181,16 @@ _anchors:
       <<: *test-job-x86-event
       name: kbuild-gcc-12-x86-chromeos-daily-intel
 
+  test-job-x86-intel-fault-injection: &test-job-x86-intel-fault-injection
+    <<: *test-job-x86-intel-cros-kernel
+    platforms:
+      - acer-cbv514-1h-34uz-brya
+      - acer-chromebox-cxi5-brask
+      - acer-n20q11-r856ltn-p1s2-nissa
+    event:
+      <<: *test-job-x86-event
+      name: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
+
 scheduler:
 
   - job: baseline-arm64-mediatek-chromebook
@@ -327,14 +337,10 @@ scheduler:
     <<: *build-k8s-all
 
   - job: fault-injection-x86-intel-cros-kernel
-    <<: *test-job-x86-intel-cros-kernel
-    platforms:
-      - acer-cbv514-1h-34uz-brya
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
-    event:
-      <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-x86-intel-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
 
   - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
