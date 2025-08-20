@@ -26,6 +26,9 @@ _anchors:
 
 jobs:
   job-gcc-12-arm64-612-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm64-61-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm64-510-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm64-419-cip-allnoconfig: *baseline-job
 
 # start of CIP arm64 configuration for boot tests
   kbuild-gcc-12-arm64-cip-allnoconfig: &kbuild-gcc-12-arm64-allnoconfig-job
@@ -49,3 +52,33 @@ jobs:
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-arm64-61-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'cip://6.1.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-arm64-510-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip'
+
+  kbuild-gcc-12-arm64-419-cip-allnoconfig:
+    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      fragments:
+        - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip'
