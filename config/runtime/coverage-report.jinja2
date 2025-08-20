@@ -18,6 +18,20 @@ import kernelci.api.helper
 
 {%- block python_globals %}
 {{ super() }}
+DEFAULT_FAIL_RESULT = {
+    'node': {
+        'result': 'fail',
+        'artifacts': {},
+    },
+    'child_nodes': [],
+}
+DEFAULT_PASS_RESULT = {
+    'node': {
+        'result': 'pass',
+        'artifacts': {},
+    },
+    'child_nodes': [],
+}
 {% endblock %}
 
 {% block python_job -%}
@@ -89,121 +103,194 @@ class Job(BaseJob):
             'child_nodes': child_nodes,
         }
 
+    def _process_coverage_data(self, node):
+        coverage_dir = os.path.join(self._workspace, f"coverage-{node['id']}")
+
+        try:
+            data_url = self._get_artifact_url(node, 'coverage_data')
+        except:
+            self._logfile.write(f"WARNING: No coverage data available for {node['id']}\n")
+            # Return a "pass" result as this isn't an error, we can carry on
+            return None, DEFAULT_PASS_RESULT
+
+        try:
+            self._get_source(data_url, path=coverage_dir)
+            self._logfile.write(f"Downloaded coverage data from {data_url}\n")
+        except:
+            self._logfile.write(f"ERROR: Unable to download coverage data for {node['id']}\n")
+            return None, DEFAULT_FAIL_RESULT
+
+        # We now have raw coverage data available, process it
+        tracefile = coverage_dir + '.json'
+        json_summary = coverage_dir + '.summary.json'
+        self._logfile.write(f"--- Processing coverage data for {node['id']} ---\n")
+        cmd = subprocess.run(self._gcovr_cmd + [
+            '--object-directory', coverage_dir,
+            '--json', tracefile,
+            '--json-summary', json_summary,
+        ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        self._logfile.write(cmd.stdout)
+
+        try:
+            cmd.check_returncode()
+        except:
+            self._logfile.write(f"ERROR: Unable to process coverage data for {node['id']}")
+            return None, DEFAULT_FAIL_RESULT
+
+        results = self._extract_coverage(json_summary, node=node)
+        return tracefile, results
+
+
+    def _retrieve_tracefile(self, node):
+        process_nodes = self._api.node.findfast({'parent': node['id'], 'kind': 'process'})
+        for pnode in process_nodes:
+            if not pnode['name'].startswith('coverage-report'):
+                self._logfile.write(f"Ignoring post-process node {pnode['id']} (pnode['name'])\n")
+                continue
+
+            try:
+                data_url = self._get_artifact_url(pnode, 'tracefile')
+            except:
+                self._logfile.write(f"WARNING: No tracefile artifact in {pnode['id']}\n")
+                continue
+
+            resp = requests.get(data_url, stream=True)
+            resp.raise_for_status()
+            self._logfile.write(f"Downloaded tracefile from {data_url}\n")
+            trace_name = os.path.basename(urllib.parse.urlparse(data_url).path)
+            tracefile = os.path.join(self._workspace, trace_name.removesuffix('.gz'))
+            with gzip.open(resp.raw, mode='rb') as f_in:
+                with open(tracefile, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            self._logfile.write(f"Uncompressed tracefile into {tracefile}\n")
+
+            return tracefile
+
+        return None
+
     def _run(self, src_path):
         self._artifacts = {}
         api_helper = kernelci.api.helper.APIHelper(self._api)
-        child_nodes = self._api.node.findfast({'parent': self._node['parent']})
+        parent_node = self._api.node.get(self._node['parent'])
 
         log_path = os.path.join(self._workspace, f"log.txt")
-        log_file = open(log_path, mode='w')
+        self._logfile = open(log_path, mode='w')
 
-        log_file.write("Getting coverage source...\n")
+        self._logfile.write("Getting coverage source...\n")
         tarball_url = self._get_artifact_url(self._node, 'coverage_source_tar_xz')
         self._get_source(tarball_url)
         # Not getting src_path from _get_source() as it doesn't work in our case
         # We do know that the top-level folder is named 'linux' however, so let's
         # just use that
-        src_path = os.path.join(self._workspace, 'linux')
-        log_file.write(f"Coverage source downloaded from {tarball_url}\n")
+        self._src_path = os.path.join(self._workspace, 'linux')
+        self._logfile.write(f"Coverage source downloaded from {tarball_url}\n")
 
-        base_cmd = ['gcovr', '--root', src_path]
-        tracefiles = []
-
-        # Download and process coverage data for all child nodes
-        for cnode in child_nodes:
-            if cnode['id'] == self._node['id']:
-                log_file.write(f"Skipping self ({cnode['id']})\n")
-                continue
-
-            coverage_dir = os.path.join(self._workspace, f"coverage-{cnode['id']}")
-            json_summary = coverage_dir + '.summary.json'
-            try:
-                data_url = self._get_artifact_url(cnode, 'coverage_data')
-                tracefile = coverage_dir + '.json'
-                self._get_source(data_url, path=coverage_dir)
-                log_file.write(f"Downloaded coverage data from {data_url}\n")
-            except:
-                log_file.write(f"WARNING: Unable to download coverage data for {cnode['id']}\n")
-                continue
-
-            # We now have raw coverage data available, process it
-            log_file.write(f"--- Processing coverage data for {cnode['id']} ---\n")
-            cmd = subprocess.run(base_cmd + [
-                '--gcov-ignore-parse-errors',
-                '--object-directory', coverage_dir,
-                '--json', tracefile,
-                '--json-summary', json_summary,
-            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            log_file.write(cmd.stdout)
-
-            try:
-                cmd.check_returncode()
-            except:
-                log_file.write(f"WARNING: Unable to process coverage data for {cnode['id']}")
-                continue
-
-            tracefiles += [tracefile]
-            results = self._extract_coverage(json_summary, node=cnode)
-            # We only want to create child nodes reporting coverage percentages, not actually
-            # update the test node
-            if len(results['child_nodes']) > 0:
-                api_helper.submit_results(results, cnode)
-
-        # Coverage data has been processed for all child nodes, we can now merge the tracefiles
-        args = base_cmd
-        for trace in tracefiles:
-            args += ['--add-tracefile', trace]
-
-        output_base = os.path.join(self._workspace, f"coverage-{self._node['parent']}")
-        json_summary = output_base + '.summary.json'
-        html_report = output_base + '.html'
-        lcov_tracefile = output_base + '.info'
-        args += [
-            '--json-summary', json_summary,
-            '--html', html_report,
-            '--lcov', lcov_tracefile,
+        self._gcovr_cmd = [
+            'gcovr',
+            '--gcov-ignore-parse-errors',
+            '--root', self._src_path,
         ]
 
-        log_file.write("--- Merging tracefiles ---\n")
+        output_base = os.path.join(self._workspace, f"coverage-{self._node['parent']}")
+
+        if parent_node['kind'] == 'job':
+            (tracefile, results) = self._process_coverage_data(parent_node)
+            if tracefile is None:
+                self._logfile.close()
+                self._artifacts = {'log': log_path}
+                return results
+
+        else:
+            tracefiles = []
+            child_nodes = self._api.node.findfast({'parent': parent_node['id'], 'kind': 'job'})
+            # Download and process coverage data for all child nodes
+            for cnode in child_nodes:
+                if cnode['id'] == self._node['id']:
+                    self._logfile.write(f"Skipping self ({cnode['id']})\n")
+                    continue
+
+                try:
+                    job_trace = self._retrieve_tracefile(cnode)
+                except:
+                    self._logfile.write(f"WARNING: No tracefile available for {cnode['id']}\n")
+                    continue
+
+                if job_trace:
+                    tracefiles += [job_trace]
+
+            if len(tracefiles) == 0:
+                self._logfile.write(f"WARNING: No tracefile found in children for {parent_node['id']}\n")
+                self._logfile.close()
+                self._artifacts = {'log': log_path}
+                return DEFAULT_PASS_RESULT
+
+            # Coverage data has been processed for all job nodes, we can now merge the tracefiles
+            tracefile = output_base + '.json'
+            json_summary = output_base + '.summary.json'
+            args = self._gcovr_cmd
+            for trace in tracefiles:
+                args += ['--add-tracefile', trace]
+            args += [
+                '--json', tracefile,
+                '--json-summary', json_summary,
+            ]
+
+            self._logfile.write("--- Merging tracefiles ---\n")
+            cmd = subprocess.run(args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True)
+            self._logfile.write(cmd.stdout)
+
+            results = self._extract_coverage(json_summary, node=parent_node)
+
+        self._logfile.write("--- Generating HTML report ---\n")
+        html_report = output_base + '.html'
+        args = self._gcovr_cmd + [
+            '--add-tracefile', tracefile,
+            '--html', html_report,
+        ]
+        if parent_node['kind'] == 'kbuild':
+            lcov_tracefile = output_base + '.info'
+            args += ['--lcov', lcov_tracefile]
+
         cmd = subprocess.run(args,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True)
-        log_file.write(cmd.stdout)
+        self._logfile.write(cmd.stdout)
 
         # Ensure job completed successfully or report failure
         try:
             cmd.check_returncode()
         except:
-            log_file.write(f"ERROR: Unable to generate coverage report\n")
-            log_file.close()
-
+            self._logfile.write(f"ERROR: Unable to generate coverage report\n")
+            self._logfile.close()
             self._artifacts = {'log': log_path}
-            return {
-                'node': {
-                    'result': 'fail',
-                    'artifacts': {},
-                },
-                'child_nodes': [],
-            }
+            return DEFAULT_FAIL_RESULT
 
-        log_file.write("--- Compressing artifacts ---\n")
-        compressed_lcov = lcov_tracefile + '.gz'
-        with open(lcov_tracefile, 'rb') as f_in:
-            with gzip.open(compressed_lcov, 'wb') as f_out:
+        self._logfile.write("--- Compressing artifacts ---\n")
+        compressed_trace = tracefile + '.gz'
+        with open(tracefile, 'rb') as f_in:
+            with gzip.open(compressed_trace, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
         # Finish writing the job log and upload it along with other artifacts
-        log_file.write("--- Job successful ---\n")
-        log_file.close()
+        self._logfile.write("--- Job successful ---\n")
+        self._logfile.close()
 
         self._artifacts = {
             'coverage_report': html_report,
-            'tracefile': compressed_lcov,
+            'tracefile': compressed_trace,
             'log': log_path,
         }
 
-        return self._extract_coverage(json_summary)
+        if parent_node['kind'] == 'kbuild':
+            compressed_lcov = lcov_tracefile + '.gz'
+            with open(lcov_tracefile, 'rb') as f_in:
+                with gzip.open(compressed_lcov, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            self._artifacts['lcov_tracefile'] = compressed_lcov
 
         return results
 
