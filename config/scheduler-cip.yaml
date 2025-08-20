@@ -18,57 +18,35 @@ _anchors:
     kind: job
 
 scheduler:
-  - job: baseline-x86
-    event: &kbuild-gcc-12-x86-node-event
+
+  - job: baseline-arm64
+    event: &kbuild-gcc-12-arm64-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86
+      name: kbuild-gcc-12-arm64
     runtime: &lava-collabora-runtime
       type: lava
       name: lava-collabora
-    platforms: &collabora-x86-platforms
-      - qemu-x86
-      - aaeon-UPN-EHLX4RE-A10-0864
+    platforms: &collabora-arm64-platforms
+      - bcm2711-rpi-4-b
+      - meson-g12b-a311d-khadas-vim3
+      - mt8365-genio-350-evk
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3588-rock-5b
+      - sun50i-h6-pine-h64
 
-  - job: baseline-x86-cip
-    event: *kbuild-gcc-12-x86-node-event
+  - job: job-gcc-12-arm64-612-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
     runtime:
       type: lava
       name: lava-cip
     platforms:
-      - qemu
-
-  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
-    <<: *build-k8s-all
+      - zynqmp-zcu102
+      - r8a774a1-hihope-rzg2m-ex
 
   - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
     <<: *build-k8s-all
