@@ -158,7 +158,7 @@ jobs:
 
   coverage-report-arm: &coverage-report-job
     template: coverage-report.jinja2
-    kind: job
+    kind: process
     image: ghcr.io/kernelci/{image_prefix}gcc-12:arm-kselftest-kernelci
     rules: &coverage-report-rules
       arch:
