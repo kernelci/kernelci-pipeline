@@ -97,7 +97,7 @@ class Job(BaseJob):
 
         return {
             'node': {
-                'result': 'pass' if node['id'] == self._node['id'] else node['result'],
+                'result': 'pass',
                 'artifacts': {},
             },
             'child_nodes': child_nodes,
@@ -124,7 +124,10 @@ class Job(BaseJob):
         tracefile = coverage_dir + '.json'
         json_summary = coverage_dir + '.summary.json'
         self._logfile.write(f"--- Processing coverage data for {node['id']} ---\n")
-        cmd = subprocess.run(self._gcovr_cmd + [
+        cmd = subprocess.run([
+            'gcovr',
+            '--gcov-ignore-parse-errors',
+            '--root', self._src_path,
             '--object-directory', coverage_dir,
             '--json', tracefile,
             '--json-summary', json_summary,
@@ -185,12 +188,6 @@ class Job(BaseJob):
         self._src_path = os.path.join(self._workspace, 'linux')
         self._logfile.write(f"Coverage source downloaded from {tarball_url}\n")
 
-        self._gcovr_cmd = [
-            'gcovr',
-            '--gcov-ignore-parse-errors',
-            '--root', self._src_path,
-        ]
-
         output_base = os.path.join(self._workspace, f"coverage-{self._node['parent']}")
 
         if parent_node['kind'] == 'job':
@@ -227,13 +224,14 @@ class Job(BaseJob):
             # Coverage data has been processed for all job nodes, we can now merge the tracefiles
             tracefile = output_base + '.json'
             json_summary = output_base + '.summary.json'
-            args = self._gcovr_cmd
-            for trace in tracefiles:
-                args += ['--add-tracefile', trace]
-            args += [
+            args = [
+                'gcovr',
+                '--root', self._src_path,
                 '--json', tracefile,
                 '--json-summary', json_summary,
             ]
+            for trace in tracefiles:
+                args += ['--add-tracefile', trace]
 
             self._logfile.write("--- Merging tracefiles ---\n")
             cmd = subprocess.run(args,
@@ -246,7 +244,9 @@ class Job(BaseJob):
 
         self._logfile.write("--- Generating HTML report ---\n")
         html_report = output_base + '.html'
-        args = self._gcovr_cmd + [
+        args = [
+            'gcovr',
+            '--root', self._src_path,
             '--add-tracefile', tracefile,
             '--html', html_report,
         ]
