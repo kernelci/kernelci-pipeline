@@ -19,6 +19,7 @@ _anchors:
 
 scheduler:
 
+# start of CIP arm64 scheduler
   - job: baseline-arm64
     event: &kbuild-gcc-12-arm64-node-event
       <<: *node-event-kbuild
@@ -91,4 +92,76 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
+    <<: *build-k8s-all
+
+# start of CIP arm scheduler
+  - job: baseline-arm
+    event: &kbuild-gcc-12-arm-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm
+    runtime: *lava-collabora-runtime
+    platforms: &collabora-arm-platforms
+      - imx6q-sabrelite
+      - odroid-xu3
+      - rk3288-rock2-square
+      - rk3288-veyron-jaq
+
+  - job: job-gcc-12-arm-612-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-612-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+      - beaglebone-black
+
+  - job: job-gcc-12-arm-61-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-61-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+      - beaglebone-black
+
+  - job: job-gcc-12-arm-510-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-510-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+      - beaglebone-black
+
+  - job: job-gcc-12-arm-419-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-arm-node-event
+      name: kbuild-gcc-12-arm-419-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+      - beaglebone-black
+
+  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
     <<: *build-k8s-all
