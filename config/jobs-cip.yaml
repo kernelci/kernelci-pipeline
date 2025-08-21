@@ -115,7 +115,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -132,7 +132,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -149,7 +149,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -166,7 +166,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
