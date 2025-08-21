@@ -40,7 +40,7 @@ jobs:
   job-gcc-12-arm64-510-cip-allnoconfig: *baseline-job
   job-gcc-12-arm64-419-cip-allnoconfig: *baseline-job
 
-  kbuild-gcc-12-arm64-cip-allnoconfig: &kbuild-gcc-12-arm64-allnoconfig-job
+  kbuild-gcc-12-arm64-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -51,42 +51,54 @@ jobs:
         - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
-
-  kbuild-gcc-12-arm64-612-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
-    params:
-      <<: *kbuild-gcc-12-arm64-params
-      fragments:
         - 'cip://6.12.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
 
   kbuild-gcc-12-arm64-61-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://6.1.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-6.1.y-cip'
 
   kbuild-gcc-12-arm64-510-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-5.10.y-cip'
 
   kbuild-gcc-12-arm64-419-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm64-allnoconfig-job
+    <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
     rules:
       branch:
@@ -98,7 +110,7 @@ jobs:
   job-gcc-12-arm-510-cip-allnoconfig: *baseline-job
   job-gcc-12-arm-419-cip-allnoconfig: *baseline-job
 
-  kbuild-gcc-12-arm-cip-allnoconfig: &kbuild-gcc-12-arm-allnoconfig-job
+  kbuild-gcc-12-arm-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -110,42 +122,57 @@ jobs:
         - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
-
-  kbuild-gcc-12-arm-612-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm-allnoconfig-job
-    params:
-      <<: *kbuild-gcc-12-arm-params
-      fragments:
         - 'cip://6.12.y-cip/arm/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
 
   kbuild-gcc-12-arm-61-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://6.1.y-cip/arm/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-6.1.y-cip'
 
   kbuild-gcc-12-arm-510-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://5.10.y-cip/arm/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-5.10.y-cip'
 
   kbuild-gcc-12-arm-419-cip-allnoconfig:
-    <<: *kbuild-gcc-12-arm-allnoconfig-job
+    <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
+      defconfig:
+        - defconfig
       fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
         - 'cip://4.19.y-cip/arm/cip_merged_defconfig'
     rules:
       branch:
