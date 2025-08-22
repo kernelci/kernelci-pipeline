@@ -1,0 +1,17 @@
+_anchors:
+  broonie: &broonie
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+build_configs:
+  broonie-spi:
+    <<: *broonie
+    tree: broonie-spi
+    branch: 'for-next'
+
+  broonie-spi-fixes:
+    <<: *broonie
+    tree: broonie-spi
+    branch: 'for-linus'
