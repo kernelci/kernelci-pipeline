@@ -251,19 +251,7 @@ scheduler:
     <<: *test-job-chromeos-intel
 
   - job: baseline-nfs-x86-intel-chromebook
-    <<: *test-job-chromeos-intel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
-
-  - job: baseline-nfs-x86-intel-chromebook
     <<: *test-job-x86-intel
-
-  - job: baseline-nfs-x86-intel-chromebook
-    <<: *test-job-x86-intel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
 
   - job: baseline-x86-amd-chromebook
     <<: *test-job-chromeos-amd
@@ -283,12 +271,6 @@ scheduler:
     <<: *test-job-chromeos-intel
 
   - job: baseline-x86-intel-chromebook
-    <<: *test-job-chromeos-intel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
-
-  - job: baseline-x86-intel-chromebook
     <<: *test-job-x86-intel
 
   - job: baseline-arm64-mediatek-cros-kernel
@@ -303,12 +285,6 @@ scheduler:
   - job: baseline-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
-  - job: baseline-x86-intel-cros-kernel
-    <<: *test-job-x86-intel-cros-kernel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
-
   - job: baseline-nfs-arm64-mediatek-cros-kernel
     <<: *test-job-arm64-mediatek-cros-kernel
 
@@ -320,18 +296,6 @@ scheduler:
 
   - job: baseline-nfs-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
-
-  - job: baseline-nfs-x86-intel-cros-kernel
-    <<: *test-job-x86-intel-cros-kernel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
-
-  - job: baseline-x86-intel-chromebook
-    <<: *test-job-x86-intel
-    platforms:
-      - acer-chromebox-cxi5-brask
-      - acer-n20q11-r856ltn-p1s2-nissa
 
   - job: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
     <<: *build-k8s-all
