@@ -1070,3 +1070,6 @@ scheduler:
 
   - job: wifi-basic-x86-intel
     <<: *test-job-x86-intel
+
+  - job: wifi-basic-arm64-qualcomm
+    <<: *test-job-arm64-qualcomm
