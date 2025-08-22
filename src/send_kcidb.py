@@ -638,6 +638,14 @@ in {runtime}",
                 'updated__lt': datetime.datetime.now() - datetime.timedelta(minutes=5),
                 'limit': chunksize,
             })
+            nodes = [
+                node for node in nodes
+                if not (
+                    node["kind"] in ("kbuild", "job")
+                    and node["result"] == "incomplete"
+                    and node["retry_counter"] != 3
+                )
+            ]
         except Exception as exc:
             self.log.error(f"Failed to find unprocessed nodes: {str(exc)}")
             return []
@@ -701,6 +709,10 @@ in {runtime}",
                 node = None
                 try:
                     node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                    if node["kind"] in ("kbuild", "job"):
+                        if node["result"] == "incomplete" and node["retry_counter"] != 3:
+                            # Only send final retry for incomplete jobs
+                            continue
                 except Exception as e:
                     self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
                     time.sleep(10)
