@@ -567,6 +567,7 @@ in {runtime}",
         return parsed_test_node, dummy_build
 
     def _parse_coverage_node(self, origin, node):
+        self.log.debug(f"Parsing coverage node: {node['id']}")
         # Coverage report nodes are not sent to the DB themselves, but rather
         # parsed to submit an updated build node including the functions/lines
         # coverage percentages as misc fields.
@@ -597,6 +598,7 @@ in {runtime}",
             parsed_coverage_node['misc']['coverage_report_url'] = artifacts.get('coverage_report')
             parsed_coverage_node['misc']['coverage_log_url'] = artifacts.get('log')
 
+        self.log.debug(f"Parsed coverage node: {parsed_coverage_node}")
         return [parsed_coverage_node]
 
     def _get_test_data(self, node, origin,
