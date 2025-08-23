@@ -577,7 +577,8 @@ in {runtime}",
         if build_node['kind'] != 'kbuild':
             self.log.debug(f"{node['id']} is not a top-level coverage node, skipping")
             return []
-        parsed_coverage_node = self._parse_build_node(origin, build_node)
+        parsed_node = self._parse_build_node(origin, build_node)
+        parsed_coverage_node = parsed_node[0]
 
         # Add misc fields for coverage results
         child_nodes = self._api.node.find({'parent': node['id'], 'kind': 'test'})
@@ -588,7 +589,7 @@ in {runtime}",
                 self.log.warning(f"No measurement in node '{child['name']}' ({child['id']})")
                 continue
             field_name = self._replace_restricted_chars(child['name'], r'^[a-zA-Z0-9_]*$')
-            parsed_coverage_node['misc'][field] = child['data']['misc']['measurement']
+            parsed_coverage_node['misc'][field_name] = child['data']['misc']['measurement']
 
         # Add HTML coverage report to the build node's artifacts
         artifacts = node.get('artifacts')
