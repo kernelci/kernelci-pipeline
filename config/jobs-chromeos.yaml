@@ -1117,3 +1117,4 @@ jobs:
   wifi-basic-arm64-mediatek: *wifi-basic-job
   wifi-basic-x86-amd: *wifi-basic-job
   wifi-basic-x86-intel: *wifi-basic-job
+  wifi-basic-arm64-qualcomm: *wifi-basic-job
