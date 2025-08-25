@@ -341,25 +341,25 @@ scheduler:
     <<: *build-k8s-all
     event: *node-event-kbuild-done
 
-  - job: coverage-report-arm
-    <<: *build-k8s-all
-    event: *job-event
+  # - job: coverage-report-arm
+  #   <<: *build-k8s-all
+  #   event: *job-event
 
   - job: coverage-report-arm64
     <<: *build-k8s-all
     event: *node-event-kbuild-done
 
-  - job: coverage-report-arm64
-    <<: *build-k8s-all
-    event: *job-event
+  # - job: coverage-report-arm64
+  #   <<: *build-k8s-all
+  #   event: *job-event
 
   - job: coverage-report-x86
     <<: *build-k8s-all
     event: *node-event-kbuild-done
 
-  - job: coverage-report-x86
-    <<: *build-k8s-all
-    event: *job-event
+  # - job: coverage-report-x86
+  #   <<: *build-k8s-all
+  #   event: *job-event
 
   - job: kbuild-clang-17-arm
     <<: *build-k8s-all
