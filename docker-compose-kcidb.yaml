@@ -23,7 +23,7 @@ services:
     volumes:
       - './config:/home/kernelci/config'
       - './data/kcidb:/home/kernelci/data/kcidb'
-      - './logs:/home/kernelci/logs'
+      - './logs:/home/kernelci/pipeline/logs'
     restart: on-failure
   postgres:
     container_name: 'kernelci-pipeline-postgres-proxy'
