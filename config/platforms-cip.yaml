@@ -18,3 +18,9 @@ _anchors:
     mach: x86
 
 platforms:
+# arm64 platforms
+  zynqmp-zcu102:
+    <<: *arm64-device
+    mach: zynqmp
+    dtb: dtbs/xilinx/zynqmp-zcu102-rev1.0.dtb
+    compatible: ['xlnx,zynqmp-zcu102-rev1.0', 'xlnx,zynqmp-zcu102', 'xlnx,zynqmp']

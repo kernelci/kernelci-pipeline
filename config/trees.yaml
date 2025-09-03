@@ -1,6 +1,9 @@
 trees:
 
   # NOTE: Please keep the trees list below in sorted order.
+  
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
 
 
 # -----------------------------------------------------------------------------

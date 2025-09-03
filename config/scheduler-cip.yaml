@@ -18,3 +18,28 @@ _anchors:
     kind: job
 
 scheduler:
+
+# start of CIP arm64 scheduler
+  - job: baseline-arm64
+    event: &kbuild-gcc-12-arm64-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-arm64
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+
+  - job: job-gcc-12-arm64-cip
+    event:
+      <<: *kbuild-gcc-12-arm64-node-event
+      name: kbuild-gcc-12-arm64-cip
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - zynqmp-zcu102
+
+  - job: kbuild-gcc-12-arm64-cip
+    <<: *build-k8s-all
+

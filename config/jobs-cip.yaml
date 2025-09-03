@@ -34,3 +34,22 @@ _anchors:
         - 'kselftest'
 
 jobs:
+# start of CIP arm64 configuration for boot tests
+  baseline-arm64: *baseline-job
+  job-gcc-12-arm64-cip: *baseline-job
+
+  kbuild-gcc-12-arm64-cip:
+    <<: *kbuild-gcc-12-arm64-job
+    params:
+      <<: *kbuild-gcc-12-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'lab-setup'
+        - 'cip://6.12.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      tree:
+        - 'cip'
+
