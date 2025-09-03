@@ -77,6 +77,9 @@ def validate_scheduler_jobs(data):
     runtimes = data.get("runtimes")
     for entry in schedules:
         jobname = entry.get("job")
+        if entry.get("job"):
+            if not entry.get("runtime"):
+                raise yaml.YAMLError(f"'runtime' not found in {jobname}")
         if jobname not in jobs.keys():
             raise yaml.YAMLError(f"Job {jobname} not found in jobs")
         jobinfo = jobs[jobname]
