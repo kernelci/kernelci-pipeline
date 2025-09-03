@@ -20,7 +20,7 @@ class JobRetry(Service):
     def _setup(self, args):
         return self._api_helper.subscribe_filters({
             "state": "done",
-            "result": "incomplete",
+            "result": ("incomplete", "fail"),
             "kind": ("kbuild", "job"),
         })
 
@@ -51,6 +51,11 @@ class JobRetry(Service):
             except Exception as e:
                 self.log.error(f"Error receiving event: {e}")
                 continue
+
+            # Only retry failed job if it's a boot job
+            if node["result"] == "fail":
+                if not node["name"].startswith("baseline"):
+                    continue
 
             # Check retry count before submitting a retry
             retry_counter = node.get("retry_counter", 0)
