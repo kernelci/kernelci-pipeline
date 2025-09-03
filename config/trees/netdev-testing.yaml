@@ -1,4 +1,0 @@
-build_configs:
-  netdev-testing:
-    tree: netdev-testing
-    branch: 'https://netdev.bots.linux.dev/static/nipa/branches-hw.json'

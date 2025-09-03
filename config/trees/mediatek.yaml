@@ -1,7 +1,0 @@
-build_configs:
-  mediatek_for_next:
-    tree: mediatek
-    branch: 'for-next'
-    architectures:
-      - arm64
-      - arm

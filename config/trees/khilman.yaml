@@ -1,7 +1,0 @@
-build_configs:
-  khilman:
-    tree: khilman
-    branch: 'to-build'
-    architectures:
-      - arm64
-      - arm

@@ -1,6 +1,0 @@
-build_configs:
-  omap:
-    tree: omap
-    branch: 'for-next'
-    architectures:
-      - arm

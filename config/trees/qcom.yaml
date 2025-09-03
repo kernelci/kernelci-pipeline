@@ -1,7 +1,0 @@
-build_configs:
-  qcom:
-    tree: qcom
-    branch: 'for-next'
-    architectures:
-      - arm64
-      - arm

@@ -1,8 +1,0 @@
-build_configs:
-  kselftest_fixes: &kselftest
-    tree: kselftest
-    branch: 'fixes'
-
-  kselftest_next:
-    <<: *kselftest
-    branch: 'next'

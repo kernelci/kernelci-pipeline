@@ -1,7 +1,0 @@
-build_configs:
-  clk:
-    tree: clk
-    branch: 'clk-next'
-    architectures:
-      - arm64
-      - arm

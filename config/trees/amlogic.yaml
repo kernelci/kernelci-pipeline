@@ -1,7 +1,0 @@
-build_configs:
-  amlogic:
-    tree: amlogic
-    branch: 'for-next'
-    architectures:
-      - arm64
-      - arm

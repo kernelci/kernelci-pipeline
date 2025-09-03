@@ -1,8 +1,0 @@
-build_configs:
-  arnd:
-    tree: arnd
-    branch: 'to-build'
-    architectures:
-      - x86_64
-      - arm64
-      - arm

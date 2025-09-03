@@ -1,8 +1,0 @@
-build_configs:
-  ulfh:
-    tree: ulfh
-    branch: 'next'
-    architectures:
-      - x86_64
-      - arm64
-      - arm
