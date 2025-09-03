@@ -478,7 +478,7 @@ _anchors:
     <<: *ltp-cros-kernel-job
     params: &ltp-fault-injection-cros-kernel-params
       <<: *ltp-cros-kernel-params
-      extra_kirk_args: "-F 50"
+      extra_kirk_args: "-F {{ range(1, 101)|random }}"
     rules: &ltp-fault-injection-cros-kernel-rules
       <<: *ltp-cros-kernel-rules
       branch:
