@@ -43,3 +43,13 @@ platforms:
     mach: renesas
     dtb: dtbs/r8a7743-iwg20d-q7-dbcm-ca.dtb
     compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
+
+# x86-64 platforms
+  x86-openblocks-iot-vx2:
+    <<: *x86_64-device
+
+  x86-siemens-mcom:
+    <<: *x86_64-device
+
+  x86-simatic-ipc227e:
+    <<: *x86_64-device
