@@ -8,6 +8,10 @@ _anchors:
     <<: *arm64-device
     arch: arm
 
+  arm-device-uimage: &arm-device-uimage
+    <<: *arm64-device
+    arch: arm
+
   riscv-device: &riscv-device
     arch: riscv
     boot_method: u-boot
@@ -39,7 +43,7 @@ platforms:
     compatible: ['terasic,de0-atlas', 'altr,socfpga-cyclone5', 'altr,socfpga']
 
   r8a7743-iwg20d-q7:
-    <<: *arm-device
+    <<: *arm-device-uimage
     mach: renesas
     dtb: dtbs/r8a7743-iwg20d-q7-dbcm-ca.dtb
     compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
