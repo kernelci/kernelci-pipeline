@@ -12,9 +12,9 @@ _anchors:
     arch: riscv
     boot_method: u-boot
 
-  x86_64-device: &x86_64-device
+  x86_64-device-cip: &x86_64-device-cip
     arch: x86_64
-    boot_method: grub
+    boot_method: ipxe
     mach: x86
 
 platforms:
@@ -46,10 +46,10 @@ platforms:
 
 # x86-64 platforms
   x86-openblocks-iot-vx2:
-    <<: *x86_64-device
+    <<: *x86_64-device-cip
 
   x86-siemens-mcom:
-    <<: *x86_64-device
+    <<: *x86_64-device-cip
 
   x86-simatic-ipc227e:
-    <<: *x86_64-device
+    <<: *x86_64-device-cip
