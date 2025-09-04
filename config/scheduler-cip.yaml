@@ -165,3 +165,77 @@ scheduler:
 
   - job: kbuild-gcc-12-arm-419-cip-allnoconfig
     <<: *build-k8s-all
+
+# start of CIP x86-64 scheduler
+  - job: baseline-x86
+    event: &kbuild-gcc-12-x86-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-12-x86
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+
+  - job: job-gcc-12-x86-612-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-x86-node-event
+      name: kbuild-gcc-12-x86-612-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+  - job: job-gcc-12-x86-61-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-x86-node-event
+      name: kbuild-gcc-12-x86-61-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+  - job: job-gcc-12-x86-510-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-x86-node-event
+      name: kbuild-gcc-12-x86-510-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+  - job: job-gcc-12-x86-419-cip-allnoconfig
+    event:
+      <<: *kbuild-gcc-12-x86-node-event
+      name: kbuild-gcc-12-x86-419-cip-allnoconfig
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
+    <<: *build-k8s-all

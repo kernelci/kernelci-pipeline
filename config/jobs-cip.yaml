@@ -41,6 +41,16 @@ _anchors:
         - 'lab-setup'
         - 'kselftest'
 
+  kbuild-gcc-12-x86-job-cip: &kbuild-gcc-12-x86-job-cip
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
+    params: &kbuild-gcc-12-x86-params
+      arch: x86_64
+      compiler: gcc-12
+      defconfig: x86_64_defconfig
+      fragments:
+        - 'kselftest'
+
 jobs:
 # start of CIP arm64 configuration for boot tests
   job-gcc-12-arm64-612-cip-allnoconfig: *baseline-job
@@ -182,6 +192,60 @@ jobs:
         - 'kselftest'
         - 'lab-setup'
         - 'cip://4.19.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip'
+
+# start of CIP x86_64 configuration for boot tests
+  job-gcc-12-x86-612-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-61-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-510-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-419-cip-allnoconfig: *baseline-nfs-job
+
+  kbuild-gcc-12-x86-612-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.12.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-x86-61-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.1.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-x86-510-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://5.10.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip'
+
+  kbuild-gcc-12-x86-419-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://4.19.y-cip/x86/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-4.19.y-cip'
