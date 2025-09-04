@@ -73,6 +73,9 @@ class TimeoutService(Service):
             node_update['state'] = state
             self.log.debug(f"{node_id} {mode}")
             if mode == 'TIMEOUT':
+                if node["kind"] == "process":
+                    self.log.debug(f"Skipped timed-out coverage node: {node['id']}")
+                    continue
                 if 'data' not in node_update:
                     node_update['data'] = {}
                 if not node.get('result'):
