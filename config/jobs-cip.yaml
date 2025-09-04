@@ -4,6 +4,14 @@ _anchors:
     kind: job
     kcidb_test_suite: boot
 
+  baseline-nfs-job: &baseline-nfs-job
+    template: baseline.jinja2
+    kind: job
+    kcidb_test_suite: boot.nfs
+    params:
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -105,10 +113,10 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm configuration for boot tests
-  job-gcc-12-arm-612-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-61-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-510-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-419-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm-612-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-61-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-510-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-419-cip-allnoconfig: *baseline-nfs-job
 
   kbuild-gcc-12-arm-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-job
