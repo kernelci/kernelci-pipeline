@@ -4,6 +4,14 @@ _anchors:
     kind: job
     kcidb_test_suite: boot
 
+  baseline-nfs-job: &baseline-nfs-job
+    template: baseline.jinja2
+    kind: job
+    kcidb_test_suite: boot.nfs
+    params:
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
     kind: kbuild
@@ -31,6 +39,16 @@ _anchors:
       defconfig: defconfig
       fragments:
         - 'lab-setup'
+        - 'kselftest'
+
+  kbuild-gcc-12-x86-job-cip: &kbuild-gcc-12-x86-job-cip
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
+    params: &kbuild-gcc-12-x86-params
+      arch: x86_64
+      compiler: gcc-12
+      defconfig: x86_64_defconfig
+      fragments:
         - 'kselftest'
 
 jobs:
@@ -105,17 +123,17 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm configuration for boot tests
-  job-gcc-12-arm-612-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-61-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-510-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm-419-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm-612-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-61-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-510-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-419-cip-allnoconfig: *baseline-nfs-job
 
   kbuild-gcc-12-arm-612-cip-allnoconfig:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -132,7 +150,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -149,7 +167,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -166,7 +184,7 @@ jobs:
     params:
       <<: *kbuild-gcc-12-arm-params
       defconfig:
-        - defconfig
+        - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
@@ -174,6 +192,60 @@ jobs:
         - 'kselftest'
         - 'lab-setup'
         - 'cip://4.19.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip'
+
+# start of CIP x86_64 configuration for boot tests
+  job-gcc-12-x86-612-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-61-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-510-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-419-cip-allnoconfig: *baseline-nfs-job
+
+  kbuild-gcc-12-x86-612-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.12.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-12-x86-61-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.1.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-12-x86-510-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://5.10.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip'
+
+  kbuild-gcc-12-x86-419-cip-allnoconfig:
+    <<: *kbuild-gcc-12-x86-job-cip
+    params:
+      <<: *kbuild-gcc-12-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://4.19.y-cip/x86/cip_merged_defconfig'
     rules:
       branch:
         - 'cip:linux-4.19.y-cip'
