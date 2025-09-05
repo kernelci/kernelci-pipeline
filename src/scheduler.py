@@ -38,27 +38,102 @@ class HealthHandler(BaseHTTPRequestHandler):
         if self.path == '/health' or self.path == '/health/':
             # last_heartbeat is a dict, get its 'time' key
             last_heartbeat = getattr(self.server, "last_heartbeat", None)
-            if last_heartbeat and time.time() - last_heartbeat['time'] < FAILURE_TIMEOUT:
-                self.send_response(200)
+            scheduler_instance = getattr(self.server, "scheduler_instance", None)
+
+            # Basic heartbeat check
+            heartbeat_ok = last_heartbeat and time.time() - last_heartbeat['time'] < FAILURE_TIMEOUT
+
+            # Thread health check
+            thread_health = self._check_thread_health(scheduler_instance)
+
+            # Overall health status
+            is_healthy = heartbeat_ok and thread_health['healthy']
+
+            if self.path == '/health/':
+                # Detailed JSON response
+                response_data = {
+                    "status": "OK" if is_healthy else "FAIL",
+                    "heartbeat": {
+                        "last_update": last_heartbeat.get('time', 0) if last_heartbeat else 0,
+                        "seconds_ago": time.time() - last_heartbeat.get('time', 0) if last_heartbeat else float('inf'),
+                        "healthy": heartbeat_ok
+                    },
+                    "threads": thread_health
+                }
+
+                response_json = json.dumps(response_data, indent=2)
+                self.send_response(200 if is_healthy else 503)
+                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(b"OK\n")
+                self.wfile.write(response_json.encode())
             else:
-                self.send_response(503)
-                self.end_headers()
-                self.wfile.write(b"FAIL\n")
+                # Simple text response
+                if is_healthy:
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"OK\n")
+                else:
+                    self.send_response(503)
+                    self.end_headers()
+                    self.wfile.write(b"FAIL\n")
         else:
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"Not Found\n")
 
+    def _check_thread_health(self, scheduler_instance):
+        if not scheduler_instance:
+            return {
+                "healthy": False,
+                "error": "Scheduler instance not available",
+                "expected_count": 0,
+                "actual_count": 0,
+                "threads": []
+            }
 
-def run_health_server(last_heartbeat):
+        # Get expected thread count from context (channels)
+        with scheduler_instance._context_lock:
+            expected_count = len(scheduler_instance._context)
+
+        # Check actual thread count and status
+        thread_info = []
+        alive_count = 0
+
+        for i, thread in enumerate(scheduler_instance._threads):
+            is_alive = thread.is_alive()
+            if is_alive:
+                alive_count += 1
+
+            thread_info.append({
+                "id": i,
+                "name": thread.name,
+                "alive": is_alive,
+                "daemon": thread.daemon
+            })
+
+        # Get exception counters
+        exception_count = getattr(scheduler_instance, '_thread_exception_count', 0)
+        restart_count = getattr(scheduler_instance, '_thread_restart_count', 0)
+
+        return {
+            "healthy": alive_count == expected_count and alive_count > 0,
+            "expected_count": expected_count,
+            "actual_count": len(scheduler_instance._threads),
+            "alive_count": alive_count,
+            "threads": thread_info,
+            "exception_count": exception_count,
+            "restart_count": restart_count
+        }
+
+
+def run_health_server(last_heartbeat, scheduler_instance=None):
     class CustomHTTPServer(HTTPServer):
-        def __init__(self, server_address, RequestHandlerClass, last_heartbeat):
+        def __init__(self, server_address, RequestHandlerClass, last_heartbeat, scheduler_instance):
             super().__init__(server_address, RequestHandlerClass)
             self.last_heartbeat = last_heartbeat
+            self.scheduler_instance = scheduler_instance
 
-    server = CustomHTTPServer(('0.0.0.0', 8080), HealthHandler, last_heartbeat)
+    server = CustomHTTPServer(('0.0.0.0', 8080), HealthHandler, last_heartbeat, scheduler_instance)
     server.serve_forever()
 
 
@@ -91,6 +166,9 @@ class Scheduler(Service):
         self._context_lock = threading.Lock()
         self._context = {}
         self._stop_thread = False
+        self._thread_exception_count = 0
+        self._thread_restart_count = 0
+        self._last_heartbeat = {'time': time.time()}
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
@@ -125,6 +203,16 @@ class Scheduler(Service):
                 self.log.info(f"Unsubscribing: {sub_id}")
                 self._api_helper.unsubscribe_filters(sub_id)
         self._cleanup_paths()
+
+    def start_health_server(self):
+        """Start the health server with scheduler instance access"""
+        health_thread = threading.Thread(
+            target=run_health_server,
+            args=(self._last_heartbeat, self),
+            daemon=True
+        )
+        health_thread.start()
+        return health_thread
 
     def backup_cleanup(self):
         """
@@ -388,7 +476,11 @@ class Scheduler(Service):
 
     def _run(self, context):
         for channel, sub_id in self._context.items():
-            thread = threading.Thread(target=self._run_scheduler, args=(channel, sub_id,))
+            thread = threading.Thread(
+                target=self._run_scheduler,
+                args=(channel, sub_id,),
+                name=f"scheduler-{channel}"
+            )
             self._threads.append(thread)
             thread.start()
 
@@ -404,7 +496,7 @@ class Scheduler(Service):
             with self._stop_thread_lock:
                 if self._stop_thread:
                     break
-            last_heartbeat['time'] = time.time()
+            self._last_heartbeat['time'] = time.time()
             event = None
             try:
                 event = self._api_helper.receive_event_data(sub_id, block=False)
@@ -415,11 +507,15 @@ class Scheduler(Service):
                 with self._stop_thread_lock:
                     if self._stop_thread:
                         break
+                # Increment exception counter
+                self._thread_exception_count += 1
                 self.log.error(f"Error receiving event: {e}")
                 self.log.debug(f"Re-subscribing to channel: {channel}")
                 sub_id = self._api.subscribe(channel)
                 with self._context_lock:
                     self._context[channel] = sub_id
+                # Increment restart counter
+                self._thread_restart_count += 1
                 subscribe_retries += 1
                 if subscribe_retries > 3:
                     self.log.error(f"Failed to re-subscribe to channel: {channel}")
@@ -468,20 +564,15 @@ class cmd_loop(Command):
     ]
 
     def __call__(self, configs, args):
-        return Scheduler(configs, args).run()
+        scheduler = Scheduler(configs, args)
+
+        # Start health server with scheduler instance access
+        health_thread = scheduler.start_health_server()
+
+        return scheduler.run()
 
 
 if __name__ == '__main__':
-    last_heartbeat = {'time': time.time()}
-
-    # Start health server in background
-    health_thread = threading.Thread(
-        target=run_health_server,
-        args=(last_heartbeat,),
-        daemon=True
-    )
-    health_thread.start()
-
     opts = parse_opts('scheduler', globals())
     yaml_configs = opts.get_yaml_configs() or 'config'
     configs = kernelci.config.load(yaml_configs)
