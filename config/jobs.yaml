@@ -149,6 +149,7 @@ jobs:
   baseline-arm64-foundriesio: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
+  baseline-riscv-collabora: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
   baseline-x86-kcidebug-amd: *baseline-job
