@@ -277,6 +277,7 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - spacemit-k1-bananapi-f3
+      - eic7700-hifive-premier-p550
 
   - job: baseline-x86
     event: &kbuild-gcc-12-x86-node-event
