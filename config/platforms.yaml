@@ -168,13 +168,13 @@ platforms:
   jh7100-starfive-visionfive-v1:
     <<: *riscv-device
     mach: starfive
-    dtb: starfive/jh7100-starfive-visionfive-v1.dtb
+    dtb: dtbs/starfive/jh7100-starfive-visionfive-v1.dtb
     compatible: ["starfive,visionfive-v1", "starfive,jh7100"]
 
   jh7110-starfive-visionfive-2-v1-3b:
     <<: *riscv-device
     mach: starfive
-    dtb: starfive/jh7110-starfive-visionfive-2-v1.3b.dtb
+    dtb: dtbs/starfive/jh7110-starfive-visionfive-2-v1.3b.dtb
     compatible: ["starfive,visionfive-2-v1.3b", "starfive,jh7110"]
 
   juno-uboot:
