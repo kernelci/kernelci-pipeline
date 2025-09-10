@@ -513,6 +513,15 @@ _anchors:
         - stable
     kcidb_test_suite: kernelci_wifi_basic
 
+  wifi-basic-cros-kernel: &wifi-basic-cros-kernel-job
+    <<: *wifi-basic-job
+    params:
+      <<: *wifi-basic-job-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+    rules:
+      tree:
+        - chromiumos
+
 jobs:
 
   baseline-arm64-mediatek-chromebook: &baseline-job
@@ -1118,4 +1127,7 @@ jobs:
   wifi-basic-arm64-mediatek: *wifi-basic-job
   wifi-basic-x86-amd: *wifi-basic-job
   wifi-basic-x86-intel: *wifi-basic-job
-  wifi-basic-arm64-qualcomm: *wifi-basic-job
+
+  wifi-basic-cros-kernel-arm64-mediatek: *wifi-basic-cros-kernel-job
+  wifi-basic-cros-kernel-x86-amd: *wifi-basic-cros-kernel-job
+  wifi-basic-cros-kernel-x86-intel: *wifi-basic-cros-kernel-job
