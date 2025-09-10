@@ -464,6 +464,7 @@ _anchors:
       test_method: fault-injection
       test_name: suspend-resume
       test_command: 'rtcwake -m mem -s 15'
+      probability: "{{ range(1, 101)|random }}"
       boot_commands: nfs
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-fault-injection/20250520.0/{debarch}/'
       extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
