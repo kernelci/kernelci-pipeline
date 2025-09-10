@@ -1049,5 +1049,11 @@ scheduler:
   - job: wifi-basic-x86-intel
     <<: *test-job-x86-intel
 
-  - job: wifi-basic-arm64-qualcomm
-    <<: *test-job-arm64-qualcomm
+  - job: wifi-basic-cros-kernel-arm64-mediatek
+    <<: *test-job-arm64-mediatek-cros-kernel
+
+  - job: wifi-basic-cros-kernel-x86-amd
+    <<: *test-job-x86-amd-cros-kernel
+
+  - job: wifi-basic-cros-kernel-x86-intel
+    <<: *test-job-x86-intel-cros-kernel
