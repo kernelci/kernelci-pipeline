@@ -510,6 +510,7 @@ _anchors:
         - mainline
         - stable-rc
         - stable
+        - chromiumos
     kcidb_test_suite: kernelci_wifi_basic
 
 jobs:
