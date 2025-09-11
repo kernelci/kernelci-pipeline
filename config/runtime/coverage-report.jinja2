@@ -115,9 +115,10 @@ class Job(BaseJob):
 
         try:
             self._get_source(data_url, path=coverage_dir)
-            self._logfile.write(f"Downloaded coverage data from {data_url}\n")
+            self._logfile.write(f"Downloaded coverage data from {data_url} {coverage_dir}\n")
         except:
             self._logfile.write(f"ERROR: Unable to download coverage data for {node['id']}\n")
+            self._logfile.write(f"DEBUG: {data_url} {coverage_dir}")
             return None, DEFAULT_FAIL_RESULT
 
         # We now have raw coverage data available, process it
