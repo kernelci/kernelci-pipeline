@@ -98,6 +98,12 @@ platforms:
 
   docker:
 
+  eic7700-hifive-premier-p550:
+    <<: *riscv-device
+    mach: eswin
+    dtb: dtbs/eswin/eic7700-hifive-premier-p550.dtb
+    compatible: ['sifive,hifive-premier-p550', 'eswin,eic7700']
+
   imx53-qsrb:
     <<: *arm-device
     boot_method: barebox
