@@ -53,12 +53,12 @@ _anchors:
 
 jobs:
 # start of CIP arm64 configuration for boot tests
-  job-gcc-12-arm64-612-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm64-61-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm64-510-cip-allnoconfig: *baseline-job
-  job-gcc-12-arm64-419-cip-allnoconfig: *baseline-job
+  job-gcc-12-arm64-612-cip: *baseline-job
+  job-gcc-12-arm64-61-cip: *baseline-job
+  job-gcc-12-arm64-510-cip: *baseline-job
+  job-gcc-12-arm64-419-cip: *baseline-job
 
-  kbuild-gcc-12-arm64-612-cip-allnoconfig:
+  kbuild-gcc-12-arm64-612-cip:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -74,7 +74,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm64-61-cip-allnoconfig:
+  kbuild-gcc-12-arm64-61-cip:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -90,7 +90,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm64-510-cip-allnoconfig:
+  kbuild-gcc-12-arm64-510-cip:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -106,7 +106,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-arm64-419-cip-allnoconfig:
+  kbuild-gcc-12-arm64-419-cip:
     <<: *kbuild-gcc-12-arm64-job
     params:
       <<: *kbuild-gcc-12-arm64-params
@@ -123,12 +123,12 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm configuration for boot tests
-  job-gcc-12-arm-612-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-arm-61-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-arm-510-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-arm-419-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-arm-612-cip: *baseline-nfs-job
+  job-gcc-12-arm-61-cip: *baseline-nfs-job
+  job-gcc-12-arm-510-cip: *baseline-nfs-job
+  job-gcc-12-arm-419-cip: *baseline-nfs-job
 
-  kbuild-gcc-12-arm-612-cip-allnoconfig:
+  kbuild-gcc-12-arm-612-cip:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -145,7 +145,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm-61-cip-allnoconfig:
+  kbuild-gcc-12-arm-61-cip:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -162,7 +162,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm-510-cip-allnoconfig:
+  kbuild-gcc-12-arm-510-cip:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -179,7 +179,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-arm-419-cip-allnoconfig:
+  kbuild-gcc-12-arm-419-cip:
     <<: *kbuild-gcc-12-arm-job
     params:
       <<: *kbuild-gcc-12-arm-params
@@ -197,12 +197,12 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP x86_64 configuration for boot tests
-  job-gcc-12-x86-612-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-x86-61-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-x86-510-cip-allnoconfig: *baseline-nfs-job
-  job-gcc-12-x86-419-cip-allnoconfig: *baseline-nfs-job
+  job-gcc-12-x86-612-cip: *baseline-nfs-job
+  job-gcc-12-x86-61-cip: *baseline-nfs-job
+  job-gcc-12-x86-510-cip: *baseline-nfs-job
+  job-gcc-12-x86-419-cip: *baseline-nfs-job
 
-  kbuild-gcc-12-x86-612-cip-allnoconfig:
+  kbuild-gcc-12-x86-612-cip:
     <<: *kbuild-gcc-12-x86-job-cip
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -214,7 +214,7 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-x86-61-cip-allnoconfig:
+  kbuild-gcc-12-x86-61-cip:
     <<: *kbuild-gcc-12-x86-job-cip
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -226,7 +226,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-x86-510-cip-allnoconfig:
+  kbuild-gcc-12-x86-510-cip:
     <<: *kbuild-gcc-12-x86-job-cip
     params:
       <<: *kbuild-gcc-12-x86-params
@@ -238,7 +238,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-x86-419-cip-allnoconfig:
+  kbuild-gcc-12-x86-419-cip:
     <<: *kbuild-gcc-12-x86-job-cip
     params:
       <<: *kbuild-gcc-12-x86-params
