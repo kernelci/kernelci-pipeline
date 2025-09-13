@@ -38,10 +38,10 @@ scheduler:
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
 
-  - job: job-gcc-12-arm64-612-cip-allnoconfig
+  - job: job-gcc-12-arm64-612-cip
     event:
       <<: *kbuild-gcc-12-arm64-node-event
-      name: kbuild-gcc-12-arm64-612-cip-allnoconfig
+      name: kbuild-gcc-12-arm64-612-cip
     runtime:
       type: lava
       name: lava-cip
@@ -49,10 +49,10 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-  - job: job-gcc-12-arm64-61-cip-allnoconfig
+  - job: job-gcc-12-arm64-61-cip
     event:
       <<: *kbuild-gcc-12-arm64-node-event
-      name: kbuild-gcc-12-arm64-61-cip-allnoconfig
+      name: kbuild-gcc-12-arm64-61-cip
     runtime:
       type: lava
       name: lava-cip
@@ -60,10 +60,10 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-  - job: job-gcc-12-arm64-510-cip-allnoconfig
+  - job: job-gcc-12-arm64-510-cip
     event:
       <<: *kbuild-gcc-12-arm64-node-event
-      name: kbuild-gcc-12-arm64-510-cip-allnoconfig
+      name: kbuild-gcc-12-arm64-510-cip
     runtime:
       type: lava
       name: lava-cip
@@ -71,10 +71,10 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-  - job: job-gcc-12-arm64-419-cip-allnoconfig
+  - job: job-gcc-12-arm64-419-cip
     event:
       <<: *kbuild-gcc-12-arm64-node-event
-      name: kbuild-gcc-12-arm64-419-cip-allnoconfig
+      name: kbuild-gcc-12-arm64-419-cip
     runtime:
       type: lava
       name: lava-cip
@@ -82,16 +82,16 @@ scheduler:
       - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
 
-  - job: kbuild-gcc-12-arm64-612-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-612-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-61-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-61-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-510-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-510-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-419-cip-allnoconfig
+  - job: kbuild-gcc-12-arm64-419-cip
     <<: *build-k8s-all
 
 # start of CIP arm scheduler
@@ -106,10 +106,10 @@ scheduler:
       - rk3288-rock2-square
       - rk3288-veyron-jaq
 
-  - job: job-gcc-12-arm-612-cip-allnoconfig
+  - job: job-gcc-12-arm-612-cip
     event:
       <<: *kbuild-gcc-12-arm-node-event
-      name: kbuild-gcc-12-arm-612-cip-allnoconfig
+      name: kbuild-gcc-12-arm-612-cip
     runtime:
       type: lava
       name: lava-cip
@@ -118,10 +118,10 @@ scheduler:
       - r8a7743-iwg20d-q7
       - beaglebone-black
 
-  - job: job-gcc-12-arm-61-cip-allnoconfig
+  - job: job-gcc-12-arm-61-cip
     event:
       <<: *kbuild-gcc-12-arm-node-event
-      name: kbuild-gcc-12-arm-61-cip-allnoconfig
+      name: kbuild-gcc-12-arm-61-cip
     runtime:
       type: lava
       name: lava-cip
@@ -130,10 +130,10 @@ scheduler:
       - r8a7743-iwg20d-q7
       - beaglebone-black
 
-  - job: job-gcc-12-arm-510-cip-allnoconfig
+  - job: job-gcc-12-arm-510-cip
     event:
       <<: *kbuild-gcc-12-arm-node-event
-      name: kbuild-gcc-12-arm-510-cip-allnoconfig
+      name: kbuild-gcc-12-arm-510-cip
     runtime:
       type: lava
       name: lava-cip
@@ -142,10 +142,10 @@ scheduler:
       - r8a7743-iwg20d-q7
       - beaglebone-black
 
-  - job: job-gcc-12-arm-419-cip-allnoconfig
+  - job: job-gcc-12-arm-419-cip
     event:
       <<: *kbuild-gcc-12-arm-node-event
-      name: kbuild-gcc-12-arm-419-cip-allnoconfig
+      name: kbuild-gcc-12-arm-419-cip
     runtime:
       type: lava
       name: lava-cip
@@ -154,16 +154,16 @@ scheduler:
       - r8a7743-iwg20d-q7
       - beaglebone-black
 
-  - job: kbuild-gcc-12-arm-612-cip-allnoconfig
+  - job: kbuild-gcc-12-arm-612-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-61-cip-allnoconfig
+  - job: kbuild-gcc-12-arm-61-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-510-cip-allnoconfig
+  - job: kbuild-gcc-12-arm-510-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-419-cip-allnoconfig
+  - job: kbuild-gcc-12-arm-419-cip
     <<: *build-k8s-all
 
 # start of CIP x86-64 scheduler
@@ -180,10 +180,10 @@ scheduler:
       - x86-simatic-ipc227e
 
 
-  - job: job-gcc-12-x86-612-cip-allnoconfig
+  - job: job-gcc-12-x86-612-cip
     event:
       <<: *kbuild-gcc-12-x86-node-event
-      name: kbuild-gcc-12-x86-612-cip-allnoconfig
+      name: kbuild-gcc-12-x86-612-cip
     runtime:
       type: lava
       name: lava-cip
@@ -192,10 +192,10 @@ scheduler:
       - x86-siemens-mcom
       - x86-simatic-ipc227e
 
-  - job: job-gcc-12-x86-61-cip-allnoconfig
+  - job: job-gcc-12-x86-61-cip
     event:
       <<: *kbuild-gcc-12-x86-node-event
-      name: kbuild-gcc-12-x86-61-cip-allnoconfig
+      name: kbuild-gcc-12-x86-61-cip
     runtime:
       type: lava
       name: lava-cip
@@ -204,10 +204,10 @@ scheduler:
       - x86-siemens-mcom
       - x86-simatic-ipc227e
 
-  - job: job-gcc-12-x86-510-cip-allnoconfig
+  - job: job-gcc-12-x86-510-cip
     event:
       <<: *kbuild-gcc-12-x86-node-event
-      name: kbuild-gcc-12-x86-510-cip-allnoconfig
+      name: kbuild-gcc-12-x86-510-cip
     runtime:
       type: lava
       name: lava-cip
@@ -216,10 +216,10 @@ scheduler:
       - x86-siemens-mcom
       - x86-simatic-ipc227e
 
-  - job: job-gcc-12-x86-419-cip-allnoconfig
+  - job: job-gcc-12-x86-419-cip
     event:
       <<: *kbuild-gcc-12-x86-node-event
-      name: kbuild-gcc-12-x86-419-cip-allnoconfig
+      name: kbuild-gcc-12-x86-419-cip
     runtime:
       type: lava
       name: lava-cip
@@ -228,14 +228,14 @@ scheduler:
       - x86-siemens-mcom
       - x86-simatic-ipc227e
 
-  - job: kbuild-gcc-12-x86-612-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-612-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-61-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-61-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-510-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-510-cip
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-419-cip-allnoconfig
+  - job: kbuild-gcc-12-x86-419-cip
     <<: *build-k8s-all
