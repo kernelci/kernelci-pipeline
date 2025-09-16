@@ -814,6 +814,16 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
+  - job: kselftest-arm64-ramdisk
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+
   - job: kselftest-breakpoints
     event: *kbuild-gcc-12-arm-node-event
     runtime: *lava-broonie-runtime
