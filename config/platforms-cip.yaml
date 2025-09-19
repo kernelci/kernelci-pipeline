@@ -29,7 +29,7 @@ platforms:
     <<: *arm64-device
     mach: renesas
     dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
-    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m']
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
 
 # arm platforms
   de0-nano-soc:
