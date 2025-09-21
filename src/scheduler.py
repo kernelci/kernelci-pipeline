@@ -290,8 +290,12 @@ class Scheduler(Service):
                 self.log.error(err_msg)
             return
 
-        job_id = str(runtime.get_job_id(running_job))
-        node['data']['job_id'] = job_id
+        # If submit() returned None, this might be pull-based job
+        # (e.g. LAVA) where we cannot get a job ID at submission time
+        # but job retriever on lab side will set the job ID later
+        if running_job:
+            job_id = str(runtime.get_job_id(running_job))
+            node['data']['job_id'] = job_id
 
         if platform.name == "kubernetes":
             context = runtime.get_context()
