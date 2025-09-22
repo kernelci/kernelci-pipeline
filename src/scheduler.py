@@ -296,6 +296,16 @@ class Scheduler(Service):
         if running_job:
             job_id = str(runtime.get_job_id(running_job))
             node['data']['job_id'] = job_id
+        else:
+            # This is "pull-based" job, so we likely have artifact
+            # for job definition
+            artifact_url = runtime.get_job_definition_url()
+            if artifact_url:
+                # node['artifacts'] is a dict of name:url
+                if node.get('artifacts'):
+                    node['artifacts']['job_definition'] = artifact_url
+                else:
+                    node['artifacts'] = {'job_definition': artifact_url}
 
         if platform.name == "kubernetes":
             context = runtime.get_context()
