@@ -641,9 +641,15 @@ in {runtime}",
             nodes = [
                 node for node in nodes
                 if not (
-                    node["kind"] in ("kbuild", "job")
-                    and node["result"] == "incomplete"
-                    and node["retry_counter"] != 3
+                    (
+                        node["kind"] in ("kbuild", "job")
+                        and node["result"] == "incomplete"
+                        and node["retry_counter"] != 3
+                    ) or (
+                        node["result"] == "fail"
+                        and node["name"].startswith("baseline")
+                        and node["retry_counter"] != 3
+                    )
                 )
             ]
         except Exception as exc:
@@ -712,6 +718,10 @@ in {runtime}",
                     if node["kind"] in ("kbuild", "job"):
                         if node["result"] == "incomplete" and node["retry_counter"] != 3:
                             # Only send final retry for incomplete jobs
+                            continue
+                    if node["result"] == "fail":
+                        # Only send final retry for failed baseline jobs
+                        if node["name"].startswith("baseline") and node["retry_counter"] != 3:
                             continue
                 except Exception as e:
                     self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
