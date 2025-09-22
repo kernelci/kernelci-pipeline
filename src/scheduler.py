@@ -293,6 +293,7 @@ class Scheduler(Service):
         # If submit() returned None, this might be pull-based job
         # (e.g. LAVA) where we cannot get a job ID at submission time
         # but job retriever on lab side will set the job ID later
+        job_id = None
         if running_job:
             job_id = str(runtime.get_job_id(running_job))
             node['data']['job_id'] = job_id
@@ -300,6 +301,7 @@ class Scheduler(Service):
             # This is "pull-based" job, so we likely have artifact
             # for job definition
             artifact_url = runtime.get_job_definition_url()
+            self.log.debug(f"Job definition URL: {artifact_url}")
             if artifact_url:
                 # node['artifacts'] is a dict of name:url
                 if node.get('artifacts'):
@@ -317,13 +319,17 @@ class Scheduler(Service):
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
-        self.log.info(' '.join([
+        log_parts = [
             node['id'],
             runtime.config.name,
             platform.name,
             job_config.name,
-            job_id,
-        ]))
+        ]
+        if job_id is not None:
+            log_parts.append(job_id)
+
+        self.log.info(' '.join(log_parts))
+
         if runtime.config.lab_type in ['shell', 'docker']:
             self._job_tmp_dirs[running_job] = tmp
 
