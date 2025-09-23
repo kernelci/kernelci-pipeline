@@ -21,6 +21,7 @@ import shutil
 
 import kernelci
 import kernelci.config
+import kernelci.context
 import kernelci.runtime
 import kernelci.scheduler
 import kernelci.storage
@@ -73,17 +74,6 @@ class Scheduler(Service):
         self._imgprefix = args.image_prefix or ''
         if not os.path.exists(self._output):
             os.makedirs(self._output)
-        rconfigs = (
-            configs['runtimes'] if args.runtimes is None
-            else self._get_runtimes_configs(configs['runtimes'], args.runtimes)
-        )
-        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
-        self._sched = kernelci.scheduler.Scheduler(configs, runtimes)
-        self._storage_config = configs['storage_configs'][args.storage_config]
-        storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
-        self._storage = kernelci.storage.get_storage(
-            self._storage_config, storage_cred
-        )
         self._job_tmp_dirs = {}
         self._threads = []
         self._api_helper_lock = threading.Lock()
@@ -91,6 +81,103 @@ class Scheduler(Service):
         self._context_lock = threading.Lock()
         self._context = {}
         self._stop_thread = False
+
+        # Initialize KContext for runtime configuration and secrets management
+
+        self._kcontext = kernelci.context.KContext(
+            parse_cli = True,
+        )
+    
+        # Initialize runtimes with KContext
+        # Get runtime names from KContext (parsed from CLI --runtimes argument)
+        runtime_names = self._kcontext.get_runtimes()
+        if not runtime_names:
+            # If no specific runtimes specified, use all available
+            runtime_names = list(configs['runtimes'].keys())
+
+        self.log.info(f"Initializing runtimes: {runtime_names}")
+
+        runtimes_configs = self._get_runtimes_configs(configs['runtimes'], runtime_names)
+
+        # Use the original get_all_runtimes function which properly handles user/token extraction
+        # but pass kcictx for new context-aware functionality
+        self._runtimes = dict(kernelci.runtime.get_all_runtimes(
+            runtimes_configs, args, kcictx=self._kcontext
+        ))
+
+        # Initialize scheduler with configs and runtimes
+        self._sched = kernelci.scheduler.Scheduler(configs, self._runtimes)
+
+        # Use KContext to determine storage config name
+        # First try to get default storage from secrets
+        storage_config_name = self._kcontext.get_default_storage_config()
+        self.log.info(f"Default storage config from KContext: {storage_config_name}")
+
+        if not storage_config_name:
+            # Get list of available storage configs
+            available_storage = self._kcontext.get_storage_names()
+            self.log.info(f"Available storage configs in KContext: {available_storage}")
+
+            if available_storage:
+                # Use the first available one
+                storage_config_name = available_storage[0]
+                self.log.info(f"Using first available storage config: {storage_config_name}")
+            else:
+                # Last fallback: check traditional configs
+                traditional_storage = list(configs.get('storage_configs', {}).keys())
+                if traditional_storage:
+                    storage_config_name = traditional_storage[0]
+                    self.log.info(f"Using first traditional storage config: {storage_config_name}")
+                else:
+                    self.log.warning("No storage configuration found anywhere!")
+                    self._storage = None
+                    self._storage_config = None
+                    return
+
+        self.log.info(f"Attempting to initialize storage config: {storage_config_name}")
+
+        # Initialize storage using KContext
+        self._storage_config = self._kcontext.get_storage_config(storage_config_name)
+        self.log.info(f"KContext get_storage_config returned: {self._storage_config is not None}")
+
+
+        # Log config safely (without credentials)
+        if self._storage_config:
+            safe_config = {k: v for k, v in self._storage_config.items() if 'cred' not in k.lower() and 'password' not in k.lower() and 'token' not in k.lower()}
+            has_credentials = any('cred' in k.lower() or 'password' in k.lower() or 'token' in k.lower() for k in self._storage_config.keys())
+            self.log.info(f"KContext storage config (safe fields): {safe_config}")
+            self.log.info(f"KContext storage config has credentials: {has_credentials}")
+
+            self._storage = self._kcontext.init_storage(storage_config_name)
+            self.log.info(f"KContext storage initialization successful: {self._storage is not None}")
+        else:
+            # Fallback to old method if KContext doesn't have the storage config
+            self.log.info(f"KContext storage config not found, falling back to traditional method")
+            try:
+                self._storage_config = configs['storage_configs'][storage_config_name]
+
+                # Log config safely (storage configs from YAML shouldn't contain secrets anyway)
+                self.log.info(f"Traditional storage config type: {type(self._storage_config).__name__}")
+                if hasattr(self._storage_config, '__dict__'):
+                    safe_attrs = {k: v for k, v in self._storage_config.__dict__.items()
+                                 if not any(secret_word in k.lower() for secret_word in ['cred', 'password', 'token', 'secret', 'key'])}
+                    self.log.info(f"Traditional storage config (safe attributes): {safe_attrs}")
+
+                # Get credentials from KContext for this storage config
+                # Even in traditional method, use KContext for credentials
+                storage_cred = self._kcontext.get_secret(f"storage.{storage_config_name}.storage_cred")
+                has_cred = storage_cred is not None
+                self.log.info(f"Retrieved credentials from KContext: {has_cred}")
+
+                self._storage = kernelci.storage.get_storage(
+                    self._storage_config, storage_cred
+                )
+                self.log.info(f"Traditional storage initialization successful: {self._storage is not None}")
+
+            except KeyError as e:
+                self.log.error(f"Storage config '{storage_config_name}' not found in configs: {e}")
+                self._storage = None
+                self._storage_config = None
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
