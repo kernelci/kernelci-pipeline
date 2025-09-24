@@ -85,15 +85,17 @@ class Scheduler(Service):
         # Initialize KContext for runtime configuration and secrets management
 
         self._kcontext = kernelci.context.KContext(
-            parse_cli = True,
+            parse_cli=True,
         )
-    
+
         # Initialize runtimes with KContext
         # Get runtime names from KContext (parsed from CLI --runtimes argument)
         runtime_names = self._kcontext.get_runtimes()
-        if not runtime_names:
-            # If no specific runtimes specified, use all available
-            runtime_names = list(configs['runtimes'].keys())
+        self.log.info(f"Runtimes from KContext: {runtime_names}")
+        #if not runtime_names:
+        #    # If no specific runtimes specified, use all available
+        #    self.log.info("No runtimes specified, using all available")
+        #    runtime_names = list(configs['runtimes'].keys())
 
         self.log.info(f"Initializing runtimes: {runtime_names}")
 
@@ -140,14 +142,7 @@ class Scheduler(Service):
         self._storage_config = self._kcontext.get_storage_config(storage_config_name)
         self.log.info(f"KContext get_storage_config returned: {self._storage_config is not None}")
 
-
-        # Log config safely (without credentials)
         if self._storage_config:
-            safe_config = {k: v for k, v in self._storage_config.items() if 'cred' not in k.lower() and 'password' not in k.lower() and 'token' not in k.lower()}
-            has_credentials = any('cred' in k.lower() or 'password' in k.lower() or 'token' in k.lower() for k in self._storage_config.keys())
-            self.log.info(f"KContext storage config (safe fields): {safe_config}")
-            self.log.info(f"KContext storage config has credentials: {has_credentials}")
-
             self._storage = self._kcontext.init_storage(storage_config_name)
             self.log.info(f"KContext storage initialization successful: {self._storage is not None}")
         else:
@@ -155,13 +150,6 @@ class Scheduler(Service):
             self.log.info(f"KContext storage config not found, falling back to traditional method")
             try:
                 self._storage_config = configs['storage_configs'][storage_config_name]
-
-                # Log config safely (storage configs from YAML shouldn't contain secrets anyway)
-                self.log.info(f"Traditional storage config type: {type(self._storage_config).__name__}")
-                if hasattr(self._storage_config, '__dict__'):
-                    safe_attrs = {k: v for k, v in self._storage_config.__dict__.items()
-                                 if not any(secret_word in k.lower() for secret_word in ['cred', 'password', 'token', 'secret', 'key'])}
-                    self.log.info(f"Traditional storage config (safe attributes): {safe_attrs}")
 
                 # Get credentials from KContext for this storage config
                 # Even in traditional method, use KContext for credentials
