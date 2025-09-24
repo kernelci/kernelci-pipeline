@@ -111,6 +111,13 @@ platforms:
     dtb: dtbs/imx27-phytec-phycard-s-rdk.dtb
     compatible: ['phytec,imx27-pca100-rdk', 'phytec,imx27-pca100', 'fsl,imx27']
 
+  imx28-duckbill:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx28-duckbill.dtb
+    compatible: ['i2se,duckbill', 'fsl,imx28']
+
   imx53-qsrb:
     <<: *arm-device
     boot_method: barebox
