@@ -115,6 +115,7 @@ scheduler:
     platforms:
       - imx53-qsrb
       - imx6dl-riotboard
+      - imx6qp-wandboard-revd1
       - stm32mp157c-lxa-tac-gen1
       - jetson-tk1-barebox
 
