@@ -99,7 +99,7 @@ _anchors:
     kind: job
     kcidb_test_suite: boot
     params: &baseline-cros-kernel-params
-      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
     rules:
       tree:
         - chromiumos
@@ -123,7 +123,7 @@ _anchors:
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250818.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
-      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
     kcidb_test_suite: ltp
     rules: &ltp-cros-kernel-rules
       tree:
@@ -467,7 +467,7 @@ _anchors:
       test_command: 'rtcwake -m mem -s 15'
       boot_commands: nfs
       nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-fault-injection/20250520.0/{debarch}/'
-      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
     rules:
       tree:
         - chromiumos
