@@ -116,6 +116,7 @@ scheduler:
       - imx53-qsrb
       - imx6dl-riotboard
       - stm32mp157c-lxa-tac-gen1
+      - jetson-tk1-barebox
 
   - job: baseline-arm
     event: &kbuild-gcc-12-armv5-node-event
