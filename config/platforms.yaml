@@ -136,6 +136,13 @@ platforms:
     dtb: dtbs/imx6q-udoo.dtb
     compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
 
+  imx6qp-wandboard-revd1:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx6q-udoo.dtb
+    compatible: ['wand,imx6qp-wandboard', 'fsl,imx6qp']
+
   imx8mm-innocomm-wb15-evk:
     <<: *arm64-device
     boot_method: barebox
