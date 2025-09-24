@@ -113,6 +113,7 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
+      - imx27-phytec-phycard-s-rdk
       - imx53-qsrb
       - imx6dl-riotboard
       - imx6qp-wandboard-revd1
