@@ -165,11 +165,15 @@ platforms:
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
 
-  jetson-tk1:
+  jetson-tk1: &jetson-tk1
     <<: *arm-device
     mach: nvidia
     dtb: dtbs/nvidia/tegra124-jetson-tk1.dtb
     compatible: ['nvidia,jetson-tk1', 'nvidia,tegra124']
+
+  jetson-tk1-barebox:
+    <<: *jetson-tk1
+    boot_method: barebox
 
   jh7100-starfive-visionfive-v1:
     <<: *riscv-device
