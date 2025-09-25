@@ -505,7 +505,7 @@ _anchors:
     params: &wifi-basic-job-params
       test_method: wifi-basic
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20240313.0/{debarch}/'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20250925.0/{debarch}/'
     rules:
       tree:
         - mainline
