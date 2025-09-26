@@ -1561,6 +1561,17 @@ jobs:
       collections: arm64
     kcidb_test_suite: kselftest.arm64
 
+  kselftest-arm64-ramdisk:
+    <<: *kselftest-job
+    template: generic.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params
+      collections: arm64
+      boot_commands: ramdisk
+      ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+    kcidb_test_suite: kselftest.arm64
+
   kselftest-breakpoints:
     <<: *kselftest-job
     params:
