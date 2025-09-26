@@ -98,6 +98,20 @@ platforms:
 
   docker:
 
+  imx27-phytec-phycard-s-rdk:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx27-phytec-phycard-s-rdk.dtb
+    compatible: ['phytec,imx27-pca100-rdk', 'phytec,imx27-pca100', 'fsl,imx27']
+
+  imx28-duckbill:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx28-duckbill.dtb
+    compatible: ['i2se,duckbill', 'fsl,imx28']
+
   imx53-qsrb:
     <<: *arm-device
     boot_method: barebox
@@ -130,6 +144,13 @@ platforms:
     dtb: dtbs/imx6q-udoo.dtb
     compatible: ['udoo,imx6q-udoo', 'fsl,imx6q']
 
+  imx6qp-wandboard-revd1:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx6q-udoo.dtb
+    compatible: ['wand,imx6qp-wandboard', 'fsl,imx6qp']
+
   imx8mm-innocomm-wb15-evk:
     <<: *arm64-device
     boot_method: barebox
@@ -159,11 +180,15 @@ platforms:
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
 
-  jetson-tk1:
+  jetson-tk1: &jetson-tk1
     <<: *arm-device
     mach: nvidia
     dtb: dtbs/nvidia/tegra124-jetson-tk1.dtb
     compatible: ['nvidia,jetson-tk1', 'nvidia,tegra124']
+
+  jetson-tk1-barebox:
+    <<: *jetson-tk1
+    boot_method: barebox
 
   jh7100-starfive-visionfive-v1:
     <<: *riscv-device
