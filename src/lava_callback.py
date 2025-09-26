@@ -41,7 +41,16 @@ YAMLCFG = kernelci.config.load_yaml('config')
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
-logger = logging.getLogger('uvicorn.error')
+
+# Configure logging to output to stdout
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)],
+    force=True  # Force reconfiguration even if logging was already configured
+)
+logger = logging.getLogger('lava_callback')
+logger.setLevel(logging.DEBUG)
 
 
 class ManualCheckout(BaseModel):
@@ -249,55 +258,64 @@ def async_job_submit(api_helper, node_id, job_callback):
     handler. This is not ideal as we don't have a way to report errors back to
     the caller, but it's OK as LAVA don't care about the response.
     '''
-    results = job_callback.get_results()
-    job_node = api_helper.api.node.get(node_id)
-    if not job_node:
-        metrics.add('lava_callback_late_fail_total', 1)
-        logger.error(f'Node {node_id} not found')
-        return
-    # TODO: Verify lab_name matches job node lab name
-    # Also extract job_id and compare with node job_id (future)
-    # Or at least first record job_id in node metadata
+    try:
+        logger.info(f'Starting async job submit for node {node_id}')
+        results = job_callback.get_results()
+        job_node = api_helper.api.node.get(node_id)
+        if not job_node:
+            metrics.add('lava_callback_late_fail_total', 1)
+            logger.error(f'Node {node_id} not found')
+            return
+        logger.debug(f'Processing node {node_id}: {job_node.get("name", "unknown")}')
 
-    callback_data = job_callback.get_data()
-    log_parser = job_callback.get_log_parser()
-    job_result = job_callback.get_job_status()
-    device_id = job_callback.get_device_id()
-    storage_config_name = job_callback.get_meta('storage_config_name')
-    storage = _get_storage(storage_config_name)
-    log_txt_url = _upload_log(log_parser, job_node, storage)
-    if log_txt_url:
-        job_node['artifacts']['lava_log'] = log_txt_url
-        logger.info(f"Log uploaded to {log_txt_url}")
-    else:
-        logger.warning("Failed to upload log")
+        # TODO: Verify lab_name matches job node lab name
+        # Also extract job_id and compare with node job_id (future)
+        # Or at least first record job_id in node metadata
+
+        callback_data = job_callback.get_data()
+        log_parser = job_callback.get_log_parser()
+        job_result = job_callback.get_job_status()
+        device_id = job_callback.get_device_id()
+        storage_config_name = job_callback.get_meta('storage_config_name')
+        storage = _get_storage(storage_config_name)
+        log_txt_url = _upload_log(log_parser, job_node, storage)
+        if log_txt_url:
+            job_node['artifacts']['lava_log'] = log_txt_url
+            logger.info(f"Log uploaded to {log_txt_url}")
+        else:
+            logger.warning("Failed to upload log")
+            metrics.add('lava_callback_late_fail_total', 1)
+        callback_json_url = _upload_callback_data(callback_data, job_node, storage)
+        if callback_json_url:
+            job_node['artifacts']['callback_data'] = callback_json_url
+            logger.info(f"Callback data uploaded to {callback_json_url}")
+        else:
+            metrics.add('lava_callback_late_fail_total', 1)
+
+        # failed LAVA job should have result set to 'incomplete'
+        job_node['result'] = job_result
+        job_node['state'] = 'done'
+        if job_node.get('error_code') == 'node_timeout':
+            job_node['error_code'] = None
+            job_node['error_msg'] = None
+        if device_id:
+            job_node['data']['device'] = device_id
+        # add artifacts uploaded from the running LAVA job
+        upload_result = results.pop('upload', {})
+        for (name, state) in upload_result.items():
+            if name.startswith("artifact-upload:") and state == 'pass':
+                artifact = name.split(':', 2)
+                if len(artifact) != 3:
+                    logger.warn(f"Failed to extract artifact name and URL from {name}")
+                    continue
+                job_node['artifacts'][artifact[1]] = artifact[2]
+                logger.info(f"Artifact {artifact[1]} added with URL {artifact[2]}")
+        hierarchy = job_callback.get_hierarchy(results, job_node)
+        api_helper.submit_results(hierarchy, job_node)
+        logger.info(f"Completed processing callback for node {node_id}")
+    except Exception as e:
+        logger.exception(f"Error processing callback for node {node_id}: {e}")
         metrics.add('lava_callback_late_fail_total', 1)
-    callback_json_url = _upload_callback_data(callback_data, job_node, storage)
-    if callback_json_url:
-        job_node['artifacts']['callback_data'] = callback_json_url
-        logger.info(f"Callback data uploaded to {callback_json_url}")
-    else:
-        metrics.add('lava_callback_late_fail_total', 1)
-    # failed LAVA job should have result set to 'incomplete'
-    job_node['result'] = job_result
-    job_node['state'] = 'done'
-    if job_node.get('error_code') == 'node_timeout':
-        job_node['error_code'] = None
-        job_node['error_msg'] = None
-    if device_id:
-        job_node['data']['device'] = device_id
-    # add artifacts uploaded from the running LAVA job
-    upload_result = results.pop('upload', {})
-    for (name, state) in upload_result.items():
-        if name.startswith("artifact-upload:") and state == 'pass':
-            artifact = name.split(':', 2)
-            if len(artifact) != 3:
-                logger.warn(f"Failed to extract artifact name and URL from {result}")
-                continue
-            job_node['artifacts'][artifact[1]] = artifact[2]
-            logger.info(f"Artifact {artifact[1]} added with URL {artifact[2]}")
-    hierarchy = job_callback.get_hierarchy(results, job_node)
-    api_helper.submit_results(hierarchy, job_node)
 
 
 def submit_job(api_helper, node_id, job_callback):
@@ -311,6 +329,7 @@ def submit_job(api_helper, node_id, job_callback):
 # POST /node/<node_id>
 @app.post('/node/{node_id}')
 async def callback(node_id: str, request: Request):
+    logger.info(f"Received callback for node {node_id}")
     metrics.add('http_requests_total', 1)
     metrics.add('lava_callback_requests_total', 1)
     tokens = SETTINGS.get(SETTINGS_PREFIX)
@@ -843,4 +862,5 @@ if __name__ == '__main__':
     if not api_token:
         print('No API token set')
         sys.exit(1)
+    logger.info("Starting LAVA callback server...")
     uvicorn.run(app, host='0.0.0.0', port=8000, log_level="debug")
