@@ -284,7 +284,7 @@ scheduler:
       name: kbuild-gcc-12-x86
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-platforms
-      - qemu-x86
+      - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: baseline-x86-baylibre
@@ -334,7 +334,7 @@ scheduler:
       name: kbuild-gcc-12-x86-mfd
     runtime: *lava-collabora-runtime
     platforms:
-      - qemu-x86
+      - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: blktests-ddp-x86
@@ -1667,7 +1667,7 @@ scheduler:
     event: *kbuild-gcc-12-x86-node-event
     runtime: *lava-collabora-runtime
     platforms:
-      - qemu-x86
+      - qemu
 
   - job: ltp-watchqueue
     event: *kbuild-gcc-12-arm-node-event
