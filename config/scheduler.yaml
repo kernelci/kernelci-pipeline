@@ -45,6 +45,7 @@ scheduler:
       - odroid-xu3
       - rk3288-rock2-square
       - rk3288-veyron-jaq
+      - qemu-arm
 
   - job: baseline-arm-baylibre
     event: *kbuild-gcc-12-arm-node-event

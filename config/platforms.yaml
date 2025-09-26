@@ -381,6 +381,16 @@ platforms:
 
   qemu-x86: *qemu-device
 
+  qemu-arm:
+    <<: *qemu-device
+    base_name: qemu
+    arch: arm
+    context:
+      arch: arm
+      cpu: cortex-a15
+      machine: virt-2.11,gic-version=3
+      guestfs_interface: virtio
+
   rk3288-rock2-square:
     <<: *arm-device
     mach: rockchip
