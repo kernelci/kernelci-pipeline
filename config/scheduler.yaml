@@ -73,6 +73,15 @@ scheduler:
       - imx6q-udoo
       - stm32mp157a-dhcor-avenger96
 
+  - job: baseline-arm-testpull
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &lava-testpull-runtime
+      type: lava
+      name: lava-testpull
+    platforms: &lava-testpull-arm
+      - beaglebone-black
+      - imx6dl-udoo
+
   - job: baseline-arm-clabbe
     event: *kbuild-gcc-12-arm-node-event
     runtime: &lava-clabbe-runtime

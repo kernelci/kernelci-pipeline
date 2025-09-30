@@ -156,6 +156,12 @@ runtimes:
       callback:
         token: kernelci-lab-foundriesio
 
+  lava-testpull:
+    lab_type: lava
+    notify:
+      callback:
+        token: kernelci-lab-testpull
+
   shell:
     lab_type: shell
 
