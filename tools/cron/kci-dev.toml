@@ -1,0 +1,13 @@
+default_instance="production"
+
+[local]
+pipeline="https://127.0.0.1"
+api="http://127.0.0.1:8001/"
+
+[staging]
+pipeline="https://staging.kernelci.org:9100/"
+api="https://staging.kernelci.org:9000/"
+
+[production]
+pipeline="https://kernelci-pipeline.westus3.cloudapp.azure.com/"
+api="https://kernelci-api.westus3.cloudapp.azure.com/"
