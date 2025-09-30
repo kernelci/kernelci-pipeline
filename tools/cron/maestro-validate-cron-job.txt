@@ -1,0 +1,2 @@
+PATH=/usr/local/bin:/usr/bin
+0 0 * * 0 root /home/kernelci/run_maestro_validate.sh
