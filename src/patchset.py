@@ -300,7 +300,7 @@ patch -p1 < {patch_file}
                     self._mark_failed(patchset_node)
 
             self.log.info(
-                "Waiting %d seconds for a new nodes..." %
+                "Waiting %d seconds for new nodes..." %
                 self._service_config.polling_delay_secs,
             )
             time.sleep(self._service_config.polling_delay_secs)
