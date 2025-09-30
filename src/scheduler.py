@@ -21,6 +21,7 @@ import shutil
 
 import kernelci
 import kernelci.config
+import kernelci.context
 import kernelci.runtime
 import kernelci.scheduler
 import kernelci.storage
@@ -73,17 +74,6 @@ class Scheduler(Service):
         self._imgprefix = args.image_prefix or ''
         if not os.path.exists(self._output):
             os.makedirs(self._output)
-        rconfigs = (
-            configs['runtimes'] if args.runtimes is None
-            else self._get_runtimes_configs(configs['runtimes'], args.runtimes)
-        )
-        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
-        self._sched = kernelci.scheduler.Scheduler(configs, runtimes)
-        self._storage_config = configs['storage_configs'][args.storage_config]
-        storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
-        self._storage = kernelci.storage.get_storage(
-            self._storage_config, storage_cred
-        )
         self._job_tmp_dirs = {}
         self._threads = []
         self._api_helper_lock = threading.Lock()
@@ -91,6 +81,71 @@ class Scheduler(Service):
         self._context_lock = threading.Lock()
         self._context = {}
         self._stop_thread = False
+
+        # Initialize KContext for runtime configuration and secrets management
+
+        self._kcontext = kernelci.context.KContext(
+            parse_cli=True,
+        )
+
+        # Initialize runtimes with KContext
+        # Get runtime names from KContext (parsed from CLI --runtimes argument)
+        runtime_names = self._kcontext.get_runtimes()
+        self.log.info(f"Runtimes from KContext: {runtime_names}")
+
+        self.log.info(f"Initializing runtimes: {runtime_names}")
+
+        runtimes_configs = self._get_runtimes_configs(configs['runtimes'], runtime_names)
+
+        # Use the original get_all_runtimes function which properly handles user/token extraction
+        # but pass kcictx for new context-aware functionality
+        self._runtimes = dict(kernelci.runtime.get_all_runtimes(
+            runtimes_configs, args, kcictx=self._kcontext
+        ))
+
+        # Initialize scheduler with configs and runtimes
+        self._sched = kernelci.scheduler.Scheduler(configs, self._runtimes)
+
+        # Use KContext to get default storage config
+        storage_config_name = self._kcontext.get_default_storage_config()
+        self.log.info(f"Default storage config from KContext: {storage_config_name}")
+
+        if not storage_config_name:
+            self.log.warning("No storage configuration found in KContext!")
+            self._storage = None
+            self._storage_config = None
+            return
+
+        self.log.info(f"Attempting to initialize storage config: {storage_config_name}")
+
+        # Initialize storage using KContext
+        self._storage_config = self._kcontext.get_storage_config(storage_config_name)
+        self.log.info(f"KContext get_storage_config returned: {self._storage_config is not None}")
+
+        if self._storage_config:
+            self._storage = self._kcontext.init_storage(storage_config_name)
+            self.log.info(f"KContext storage initialization successful: {self._storage is not None}")
+        else:
+            # Fallback to old method if KContext doesn't have the storage config
+            self.log.info(f"KContext storage config not found, falling back to traditional method")
+            try:
+                self._storage_config = configs['storage_configs'][storage_config_name]
+
+                # Get credentials from KContext for this storage config
+                # Even in traditional method, use KContext for credentials
+                storage_cred = self._kcontext.get_secret(f"storage.{storage_config_name}.storage_cred")
+                has_cred = storage_cred is not None
+                self.log.info(f"Retrieved credentials from KContext: {has_cred}")
+
+                self._storage = kernelci.storage.get_storage(
+                    self._storage_config, storage_cred
+                )
+                self.log.info(f"Traditional storage initialization successful: {self._storage is not None}")
+
+            except KeyError as e:
+                self.log.error(f"Storage config '{storage_config_name}' not found in configs: {e}")
+                self._storage = None
+                self._storage_config = None
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
@@ -290,8 +345,24 @@ class Scheduler(Service):
                 self.log.error(err_msg)
             return
 
-        job_id = str(runtime.get_job_id(running_job))
-        node['data']['job_id'] = job_id
+        # If submit() returned None, this might be pull-based job
+        # (e.g. LAVA) where we cannot get a job ID at submission time
+        # but job retriever on lab side will set the job ID later
+        job_id = None
+        if running_job:
+            job_id = str(runtime.get_job_id(running_job))
+            node['data']['job_id'] = job_id
+        else:
+            # This is "pull-based" job, so we likely have artifact
+            # for job definition
+            artifact_url = runtime.get_job_definition_url()
+            self.log.debug(f"Job definition URL: {artifact_url}")
+            if artifact_url:
+                # node['artifacts'] is a dict of name:url
+                if node.get('artifacts'):
+                    node['artifacts']['job_definition'] = artifact_url
+                else:
+                    node['artifacts'] = {'job_definition': artifact_url}
 
         if platform.name == "kubernetes":
             context = runtime.get_context()
@@ -303,13 +374,17 @@ class Scheduler(Service):
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
-        self.log.info(' '.join([
+        log_parts = [
             node['id'],
             runtime.config.name,
             platform.name,
             job_config.name,
-            job_id,
-        ]))
+        ]
+        if job_id is not None:
+            log_parts.append(job_id)
+
+        self.log.info(' '.join(log_parts))
+
         if runtime.config.lab_type in ['shell', 'docker']:
             self._job_tmp_dirs[running_job] = tmp
 
