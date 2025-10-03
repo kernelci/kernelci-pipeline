@@ -475,6 +475,24 @@ _anchors:
         - 'chromiumos:chromeos-6.6'
     kcidb_test_suite: kernelci_fault_injection
 
+  blktests: &blktests-job
+    template: generic.jinja2
+    kind: job
+    params: &blktests-job-params
+      test_method: blktests
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20251016.0/amd64/'
+    kcidb_test_suite: kernelci_blktests
+
+  blktests-cros-kernel: &blktests-cros-kernel-job
+    <<: *blktests-job
+    params: &blktests-cros-kernel-params
+      <<: *blktests-job-params
+      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
+    rules:
+      tree:
+        - chromiumos
+
   ltp-fault-injection-cros-kernel: &ltp-fault-injection-cros-kernel-job
     <<: *ltp-cros-kernel-job
     params: &ltp-fault-injection-cros-kernel-params
@@ -1122,6 +1140,13 @@ jobs:
         - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.debian.v4l2.gstreamer_vp9
+
+  blktests-loopback-cros-kernel:
+    <<: *blktests-cros-kernel-job
+    params:
+      <<: *blktests-cros-kernel-params
+      test_group: "block"
+      test_device: "loop"
 
   watchdog-reset-arm64-mediatek: *watchdog-reset-job
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job

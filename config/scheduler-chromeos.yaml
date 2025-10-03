@@ -310,6 +310,9 @@ scheduler:
   - job: ltp-fault-injection-x86-intel-cros-kernel
     <<: *test-job-x86-intel-fault-injection
 
+  - job: blktests-loopback-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
   - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
 
