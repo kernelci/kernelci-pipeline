@@ -40,6 +40,9 @@ platforms:
     context:
       bootm_ramdisk_addr: "0x04000000"
       bootz_ramdisk_addr: "0x04000000"
+    params:
+      boot_commands: nfs
+      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
 
   r8a7743-iwg20d-q7:
     <<: *arm-device
