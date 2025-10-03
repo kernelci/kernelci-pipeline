@@ -37,6 +37,9 @@ platforms:
     mach: intel
     dtb: dtbs/socfpga_cyclone5_de0_nano_soc.dtb
     compatible: ['terasic,de0-atlas', 'altr,socfpga-cyclone5', 'altr,socfpga']
+    context:
+      bootm_ramdisk_addr: "0x04000000"
+      bootz_ramdisk_addr: "0x04000000"
 
   r8a7743-iwg20d-q7:
     <<: *arm-device
