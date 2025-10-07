@@ -517,7 +517,7 @@ _anchors:
     <<: *wifi-basic-job
     params:
       <<: *wifi-basic-job-params
-      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
     rules:
       tree:
         - chromiumos
