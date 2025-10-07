@@ -278,20 +278,24 @@ def async_job_submit(api_helper, node_id, job_callback):
         device_id = job_callback.get_device_id()
         storage_config_name = job_callback.get_meta('storage_config_name')
         storage = _get_storage(storage_config_name)
-        log_txt_url = _upload_log(log_parser, job_node, storage)
-        if log_txt_url:
-            job_node['artifacts']['lava_log'] = log_txt_url
-            logger.info(f"Log uploaded to {log_txt_url}")
-        else:
-            logger.warning("Failed to upload log")
-            metrics.add('lava_callback_late_fail_total', 1)
-        callback_json_url = _upload_callback_data(callback_data, job_node, storage)
-        if callback_json_url:
-            job_node['artifacts']['callback_data'] = callback_json_url
-            logger.info(f"Callback data uploaded to {callback_json_url}")
-        else:
-            metrics.add('lava_callback_late_fail_total', 1)
 
+        if log_parser:
+            log_txt_url = _upload_log(log_parser, job_node, storage)
+            if log_txt_url:
+                job_node['artifacts']['lava_log'] = log_txt_url
+                logger.info(f"Log uploaded to {log_txt_url}")
+            else:
+                logger.warning("Failed to upload log")
+                metrics.add('lava_callback_late_fail_total', 1)
+            callback_json_url = _upload_callback_data(callback_data, job_node, storage)
+            if callback_json_url:
+                job_node['artifacts']['callback_data'] = callback_json_url
+                logger.info(f"Callback data uploaded to {callback_json_url}")
+            else:
+                metrics.add('lava_callback_late_fail_total', 1)
+        else:
+            logger.warning("No log data found in callback")
+            job_result = 'incomplete'
         # failed LAVA job should have result set to 'incomplete'
         job_node['result'] = job_result
         job_node['state'] = 'done'
