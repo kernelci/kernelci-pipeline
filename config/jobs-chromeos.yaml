@@ -115,6 +115,28 @@ _anchors:
       tree:
         - chromiumos
 
+  kselftest: &kselftest-job
+    template: generic.jinja2
+    kind: job
+    params: &kselftest-params
+      test_method: kselftest
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      job_timeout: 10
+    kcidb_test_suite: kselftest
+    rules:
+      tree:
+        - collabora-next:for-kernelci
+
+  kselftest-cros-kernel: &kselftest-cros-kernel-job
+    <<: *kselftest-job
+    params: &kselftest-cros-kernel-params
+      <<: *kselftest-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf"
+    rules: &kselftest-cros-kernel-rules
+      tree:
+        - chromiumos
+
   ltp-cros-kernel: &ltp-cros-kernel-job
     template: ltp.jinja2
     kind: job
@@ -782,31 +804,406 @@ jobs:
         - 'chromiumos:chromeos-6.6'
 
   kselftest-acpi:
-    template: generic.jinja2
-    kind: job
+    <<: *kselftest-job
     params:
-      test_method: kselftest
-      boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      <<: *kselftest-params
       collections: acpi
-      job_timeout: 10
-    rules:
-      tree:
-        - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.acpi
 
-  kselftest-device-error-logs:
-    template: generic.jinja2
-    kind: job
+  kselftest-cros-kernel-acct:
+    <<: *kselftest-cros-kernel-job
     params:
-      test_method: kselftest
-      boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
-      collections: devices/error_logs
-      job_timeout: 10
+      <<: *kselftest-cros-kernel-params
+      collections: acct
+    kcidb_test_suite: kselftest.acct
+
+  kselftest-cros-kernel-acpi:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: acpi
+    kcidb_test_suite: kselftest.acpi
+
+  kselftest-cros-kernel-alsa:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: alsa
+    kcidb_test_suite: kselftest.alsa
+
+  kselftest-cros-kernel-arm64:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: arm64
+    kcidb_test_suite: kselftest.arm64
+
+  kselftest-cros-kernel-breakpoints:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: breakpoints
+    kcidb_test_suite: kselftest.breakpoints
+
+  kselftest-cros-kernel-capabilities:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: capabilities
+    kcidb_test_suite: kselftest.capabilities
+
+  kselftest-cros-kernel-clone3:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: clone3
+    kcidb_test_suite: kselftest.clone3
+
+  kselftest-cros-kernel-coredump:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: coredump
+    kcidb_test_suite: kselftest.coredump
+
+  kselftest-cros-kernel-cpufreq:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: cpufreq
+    kcidb_test_suite: kselftest.cpufreq
+
+  kselftest-cros-kernel-cpufreq-hibernate:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: cpufreq
+      env: 'KSELFTEST_MAIN_SH_ARGS="-t hibernate_rtc"'
     rules:
-      tree:
-        - collabora-next:for-kernelci
+      <<: *kselftest-cros-kernel-rules
+      min_version:
+        version: 6
+        patchlevel: 12
+    kcidb_test_suite: kselftest.cpufreq.hibernate
+
+  kselftest-cros-kernel-cpufreq-suspend:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: cpufreq
+      env: 'KSELFTEST_MAIN_SH_ARGS="-t suspend_rtc"'
+    rules:
+      <<: *kselftest-cros-kernel-rules
+      min_version:
+        version: 6
+        patchlevel: 12
+    kcidb_test_suite: kselftest.cpufreq.suspend
+
+  kselftest-cros-kernel-device-error-logs-main:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: devices/error_logs
+    kcidb_test_suite: kselftest.device_error_logs
+
+  kselftest-cros-kernel-devices-probe:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: devices/probe
+      env: "KSELFTEST_TEST_DISCOVERABLE_DEVICES_PY_ARGS=--boards-dir=/opt/platform-test-parameters/kselftest/test_discoverable_devices/boards/"
+    rules:
+      <<: *kselftest-cros-kernel-rules
+      min_version:
+        version: 6
+        patchlevel: 11
+    kcidb_test_suite: kselftest.devices-probe
+
+  kselftest-cros-kernel-dmabuf-heaps:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: dmabuf-heaps
+    kcidb_test_suite: kselftest.dmabuf-heaps
+
+  kselftest-cros-kernel-dt:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: dt
+    rules:
+      <<: *kselftest-cros-kernel-rules
+      min_version:
+        version: 6
+        patchlevel: 7
+    kcidb_test_suite: kselftest.dt
+
+  kselftest-cros-kernel-efivars:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: efivars
+    kcidb_test_suite: kselftest.efivars
+
+  kselftest-cros-kernel-exec:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: exec
+    kcidb_test_suite: kselftest.exec
+
+  kselftest-cros-kernel-fchmodat2:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: fchmodat2
+    kcidb_test_suite: kselftest.fchmodat2
+
+  kselftest-cros-kernel-ftrace:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: ftrace
+    kcidb_test_suite: kselftest.ftrace
+
+  kselftest-cros-kernel-futex:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: futex
+    kcidb_test_suite: kselftest.futex
+
+  kselftest-cros-kernel-gpio:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: gpio
+    kcidb_test_suite: kselftest.gpio
+
+  kselftest-cros-kernel-iommu:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: iommu
+    kcidb_test_suite: kselftest.iommu
+
+  kselftest-cros-kernel-ipc:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: ipc
+    kcidb_test_suite: kselftest.ipc
+
+  kselftest-cros-kernel-kcmp:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: kcmp
+    kcidb_test_suite: kselftest.kcmp
+
+  kselftest-cros-kernel-kvm:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: kvm
+    kcidb_test_suite: kselftest.kvm
+
+  kselftest-cros-kernel-kvm-pkvm:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf kvm-arm.mode=protected"
+      collections: pkvm
+    kcidb_test_suite: kselftest.pkvm
+
+  kselftest-cros-kernel-landlock:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: landlock
+    kcidb_test_suite: kselftest.landlock
+
+  kselftest-cros-kernel-lsm:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: lsm
+    kcidb_test_suite: kselftest.lsm
+
+  kselftest-cros-kernel-memfd:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: memfd
+    kcidb_test_suite: kselftest.memfd
+
+  # No hugepages allocation (for architectures without it)
+  kselftest-cros-kernel-mm:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf secretmem.enable kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
+  # hugepages allocation suitable for machines with 2G of memory
+  kselftest-cros-kernel-mm-2g:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf secretmem.enable hugepagesz=32M hugepages=0:4 default_hugepagesz=2M hugepages=0:128 hugepagesz=64K hugepages=0:4 kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
+  # hugepages allocation suitable for machines with 8G and more of memory
+  kselftest-cros-kernel-mm-8g:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      extra_kernel_args: "lsm=capability,landlock,yama,loadpin,safesetid,selinux,bpf secretmem.enable hugepagesz=1G hugepages=0:4 hugepagesz=32M hugepages=0:4 default_hugepagesz=2M hugepages=0:128 hugepagesz=64K hugepages=0:4 kpti=off"
+      collections: mm
+    kcidb_test_suite: kselftest.mm
+
+  kselftest-cros-kernel-mqueue:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: mqueue
+    kcidb_test_suite: kselftest.mqueue
+
+  kselftest-cros-kernel-net:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: net
+      job_timeout: 300
+      skipfile: https://storage.kernelci.org/skipfile-net.yaml
+    kcidb_test_suite: kselftest.net
+
+  kselftest-cros-kernel-perf-events:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: perf_events
+    kcidb_test_suite: kselftest.perf_events
+
+  kselftest-cros-kernel-proc:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: proc
+    kcidb_test_suite: kselftest.proc
+
+  kselftest-cros-kernel-ptrace:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: ptrace
+    kcidb_test_suite: kselftest.ptrace
+
+  kselftest-cros-kernel-ring-buffer:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: ring-buffer
+    kcidb_test_suite: kselftest.ring-buffer
+
+  kselftest-cros-kernel-rlimits:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: rlimits
+    kcidb_test_suite: kselftest.rlimits
+
+  kselftest-cros-kernel-seccomp:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: seccomp
+    kcidb_test_suite: kselftest.seccomp
+
+  kselftest-cros-kernel-signal:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: signal
+    kcidb_test_suite: kselftest.signal
+
+  kselftest-cros-kernel-splice:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: splice
+    kcidb_test_suite: kselftest.splce
+
+  kselftest-cros-kernel-sync:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: sync
+    kcidb_test_suite: kselftest.sync
+
+  kselftest-cros-kernel-timens:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: timens
+    kcidb_test_suite: kselftest.timens
+
+  kselftest-cros-kernel-timers:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: timers
+    kcidb_test_suite: kselftest.timers
+
+  kselftest-cros-kernel-tpm2:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: tpm2
+    kcidb_test_suite: kselftest.tpm2
+
+  kselftest-cros-kernel-ublk:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: ublk
+    kcidb_test_suite: kselftest.ublk
+
+  kselftest-cros-kernel-uevent:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: uevent
+    kcidb_test_suite: kselftest.uevent
+
+  kselftest-cros-kernel-user-events:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: user_events
+    kcidb_test_suite: kselftest.user_events
+
+  kselftest-cros-kernel-vdso:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: vDSO
+    kcidb_test_suite: kselftest.vdso
+
+  kselftest-cros-kernel-zram:
+    <<: *kselftest-cros-kernel-job
+    params:
+      <<: *kselftest-cros-kernel-params
+      collections: zram
+    kcidb_test_suite: kselftest.zram
+
+  kselftest-device-error-logs:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: devices/error_logs
     kcidb_test_suite: kselftest.device_error_logs
 
   ltp-capability-cros-kernel:
