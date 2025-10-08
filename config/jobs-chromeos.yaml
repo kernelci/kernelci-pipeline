@@ -479,7 +479,9 @@ _anchors:
     <<: *ltp-cros-kernel-job
     params: &ltp-fault-injection-cros-kernel-params
       <<: *ltp-cros-kernel-params
-      extra_kirk_args: "-F {{ range(1, 101)|random }}"
+      # Uncomment the following line to set a fixed probability value for fault injection,
+      # otherwise a random value between 1 and 100 will be set in ltp.jinja2
+      # extra_kirk_args: "-F 50"
     rules: &ltp-fault-injection-cros-kernel-rules
       <<: *ltp-cros-kernel-rules
       branch:
