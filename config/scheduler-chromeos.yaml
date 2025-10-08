@@ -186,9 +186,11 @@ _anchors:
   test-job-x86-intel-fault-injection: &test-job-x86-intel-fault-injection
     <<: *test-job-x86-intel-cros-kernel
     platforms:
+      - acer-cb317-1h-c3z6-dedede
       - acer-cbv514-1h-34uz-brya
       - acer-chromebox-cxi5-brask
       - acer-n20q11-r856ltn-p1s2-nissa
+      - hp-x360-12b-ca0010nr-n4020-octopus
     event:
       <<: *test-job-x86-event
       name: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
