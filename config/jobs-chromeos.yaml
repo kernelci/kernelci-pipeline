@@ -779,6 +779,8 @@ jobs:
       tree:
         - 'chromiumos'
       branch:
+        - 'chromiumos:chromeos-5.15'
+        - 'chromiumos:chromeos-6.1'
         - 'chromiumos:chromeos-6.6'
 
   kselftest-acpi:
