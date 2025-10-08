@@ -104,6 +104,13 @@ platforms:
     dtb: dtbs/eswin/eic7700-hifive-premier-p550.dtb
     compatible: ['sifive,hifive-premier-p550', 'eswin,eic7700']
 
+  imx23-olinuxino:
+    <<: *arm-device
+    boot_method: barebox
+    mach: imx
+    dtb: dtbs/imx23-olinuxino.dtb
+    compatible: ['olimex,imx23-olinuxino', '"fsl,imx23']
+
   imx27-phytec-phycard-s-rdk:
     <<: *arm-device
     boot_method: barebox
