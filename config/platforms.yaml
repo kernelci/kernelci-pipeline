@@ -383,7 +383,6 @@ platforms:
 
   qemu-arm:
     <<: *qemu-device
-    base_name: qemu
     arch: arm
     context:
       arch: arm
