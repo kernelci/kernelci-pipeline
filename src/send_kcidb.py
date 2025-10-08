@@ -566,6 +566,41 @@ in {runtime}",
 
         return parsed_test_node, dummy_build
 
+    def _parse_coverage_node(self, origin, node):
+        self.log.debug(f"Parsing coverage node: {node['id']}")
+        # Coverage report nodes are not sent to the DB themselves, but rather
+        # parsed to submit an updated build node including the functions/lines
+        # coverage percentages as misc fields.
+        build_node = self._get_node_cached(node['parent'])
+        # Coverage report nodes are also created for individual test jobs, the
+        # results of which being only useful to the "top-level" (i.e. direct
+        # child of the kbuild node) instance.
+        if build_node['kind'] != 'kbuild':
+            self.log.debug(f"{node['id']} is not a top-level coverage node, skipping")
+            return []
+        parsed_node = self._parse_build_node(origin, build_node)
+        parsed_coverage_node = parsed_node[0]
+
+        # Add misc fields for coverage results
+        child_nodes = self._api.node.find({'parent': node['id'], 'kind': 'test'})
+        for child in child_nodes:
+            if not child['name'].startswith('coverage.'):
+                continue
+            if 'misc' not in child['data'] or 'measurement' not in child['data']['misc']:
+                self.log.warning(f"No measurement in node '{child['name']}' ({child['id']})")
+                continue
+            field_name = self._replace_restricted_chars(child['name'], r'^[a-zA-Z0-9_]*$')
+            parsed_coverage_node['misc'][field_name] = child['data']['misc']['measurement']
+
+        # Add HTML coverage report to the build node's artifacts
+        artifacts = node.get('artifacts')
+        if artifacts:
+            parsed_coverage_node['misc']['coverage_report_url'] = artifacts.get('coverage_report')
+            parsed_coverage_node['misc']['coverage_log_url'] = artifacts.get('log')
+
+        self.log.debug(f"Parsed coverage node: {parsed_coverage_node}")
+        return [parsed_coverage_node]
+
     def _get_test_data(self, node, origin,
                        parsed_test_node, parsed_build_node):
         test_node, build_node = self._parse_test_node(
@@ -830,6 +865,9 @@ in {runtime}",
 
         elif node['kind'] == 'kbuild':
             parsed_data['build_node'] = self._parse_build_node(origin, node)
+
+        elif node['kind'] == 'process' and node['name'].startswith('coverage-report'):
+            parsed_data['build_node'] = self._parse_coverage_node(origin, node)
 
         elif node['kind'] in ['test', 'job']:
             self._get_test_data(node, origin, parsed_data['test_node'],
