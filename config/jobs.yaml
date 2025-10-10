@@ -131,6 +131,7 @@ jobs:
 
   baseline-arm: *baseline-job
   baseline-arm-broonie: *baseline-job
+  baseline-arm-testpull: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-clabbe: *baseline-job
   baseline-arm-kontron: *baseline-job
