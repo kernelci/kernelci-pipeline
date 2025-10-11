@@ -13,7 +13,8 @@ document explains how to do this.
 
 The first step is to generate a token for the lab. This is done by the lab admin,
 and the token is used to submit jobs from pipeline to the lab and to authenticate
-LAVA lab callbacks to the pipeline.
+LAVA lab callbacks to the pipeline. The token is generated in `Auth Tokens`
+section under `Linaro_Django_Xmlrpc`.
 
 Requirements for the token:
 - `Description`: a string matching the regular expression `[a-zA-Z0-9\-]+`, for example "kernelci-new-api-callback"
@@ -72,11 +73,17 @@ For example, in our documentation we used `lava-broonie` as the lab name, so the
 runtime_token="N0tAS3creTT0k3n"
 ```
 
+If you want to connect your Lab to the official kernelci Pipeline under
+https://dashboard.kernelci.org, then you need to contact the KernelCI team.
+Have a look at https://foundation.kernelci.org/community-contact/ and see what
+needs to be done here.
+
 ### `docker-compose` file
 
 We are running all the pipeline services as docker containers.
 You need to provide lab name to `--runtimes` argument to the [`scheduler-lava`](https://github.com/kernelci/kernelci-pipeline/blob/main/docker-compose.yaml#L80)
-service in the `docker-compose.yml` file to enable the lab.
+service in the [`docker-compose.yml`](https://github.com/kernelci/kernelci-pipeline/blob/main/docker-compose.yaml)
+file to enable the lab.
 For example, the following configuration adds the `lava-broonie` lab along with other labs:
 
 ```yml
@@ -95,22 +102,30 @@ scheduler-lava:
 
 ### Jobs and devices specific to the lab
 
-The last step is to add some jobs that you want KernelCI to submit to the lab.
-You also need to add platforms that the job will run on in the lab.
-For example, the following adds a job and a device type for the `lava-broonie` lab:
+Now you want to describe to KernelCI the boards we have in your lab. Add the
+board under [`platforms.yaml`](https://github.com/kernelci/kernelci-pipeline/blob/main/config/platforms.yaml),
+or see if they are already present.
 
 ```yaml
-jobs:
-  baseline-arm64-broonie:
-    template: baseline.jinja2
-    kind: test
-
 platforms:
   sun50i-h5-libretech-all-h3-cc:
     <<: *arm64-device
     mach: allwinner
     dtb: dtbs/allwinner/sun50i-h5-libretech-all-h3-cc.dtb
+```
 
+Next, create a job under [`jobs.yaml`](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs.yaml)
+```
+jobs:
+  baseline-arm64-broonie: *baseline-job
+```
+
+The last step is to add some jobs that you want KernelCI to submit to the lab.
+For this create your scheduler job in
+[`scheduler.yaml`](https://github.com/kernelci/kernelci-pipeline/blob/main/config/scheduler.yaml)
+with the conditions under which the job should be run:
+
+```yaml
 scheduler:
   - job: baseline-arm64-broonie
     event:
@@ -125,9 +140,11 @@ scheduler:
 ```
 
 Jobs usually define tasks to be run such as kernel build or a test suite running on a particular device (platform).
-The device is defined in the `platforms` section, and the job is defined in the `jobs` section.  Conditions for the job to be run are defined in the `scheduler` section.
 More details about pipeline configuration can be found in the pipeline configuration documentation (TBD).
 
 > **Note** We have [`lava-callback`](https://github.com/kernelci/kernelci-pipeline/blob/main/docker-compose-lava.yaml#L10) service that will receive job results from the lab and send them to the API.
+
+Please submit a pull request to [`kernelci-pipeline`](https://github.com/kernelci/kernelci-pipeline) repository to add the lab configurations. See the
+[pull request](https://github.com/kernelci/kernelci-pipeline/pull/426) for reference.
 
 And, here you go! You have successfully connected your lab with KernelCI.
