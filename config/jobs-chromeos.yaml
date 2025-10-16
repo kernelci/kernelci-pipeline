@@ -500,6 +500,7 @@ _anchors:
       # Uncomment the following line to set a fixed probability value for fault injection,
       # otherwise a random value between 1 and 100 will be set in ltp.jinja2
       # extra_kirk_args: "-F 50"
+    kcidb_test_suite: ltp_fault_injection
     rules: &ltp-fault-injection-cros-kernel-rules
       <<: *ltp-cros-kernel-rules
       branch:
