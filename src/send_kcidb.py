@@ -831,7 +831,7 @@ in {runtime}",
         elif node['kind'] == 'kbuild':
             parsed_data['build_node'] = self._parse_build_node(origin, node)
 
-        elif node['kind'] in ['test', 'job']:
+        elif node['kind'] in ['test', 'job', 'process']:
             self._get_test_data(node, origin, parsed_data['test_node'],
                                 parsed_data['build_node'])
 
