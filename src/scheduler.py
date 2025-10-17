@@ -18,6 +18,8 @@ import time
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import shutil
+import traceback
+import signal
 
 import kernelci
 import kernelci.config
@@ -30,6 +32,7 @@ from base import Service
 
 BACKUP_DIR = '/tmp/kci-backup'
 BACKUP_FILE_LIFETIME = 24 * 60 * 60  # 24 hours in seconds
+WATCHDOG_TIMEOUT = 10 * 60  # 10 minutes in seconds
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -48,6 +51,45 @@ class HealthHandler(BaseHTTPRequestHandler):
 def run_health_server():
     server = HTTPServer(('0.0.0.0', 8080), HealthHandler)
     server.serve_forever()
+
+
+def run_watchdog(scheduler_instance, logger):
+    """Monitor scheduler threads and crash if any thread is stuck for too long"""
+    logger.info(f"Watchdog started with {WATCHDOG_TIMEOUT}s timeout")
+    check_interval = 30  # Check every 30 seconds
+
+    while True:
+        with scheduler_instance._stop_thread_lock:
+            if scheduler_instance._stop_thread:
+                logger.info("Watchdog stopping")
+                break
+
+        time.sleep(check_interval)
+        current_time = time.time()
+
+        with scheduler_instance._watchdog_lock:
+            timestamps = scheduler_instance._watchdog_timestamps.copy()
+
+        # Check each thread's timestamp
+        for thread_name, last_update in timestamps.items():
+            time_since_update = current_time - last_update
+            if time_since_update > WATCHDOG_TIMEOUT:
+                logger.error(f"WATCHDOG: Thread '{thread_name}' stuck for {time_since_update:.0f}s "
+                           f"(timeout: {WATCHDOG_TIMEOUT}s). Dumping stack traces and crashing!")
+
+                # Print stack traces of all threads
+                logger.error("=" * 80)
+                logger.error("STACK TRACES OF ALL THREADS:")
+                logger.error("=" * 80)
+                for thread_id, frame in sys._current_frames().items():
+                    logger.error(f"\nThread ID: {thread_id}")
+                    logger.error("Stack trace:")
+                    for line in traceback.format_stack(frame):
+                        logger.error(line.strip())
+                logger.error("=" * 80)
+
+                # Send SIGABRT to get a core dump (if enabled) and backtrace
+                os.kill(os.getpid(), signal.SIGABRT)
 
 
 class Scheduler(Service):
@@ -79,6 +121,8 @@ class Scheduler(Service):
         self._context_lock = threading.Lock()
         self._context = {}
         self._stop_thread = False
+        self._watchdog_timestamps = {}  # Thread name -> last update timestamp
+        self._watchdog_lock = threading.Lock()
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
@@ -122,6 +166,17 @@ class Scheduler(Service):
         )
         health_thread.start()
         return health_thread
+
+    def start_watchdog(self):
+        """Start the watchdog thread to monitor scheduler threads"""
+        watchdog_thread = threading.Thread(
+            target=run_watchdog,
+            args=(self, self.log),
+            daemon=True,
+            name="watchdog"
+        )
+        watchdog_thread.start()
+        return watchdog_thread
 
     def backup_cleanup(self):
         """
@@ -402,6 +457,11 @@ class Scheduler(Service):
         subscribe_retries = 0
 
         while True:
+            # Update timestamp for watchdog
+            thread_name = threading.current_thread().name
+            with self._watchdog_lock:
+                self._watchdog_timestamps[thread_name] = time.time()
+
             with self._stop_thread_lock:
                 if self._stop_thread:
                     break
@@ -470,8 +530,11 @@ class cmd_loop(Command):
     def __call__(self, configs, args):
         scheduler = Scheduler(configs, args)
 
-        # Start health server with scheduler instance access
+        # Start health server
         health_thread = scheduler.start_health_server()
+
+        # Start watchdog to monitor scheduler threads
+        watchdog_thread = scheduler.start_watchdog()
 
         return scheduler.run()
 
