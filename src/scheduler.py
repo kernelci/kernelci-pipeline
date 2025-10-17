@@ -31,7 +31,6 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 from base import Service
 
 BACKUP_DIR = '/tmp/kci-backup'
-BACKUP_FILE_LIFETIME = 24 * 60 * 60  # 24 hours in seconds
 WATCHDOG_TIMEOUT = 10 * 60  # 10 minutes in seconds
 
 
@@ -75,7 +74,7 @@ def run_watchdog(scheduler_instance, logger):
             time_since_update = current_time - last_update
             if time_since_update > WATCHDOG_TIMEOUT:
                 logger.error(f"WATCHDOG: Thread '{thread_name}' stuck for {time_since_update:.0f}s "
-                           f"(timeout: {WATCHDOG_TIMEOUT}s). Dumping stack traces and crashing!")
+                             f"(timeout: {WATCHDOG_TIMEOUT}s). Dumping stack traces and crashing!")
 
                 # Print stack traces of all threads
                 logger.error("=" * 80)
@@ -123,6 +122,14 @@ class Scheduler(Service):
         self._stop_thread = False
         self._watchdog_timestamps = {}  # Thread name -> last update timestamp
         self._watchdog_lock = threading.Lock()
+        # Backup is disabled by default, enable via BACKUP_FILE_LIFETIME env variable (in seconds)
+        self._backup_file_lifetime = int(os.getenv('BACKUP_FILE_LIFETIME', '0'))
+        self._last_backup_cleanup = 0
+        if self._backup_file_lifetime > 0:
+            self.log.info(f"Job backup enabled: lifetime={self._backup_file_lifetime}s, "
+                          f"dir={BACKUP_DIR}")
+        else:
+            self.log.info("Job backup disabled (set BACKUP_FILE_LIFETIME env var to enable)")
 
     def _get_runtimes_configs(self, configs, runtimes):
         runtimes_configs = {}
@@ -180,31 +187,53 @@ class Scheduler(Service):
 
     def backup_cleanup(self):
         """
-        Cleanup the backup directory, removing files older than 24h
+        Cleanup the backup directory, removing files older than configured lifetime.
+        Only runs if backup is enabled and at most once per hour.
         """
+        if self._backup_file_lifetime <= 0:
+            return
+
+        # Only run cleanup once per hour to avoid excessive directory scans
+        current_time = time.time()
+        if current_time - self._last_backup_cleanup < 3600:  # 1 hour
+            return
+
+        self._last_backup_cleanup = current_time
+
         if not os.path.exists(BACKUP_DIR):
             return
+
         now = datetime.datetime.now()
         for f in os.listdir(BACKUP_DIR):
             fpath = os.path.join(BACKUP_DIR, f)
             if os.path.isfile(fpath):
                 mtime = datetime.datetime.fromtimestamp(os.path.getmtime(fpath))
-                if (now - mtime).total_seconds() > BACKUP_FILE_LIFETIME:
-                    os.remove(fpath)
+                if (now - mtime).total_seconds() > self._backup_file_lifetime:
+                    try:
+                        os.remove(fpath)
+                        self.log.debug(f"Removed old backup file: {fpath}")
+                    except Exception as e:
+                        self.log.error(f"Failed to remove backup file {fpath}: {e}")
 
     def backup_job(self, filename, nodeid):
         """
-        Backup filename, rename to nodeid.submission and keep in BACKUP_DIR
-        Also check if BACKUP_DIR have files older than 24h, delete them
+        Backup filename, rename to nodeid.submission and keep in BACKUP_DIR.
+        Only runs if BACKUP_FILE_LIFETIME environment variable is set to a positive value.
+        Periodically cleans up old backup files.
         """
+        # Skip backup if disabled
+        if self._backup_file_lifetime <= 0:
+            return
+
         if not os.path.exists(BACKUP_DIR):
             os.makedirs(BACKUP_DIR)
-        # cleanup old files
+
+        # Cleanup old files (this checks internally if it should run)
         self.backup_cleanup()
-        # backup file
+
+        # Backup file
         new_filename = os.path.join(BACKUP_DIR, f"{nodeid}.submission")
         self.log.info(f"Backing up {filename} to {new_filename}")
-        # copy file to backup directory
         try:
             shutil.copy2(filename, new_filename)
         except Exception as e:
