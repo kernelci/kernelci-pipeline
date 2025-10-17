@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2025 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+
+# version: '3'
+
+services:
+
+  cron:
+    container_name: 'kernelci-pipeline-cron'
+    image: 'kernelci:pipeline-cron'
+    stop_signal: 'SIGINT'
+    restart: on-failure
+    volumes:
+      - './tools/cron/:/home/kernelci/'
+      - './logs/:/home/kernelci/logs/'
