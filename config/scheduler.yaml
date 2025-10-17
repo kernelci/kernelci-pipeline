@@ -263,6 +263,18 @@ scheduler:
       - bcm2711-rpi-4-b
       - qcs6490-rb3gen2
 
+  - job: baseline-arm64-qualcomm
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - x1e80100
+
   - job: baseline-riscv-broonie
     event: &kbuild-gcc-12-riscv-node-event
       <<: *node-event-kbuild
