@@ -380,6 +380,13 @@ platforms:
     dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
     compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
 
+  qcs615-ride:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/qcs615-ride.dtb
+    compatible: ['qcom,qcs615-ride', 'qcom,qcs615', 'qcom,sm6150']
+
   qcs6490-rb3gen2:
     <<: *arm64-device
     boot_method: fastboot
