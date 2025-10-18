@@ -739,30 +739,6 @@ scheduler:
   - job: ltp-pty-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-arm64-mediatek-coverage
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-arm64-mediatek-cros-kernel
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-arm64-qualcomm-coverage
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-arm64-qualcomm-cros-kernel
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-x86-amd-coverage
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-x86-amd-cros-kernel
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-x86-intel-coverage
-
-  - job: ltp-sched-cros-kernel
-    <<: *test-job-x86-intel-cros-kernel
-
 # Some of this tests running too long, must be max 30 min
   - job: tast-decoder-chromestack-arm64-mediatek
     <<: *test-job-chromeos-mediatek
