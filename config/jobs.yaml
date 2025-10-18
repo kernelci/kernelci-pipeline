@@ -167,6 +167,7 @@ jobs:
       - arm
       fragments:
       - coverage
+    kcidb_test_suite: coverage
 
   coverage-report-arm64:
     <<: *coverage-report-job
