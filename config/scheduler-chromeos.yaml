@@ -367,6 +367,333 @@ scheduler:
   - job: kselftest-acpi
     <<: *test-job-x86-intel
 
+  - job: kselftest-cros-kernel-alsa
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-alsa
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-alsa
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-alsa
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-arm64
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-arm64
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-capabilities
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-capabilities
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-capabilities
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-capabilities
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-clone3
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-clone3
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-clone3
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-clone3
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-cpufreq
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-cpufreq
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-cpufreq
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-cpufreq
+    <<: *test-job-x86-intel-coverage
+
+  # This job only passes on MTK devices, so only enable it for those
+  - job: kselftest-cros-kernel-cpufreq-suspend
+    <<: *test-job-arm64-mediatek-coverage
+
+  # This job only passes on MTK devices, so only enable it for those
+  - job: kselftest-cros-kernel-dmabuf-heaps
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-dt
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-dt
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-exec
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-exec
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-exec
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-exec
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-ftrace
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-ftrace
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-ftrace
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-ftrace
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-futex
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-futex
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-futex
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-futex
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-kcmp
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-kcmp
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-kcmp
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-kcmp
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-kvm
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-kvm
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-kvm
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-kvm
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-landlock
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-landlock
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-landlock
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-landlock
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-lsm
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-lsm
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-memfd
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-memfd
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-memfd
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-memfd
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-net
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-net
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-net
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-net
+    <<: *test-job-x86-intel-coverage
+
+  # This job currently makes MTK devices panic or hang forever
+  # - job: kselftest-cros-kernel-perf-events
+  #   <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-perf-events
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-perf-events
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-perf-events
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-proc
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-proc
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-proc
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-proc
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-ptrace
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-ptrace
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-ptrace
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-ptrace
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-rlimits
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-rlimits
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-rlimits
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-rlimits
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-seccomp
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-seccomp
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-seccomp
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-seccomp
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-splice
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-splice
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-splice
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-splice
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-sync
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-sync
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-sync
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-sync
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-timens
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-timens
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-timens
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-timens
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-timers
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-timers
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-timers
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-timers
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-tpm2
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-tpm2
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-tpm2
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-tpm2
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-user-events
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-user-events
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-user-events
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-user-events
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-vdso
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-vdso
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-vdso
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-vdso
+    <<: *test-job-x86-intel-coverage
+
+  - job: kselftest-cros-kernel-zram
+    <<: *test-job-arm64-mediatek-coverage
+
+  - job: kselftest-cros-kernel-zram
+    <<: *test-job-arm64-qualcomm-coverage
+
+  - job: kselftest-cros-kernel-zram
+    <<: *test-job-x86-amd-coverage
+
+  - job: kselftest-cros-kernel-zram
+    <<: *test-job-x86-intel-coverage
+
   - job: kselftest-dt
     <<: *lava-job-collabora
     event:
