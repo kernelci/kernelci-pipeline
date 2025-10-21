@@ -74,21 +74,21 @@ def run_watchdog(scheduler_instance, logger):
             time_since_update = current_time - last_update
             if time_since_update > WATCHDOG_TIMEOUT:
                 logger.error(f"WATCHDOG: Thread '{thread_name}' stuck for {time_since_update:.0f}s "
-                             f"(timeout: {WATCHDOG_TIMEOUT}s). Dumping stack traces and crashing!")
+                             f"(timeout: {WATCHDOG_TIMEOUT}s). Forcing immediate exit!")
 
-                # Print stack traces of all threads
-                logger.error("=" * 80)
-                logger.error("STACK TRACES OF ALL THREADS:")
-                logger.error("=" * 80)
-                for thread_id, frame in sys._current_frames().items():
-                    logger.error(f"\nThread ID: {thread_id}")
-                    logger.error("Stack trace:")
-                    for line in traceback.format_stack(frame):
-                        logger.error(line.strip())
-                logger.error("=" * 80)
+                # Try to print minimal info - avoid complex operations that might also hang
+                try:
+                    logger.error("=" * 80)
+                    logger.error("STUCK THREAD DETECTED - FORCING EXIT")
+                    logger.error(f"Thread: {thread_name}, stuck for {time_since_update:.0f}s")
+                    logger.error("=" * 80)
+                except Exception:
+                    pass  # Even logging might fail if things are really broken
 
-                # Send SIGABRT to get a core dump (if enabled) and backtrace
-                os.kill(os.getpid(), signal.SIGABRT)
+                # Force immediate exit without cleanup
+                # os._exit() terminates immediately without calling cleanup handlers
+                # or flushing buffers - this works even when threads are stuck in I/O
+                os._exit(1)
 
 
 class Scheduler(Service):
