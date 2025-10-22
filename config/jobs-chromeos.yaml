@@ -1129,6 +1129,58 @@ jobs:
       <<: *ltp-cros-kernel-params
       tst_cmdfiles: "sched"
 
+  ltp-fault-injection-capability-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "capability"
+
+  ltp-fault-injection-containers-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "containers"
+
+  ltp-fault-injection-crypto-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "crypto"
+    rules:
+      <<: *ltp-fault-injection-cros-kernel-rules
+      fragments:
+        - 'crypto'
+
+  ltp-fault-injection-ima-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "ima"
+
+  ltp-fault-injection-input-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "input"
+
+  ltp-fault-injection-kernel-misc-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "kernel_misc"
+
+  ltp-fault-injection-mm-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "mm"
+
+  ltp-fault-injection-pty-cros-kernel:
+    <<: *ltp-fault-injection-cros-kernel-job
+    params:
+      <<: *ltp-fault-injection-cros-kernel-params
+      tst_cmdfiles: "pty"
+
   tast-decoder-chromestack-arm64-mediatek: *tast-decoder-chromestack-job
 
   tast-decoder-chromestack-verification-arm64-mediatek: *tast-decoder-chromestack-verification-job

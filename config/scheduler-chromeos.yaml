@@ -307,7 +307,28 @@ scheduler:
   - job: fault-injection-x86-intel-cros-kernel
     <<: *test-job-x86-intel-fault-injection
 
-  - job: ltp-fault-injection-x86-intel-cros-kernel
+  - job: ltp-fault-injection-capability-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-containers-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-crypto-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-ima-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-input-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-kernel-misc-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-mm-cros-kernel
+    <<: *test-job-x86-intel-fault-injection
+
+  - job: ltp-fault-injection-pty-cros-kernel
     <<: *test-job-x86-intel-fault-injection
 
   - job: blktests-loopback-cros-kernel
