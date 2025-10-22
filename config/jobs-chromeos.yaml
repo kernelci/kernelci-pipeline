@@ -471,8 +471,9 @@ _anchors:
     rules:
       tree:
         - chromiumos
-      branch:
-        - 'chromiumos:chromeos-6.6'
+      min_version:
+        version: 5
+        patchlevel: 15
     kcidb_test_suite: kernelci_fault_injection
 
   blktests: &blktests-job
@@ -503,8 +504,9 @@ _anchors:
     kcidb_test_suite: ltp_fault_injection
     rules: &ltp-fault-injection-cros-kernel-rules
       <<: *ltp-cros-kernel-rules
-      branch:
-        - chromeos-6.6
+      min_version:
+        version: 5
+        patchlevel: 15
 
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
