@@ -991,30 +991,6 @@ scheduler:
   - job: ltp-input-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-arm64-mediatek-coverage
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-arm64-mediatek-cros-kernel
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-arm64-qualcomm-coverage
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-arm64-qualcomm-cros-kernel
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-x86-amd-coverage
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-x86-amd-cros-kernel
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-x86-intel-coverage
-
-  - job: ltp-ipc-cros-kernel
-    <<: *test-job-x86-intel-cros-kernel
-
   - job: ltp-kernel-misc-cros-kernel
     <<: *test-job-arm64-mediatek-coverage
 
