@@ -1092,6 +1092,10 @@ jobs:
     params:
       <<: *ltp-cros-kernel-params
       tst_cmdfiles: "ima"
+    rules:
+      fragments:
+        - 'ima'
+        - '!kselftest'
 
   ltp-input-cros-kernel:
     <<: *ltp-cros-kernel-job
@@ -1156,6 +1160,10 @@ jobs:
     params:
       <<: *ltp-fault-injection-cros-kernel-params
       tst_cmdfiles: "ima"
+    rules:
+      fragments:
+        - 'ima'
+        - '!kselftest'
 
   ltp-fault-injection-input-cros-kernel:
     <<: *ltp-fault-injection-cros-kernel-job
