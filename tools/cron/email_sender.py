@@ -15,7 +15,15 @@ import smtplib
 import sys
 from urllib.parse import urljoin
 import jinja2
+import toml
+import kernelci.config
+import kernelci.storage
 
+
+SETTINGS = toml.load(os.getenv('KCI_SETTINGS', '/home/kernelci/config/kernelci.toml'))
+CONFIGS = kernelci.config.load(
+    SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config')
+)
 
 class EmailSender:
     """Class to send email report using SMTP"""
@@ -83,24 +91,31 @@ class EmailSender:
         )
         self._send_email(email_msg)
 
+def get_storage(storage_config_name):
+    storage_config = CONFIGS['storage_configs'][storage_config_name]
+    storage_cred = SETTINGS['storage'][storage_config_name]['storage_cred']
+    return kernelci.storage.get_storage(storage_config, storage_cred)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Command line argument missing. Specify report filename.")
         sys.exit()
 
-    report_filename = sys.argv[1]
-    file_path = os.getenv('FILE_PATH')
-    storage_url = os.getenv('STORAGE_URL')
-    upload_path = os.getenv('UPLOAD_PATH')
-    email_sender = os.getenv('EMAIL_SENDER')
-    email_recipient = os.getenv('EMAIL_RECIPIENT')
-    smtp_host = os.getenv('SMTP_HOST')
-    smtp_port = os.getenv('SMTP_PORT')
+    report_filename = sys.argv[1]    
+    storage_config_name = SETTINGS.get('DEFAULT', {}).get('storage_config')
+    storage = get_storage(storage_config_name)
+    email_sender_configs = SETTINGS.get('cron', {})
+    file_path = email_sender_configs.get('file_path')
+    storage_url = storage.config.base_url
+    upload_path = email_sender_configs.get('upload_path')
+    email_sender = email_sender_configs.get('email_sender')
+    email_recipient = email_sender_configs.get('email_recipient')
+    smtp_host = email_sender_configs.get('smtp_host')
+    smtp_port = email_sender_configs.get('smtp_port')
 
     if not any([file_path, storage_url, upload_path,
                 email_sender, email_recipient, smtp_host, smtp_port]):
-        print("Missing environment variables")
+        print("Missing config variables")
         sys.exit()
 
     report_url = f"{storage_url+upload_path+'/'+report_filename}"
