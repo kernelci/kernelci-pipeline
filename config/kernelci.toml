@@ -47,10 +47,10 @@ postgresql_user = "kernelci.org"
 origin = "maestro"
 
 [test_report]
-email_sender = "bot@kernelci.org"
-email_recipient = "kernelci-results-staging@groups.io"
-# smtp_host = "smtp.yourserver.com"
-# smtp_port = 465
+
+[cron]
+upload_path = "kci-dev/report"
+file_path = "/home/kernelci/logs/"
 
 [timeout]
 

@@ -7,7 +7,7 @@ cd /home/kernelci
 kci-dev --settings kci-dev.toml maestro validate builds --all-checkouts >> "$log_file_path/$log_file_name"
 kci-dev --settings kci-dev.toml maestro validate boots --all-checkouts >> "$log_file_path/$log_file_name"
 set -a
-source .env
+source /home/kernelci/.env
 set +a
 python upload_log.py $log_file_name
 python email_sender.py $log_file_name
