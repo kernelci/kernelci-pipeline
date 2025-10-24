@@ -51,6 +51,11 @@ origin = "maestro"
 [cron]
 upload_path = "kci-dev/report"
 file_path = "/home/kernelci/logs/"
+smtp_host = "smtp.gmail.com"
+smtp_port = 587
+email_sender = "bot@kernelci.org"
+email_recipient = ["jeny.sadadia@collabora.com","denys.f@collabora.com","gustavo.padovan@collabora.com"]
+# email_password = <email-password>
 
 [timeout]
 
