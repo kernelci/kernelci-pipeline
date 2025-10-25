@@ -1,21 +1,20 @@
 import sys
 from urllib.parse import urljoin
 import os
-import requests
+import toml
+import kernelci.config
+import kernelci.storage
 
 
-def upload_file(storage_url, token, upload_path, file_name, file_path):
-    headers = {
-        'Authorization': token,
-    }
-    complete_file_path = urljoin(file_path, file_name)
-    files = {
-        'path': upload_path,
-        'file0': (file_name, open(complete_file_path, "rb").read()),
-    }
-    url = urljoin(storage_url, 'upload')
-    resp = requests.post(url, headers=headers, files=files)
-    resp.raise_for_status()
+SETTINGS = toml.load(os.getenv('KCI_SETTINGS', '/home/kernelci/config/kernelci.toml'))
+CONFIGS = kernelci.config.load(
+    SETTINGS.get('DEFAULT', {}).get('yaml_config', 'config')
+)
+
+def get_storage(storage_config_name):
+    storage_config = CONFIGS['storage_configs'][storage_config_name]
+    storage_cred = SETTINGS['storage'][storage_config_name]['storage_cred']
+    return kernelci.storage.get_storage(storage_config, storage_cred)
 
 
 if __name__ == "__main__":
@@ -23,11 +22,14 @@ if __name__ == "__main__":
         print("Command line argument missing. Specify file name to upload.")
         sys.exit()
     file_name = sys.argv[1]
-    upload_path = os.getenv("UPLOAD_PATH")
-    file_path = os.getenv("FILE_PATH")
-    storage_url = os.getenv("STORAGE_URL")
-    storage_token = os.getenv("STORAGE_TOKEN")
-    if not any([upload_path, file_path, storage_url, storage_token]):
-        print("Missing environment variables")
+    cron_configs = SETTINGS.get('cron', {})
+    upload_path = cron_configs.get("upload_path")
+    file_path = cron_configs.get("file_path")
+    if not any([upload_path, file_path]):
+        print("Please set 'upload_path' and 'file_path' inside 'cron' section in TOML config file.")
         sys.exit()
-    upload_file(storage_url, storage_token, upload_path, file_name, file_path)
+
+    complete_file_path = urljoin(file_path, file_name)
+    storage_config_name = SETTINGS.get('DEFAULT', {}).get('storage_config')
+    storage = get_storage(storage_config_name)
+    print(storage.upload_single((complete_file_path, file_name), upload_path))

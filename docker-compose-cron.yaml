@@ -15,3 +15,5 @@ services:
     volumes:
       - './tools/cron/:/home/kernelci/'
       - './logs/:/home/kernelci/logs/'
+      - './config:/home/kernelci/config'
+      - '.env:/home/kernelci/.env'
