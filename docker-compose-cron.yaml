@@ -9,7 +9,7 @@ services:
 
   cron:
     container_name: 'kernelci-pipeline-cron'
-    image: 'kernelci:pipeline-cron'
+    image: 'ghcr.io/kernelci/staging-kernelci:pipeline-cron'
     stop_signal: 'SIGINT'
     restart: on-failure
     volumes:
