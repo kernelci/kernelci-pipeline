@@ -76,7 +76,7 @@ jobs:
 ```
 Here is the description of each field:
 - **`template`**: A `jinja2` template should be added to the [`config/runtime`](https://github.com/kernelci/kernelci-pipeline/tree/main/config/runtime) directory. This template will be used to generate the test definition.
-- **`kind`**: The `kind` field specifies the type of job. It should be `kbuild` for build jobs, `job` for a test suite, and `test` for a single test case.
+- **`kind`**: The `kind` field specifies the type of job. It should be `kbuild` for build jobs, `job` for a test suite, `process` for post-processing tasks (for example coverage reports), and `test` for a single test case.
 - **`image`**: The `image` field specifies the Docker image used for building and running the test. This field is optional. For example, LAVA test jobs use an image defined in the test definition template instead.
 - **`params`**: The `params` field includes parameters for building the kernel (for `kbuild` jobs) or running the test. These parameters can include architecture, compiler, defconfig options, job timeout, etc.
 - **`rules`**: The `rules` field defines job rules. If a test should be scheduled for a specific kernel tree, branch, or version, these rules can be specified here. The rules prefixed with `!` exclude the specified condition from job scheduling. For example, in the given scenario, the scheduler does not schedule a job if an event is received for the kernel tree `tree-name2`. It is also possible to schedule job for a specific branch of a tree. For example, a rule `tree:branch` can be mentioned under
@@ -106,11 +106,12 @@ The test job example is:
     kind: job
     params:
       test_method: kselftest
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240313.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
       collections: exec
       job_timeout: 10
     kcidb_test_suite: kselftest.exec
 ```
+Whenever possible reuse the existing YAML anchors (for example `*kselftest-params`) instead of cloning the full `params` block so that shared settings such as the `nfsroot` URL stay in sync with the canonical definition in `config/jobs.yaml`.
 Please have a look at [config/jobs.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs.yaml) and [config/jobs-chromeos.yaml](https://github.com/kernelci/kernelci-pipeline/blob/main/config/jobs-chromeos.yaml) files to check currently added job definitions for reference.
 
 We need to specify which branch to monitor of a particular tree for trigering jobs in `build_configs`.
@@ -159,18 +160,18 @@ Here is the description of each field:
     name: checkout
     state: available
 ```
-For a test that requires a successful completion of a build job such as `kbuild-gcc-10-arm64`, specify the event as follows:
+For a test that requires a successful completion of a build job such as `kbuild-gcc-12-arm64`, specify the event as follows:
 ```yaml
   event:
     channel: node
-    name: kbuild-gcc-10-arm64
+    name: kbuild-gcc-12-arm64
     state: available
 ```
-For a post-processing job that requires completion of all test jobs for a given build job such as `kbuild-gcc-10-arm64`, specify the event as follows:
+For a post-processing job that requires completion of all test jobs for a given build job such as `kbuild-gcc-12-arm64`, specify the event as follows:
 ```yaml
   event:
     channel: node
-    name: kbuild-gcc-10-arm64
+    name: kbuild-gcc-12-arm64
     result: pass
     state: done
 ```
@@ -191,7 +192,7 @@ Here is an example of enabling `kselftest` (found in `<linux_kernel>/tools/testi
     kind: job
     params:
       test_method: kselftest
-      nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20240221.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
       collections: dt
       job_timeout: 10
     rules:

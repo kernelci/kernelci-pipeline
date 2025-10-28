@@ -24,9 +24,12 @@ before using it.
 
 Each job is defined in the `jobs` section of the config file. Each job
 have mandatory and optional parameters.
-At current moment, two main types of jobs are supported: `job` and `kbuild`.
-`kbuild` jobs are used to build the kernel, while `job` jobs are used to
-run tests on the kernel.
+The scheduler currently uses four kinds of jobs:
+
+- `kbuild`: build kernels
+- `job`: represent a test suite that can spawn child nodes
+- `process`: run post-processing or reporting steps (for example coverage reports)
+- `test`: leaf-level tests that produce a single result
 The `jobs` section is a dictionary of jobs. Each job is defined as a
 dictionary with a name and a set of parameters. The name of the job is
 the key of the dictionary, and will be used in `scheduler` section to
@@ -34,21 +37,15 @@ define the job that will be run.
 
 ### Mandatory parameters
 
-- **template**: string
-- **kind**: string
-- **kcidb_test_suite**: string (mandatory for `job` kinds of jobs)
-- **params**: dictionary (mandatory for `kbuild` jobs)
+- **template**: string (required for `job`, `process`, and `test` jobs)
+- **kind**: string (`kbuild`, `job`, `process`, `test`)
+- **kcidb_test_suite**: string (mandatory for `job`, `process`, and `test` jobs; optional for `kbuild`)
+- **params**: dictionary (required by templates that consume runtime parameters such as `kbuild.jinja2` or `generic.jinja2`)
 
+The YAML validation helper (`tests/validate_yaml.py`) enforces these constraints when it runs in CI or locally.
 The `template` parameter is the name of the template file that will be used
 to generate the job. The template file must be located in the `config/runtime`
 directory of the config file.
-
-The `kind` parameter is the type of job that will be created. The possible
-values are `job`, `kbuild`.
-
-The `kcidb_test_suite` parameter is the name of the test suite that will be
-reported to the KernelCI database (kcidb). This parameter is mandatory for
-`job` kinds of jobs. It is optional for `kbuild` kind of jobs.
 
 ### params
 The `params` parameter is a dictionary of parameters that will be passed
@@ -62,8 +59,6 @@ customize the job configuration.
 For kbuild jobs, the `params` possibly include:
 - **arch**: string (mandatory)
 - **compiler**: string (mandatory)
-- **tree**: string or list of strings (mandatory)
-- **branch**: string (mandatory)
 - **defconfig**: string or list of strings (optional)
 - **fragments**: list of strings (optional)
 - **cross_compile**: string (optional)
@@ -74,12 +69,6 @@ extended in the future.
 
 `compiler` is the compiler that will be used to build the kernel. Possible
 values are `gcc-12`, `clang-17`, might be extended in the future.
-
-`tree` is permit/deny list of trees that will be used to build the kernel. This parameter
-is explained in separate section below.
-
-`branch` is permit/deny list of branches that will be used to build the kernel. This parameter
-is explained in separate section below.
 
 `defconfig` is the defconfig that will be used to build the kernel.
 
@@ -100,15 +89,16 @@ firmware files to the kernel build.
 `cross_compile` is the cross compiler prefix that will be used to build the kernel, for example
 `aarch64-linux-gnu-`.
 
+`cross_compile_compat` can be set when a compatibility toolchain is needed (for example for `um` builds).
+
 ### Optional parameters
 
-- **params**: dictionary
 - **rules**: dictionary
 - **frequency**: string
 
 `kbuild` only parameters:
 - **kselftest**: string (`disable` or `enable` kselftest build)
-- **dtbs_check**: string, true if set
+- **dtbs_check**: boolean flag to enable DT validation builds
 
 ### Parameter frequency (optional)
 
@@ -143,7 +133,7 @@ We have a set of rules that can be used to filter jobs based on different criter
 - **Value**: [!]string(tree name) or string:string (tree name:branch name)
 - **Default**: none (no limit)
 
-Tree and branch rules can be formatted as `<tree>:<branch>`, meaning only a given
+Tree and branch rules are specified here (not in `params`). Tree entries can be formatted as `<tree>:<branch>`, meaning only a given
 branch is allowed for a specific tree. When prepended with `!`, it indicates
 a forbidden tree/branch combination.
 
@@ -232,7 +222,7 @@ The kselftest build is additional component that is built in addition to the
 kernel. It is used in `kselftest`-related jobs.
 
 ### dtbs_check (optional)
-- **Value**: any string
+- **Value**: boolean
 - **Default**: disabled
 
 The `dtbs_check` parameter is used to enable or disable the dtbs_check build.

@@ -46,10 +46,9 @@ as follows:
     notify:
       callback:
         token: kernelci-new-api-callback
-        url: https://staging.kernelci.org:9100
 
 ```
-Where `lava-broonie` is the name of the lab, `lab_type` indicates the lab is of a `lava` type, `url` is the URL of the lab, `priority_min` and `priority_max` are the priority range allowed to jobs, assigned by lab owner, and `notify` is the notification configuration for the lab.  The `callback` section contains the token description that you received from the above [step](#token-setup) and the URL of the pipeline instance LAVA callback endpoint.
+Where `lava-broonie` is the name of the lab, `lab_type` indicates the lab is of a `lava` type, `url` is the URL of the lab, `priority_min` and `priority_max` are the priority range allowed to jobs, assigned by lab owner, and `notify` is the notification configuration for the lab.  The `callback` section only contains the token description received in the [token setup](#token-setup) step. The callback URL itself comes from the runtime configuration (for example the `KCI_INSTANCE_CALLBACK` environment variable used by `scheduler-lava`).
 More details on how LAVA callback and token works can be found in the [LAVA documentation](https://docs.lavasoftware.org/lava/user-notifications.html#notification-callbacks).
 
 Please submit a pull request to [`kernelci-pipeline`](https://github.com/kernelci/kernelci-pipeline) repository to add the lab configurations. See the
@@ -91,14 +90,17 @@ scheduler-lava:
     <<: *scheduler
     container_name: 'kernelci-pipeline-scheduler-lava'
     command:
-      - './pipeline/scheduler.py'
+      - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
+      - '--name=scheduler_lava'
       - '--runtimes'
       - 'lava-collabora'
       - 'lava-collabora-staging'
       - 'lava-broonie'
 ```
+
+Make sure the deployment that runs this service exports both `KCI_INSTANCE` and `KCI_INSTANCE_CALLBACK` so the callback endpoint is advertised correctly.
 
 ### Jobs and devices specific to the lab
 
@@ -130,7 +132,7 @@ scheduler:
   - job: baseline-arm64-broonie
     event:
       channel: node
-      name: kbuild-gcc-10-arm64
+      name: kbuild-gcc-12-arm64
       state: available
     runtime:
       type: lava
