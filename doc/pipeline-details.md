@@ -23,11 +23,11 @@ flowchart
         checkout --> |event: <br />checkout created, state=running| upload_tarball
         upload_tarball --> update_checkout_node[Update 'checkout' node <br />state=available, set holdoff <br /> update describe and artifacts]
     end
-    subgraph runner_service[Runner Service]
-        update_checkout_node --> |event: <br />checkout updated <br />state=available| runner_node[Create build/test node <br />state=running, result=None, holdoff=None]
+    subgraph scheduler_service[Scheduler Service]
+        update_checkout_node --> |event: <br />checkout updated <br />state=available| scheduler_node[Create build/test node <br />state=running, result=None, holdoff=None]
     end
     subgraph Run Builds/Tests
-        runner_node --> runtime[Runtime Environment]
+        scheduler_node --> runtime[Runtime Environment]
         runtime --> run_job[Run build/test job]
         run_job --> job_done{Job done?}
         job_done --> |Yes| job_pass{Job successful?}
@@ -46,11 +46,7 @@ flowchart
         node_timedout --> |Yes| set_done
         node_timedout --> |No| verify_avilable_nodes
     end
-    subgraph test_report_service[Test Report Service]
-        received_tarball{Received checkout node? } --> |Yes| email_report[Generate and <br />email test report]
-    end
-    set_done --> |event: <br />updated <br /> state=done| received_tarball
-    test_report_service --> stop([Stop])
+    set_done --> stop([Stop])
 ```
 
 Here's a description of each client script:
@@ -66,13 +62,13 @@ the record. If not, it then pushes one node named "checkout". The node's state w
 
 When the trigger pushes a new revision node (checkout), the tarball receives a pub/sub event. The tarball then updates a local git checkout of the full kernel source tree.  Then it makes a tarball with the source code and pushes it to the API storage. The state of the checkout node will be updated to 'available' and the holdoff time will be set. The URL of the tarball is also added to the artifacts of the revision node.
 
-### Runner
+### Scheduler
 
-The Runner step listens for pub/sub events about available checkout node.  It will then schedule some jobs (it can be any kind of job including build and test) to be run in various runtime environments as defined in the pipeline YAML configuration from the Core tools. A node is pushed to the API with "running" state e.g. "kunit" node. This will generate pub/sub event of build or test node creation.
+The Scheduler listens for pub/sub events about available checkout node. It will then create build or test nodes and submit them to the API based on the configuration in `config/scheduler.yaml`. A node is pushed to the API with "running" state (for example a `kunit` node), which generates an event that the runtimes consume.
 
 ### Runtime Environment
 
-The jobs added by runner will be run in specified runtime environment i.e. shell, Kubernetes or LAVA lab.
+The jobs created by the scheduler will be run in the specified runtime environment i.e. shell, Kubernetes or LAVA lab.
 Each environment needs to have its own API token set up locally to be able to submit the results to API. It updates the node with state ("available" or "done" depending on the job type) and result (pass, fail, or skip). This will generate pub/sub event of node update.
 
 ### Timeout
@@ -82,6 +78,6 @@ If the node is in "available" state and not timed-out, it will check for holdoff
 The parent node with "closing" state can not have any new child nodes.
 This will generate pub/sub event of node update.
 
-### Test Report
+### Reporting
 
-The Test Report in its current state listens for completed checkout node. It then generates a test report along with the child nodes' details and sends the report over an email.
+Reporting is handled by auxiliary tools (for example the cron jobs under `tools/cron`) rather than a long-running service in `docker-compose.yaml`. Update or add cron jobs when new reports are required.
