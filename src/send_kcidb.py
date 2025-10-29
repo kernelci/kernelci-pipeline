@@ -72,19 +72,11 @@ class KCIDBBridge(Service):
         }
 
     def _setup(self, args):
-        db_conn = (
-            f"postgresql:dbname={args.database_name} "
-            f"user={args.postgresql_user} host={args.postgresql_host} "
-            f"password={args.postgresql_password} "
-            f"port={args.postgresql_port}"
-        )
-        db_client = kcidb.db.Client(db_conn)
         return {
             'client': kcidb.Client(
                 project_id=args.kcidb_project_id,
                 topic_name=args.kcidb_topic_name
             ),
-            'kcidb_oo_client': kcidb.oo.Client(db_client),
             'sub_id': self._api_helper.subscribe_filters(self._filters, promiscuous=True),
             'origin': args.origin,
         }
@@ -892,7 +884,7 @@ in {runtime}",
         local_url = f"file://{local_file}"
 
         parsed_fail, new_status = generate_issues_and_incidents(
-            parsed_node['id'], local_url, test_type, context['kcidb_oo_client'])
+            parsed_node['id'], local_url, test_type, None)
 
         if new_status:
             self.log.warning(
@@ -930,26 +922,6 @@ class cmd_run(Command):
         {
             'name': '--origin',
             'help': "CI system identifier",
-        },
-        {
-            'name': '--database-name',
-            'help': "KCIDB postgresql database instance name",
-        },
-        {
-            'name': '--postgresql-host',
-            'help': "KCIDB postgresql DB host",
-        },
-        {
-            'name': '--postgresql-port',
-            'help': "KCIDB postgresql DB port",
-        },
-        {
-            'name': '--postgresql-user',
-            'help': "Username for connecting to KCIDB postgresql DB",
-        },
-        {
-            'name': '--postgresql-password',
-            'help': "Password for connecting to KCIDB postgresql DB",
         },
     ]
 
