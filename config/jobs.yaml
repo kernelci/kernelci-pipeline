@@ -2143,7 +2143,7 @@ jobs:
     <<: *ltp-job
     params:
       <<: *ltp-params
-      tst_cmdfiles: "syscalls"
+      tst_cmdfiles: "syscalls-ipc"
 
   ltp-timers:
     <<: *ltp-job
