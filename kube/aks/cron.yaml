@@ -1,0 +1,64 @@
+---
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2025 Collabora Limited
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cron
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cron
+  template:
+    metadata:
+      labels:
+        app: cron
+    spec:
+      initContainers:
+        - name: wait-for-api
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
+                echo "Waiting for API endpoint..."; sleep 5;
+              done
+      containers:
+        - name: cron
+          image: ghcr.io/kernelci/staging-kernelci:pipeline-cron
+          imagePullPolicy: Always
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+            - name: KCI_SETTINGS
+              value: /home/kernelci/config/kernelci.toml
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /home/kernelci/config
+            - name: tools-volume
+              mountPath: /home/kernelci/tools/cron
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
+        - name: tools-volume
+          hostPath:
+            path: ./tools/cron/
