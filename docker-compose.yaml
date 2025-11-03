@@ -92,6 +92,7 @@ services:
       - 'lava-kontron'
       - 'lava-foundriesio'
       - 'lava-testpull'
+      - 'pull-labs-demo'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
