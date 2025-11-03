@@ -82,6 +82,15 @@ scheduler:
       - beaglebone-black
       - imx6dl-udoo
 
+  - job: baseline-arm-pull-labs-demo
+    event: *kbuild-gcc-12-arm-node-event
+    runtime: &pull-labs-demo-runtime
+      type: pull_labs
+      name: pull-labs-demo
+    platforms: &pull-labs-demo-arm
+      - beaglebone-black
+      - imx6dl-udoo
+
   - job: baseline-arm-clabbe
     event: *kbuild-gcc-12-arm-node-event
     runtime: &lava-clabbe-runtime

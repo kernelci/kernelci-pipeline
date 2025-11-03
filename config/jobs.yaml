@@ -12,6 +12,8 @@ _anchors:
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
+    params:
+      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
 
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
@@ -132,6 +134,7 @@ jobs:
   baseline-arm: *baseline-job
   baseline-arm-broonie: *baseline-job
   baseline-arm-testpull: *baseline-job
+  baseline-arm-pull-labs-demo: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-clabbe: *baseline-job
   baseline-arm-kontron: *baseline-job
