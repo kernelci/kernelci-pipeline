@@ -164,6 +164,14 @@ scheduler:
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
 
+  - job: baseline-arm64-pull-labs-demo
+    event: *kbuild-gcc-12-arm64-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - bcm2711-rpi-4-b
+
   - job: wifi-basic
     event:
       <<: *node-event-kbuild
@@ -373,6 +381,14 @@ scheduler:
     platforms:
       - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
+  
+  - job: baseline-x86-pull-labs-demo
+    event: *kbuild-gcc-12-x86-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - qemu
 
   - job: blktests-ddp-x86
     event: *kbuild-gcc-12-x86-node-event

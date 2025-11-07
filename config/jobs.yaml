@@ -152,6 +152,7 @@ jobs:
   baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-foundriesio: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-pull-labs-demo: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job
@@ -161,6 +162,7 @@ jobs:
   baseline-x86-kcidebug-intel: *baseline-job
   baseline-x86-mfd: *baseline-job
   baseline-x86-qualcomm: *baseline-job
+  baseline-x86-pull-labs-demo: *baseline-job
 
   coverage-report-arm: &coverage-report-job
     template: coverage-report.jinja2
