@@ -1,49 +1,22 @@
 #!/usr/bin/env python3
 """
-This example will retrieve the latest events from the KernelCI API
-and print them to the console.
-It will filter only completed kernel builds, limit to 100 events per request,
-and retrieve corresponding nodes with artifacts.
+Poll KernelCI API for pull-lab jobs and execute them with tuxrun.
+
+Filters for jobs with job_definition artifacts, auto-detects architecture,
+and passes kernel/module/rootfs URLs directly to tuxrun for execution.
 """
 import argparse
-import tempfile
 import requests
-import json
 import sys
 import os
 import time
-import hashlib
 import subprocess
+import shlex
 
 
-# This is staging server: "https://staging.kernelci.org:9000/latest"
-# For production use "https://api.kernelci.org/latest/"
 BASE_URI = "https://staging.kernelci.org:9000/latest"
 EVENTS_PATH = "/events"
-
-# Start from the beginning of time, but you might implement
-# saving last processed timestamp to a file or database
 timestamp = "1970-01-01T00:00:00.000000"
-
-
-"""
-kind:
-
-There are a few different kinds:
-
-* checkout: a new git tree checkout to be tested. Maestro frequently cuts
-    new tree checkout from tree it is subscribed to. See 'config/pipeline.yaml'
-* kbuild: a new kernel build for a given config and arch
-* job: the execution of a test suite
-* test: the execution of a test inside a job
-
-
-state:
-
-In this example we track state=done to get an event when Maestro is ready to
-provide all the information about the node. Eg for checkout it will provide
-the commit hash to test and for builds the location of the kernel binaries built.
-"""
 
 
 def pollevents(timestamp, kind):
@@ -65,145 +38,241 @@ def retrieve_job_definition(url):
     return response.json()
 
 
-def check_cache(url):
-    # if file exists in _cache/ with name as md5 of url, return path
-    md5 = hashlib.md5(url.encode()).hexdigest()
-    cache_path = f"_cache/{md5}"
-    if os.path.exists(cache_path):
-        print(f"Cache hit for {url}")
-        return cache_path
-    print(f"Cache miss for {url}")
-    return None
+def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs_url=None, cache_dir=None):
+    """
+    Launch a test using tuxrun
+
+    Args:
+        kernel_url: URL to kernel image
+        modules_url: URL to modules tarball
+        device: tuxrun device type (default: qemu-x86_64)
+        tests: Optional test suite to run
+        rootfs_url: Optional URL to custom rootfs image
+        cache_dir: Optional directory to save tuxrun outputs and cache
+    """
+    print(f"Running tuxrun with kernel: {kernel_url}, modules: {modules_url}, device: {device}")
+
+    cmd = [
+        "tuxrun",
+        "--device", device,
+        "--kernel", kernel_url,
+        "--modules", modules_url,
+    ]
+
+    if rootfs_url:
+        cmd.extend(["--rootfs", rootfs_url])
+
+    if tests:
+        cmd.extend(["--tests", tests])
+
+    if cache_dir:
+        os.makedirs(cache_dir, exist_ok=True)
+        cmd.extend(["--save-outputs", "--cache-dir", cache_dir])
+        print(f"Outputs will be saved to: {cache_dir}")
+
+    print(f"Executing command: {' '.join(shlex.quote(arg) for arg in cmd)}")
+
+    try:
+        result = subprocess.run(cmd, check=True)
+        print(f"\n✓ tuxrun completed successfully")
+        if cache_dir:
+            print(f"✓ Outputs saved to: {cache_dir}")
+        return result.returncode
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        print(f"\n✗ Error running tuxrun: {e}")
+        return e.returncode
 
 
-def store_in_cache(url, filepath):
-    # I have slow internet, so i need to cache downloads
-    md5 = hashlib.md5(url.encode()).hexdigest()
-    cache_path = f"_cache/{md5}"
-    os.makedirs("_cache", exist_ok=True)
-    os.system(f"cp {filepath} {cache_path}")
-    print(f"Stored {url} in cache at {cache_path}")
+def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override=None, cache_dir=None):
+    """
+    Run tuxrun with artifact URLs
 
+    Args:
+        artifacts: Dictionary containing URLs for kernel, modules, and optionally rootfs/ramdisk
+        device: tuxrun device type (default: qemu-x86_64)
+        tests: Optional test suite to run
+        rootfs_override: Optional rootfs URL to override the one from artifacts
+        cache_dir: Optional directory to save tuxrun outputs and cache
+    """
+    kernel_url = artifacts.get("kernel")
+    modules_url = artifacts.get("modules")
+    # Try rootfs first, then ramdisk as fallback
+    rootfs_url = rootfs_override if rootfs_override else (artifacts.get("rootfs") or artifacts.get("ramdisk"))
 
-def download_artifact(url, dest):
-    cached_path = check_cache(url)
-    if cached_path:
-        # If we have a cached version, use it
-        print(f"Using cached version of {url}")
-        # copy cached file to dest
-        os.system(f"cp {cached_path} {dest}")
+    if not kernel_url or not modules_url:
+        print("Missing required artifacts (kernel or modules)")
         return
-    print(f"Downloading artifact from: {url} to {dest}")
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    with open(dest, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-    # Store downloaded file in cache
-    store_in_cache(url, dest)
 
+    print(f"Kernel URL: {kernel_url}")
+    print(f"Modules URL: {modules_url}")
+    if rootfs_url:
+        if rootfs_override:
+            print(f"Rootfs URL (override): {rootfs_url}")
+        else:
+            print(f"Rootfs URL: {rootfs_url}")
+    print("Press Enter to launch tuxrun...")
+    input()
 
-def launch_x86_vm(kernel, ramdisk):
-    # This is a placeholder function to launch the x86 VM using QEMU
-    # In a real implementation, you would use subprocess to call QEMU with appropriate arguments
-    print(f"Launching x86 VM with kernel: {kernel} and ramdisk: {ramdisk}")
-    # Example command (not executed here):
-    cmd = f"qemu-system-x86_64 -kernel {kernel} -initrd {ramdisk} -m 1024 -nographic -append 'console=ttyS0'"
-    print(f"Executing command: {cmd}")
-    os.system(cmd)
-
-
-def prepare_x86(artifacts):
-    # create temporary directory for all qemu files
-    with tempfile.TemporaryDirectory() as tmpdir:
-        kernel_url = artifacts.get("kernel")
-        modules_url = artifacts.get("modules")
-        ramdisk_url = artifacts.get("ramdisk")
-        kernel = f"{tmpdir}/kernel"
-        modules = f"{tmpdir}/modules.tar.xz"
-        ramdisk = f"{tmpdir}/ramdisk.cpio.gz"
-        download_artifact(kernel_url, kernel)
-        download_artifact(modules_url, modules)
-        download_artifact(ramdisk_url, ramdisk)
-        modules_dir = os.path.join(tmpdir, "modules_temp")
-        os.makedirs(modules_dir, exist_ok=True)
-        subprocess.run(["tar", "-xf", modules, "-C", modules_dir], check=True)
-
-        modules_cpio = os.path.join(tmpdir, "modules.cpio")
-        subprocess.run(
-            f"(cd {modules_dir} && find . | cpio -o --format=newc) > {modules_cpio}",
-            shell=True,
-            check=True,
-        )
-
-        subprocess.run(
-            ["gzip", "-d", "-f", ramdisk], check=True
-        )  # produces ramdisk.cpio in same dir
-        original_cpio = os.path.join(tmpdir, "ramdisk.cpio")
-
-        merged_cpio = os.path.join(tmpdir, "new_ramdisk.cpio")
-        # Simple concatenation preserves all original entries then adds modules entries
-        with open(merged_cpio, "wb") as out_f:
-            for part in (original_cpio, modules_cpio):
-                with open(part, "rb") as in_f:
-                    out_f.write(in_f.read())
-
-        # 5. Compress merged archive
-        subprocess.run(["gzip", "-f", merged_cpio], check=True)
-        ramdisk = f"{merged_cpio}.gz"
-        print(
-            f"Launching x86 VM with kernel: {kernel}, modules: {modules}, ramdisk: {ramdisk}"
-        )
-        print("To quit the VM, use Ctrl-A X in the QEMU window.")
-        print("Press Enter to continue...")
-        input()
-        launch_x86_vm(kernel, ramdisk)
+    return run_tuxrun(kernel_url, modules_url, device=device, tests=tests, rootfs_url=rootfs_url, cache_dir=cache_dir)
 
 
 def main():
     global timestamp
 
-    parser = argparse.ArgumentParser(description="Listen to events in Maestro.")
+    parser = argparse.ArgumentParser(
+        description="Listen to events in Maestro and run jobs with tuxrun."
+    )
+    parser.add_argument(
+        "--device",
+        default=None,
+        help="Filter jobs by device type (e.g., qemu-x86_64, qemu-arm64). If not specified, accepts all architectures.",
+    )
+    parser.add_argument(
+        "--tests",
+        help="Optional test suite to run with tuxrun",
+    )
+    parser.add_argument(
+        "--rootfs",
+        help="Optional rootfs URL to use with tuxrun",
+    )
+    parser.add_argument(
+        "--cache-dir",
+        help="Directory to save tuxrun outputs and cache (e.g., ./outputs). Enables --save-outputs flag.",
+    )
+    parser.add_argument(
+        "--platform",
+        default="qemu",
+        help="Filter jobs by platform (default: qemu). Use empty string to accept all platforms.",
+    )
+    parser.add_argument(
+        "--runtime",
+        help="Filter jobs by runtime/lab name (e.g., pull-labs-demo). If not specified, accepts all runtimes.",
+    )
+    parser.add_argument(
+        "--group-filter",
+        default="pull-labs",
+        help="Filter jobs by group name containing this string (default: pull-labs). Use empty string to accept all groups.",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=5,
+        help="Maximum number of consecutive retries on API errors (default: 5)",
+    )
     args = parser.parse_args()
+
+    retry_count = 0
     while True:
         try:
             events = pollevents(timestamp, "job")
+            retry_count = 0
+
             if len(events) == 0:
                 print("No new events, sleeping for 30 seconds")
                 time.sleep(30)
                 continue
             print(f"Got {len(events)} events")
             for event in events:
-                data = event.get("data", {}).get("data", {})
-                if (
-                    data.get("platform") == "qemu"
-                    and data.get("runtime", {}) == "pull-labs-demo"
-                ):
-                    # print(json.dumps(event, indent=2))
-                    # retrieve data.node.artifacts.job_definition
+                try:
                     node = event.get("node", {})
                     artifacts = node.get("artifacts", {})
                     job_definition_url = artifacts.get("job_definition", "")
-                    # validate if job_definition is valid url
+
+                    if not job_definition_url:
+                        continue
+
                     if not job_definition_url.startswith("http"):
                         print(f"Invalid job_definition URL: {job_definition_url}")
                         continue
-                    print(f"Valid job_definition URL: {job_definition_url}")
-                    jobdata = retrieve_job_definition(job_definition_url)
-                    # we must have inside artifacts and inside artifacts kernel,modules,ramdisk
-                    job_artifacts = jobdata.get("artifacts", {})
-                    if all(
-                        key in job_artifacts for key in ["kernel", "modules", "ramdisk"]
-                    ):
-                        print("Job definition contains all required artifacts")
-                        prepare_x86(job_artifacts)
 
-                # print(json.dumps(data2, indent=2))
-                # print(json.dumps(event, indent=2))
-                timestamp = event["timestamp"]
+                    group = node.get("group", "")
+                    if args.group_filter and args.group_filter not in group:
+                        continue
+
+                    data = event.get("data", {}).get("data", {})
+                    platform = data.get("platform")
+                    runtime = data.get("runtime")
+
+                    if args.platform and platform != args.platform:
+                        continue
+                    if args.runtime and runtime != args.runtime:
+                        continue
+
+                    print(f"Valid job_definition URL: {job_definition_url}")
+                    print(f"Job group: {group}")
+                    if platform:
+                        print(f"Platform: {platform}")
+                    if runtime:
+                        print(f"Runtime: {runtime}")
+
+                    jobdata = retrieve_job_definition(job_definition_url)
+                    job_artifacts = jobdata.get("artifacts", {})
+                    if all(key in job_artifacts for key in ["kernel", "modules"]):
+                        print("Job definition contains required artifacts for tuxrun")
+
+                        job_tests = jobdata.get("tests", [])
+                        if job_tests:
+                            print(f"Job defines {len(job_tests)} test(s):")
+                            for test in job_tests:
+                                test_type = test.get("type", "unknown")
+                                test_id = test.get("id", "unknown")
+                                print(f"  - {test_id} (type: {test_type})")
+
+                        environment = jobdata.get("environment", {})
+                        arch = environment.get("arch", "x86_64")
+                        platform = environment.get("platform", "")
+
+                        if not platform:
+                            print(f"Skipping job - no platform specified in environment")
+                            continue
+
+                        # Use platform as device, or construct it if platform is generic
+                        if platform.startswith("qemu-"):
+                            device = platform
+                        elif platform == "qemu":
+                            # Fallback: construct device from platform + arch
+                            device = f"qemu-{arch}"
+                        else:
+                            device = platform
+
+                        print(f"Job environment: platform={platform}, arch={arch} -> device={device}")
+
+                        if args.device and device != args.device:
+                            print(f"Skipping job - device {device} does not match filter {args.device}")
+                            continue
+
+                        cache_dir = None
+                        if args.cache_dir:
+                            node_id = node.get("id", "unknown")
+                            cache_dir = os.path.join(args.cache_dir, node_id)
+
+                        prepare_and_run(
+                            job_artifacts,
+                            device=device,
+                            tests=args.tests,
+                            rootfs_override=args.rootfs,
+                            cache_dir=cache_dir
+                        )
+                    else:
+                        print(
+                            "Skipping job - missing required artifacts (kernel or modules)"
+                        )
+
+                except Exception as e:
+                    print(f"Error processing event: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+            if events:
+                timestamp = events[-1]["timestamp"]
         except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
-            sys.exit(1)
+            retry_count += 1
+            print(f"Error fetching events (attempt {retry_count}/{args.max_retries}): {e}")
+            if retry_count >= args.max_retries:
+                print(f"Max retries ({args.max_retries}) reached. Exiting.")
+                sys.exit(1)
+            print("Retrying in 30 seconds...")
+            time.sleep(30)
 
 
 if __name__ == "__main__":
