@@ -438,6 +438,18 @@ platforms:
       machine: virt,gic-version=3
       guestfs_interface: virtio
 
+  fvp: &fvp-device
+    base_name: fvp
+    arch: arm64
+    boot_method: fvp
+    mach: arm
+    context:
+      arch: arm64
+      model: Base_RevC-2xAEMvA
+      cpu: cortex-a57
+
+  fvp-arm64: *fvp-device
+
   rk3288-rock2-square:
     <<: *arm-device
     mach: rockchip
