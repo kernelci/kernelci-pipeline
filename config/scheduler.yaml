@@ -279,6 +279,7 @@ scheduler:
     platforms:
       - imx8mm-innocomm-wb15-evk
       - imx8mp-tqma8mpql-mba8mpxl
+      - rk3568-rock3a
 
   - job: baseline-arm64-foundriesio
     event: *kbuild-gcc-14-arm64-node-event
