@@ -171,6 +171,7 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - bcm2711-rpi-4-b
+      - fvp-arm64
 
   - job: wifi-basic
     event:
