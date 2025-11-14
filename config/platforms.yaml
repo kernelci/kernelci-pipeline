@@ -473,6 +473,13 @@ platforms:
     dtb: dtbs/rockchip/rk3399-rock-pi-4b.dtb
     compatible: ['radxa,rockpi4b', 'radxa,rockpi4', 'rockchip,rk3399']
 
+  rk3568-rock3a:
+    <<: *arm64-device
+    boot_method: barebox
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3568-rock-3a.dts
+    compatible: ['radxa,rock3a', 'rockchip,rk3568']
+
   rk3588-rock-5b:
     <<: *arm64-device
     mach: rockchip
