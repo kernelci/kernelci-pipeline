@@ -334,16 +334,16 @@ scheduler:
   - job: blktests-loopback-cros-kernel
     <<: *test-job-x86-intel-fault-injection
 
-  - job: kbuild-clang-17-arm64-chromeos-daily-mediatek
+  - job: kbuild-clang-21-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-chromeos-daily-qualcomm
+  - job: kbuild-clang-21-arm64-chromeos-daily-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-chromeos-daily-amd
+  - job: kbuild-clang-21-x86-chromeos-daily-amd
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-chromeos-daily-intel
+  - job: kbuild-clang-21-x86-chromeos-daily-intel
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64-chromebook

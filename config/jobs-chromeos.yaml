@@ -1,18 +1,18 @@
 _anchors:
-  kbuild-clang-17-chromeos:
-    params: &kbuild-clang-17-chromeos-params
-      compiler: clang-17
+  kbuild-clang-21-chromeos:
+    params: &kbuild-clang-21-chromeos-params
+      compiler: clang-21
       defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
       flavour: '{crosarch}-generic'
       kselftest: disable
       frequency: 1d
 
-  kbuild-clang-17-arm64-chromeos: &kbuild-clang-17-arm64-chromeos-job
+  kbuild-clang-21-arm64-chromeos: &kbuild-clang-21-arm64-chromeos-job
     template: kbuild.jinja2
     kind: kbuild
-    image: ghcr.io/kernelci/{image_prefix}clang-17:arm64-kselftest-kernelci
-    params: &kbuild-clang-17-arm64-chromeos-params
-      <<: *kbuild-clang-17-chromeos-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
+    params: &kbuild-clang-21-arm64-chromeos-params
+      <<: *kbuild-clang-21-chromeos-params
       arch: arm64
       cross_compile: 'aarch64-linux-gnu-'
       fragments:
@@ -20,23 +20,23 @@ _anchors:
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-clang-17-arm64-chromeos-rules
+    rules: &kbuild-clang-21-arm64-chromeos-rules
       tree:
       - chromiumos
 
-  kbuild-clang-17-x86-chromeos: &kbuild-clang-17-x86-chromeos-job
-    <<: *kbuild-clang-17-arm64-chromeos-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:x86-kselftest-kernelci
-    params: &kbuild-clang-17-x86-chromeos-params
-      <<: *kbuild-clang-17-chromeos-params
+  kbuild-clang-21-x86-chromeos: &kbuild-clang-21-x86-chromeos-job
+    <<: *kbuild-clang-21-arm64-chromeos-job
+    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    params: &kbuild-clang-21-x86-chromeos-params
+      <<: *kbuild-clang-21-chromeos-params
       arch: x86_64
       fragments:
         - lab-setup
         - x86-board
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-clang-17-x86-chromeos-rules
-      <<: *kbuild-clang-17-arm64-chromeos-rules
+    rules: &kbuild-clang-21-x86-chromeos-rules
+      <<: *kbuild-clang-21-arm64-chromeos-rules
 
   kbuild-gcc-14-arm64-chromeos: &kbuild-gcc-14-arm64-chromeos-job
     template: kbuild.jinja2
@@ -614,43 +614,43 @@ jobs:
   fault-injection-x86-intel-cros-kernel: *fault-injection-cros-kernel-job
   ltp-fault-injection-x86-intel-cros-kernel: *ltp-fault-injection-cros-kernel-job
 
-  kbuild-clang-17-arm64-chromeos-daily-mediatek:
-    <<: *kbuild-clang-17-arm64-chromeos-job
+  kbuild-clang-21-arm64-chromeos-daily-mediatek:
+    <<: *kbuild-clang-21-arm64-chromeos-job
     params:
-      <<: *kbuild-clang-17-arm64-chromeos-params
+      <<: *kbuild-clang-21-arm64-chromeos-params
       flavour: mediatek
     rules:
-      <<: *kbuild-clang-17-arm64-chromeos-rules
+      <<: *kbuild-clang-21-arm64-chromeos-rules
       branch:
         - '!chromiumos:chromeos-5.4'
         - '!chromiumos:chromeos-6.6'
 
-  kbuild-clang-17-arm64-chromeos-daily-qualcomm:
-    <<: *kbuild-clang-17-arm64-chromeos-job
+  kbuild-clang-21-arm64-chromeos-daily-qualcomm:
+    <<: *kbuild-clang-21-arm64-chromeos-job
     params:
-      <<: *kbuild-clang-17-arm64-chromeos-params
+      <<: *kbuild-clang-21-arm64-chromeos-params
       flavour: qualcomm
     rules:
-      <<: *kbuild-clang-17-arm64-chromeos-rules
+      <<: *kbuild-clang-21-arm64-chromeos-rules
       branch:
         - 'chromeos-6.6'
         - 'chromeos-6.12'
 
-  kbuild-clang-17-x86-chromeos-daily-amd:
-    <<: *kbuild-clang-17-x86-chromeos-job
+  kbuild-clang-21-x86-chromeos-daily-amd:
+    <<: *kbuild-clang-21-x86-chromeos-job
     params:
-      <<: *kbuild-clang-17-x86-chromeos-params
+      <<: *kbuild-clang-21-x86-chromeos-params
       flavour: amd-stoneyridge
     rules:
-      <<: *kbuild-clang-17-x86-chromeos-rules
+      <<: *kbuild-clang-21-x86-chromeos-rules
       branch:
         - '!chromiumos:chromeos-5.15'
         - '!chromiumos:chromeos-6.1'
 
-  kbuild-clang-17-x86-chromeos-daily-intel:
-    <<: *kbuild-clang-17-x86-chromeos-job
+  kbuild-clang-21-x86-chromeos-daily-intel:
+    <<: *kbuild-clang-21-x86-chromeos-job
     params:
-      <<: *kbuild-clang-17-x86-chromeos-params
+      <<: *kbuild-clang-21-x86-chromeos-params
       flavour: intel-pineview
 
   kbuild-gcc-14-arm64-chromebook: &kbuild-gcc-14-arm64-chromebook-job

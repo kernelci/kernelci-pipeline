@@ -23,21 +23,21 @@ _anchors:
       - '!android'
       - '!chromiumos'
 
-  kbuild-clang-17-arm64-job: &kbuild-clang-17-arm64-job
+  kbuild-clang-21-arm64-job: &kbuild-clang-21-arm64-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:arm64-kselftest-kernelci
-    params: &kbuild-clang-17-arm64-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
+    params: &kbuild-clang-21-arm64-params
       arch: arm64
-      compiler: clang-17
+      compiler: clang-21
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-clang-17-x86-job: &kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-job: &kbuild-clang-21-x86-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:x86-kselftest-kernelci
-    params: &kbuild-clang-17-x86-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    params: &kbuild-clang-21-x86-params
       arch: x86_64
-      compiler: clang-17
+      compiler: clang-21
       defconfig: x86_64_defconfig
 
   kbuild-gcc-14-arm64-job: &kbuild-gcc-14-arm64-job
@@ -191,19 +191,19 @@ jobs:
       arch:
       - x86_64
 
-  kbuild-clang-17-arm: &kbuild-clang-17-arm-job
+  kbuild-clang-21-arm: &kbuild-clang-21-arm-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:arm-kselftest-kernelci
-    params: &kbuild-clang-17-arm-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:arm-kselftest-kernelci
+    params: &kbuild-clang-21-arm-params
       arch: arm
-      compiler: clang-17
+      compiler: clang-21
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
-  kbuild-clang-17-arm-allmodconfig:
-    <<: *kbuild-clang-17-arm-job
+  kbuild-clang-21-arm-allmodconfig:
+    <<: *kbuild-clang-21-arm-job
     params:
-      <<: *kbuild-clang-17-arm-params
+      <<: *kbuild-clang-21-arm-params
       defconfig:
         - defconfig
         - allmodconfig
@@ -216,56 +216,56 @@ jobs:
         - 'stable'
         - 'sashal-next'
 
-  kbuild-clang-17-arm-android: &kbuild-clang-17-arm-android-job
-    <<: *kbuild-clang-17-arm-job
-    params: &kbuild-clang-17-arm-android-params
-      <<: *kbuild-clang-17-arm-params
+  kbuild-clang-21-arm-android: &kbuild-clang-21-arm-android-job
+    <<: *kbuild-clang-21-arm-job
+    params: &kbuild-clang-21-arm-android-params
+      <<: *kbuild-clang-21-arm-params
       kselftest: disable
     rules:
       tree:
       - 'android'
       - 'sashal-next'
 
-  kbuild-clang-17-arm-android-allmodconfig:
-    <<: *kbuild-clang-17-arm-android-job
+  kbuild-clang-21-arm-android-allmodconfig:
+    <<: *kbuild-clang-21-arm-android-job
     params:
-      <<: *kbuild-clang-17-arm-android-params
+      <<: *kbuild-clang-21-arm-android-params
       defconfig:
         - imx_v6_v7_defconfig
         - 'allmodconfig'
 
-  kbuild-clang-17-arm-android-imx_v6_v7_defconfig:
-    <<: *kbuild-clang-17-arm-android-job
+  kbuild-clang-21-arm-android-imx_v6_v7_defconfig:
+    <<: *kbuild-clang-21-arm-android-job
     params:
-      <<: *kbuild-clang-17-arm-android-params
+      <<: *kbuild-clang-21-arm-android-params
       defconfig: imx_v6_v7_defconfig
 
-  kbuild-clang-17-arm-android-multi_v5_defconfig:
-    <<: *kbuild-clang-17-arm-android-job
+  kbuild-clang-21-arm-android-multi_v5_defconfig:
+    <<: *kbuild-clang-21-arm-android-job
     params:
-      <<: *kbuild-clang-17-arm-android-params
+      <<: *kbuild-clang-21-arm-android-params
       defconfig: multi_v5_defconfig
 
-  kbuild-clang-17-arm-android-omap2plus_defconfig:
-    <<: *kbuild-clang-17-arm-android-job
+  kbuild-clang-21-arm-android-omap2plus_defconfig:
+    <<: *kbuild-clang-21-arm-android-job
     params:
-      <<: *kbuild-clang-17-arm-android-params
+      <<: *kbuild-clang-21-arm-android-params
       defconfig: omap2plus_defconfig
     rules:
       tree:
       - 'omap'
       - 'sashal-next'
 
-  kbuild-clang-17-arm-android-vexpress_defconfig:
-    <<: *kbuild-clang-17-arm-android-job
+  kbuild-clang-21-arm-android-vexpress_defconfig:
+    <<: *kbuild-clang-21-arm-android-job
     params:
-      <<: *kbuild-clang-17-arm-android-params
+      <<: *kbuild-clang-21-arm-android-params
       defconfig: vexpress_defconfig
 
-  kbuild-clang-17-arm64-allmodconfig:
-    <<: *kbuild-clang-17-arm64-job
+  kbuild-clang-21-arm64-allmodconfig:
+    <<: *kbuild-clang-21-arm64-job
     params:
-      <<: *kbuild-clang-17-arm64-params
+      <<: *kbuild-clang-21-arm64-params
       defconfig:
         - defconfig
         - allmodconfig
@@ -276,10 +276,10 @@ jobs:
         - 'stable'
         - 'sashal-next'
 
-  kbuild-clang-17-arm64-allnoconfig:
-    <<: *kbuild-clang-17-arm64-job
+  kbuild-clang-21-arm64-allnoconfig:
+    <<: *kbuild-clang-21-arm64-job
     params:
-      <<: *kbuild-clang-17-arm64-params
+      <<: *kbuild-clang-21-arm64-params
       defconfig:
         - defconfig
         - allnoconfig
@@ -288,50 +288,50 @@ jobs:
         - 'mainline'
         - 'sashal-next'
 
-  kbuild-clang-17-arm64-android: &kbuild-clang-17-arm64-android-job
-    <<: *kbuild-clang-17-arm64-job
-    params: &kbuild-clang-17-arm64-android-params
-      <<: *kbuild-clang-17-arm64-params
+  kbuild-clang-21-arm64-android: &kbuild-clang-21-arm64-android-job
+    <<: *kbuild-clang-21-arm64-job
+    params: &kbuild-clang-21-arm64-android-params
+      <<: *kbuild-clang-21-arm64-params
       kselftest: disable
     rules:
       tree:
       - 'android'
       - 'sashal-next'
 
-  kbuild-clang-17-arm64-android-allmodconfig:
-    <<: *kbuild-clang-17-arm64-android-job
+  kbuild-clang-21-arm64-android-allmodconfig:
+    <<: *kbuild-clang-21-arm64-android-job
     params:
-      <<: *kbuild-clang-17-arm64-android-params
+      <<: *kbuild-clang-21-arm64-android-params
       defconfig:
         - defconfig
         - allmodconfig
 
-  kbuild-clang-17-arm64-android-allnoconfig:
-    <<: *kbuild-clang-17-arm64-android-job
+  kbuild-clang-21-arm64-android-allnoconfig:
+    <<: *kbuild-clang-21-arm64-android-job
     params:
-      <<: *kbuild-clang-17-arm64-android-params
+      <<: *kbuild-clang-21-arm64-android-params
       defconfig:
         - defconfig
         - allnoconfig
 
-  kbuild-clang-17-arm64-android-big_endian:
-    <<: *kbuild-clang-17-arm64-android-job
+  kbuild-clang-21-arm64-android-big_endian:
+    <<: *kbuild-clang-21-arm64-android-job
     params:
-      <<: *kbuild-clang-17-arm64-android-params
+      <<: *kbuild-clang-21-arm64-android-params
       fragments:
        - CONFIG_CPU_BIG_ENDIAN=y
 
-  kbuild-clang-17-arm64-android-randomize:
-    <<: *kbuild-clang-17-arm64-android-job
+  kbuild-clang-21-arm64-android-randomize:
+    <<: *kbuild-clang-21-arm64-android-job
     params:
-      <<: *kbuild-clang-17-arm64-android-params
+      <<: *kbuild-clang-21-arm64-android-params
       fragments:
        - CONFIG_RANDOMIZE_BASE=y
 
-  kbuild-clang-17-arm64-kselftest:
-    <<: *kbuild-clang-17-arm64-job
+  kbuild-clang-21-arm64-kselftest:
+    <<: *kbuild-clang-21-arm64-job
     params:
-      <<: *kbuild-clang-17-arm64-params
+      <<: *kbuild-clang-21-arm64-params
       fragments:
         - 'arm64-chromebook'
         - 'kselftest'
@@ -346,65 +346,65 @@ jobs:
       fragments:
         - kselftest
 
-  kbuild-clang-17-arm64-mainline: &kbuild-clang-17-arm64-mainline-job
-    <<: *kbuild-clang-17-arm64-job
+  kbuild-clang-21-arm64-mainline: &kbuild-clang-21-arm64-mainline-job
+    <<: *kbuild-clang-21-arm64-job
     rules:
       tree:
         - 'mainline'
         - 'next'
         - 'sashal-next'
 
-  kbuild-clang-17-arm64-mainline-64K_PAGES:
-    <<: *kbuild-clang-17-arm64-mainline-job
+  kbuild-clang-21-arm64-mainline-64K_PAGES:
+    <<: *kbuild-clang-21-arm64-mainline-job
     params:
-      <<: *kbuild-clang-17-arm64-params
+      <<: *kbuild-clang-21-arm64-params
       fragments:
         - 'CONFIG_ARM64_64K_PAGES=y'
 
-  kbuild-clang-17-arm-mainline: &kbuild-clang-17-arm-mainline-job
-    <<: *kbuild-clang-17-arm-job
+  kbuild-clang-21-arm-mainline: &kbuild-clang-21-arm-mainline-job
+    <<: *kbuild-clang-21-arm-job
     params:
-      <<: *kbuild-clang-17-arm-params
+      <<: *kbuild-clang-21-arm-params
     rules:
       tree:
         - 'mainline'
         - 'next'
         - 'sashal-next'
 
-  kbuild-clang-17-arm-mainline-allnoconfig:
-    <<: *kbuild-clang-17-arm-mainline-job
+  kbuild-clang-21-arm-mainline-allnoconfig:
+    <<: *kbuild-clang-21-arm-mainline-job
     params:
-      <<: *kbuild-clang-17-arm-params
+      <<: *kbuild-clang-21-arm-params
       defconfig:
         - multi_v7_defconfig
         - allnoconfig
 
-  kbuild-clang-17-arm-mainline-aspeed_g5:
-    <<: *kbuild-clang-17-arm-mainline-job
+  kbuild-clang-21-arm-mainline-aspeed_g5:
+    <<: *kbuild-clang-21-arm-mainline-job
     params:
-      <<: *kbuild-clang-17-arm-params
+      <<: *kbuild-clang-21-arm-params
       defconfig:
         - aspeed_g5_defconfig
 
-  kbuild-clang-17-arm-mainline-multi_v5:
-    <<: *kbuild-clang-17-arm-mainline-job
+  kbuild-clang-21-arm-mainline-multi_v5:
+    <<: *kbuild-clang-21-arm-mainline-job
     params:
-      <<: *kbuild-clang-17-arm-params
+      <<: *kbuild-clang-21-arm-params
       defconfig:
         - multi_v5_defconfig
 
-  kbuild-clang-17-i386: &kbuild-clang-17-i386-job
+  kbuild-clang-21-i386: &kbuild-clang-21-i386-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:x86-kselftest-kernelci
-    params: &kbuild-clang-17-i386-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    params: &kbuild-clang-21-i386-params
       arch: i386
-      compiler: clang-17
+      compiler: clang-21
       defconfig: i386_defconfig
 
-  kbuild-clang-17-i386-allnoconfig:
-    <<: *kbuild-clang-17-i386-job
+  kbuild-clang-21-i386-allnoconfig:
+    <<: *kbuild-clang-21-i386-job
     params:
-      <<: *kbuild-clang-17-i386-params
+      <<: *kbuild-clang-21-i386-params
       defconfig:
         - i386_defconfig
         - allnoconfig
@@ -414,10 +414,10 @@ jobs:
       - 'next'
       - 'sashal-next'
 
-  kbuild-clang-17-i386-android-allnoconfig:
-    <<: *kbuild-clang-17-i386-job
+  kbuild-clang-21-i386-android-allnoconfig:
+    <<: *kbuild-clang-21-i386-job
     params:
-      <<: *kbuild-clang-17-i386-params
+      <<: *kbuild-clang-21-i386-params
       defconfig:
         - i386_defconfig
         - allnoconfig
@@ -427,19 +427,19 @@ jobs:
       - 'android'
       - 'sashal-next'
 
-  kbuild-clang-17-riscv: &kbuild-clang-17-riscv-job
+  kbuild-clang-21-riscv: &kbuild-clang-21-riscv-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-17:riscv64-kselftest-kernelci
-    params: &kbuild-clang-17-riscv-params
+    image: ghcr.io/kernelci/{image_prefix}clang-21:riscv64-kselftest-kernelci
+    params: &kbuild-clang-21-riscv-params
       arch: riscv
-      compiler: clang-17
+      compiler: clang-21
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
 
-  kbuild-clang-17-riscv-defconfig:
-    <<: *kbuild-clang-17-riscv-job
+  kbuild-clang-21-riscv-defconfig:
+    <<: *kbuild-clang-21-riscv-job
     params:
-      <<: *kbuild-clang-17-riscv-params
+      <<: *kbuild-clang-21-riscv-params
       defconfig:
         - defconfig
         - allnoconfig
@@ -451,10 +451,10 @@ jobs:
       - 'next'
       - 'sashal-next'
 
-  kbuild-clang-17-riscv-android-defconfig:
-    <<: *kbuild-clang-17-riscv-job
+  kbuild-clang-21-riscv-android-defconfig:
+    <<: *kbuild-clang-21-riscv-job
     params:
-      <<: *kbuild-clang-17-riscv-params
+      <<: *kbuild-clang-21-riscv-params
       defconfig:
         - defconfig
         - allnoconfig
@@ -467,10 +467,10 @@ jobs:
       - 'android'
       - 'sashal-next'
 
-  kbuild-clang-17-riscv-smp:
-    <<: *kbuild-clang-17-riscv-job
+  kbuild-clang-21-riscv-smp:
+    <<: *kbuild-clang-21-riscv-job
     params:
-      <<: *kbuild-clang-17-riscv-params
+      <<: *kbuild-clang-21-riscv-params
       fragments:
         - 'CONFIG_SMP=n'
     rules:
@@ -478,13 +478,13 @@ jobs:
       - 'riscv'
       - 'sashal-next'
 
-  kbuild-clang-17-x86:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86:
+    <<: *kbuild-clang-21-x86-job
 
-  kbuild-clang-17-x86-android-allmodconfig:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-android-allmodconfig:
+    <<: *kbuild-clang-21-x86-job
     params:
-      <<: *kbuild-clang-17-x86-params
+      <<: *kbuild-clang-21-x86-params
       defconfig:
         - x86_64_defconfig
         - allmodconfig
@@ -494,10 +494,10 @@ jobs:
       - 'android'
       - 'sashal-next'
 
-  kbuild-clang-17-x86-allmodconfig:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-allmodconfig:
+    <<: *kbuild-clang-21-x86-job
     params:
-      <<: *kbuild-clang-17-x86-params
+      <<: *kbuild-clang-21-x86-params
       defconfig:
         - x86_64_defconfig
         - allmodconfig
@@ -508,10 +508,10 @@ jobs:
       - 'stable'
       - 'sashal-next'
 
-  kbuild-clang-17-x86-allnoconfig:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-allnoconfig:
+    <<: *kbuild-clang-21-x86-job
     params:
-      <<: *kbuild-clang-17-x86-params
+      <<: *kbuild-clang-21-x86-params
       defconfig:
         - x86_64_defconfig
         - allnoconfig
@@ -521,10 +521,10 @@ jobs:
       - 'next'
       - 'sashal-next'
 
-  kbuild-clang-17-x86-android-allnoconfig:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-android-allnoconfig:
+    <<: *kbuild-clang-21-x86-job
     params:
-      <<: *kbuild-clang-17-x86-params
+      <<: *kbuild-clang-21-x86-params
       defconfig:
         - x86_64_defconfig
         - allnoconfig
@@ -533,10 +533,10 @@ jobs:
       tree:
       - 'android'
 
-  kbuild-clang-17-x86-kselftest:
-    <<: *kbuild-clang-17-x86-job
+  kbuild-clang-21-x86-kselftest:
+    <<: *kbuild-clang-21-x86-job
     params:
-      <<: *kbuild-clang-17-x86-params
+      <<: *kbuild-clang-21-x86-params
       defconfig:
         - x86_64_defconfig
       fragments:
@@ -1102,10 +1102,10 @@ jobs:
       compiler: gcc-14
       defconfig: i386_defconfig
 
-  kbuild-clang-17-i386-allmodconfig:
-    <<: *kbuild-clang-17-i386-job
+  kbuild-clang-21-i386-allmodconfig:
+    <<: *kbuild-clang-21-i386-job
     params:
-      <<: *kbuild-clang-17-i386-params
+      <<: *kbuild-clang-21-i386-params
       defconfig:
         - i386_defconfig
         - allmodconfig

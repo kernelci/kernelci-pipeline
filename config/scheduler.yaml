@@ -420,103 +420,103 @@ scheduler:
     <<: *build-k8s-all
     event: *job-event
 
-  - job: kbuild-clang-17-arm
+  - job: kbuild-clang-21-arm
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-allmodconfig
+  - job: kbuild-clang-21-arm-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android
+  - job: kbuild-clang-21-arm-android
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android-allmodconfig
+  - job: kbuild-clang-21-arm-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android-imx_v6_v7_defconfig
+  - job: kbuild-clang-21-arm-android-imx_v6_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android-multi_v5_defconfig
+  - job: kbuild-clang-21-arm-android-multi_v5_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android-omap2plus_defconfig
+  - job: kbuild-clang-21-arm-android-omap2plus_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-allmodconfig
+  - job: kbuild-clang-21-arm64-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-allnoconfig
+  - job: kbuild-clang-21-arm64-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-android-vexpress_defconfig
+  - job: kbuild-clang-21-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-android
+  - job: kbuild-clang-21-arm64-android
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-android-allmodconfig
+  - job: kbuild-clang-21-arm64-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-android-allnoconfig
+  - job: kbuild-clang-21-arm64-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-android-big_endian
+  - job: kbuild-clang-21-arm64-android-big_endian
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-android-randomize
+  - job: kbuild-clang-21-arm64-android-randomize
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-kselftest
+  - job: kbuild-clang-21-arm64-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-mainline
+  - job: kbuild-clang-21-arm64-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm64-mainline-64K_PAGES
+  - job: kbuild-clang-21-arm64-mainline-64K_PAGES
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-mainline
+  - job: kbuild-clang-21-arm-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-mainline-allnoconfig
+  - job: kbuild-clang-21-arm-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-mainline-aspeed_g5
+  - job: kbuild-clang-21-arm-mainline-aspeed_g5
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-arm-mainline-multi_v5
+  - job: kbuild-clang-21-arm-mainline-multi_v5
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-i386-allnoconfig
+  - job: kbuild-clang-21-i386-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-i386-android-allnoconfig
+  - job: kbuild-clang-21-i386-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-riscv-defconfig
+  - job: kbuild-clang-21-riscv-defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-riscv-android-defconfig
+  - job: kbuild-clang-21-riscv-android-defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-riscv-smp
+  - job: kbuild-clang-21-riscv-smp
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86
+  - job: kbuild-clang-21-x86
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-android-allmodconfig
+  - job: kbuild-clang-21-x86-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-allmodconfig
+  - job: kbuild-clang-21-x86-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-allnoconfig
+  - job: kbuild-clang-21-x86-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-android-allnoconfig
+  - job: kbuild-clang-21-x86-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-kselftest
+  - job: kbuild-clang-21-x86-kselftest
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arc-build-only
@@ -698,7 +698,7 @@ scheduler:
   - job: kbuild-gcc-14-i386
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-i386-allmodconfig
+  - job: kbuild-clang-21-i386-allmodconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-i386-allnoconfig
@@ -785,7 +785,7 @@ scheduler:
   - job: kbuild-gcc-14-x86-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-clang-17-x86-android-allmodconfig
+  - job: kbuild-clang-21-x86-android-allmodconfig
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-x86-android-allnoconfig
