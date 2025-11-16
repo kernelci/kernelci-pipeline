@@ -167,7 +167,7 @@ trees:
 
 build_environments:
 
-  gcc-12:
+  gcc-14:
     cc: gcc
     cc_version: 10
     arch_params:
@@ -177,8 +177,8 @@ build_environments:
 
 build_variants:
   variants:
-    gcc-12:
-      build_environment: gcc-12
+    gcc-14:
+      build_environment: gcc-14
       architectures:
         x86_64:
           base_defconfig: 'x86_64_defconfig'

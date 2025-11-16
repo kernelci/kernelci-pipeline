@@ -22,48 +22,48 @@ _anchors:
       - '!android'
       - '!chromiumos'
 
-  kbuild-gcc-12-arm: &kbuild-gcc-12-arm-job
+  kbuild-gcc-14-arm: &kbuild-gcc-14-arm-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm-kselftest-kernelci
-    params: &kbuild-gcc-12-arm-params
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
+    params: &kbuild-gcc-14-arm-params
       arch: arm
-      compiler: gcc-12
+      compiler: gcc-14
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
-  kbuild-gcc-12-arm64: &kbuild-gcc-12-arm64-job
+  kbuild-gcc-14-arm64: &kbuild-gcc-14-arm64-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-12:arm64-kselftest-kernelci
-    params: &kbuild-gcc-12-arm64-params
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
+    params: &kbuild-gcc-14-arm64-params
       arch: arm64
-      compiler: gcc-12
+      compiler: gcc-14
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
       fragments:
         - 'lab-setup'
         - 'kselftest'
 
-  kbuild-gcc-12-x86-job-cip: &kbuild-gcc-12-x86-job-cip
+  kbuild-gcc-14-x86-job-cip: &kbuild-gcc-14-x86-job-cip
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-12:x86-kselftest-kernelci
-    params: &kbuild-gcc-12-x86-params
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    params: &kbuild-gcc-14-x86-params
       arch: x86_64
-      compiler: gcc-12
+      compiler: gcc-14
       defconfig: x86_64_defconfig
       fragments:
         - 'kselftest'
 
 jobs:
 # start of CIP arm64 configuration for boot tests
-  job-gcc-12-arm64-612-cip: *baseline-job
-  job-gcc-12-arm64-61-cip: *baseline-job
-  job-gcc-12-arm64-510-cip: *baseline-job
-  job-gcc-12-arm64-419-cip: *baseline-job
+  job-gcc-14-arm64-612-cip: *baseline-job
+  job-gcc-14-arm64-61-cip: *baseline-job
+  job-gcc-14-arm64-510-cip: *baseline-job
+  job-gcc-14-arm64-419-cip: *baseline-job
 
-  kbuild-gcc-12-arm64-612-cip:
-    <<: *kbuild-gcc-12-arm64-job
+  kbuild-gcc-14-arm64-612-cip:
+    <<: *kbuild-gcc-14-arm64-job
     params:
-      <<: *kbuild-gcc-12-arm64-params
+      <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
       fragments:
@@ -76,10 +76,10 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm64-61-cip:
-    <<: *kbuild-gcc-12-arm64-job
+  kbuild-gcc-14-arm64-61-cip:
+    <<: *kbuild-gcc-14-arm64-job
     params:
-      <<: *kbuild-gcc-12-arm64-params
+      <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
       fragments:
@@ -92,10 +92,10 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm64-510-cip:
-    <<: *kbuild-gcc-12-arm64-job
+  kbuild-gcc-14-arm64-510-cip:
+    <<: *kbuild-gcc-14-arm64-job
     params:
-      <<: *kbuild-gcc-12-arm64-params
+      <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
       fragments:
@@ -108,10 +108,10 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-arm64-419-cip:
-    <<: *kbuild-gcc-12-arm64-job
+  kbuild-gcc-14-arm64-419-cip:
+    <<: *kbuild-gcc-14-arm64-job
     params:
-      <<: *kbuild-gcc-12-arm64-params
+      <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
       fragments:
@@ -125,15 +125,15 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm configuration for boot tests
-  job-gcc-12-arm-612-cip: *baseline-nfs-job
-  job-gcc-12-arm-61-cip: *baseline-nfs-job
-  job-gcc-12-arm-510-cip: *baseline-nfs-job
-  job-gcc-12-arm-419-cip: *baseline-nfs-job
+  job-gcc-14-arm-612-cip: *baseline-nfs-job
+  job-gcc-14-arm-61-cip: *baseline-nfs-job
+  job-gcc-14-arm-510-cip: *baseline-nfs-job
+  job-gcc-14-arm-419-cip: *baseline-nfs-job
 
-  kbuild-gcc-12-arm-612-cip:
-    <<: *kbuild-gcc-12-arm-job
+  kbuild-gcc-14-arm-612-cip:
+    <<: *kbuild-gcc-14-arm-job
     params:
-      <<: *kbuild-gcc-12-arm-params
+      <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
       fragments:
@@ -147,10 +147,10 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-arm-61-cip:
-    <<: *kbuild-gcc-12-arm-job
+  kbuild-gcc-14-arm-61-cip:
+    <<: *kbuild-gcc-14-arm-job
     params:
-      <<: *kbuild-gcc-12-arm-params
+      <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
       fragments:
@@ -164,10 +164,10 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-arm-510-cip:
-    <<: *kbuild-gcc-12-arm-job
+  kbuild-gcc-14-arm-510-cip:
+    <<: *kbuild-gcc-14-arm-job
     params:
-      <<: *kbuild-gcc-12-arm-params
+      <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
       fragments:
@@ -181,10 +181,10 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-arm-419-cip:
-    <<: *kbuild-gcc-12-arm-job
+  kbuild-gcc-14-arm-419-cip:
+    <<: *kbuild-gcc-14-arm-job
     params:
-      <<: *kbuild-gcc-12-arm-params
+      <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
       fragments:
@@ -199,15 +199,15 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP x86_64 configuration for boot tests
-  job-gcc-12-x86-612-cip: *baseline-nfs-job
-  job-gcc-12-x86-61-cip: *baseline-nfs-job
-  job-gcc-12-x86-510-cip: *baseline-nfs-job
-  job-gcc-12-x86-419-cip: *baseline-nfs-job
+  job-gcc-14-x86-612-cip: *baseline-nfs-job
+  job-gcc-14-x86-61-cip: *baseline-nfs-job
+  job-gcc-14-x86-510-cip: *baseline-nfs-job
+  job-gcc-14-x86-419-cip: *baseline-nfs-job
 
-  kbuild-gcc-12-x86-612-cip:
-    <<: *kbuild-gcc-12-x86-job-cip
+  kbuild-gcc-14-x86-612-cip:
+    <<: *kbuild-gcc-14-x86-job-cip
     params:
-      <<: *kbuild-gcc-12-x86-params
+      <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
         - 'lab-setup'
@@ -216,10 +216,10 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-12-x86-61-cip:
-    <<: *kbuild-gcc-12-x86-job-cip
+  kbuild-gcc-14-x86-61-cip:
+    <<: *kbuild-gcc-14-x86-job-cip
     params:
-      <<: *kbuild-gcc-12-x86-params
+      <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
         - 'lab-setup'
@@ -228,10 +228,10 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-12-x86-510-cip:
-    <<: *kbuild-gcc-12-x86-job-cip
+  kbuild-gcc-14-x86-510-cip:
+    <<: *kbuild-gcc-14-x86-job-cip
     params:
-      <<: *kbuild-gcc-12-x86-params
+      <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
         - 'lab-setup'
@@ -240,10 +240,10 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-12-x86-419-cip:
-    <<: *kbuild-gcc-12-x86-job-cip
+  kbuild-gcc-14-x86-419-cip:
+    <<: *kbuild-gcc-14-x86-job-cip
     params:
-      <<: *kbuild-gcc-12-x86-params
+      <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
         - 'lab-setup'

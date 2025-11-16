@@ -34,9 +34,9 @@ _anchors:
 scheduler:
 
   - job: baseline-arm
-    event: &kbuild-gcc-12-arm-node-event
+    event: &kbuild-gcc-14-arm-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm
+      name: kbuild-gcc-14-arm
     runtime: &lava-collabora-runtime
       type: lava
       name: lava-collabora
@@ -48,7 +48,7 @@ scheduler:
       - qemu-arm
 
   - job: baseline-arm-baylibre
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-baylibre-runtime
       type: lava
       name: lava-baylibre
@@ -63,7 +63,7 @@ scheduler:
       - sun7i-a20-cubieboard2
 
   - job: baseline-arm-broonie
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-broonie-runtime
       type: lava
       name: lava-broonie
@@ -74,7 +74,7 @@ scheduler:
       - stm32mp157a-dhcor-avenger96
 
   - job: baseline-arm-testpull
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-testpull-runtime
       type: lava
       name: lava-testpull
@@ -83,7 +83,7 @@ scheduler:
       - imx6dl-udoo
 
   - job: baseline-arm-pull-labs-demo
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &pull-labs-demo-runtime
       type: pull_labs
       name: pull-labs-demo
@@ -92,7 +92,7 @@ scheduler:
       - imx6dl-udoo
 
   - job: baseline-arm-clabbe
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-clabbe-runtime
       type: lava
       name: lava-clabbe
@@ -109,7 +109,7 @@ scheduler:
       - sun9i-a80-cubieboard4
 
   - job: baseline-arm-kontron
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-kontron-runtime
       type: lava
       name: lava-kontron
@@ -120,13 +120,13 @@ scheduler:
   - job: baseline-arm-mfd
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-mfd
+      name: kbuild-gcc-14-arm-mfd
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
 
   - job: baseline-arm-pengutronix
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-pengutronix-runtime
       type: lava
       name: lava-pengutronix
@@ -141,17 +141,17 @@ scheduler:
       - jetson-tk1-barebox
 
   - job: baseline-arm
-    event: &kbuild-gcc-12-armv5-node-event
+    event: &kbuild-gcc-14-armv5-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-multi_v5_defconfig
+      name: kbuild-gcc-14-arm-multi_v5_defconfig
     runtime: *lava-broonie-runtime
     platforms: &lava-broonie-armv5
       - at91sam9g20ek
 
   - job: baseline-arm64
-    event: &kbuild-gcc-12-arm64-node-event
+    event: &kbuild-gcc-14-arm64-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+      name: kbuild-gcc-14-arm64
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm64-platforms
       - bcm2711-rpi-4-b
@@ -165,7 +165,7 @@ scheduler:
       - sun50i-h6-pine-h64
 
   - job: baseline-arm64-pull-labs-demo
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -175,7 +175,7 @@ scheduler:
   - job: wifi-basic
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-chromebook-main
+      name: kbuild-gcc-14-arm64-chromebook-main
     runtime: *lava-collabora-runtime
     platforms:
       - mt8390-genio-700-evk
@@ -183,12 +183,12 @@ scheduler:
   - job: baseline-arm64-android
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-android
+      name: kbuild-gcc-14-arm64-android
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: baseline-arm64-baylibre
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-baylibre-runtime
     platforms:
       - k3-j721e-sk
@@ -205,7 +205,7 @@ scheduler:
 
 
   - job: baseline-arm64-broonie
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-broonie
@@ -225,7 +225,7 @@ scheduler:
       - sun50i-h5-libretech-all-h3-cc
 
   - job: baseline-arm64-clabbe
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-clabbe
@@ -240,9 +240,9 @@ scheduler:
       - sun50i-h6-pine-h64
 
   - job: baseline-arm64-kcidebug-mediatek
-    event: &kbuild-gcc-12-arm64-chromebook-kcidebug-node-event
+    event: &kbuild-gcc-14-arm64-chromebook-kcidebug-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-chromebook-kcidebug
+      name: kbuild-gcc-14-arm64-chromebook-kcidebug
     runtime: *lava-collabora-runtime
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
@@ -251,7 +251,7 @@ scheduler:
       - mt8195-cherry-tomato-r2
 
   - job: baseline-arm64-kcidebug-qualcomm
-    event: *kbuild-gcc-12-arm64-chromebook-kcidebug-node-event
+    event: *kbuild-gcc-14-arm64-chromebook-kcidebug-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - sc7180-trogdor-kingoftown
@@ -260,13 +260,13 @@ scheduler:
   - job: baseline-arm64-mfd
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-mfd
+      name: kbuild-gcc-14-arm64-mfd
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: baseline-arm64-kontron
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-kontron-runtime
     platforms:
       - kontron-bl-imx8mm
@@ -274,14 +274,14 @@ scheduler:
       - kontron-sl28-var3-ads2
 
   - job: baseline-arm64-pengutronix
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-pengutronix-runtime
     platforms:
       - imx8mm-innocomm-wb15-evk
       - imx8mp-tqma8mpql-mba8mpxl
 
   - job: baseline-arm64-foundriesio
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-foundriesio
@@ -290,7 +290,7 @@ scheduler:
       - qcs6490-rb3gen2
 
   - job: baseline-arm64-qualcomm
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-kci-qualcomm
@@ -302,46 +302,46 @@ scheduler:
       - x1e80100
 
   - job: baseline-riscv-broonie
-    event: &kbuild-gcc-12-riscv-node-event
+    event: &kbuild-gcc-14-riscv-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-riscv
+      name: kbuild-gcc-14-riscv
     runtime: *lava-broonie-runtime
     platforms:
       - jh7110-starfive-visionfive-2-v1-3b
 
   - job: baseline-riscv-clabbe
-    event: *kbuild-gcc-12-riscv-node-event
+    event: *kbuild-gcc-14-riscv-node-event
     runtime: *lava-clabbe-runtime
     platforms:
       - sun20i-d1-nezha
       - jh7100-starfive-visionfive-v1
 
   - job: baseline-riscv-collabora
-    event: *kbuild-gcc-12-riscv-node-event
+    event: *kbuild-gcc-14-riscv-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - spacemit-k1-bananapi-f3
       - eic7700-hifive-premier-p550
 
   - job: baseline-x86
-    event: &kbuild-gcc-12-x86-node-event
+    event: &kbuild-gcc-14-x86-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86
+      name: kbuild-gcc-14-x86
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-platforms
       - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: baseline-x86-baylibre
-    event: *kbuild-gcc-12-x86-node-event
+    event: *kbuild-gcc-14-x86-node-event
     runtime: *lava-baylibre-runtime
     platforms:
       - qemu
 
   - job: baseline-x86-kcidebug-amd
-    event: &kbuild-gcc-12-x86-kcidebug-node-event
+    event: &kbuild-gcc-14-x86-kcidebug-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86-kcidebug
+      name: kbuild-gcc-14-x86-kcidebug
     runtime: *lava-collabora-runtime
     platforms:
       - acer-R721T-grunt
@@ -355,7 +355,7 @@ scheduler:
       - lenovo-TPad-C13-Yoga-zork
 
   - job: baseline-x86-kcidebug-intel
-    event: *kbuild-gcc-12-x86-kcidebug-node-event
+    event: *kbuild-gcc-14-x86-kcidebug-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - acer-cb317-1h-c3z6-dedede
@@ -376,14 +376,14 @@ scheduler:
   - job: baseline-x86-mfd
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86-mfd
+      name: kbuild-gcc-14-x86-mfd
     runtime: *lava-collabora-runtime
     platforms:
       - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
   
   - job: baseline-x86-pull-labs-demo
-    event: *kbuild-gcc-12-x86-node-event
+    event: *kbuild-gcc-14-x86-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -391,7 +391,7 @@ scheduler:
       - qemu
 
   - job: blktests-ddp-x86
-    event: *kbuild-gcc-12-x86-node-event
+    event: *kbuild-gcc-14-x86-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - supermicro-as-2015hr-tnr
@@ -519,148 +519,148 @@ scheduler:
   - job: kbuild-clang-17-x86-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arc-build-only
+  - job: kbuild-gcc-14-arc-build-only
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arc-hs_smp_defconfig-allnoconfig
+  - job: kbuild-gcc-14-arc-hs_smp_defconfig-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arc-haps_hs_smp_defconfig
+  - job: kbuild-gcc-14-arc-haps_hs_smp_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arc-mainline
+  - job: kbuild-gcc-14-arc-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arc-mainline-allnoconfig
+  - job: kbuild-gcc-14-arc-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm
+  - job: kbuild-gcc-14-arm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-allnoconfig
+  - job: kbuild-gcc-14-arm-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-BIG_ENDIAN
+  - job: kbuild-gcc-14-arm-BIG_ENDIAN
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-SMP
+  - job: kbuild-gcc-14-arm-SMP
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-EFI
+  - job: kbuild-gcc-14-arm-EFI
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-THUMB2
+  - job: kbuild-gcc-14-arm-THUMB2
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android
+  - job: kbuild-gcc-14-arm-android
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-allmodconfig
+  - job: kbuild-gcc-14-arm-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-multi_v5_defconfig
+  - job: kbuild-gcc-14-arm-android-multi_v5_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-imx_v6_v7_defconfig
+  - job: kbuild-gcc-14-arm-android-imx_v6_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-omap2plus_defconfig
+  - job: kbuild-gcc-14-arm-android-omap2plus_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-android-vexpress_defconfig
+  - job: kbuild-gcc-14-arm-android-vexpress_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-build-only
+  - job: kbuild-gcc-14-arm-build-only
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-imx_v6_v7_defconfig
+  - job: kbuild-gcc-14-arm-imx_v6_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-kselftest
+  - job: kbuild-gcc-14-arm-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline
+  - job: kbuild-gcc-14-arm-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline-allnoconfig
+  - job: kbuild-gcc-14-arm-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline-BIG_ENDIAN
+  - job: kbuild-gcc-14-arm-mainline-BIG_ENDIAN
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline-EFI
+  - job: kbuild-gcc-14-arm-mainline-EFI
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline-SMP
+  - job: kbuild-gcc-14-arm-mainline-SMP
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mainline-THUMB2
+  - job: kbuild-gcc-14-arm-mainline-THUMB2
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-mfd
+  - job: kbuild-gcc-14-arm-mfd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-multi_v5_defconfig
+  - job: kbuild-gcc-14-arm-multi_v5_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-multi_v7_defconfig
+  - job: kbuild-gcc-14-arm-multi_v7_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-omap2plus_defconfig
+  - job: kbuild-gcc-14-arm-omap2plus_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-preempt_rt
+  - job: kbuild-gcc-14-arm-preempt_rt
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm-vexpress_defconfig
+  - job: kbuild-gcc-14-arm-vexpress_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64
+  - job: kbuild-gcc-14-arm64
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-allnoconfig
+  - job: kbuild-gcc-14-arm64-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-android
+  - job: kbuild-gcc-14-arm64-android
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-android-allmodconfig
+  - job: kbuild-gcc-14-arm64-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-android-allnoconfig
+  - job: kbuild-gcc-14-arm64-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-android-big_endian
+  - job: kbuild-gcc-14-arm64-android-big_endian
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-android-randomize
+  - job: kbuild-gcc-14-arm64-android-randomize
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-16k_pages
+  - job: kbuild-gcc-14-arm64-16k_pages
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-64k_pages
+  - job: kbuild-gcc-14-arm64-64k_pages
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-big_endian
+  - job: kbuild-gcc-14-arm64-big_endian
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-randomize
+  - job: kbuild-gcc-14-arm64-randomize
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-kselftest-16k_pages
+  - job: kbuild-gcc-14-arm64-kselftest-16k_pages
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-build-only
+  - job: kbuild-gcc-14-arm64-build-only
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chrome-platform
+  - job: kbuild-gcc-14-arm64-chrome-platform
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromebook-kcidebug
+  - job: kbuild-gcc-14-arm64-chromebook-kcidebug
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-dtbscheck
+  - job: kbuild-gcc-14-arm64-dtbscheck
     <<: *build-k8s-all
     rules:
       tree:
@@ -668,179 +668,179 @@ scheduler:
         - sashal-next
 
 # Example of same job name to apply to different tree/branch
-#  - job: kbuild-gcc-12-arm64-dtbscheck
+#  - job: kbuild-gcc-14-arm64-dtbscheck
 #    <<: *build-k8s-all
 #    rules:
 #      tree:
 #        - kernelci:staging-next
 
-  - job: kbuild-gcc-12-arm64-kselftest
+  - job: kbuild-gcc-14-arm64-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-mainline
+  - job: kbuild-gcc-14-arm64-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-mainline-allnoconfig
+  - job: kbuild-gcc-14-arm64-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-mainline-big_endian
+  - job: kbuild-gcc-14-arm64-mainline-big_endian
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-mfd
+  - job: kbuild-gcc-14-arm64-mfd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-preempt_rt
+  - job: kbuild-gcc-14-arm64-preempt_rt
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-preempt_rt_chromebook
+  - job: kbuild-gcc-14-arm64-preempt_rt_chromebook
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386
+  - job: kbuild-gcc-14-i386
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-i386-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-allnoconfig
+  - job: kbuild-gcc-14-i386-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-android-allnoconfig
+  - job: kbuild-gcc-14-i386-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-build-only
+  - job: kbuild-gcc-14-i386-build-only
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-tinyconfig
+  - job: kbuild-gcc-14-i386-tinyconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-kselftest
+  - job: kbuild-gcc-14-i386-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-mainline
+  - job: kbuild-gcc-14-i386-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-mainline-allnoconfig
+  - job: kbuild-gcc-14-i386-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-i386-mfd
+  - job: kbuild-gcc-14-i386-mfd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-mips-32r2el_defconfig
+  - job: kbuild-gcc-14-mips-32r2el_defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-mips-allnoconfig
+  - job: kbuild-gcc-14-mips-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-mips-build-only
-    <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
-
-  - job: kbuild-gcc-12-mips-mainline
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-mips-mainline-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-riscv
+  - job: kbuild-gcc-14-mips-build-only
     <<: *build-k8s-all
     rules:
       tree:
         - '!efi'
 
-  - job: kbuild-gcc-12-riscv-android-defconfig
+  - job: kbuild-gcc-14-mips-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-riscv-build-only
-    <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
-
-  - job: kbuild-gcc-12-riscv-mainline
+  - job: kbuild-gcc-14-mips-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-riscv-mainline-allnoconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-riscv-mfd
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-riscv-nommu_k210_defconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-riscv-smp
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-12-um
+  - job: kbuild-gcc-14-riscv
     <<: *build-k8s-all
     rules:
       tree:
         - '!efi'
 
-  - job: kbuild-gcc-12-x86
+  - job: kbuild-gcc-14-riscv-android-defconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-allnoconfig
+  - job: kbuild-gcc-14-riscv-build-only
+    <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
+
+  - job: kbuild-gcc-14-riscv-mainline
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-mainline-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-mfd
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-nommu_k210_defconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-smp
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-um
+    <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
+
+  - job: kbuild-gcc-14-x86
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-x86-allnoconfig
     <<: *build-k8s-all
 
   - job: kbuild-clang-17-x86-android-allmodconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-android-allnoconfig
+  - job: kbuild-gcc-14-x86-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-build-only
+  - job: kbuild-gcc-14-x86-build-only
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-kcidebug
+  - job: kbuild-gcc-14-x86-kcidebug
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-kselftest
+  - job: kbuild-gcc-14-x86-kselftest
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-mainline
+  - job: kbuild-gcc-14-x86-mainline
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-mainline-allnoconfig
+  - job: kbuild-gcc-14-x86-mainline-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-next
+  - job: kbuild-gcc-14-x86-next
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-next-allnoconfig
+  - job: kbuild-gcc-14-x86-next-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-mediatek
+  - job: kbuild-gcc-14-x86-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-mfd
+  - job: kbuild-gcc-14-x86-mfd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-preempt_rt
+  - job: kbuild-gcc-14-x86-preempt_rt
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-preempt_rt_x86_board
+  - job: kbuild-gcc-14-x86-preempt_rt_x86_board
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-tinyconfig
+  - job: kbuild-gcc-14-x86-tinyconfig
     <<: *build-k8s-all
 
   - job: kselftest-acct
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-acct
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: kselftest-alsa
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -849,7 +849,7 @@ scheduler:
       - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-alsa
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -863,12 +863,12 @@ scheduler:
       - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-arm64
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
   - job: kselftest-arm64-ramdisk
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-kci-qualcomm
@@ -878,13 +878,13 @@ scheduler:
       - qcs9100-ride
 
   - job: kselftest-breakpoints
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-breakpoints
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -893,75 +893,75 @@ scheduler:
       - meson-sm1-s905d3-libretech-cc
 
   - job: kselftest-capabilities
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-capabilities
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
 
   - job: kselftest-clone3
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-clone3
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
 
   - job: kselftest-coredump
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-coredump
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
 
   - job: kselftest-device-error-logs-main
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm
 
   - job: kselftest-device-error-logs-main
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
   - job: kselftest-device-error-logs-main
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
 
   - job: kselftest-dt
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm
 
   - job: kselftest-dt
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm
 
   - job: kselftest-dt
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-arm64
 
   - job: kselftest-dt
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -971,7 +971,7 @@ scheduler:
   - job: kselftest-efivars
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - cd8180-orion-o6
@@ -979,7 +979,7 @@ scheduler:
   - job: kselftest-fchmodat2
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+      name: kbuild-gcc-14-arm64
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -987,7 +987,7 @@ scheduler:
   - job: kselftest-fchmodat2
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm
+      name: kbuild-gcc-14-arm
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -995,7 +995,7 @@ scheduler:
   - job: kselftest-ftrace
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1004,20 +1004,20 @@ scheduler:
   - job: kselftest-ftrace
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - stm32mp157a-dhcor-avenger96
 
   - job: kselftest-futex
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
       - cd8180-orion-o6
 
   - job: kselftest-futex
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1025,7 +1025,7 @@ scheduler:
   - job: kselftest-gpio
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1033,7 +1033,7 @@ scheduler:
   - job: kselftest-gpio
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1041,7 +1041,7 @@ scheduler:
   - job: kselftest-ipc
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1049,7 +1049,7 @@ scheduler:
   - job: kselftest-ipc
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
@@ -1057,7 +1057,7 @@ scheduler:
   - job: kselftest-kcmp
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm
+      name: kbuild-gcc-14-arm
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1065,7 +1065,7 @@ scheduler:
   - job: kselftest-kcmp
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+      name: kbuild-gcc-14-arm64
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1073,7 +1073,7 @@ scheduler:
   - job: kselftest-kvm
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms: &lava-broonie-kvm
       - bcm2711-rpi-4-b
@@ -1087,7 +1087,7 @@ scheduler:
   - job: kselftest-kvm-pkvm
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms: &lava-broonie-pkvm
       - imx8mp-evk
@@ -1097,7 +1097,7 @@ scheduler:
   - job: kselftest-landlock
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1105,7 +1105,7 @@ scheduler:
   - job: kselftest-landlock
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1113,7 +1113,7 @@ scheduler:
   - job: kselftest-lsm
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1121,7 +1121,7 @@ scheduler:
   - job: kselftest-lsm
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1129,7 +1129,7 @@ scheduler:
   - job: kselftest-memfd
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1137,7 +1137,7 @@ scheduler:
   - job: kselftest-memfd
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1145,7 +1145,7 @@ scheduler:
   - job: kselftest-mm
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - stm32mp157a-dhcor-avenger96
@@ -1153,7 +1153,7 @@ scheduler:
   - job: kselftest-mm-8g
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - cd8180-orion-o6
@@ -1161,32 +1161,32 @@ scheduler:
   - job: kselftest-mm-2g
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: kselftest-mqueue
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-mqueue
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
 
 #  - job: kselftest-net
-#    event: *kbuild-gcc-12-x86-node-event
+#    event: *kbuild-gcc-14-x86-node-event
 #    runtime: *lava-collabora-runtime
 #    platforms:
 #      - acer-cb317-1h-c3z6-dedede
 #      - aaeon-UPN-EHLX4RE-A10-0864
 
 #  - job: kselftest-net
-#    event: *kbuild-gcc-12-arm64-node-event
+#    event: *kbuild-gcc-14-arm64-node-event
 #    runtime: *lava-collabora-runtime
 #    platforms:
 #      - meson-g12b-a311d-khadas-vim3
@@ -1197,7 +1197,7 @@ scheduler:
   - job: kselftest-ptrace
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm
+      name: kbuild-gcc-14-arm
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1205,7 +1205,7 @@ scheduler:
   - job: kselftest-ptrace
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+      name: kbuild-gcc-14-arm64
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1213,7 +1213,7 @@ scheduler:
   - job: kselftest-perf-events
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1221,7 +1221,7 @@ scheduler:
   - job: kselftest-perf-events
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1231,7 +1231,7 @@ scheduler:
   - job: kselftest-proc
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm
+      name: kbuild-gcc-14-arm
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1239,7 +1239,7 @@ scheduler:
   - job: kselftest-proc
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64
+      name: kbuild-gcc-14-arm64
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1247,7 +1247,7 @@ scheduler:
   - job: kselftest-ring-buffer
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1255,7 +1255,7 @@ scheduler:
   - job: kselftest-ring-buffer
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1263,7 +1263,7 @@ scheduler:
   - job: kselftest-rlimits
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1271,7 +1271,7 @@ scheduler:
   - job: kselftest-rlimits
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1279,7 +1279,7 @@ scheduler:
   - job: kselftest-splice
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1287,7 +1287,7 @@ scheduler:
   - job: kselftest-splice
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1295,7 +1295,7 @@ scheduler:
   - job: kselftest-sync
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1303,7 +1303,7 @@ scheduler:
   - job: kselftest-sync
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1311,7 +1311,7 @@ scheduler:
   - job: kselftest-timens
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1319,19 +1319,19 @@ scheduler:
   - job: kselftest-timens
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: kselftest-timers
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-timers
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
@@ -1339,13 +1339,13 @@ scheduler:
       - cd8180-orion-o6
 
   - job: kselftest-tmpfs
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-tmpfs
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1353,7 +1353,7 @@ scheduler:
   - job: kselftest-seccomp
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1361,19 +1361,19 @@ scheduler:
   - job: kselftest-seccomp
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: kselftest-signal
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-signal
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
@@ -1382,7 +1382,7 @@ scheduler:
   - job: kselftest-tpm2
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - k3-am625-verdin-wifi-mallow
@@ -1390,7 +1390,7 @@ scheduler:
   - job: kselftest-ublk
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1398,7 +1398,7 @@ scheduler:
   - job: kselftest-ublk
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
@@ -1406,7 +1406,7 @@ scheduler:
   - job: kselftest-uevent
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1414,7 +1414,7 @@ scheduler:
   - job: kselftest-uevent
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
@@ -1422,7 +1422,7 @@ scheduler:
   - job: kselftest-user-events
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
@@ -1430,19 +1430,19 @@ scheduler:
   - job: kselftest-user-events
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - sun50i-h5-libretech-all-h3-cc
 
   - job: kselftest-vdso
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: kselftest-vdso
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
@@ -1450,7 +1450,7 @@ scheduler:
   - job: kselftest-zram
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-kselftest
+      name: kbuild-gcc-14-arm-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - stm32mp157a-dhcor-avenger96
@@ -1458,20 +1458,20 @@ scheduler:
   - job: kselftest-zram
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-kselftest
+      name: kbuild-gcc-14-arm64-kselftest
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: kselftest-cpufreq
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
 
   - job: kselftest-cpufreq-suspend
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - mt8390-genio-700-evk
@@ -1487,274 +1487,274 @@ scheduler:
       name: k8s-gke-eu-west4
 
   - job: kvm-unit-tests
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-kvm
 
   - job: kvm-unit-tests-pkvm
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-pkvm
 
   - job: ltp-cap-bounds
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-cap-bounds
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-containers
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-containers
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-controllers
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-controllers
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-crypto
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-crypto
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
 
   - job: ltp-crypto
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-cve
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-cve
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-dio
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
 
   - job: ltp-dio
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-fcntl-locktests
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
 
   - job: ltp-fcntl-locktests
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-fs-bind
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-fs-bind
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-fsx
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-fsx
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-fsx
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-input
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-input
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-ipc
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-ipc
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-pty
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-pty
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-pty
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin
 
   - job: ltp-sched
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-sched
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-smoketest
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-smoketest
-    event: *kbuild-gcc-12-armv5-node-event
+    event: *kbuild-gcc-14-armv5-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - at91sam9g20ek
 
   - job: ltp-smoketest
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
 
   - job: ltp-syscalls
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - stm32mp157a-dhcor-avenger96
 
   - job: ltp-syscalls
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
       - cd8180-orion-o6
 
   - job: ltp-syscalls-ipc
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-timers
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-timers
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-timers
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2711-rpi-4-b
       - rk3399-gru-kevin
 
   - job: ltp-timers_qemu
-    event: *kbuild-gcc-12-x86-node-event
+    event: *kbuild-gcc-14-x86-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - qemu
 
   - job: ltp-watchqueue
-    event: *kbuild-gcc-12-arm-node-event
+    event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
   - job: ltp-watchqueue
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - juno-uboot
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: &kbuild-gcc-14-arm64-preempt_rt-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-preempt_rt
+      name: kbuild-gcc-14-arm64-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: &kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm64-preempt_rt_chromebook
+      name: kbuild-gcc-14-arm64-preempt_rt_chromebook
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm64-chromebook-platforms
       - mt8183-kukui-jacuzzi-juniper-sku16
@@ -1765,16 +1765,16 @@ scheduler:
       - sc7180-trogdor-lazor-limozeen
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-x86-preempt_rt-node-event
+    event: &kbuild-gcc-14-x86-preempt_rt-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86-preempt_rt
+      name: kbuild-gcc-14-x86-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: &kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-x86-preempt_rt_x86_board
+      name: kbuild-gcc-14-x86-preempt_rt_x86_board
     runtime: *lava-collabora-runtime
     platforms: &collabora-x86-rt-chromebook-platforms
       - acer-cb317-1h-c3z6-dedede
@@ -1787,271 +1787,271 @@ scheduler:
       - hp-x360-12b-ca0010nr-n4020-octopus
 
   - job: rt-tests-cyclicdeadline
-    event: &kbuild-gcc-12-arm-preempt_rt-node-event
+    event: &kbuild-gcc-14-arm-preempt_rt-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-12-arm-preempt_rt
+      name: kbuild-gcc-14-arm-preempt_rt
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm-preempt_rt-platforms
       - imx6q-sabrelite
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-cyclictest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-pi-stress
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-pi-stress
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-pi-stress
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-pi-stress
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-pi-stress
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-pmqtest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-pmqtest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-pmqtest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-pmqtest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-pmqtest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-ptsematest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-ptsematest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-ptsematest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-ptsematest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-ptsematest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-rt-migrate-test
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-rt-migrate-test
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-rt-migrate-test
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-rt-migrate-test
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rt-migrate-test
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rtla-osnoise
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-rtla-timerlat
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-signaltest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-signaltest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-signaltest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-signaltest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-signaltest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-sigwaittest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-sigwaittest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-sigwaittest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-sigwaittest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-sigwaittest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: rt-tests-svsematest
-    event: *kbuild-gcc-12-arm64-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-platforms
 
   - job: rt-tests-svsematest
-    event: *kbuild-gcc-12-arm64-preempt_rt_chromebook-node-event
+    event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm64-chromebook-platforms
 
   - job: rt-tests-svsematest
-    event: *kbuild-gcc-12-x86-preempt_rt-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-platforms
 
   - job: rt-tests-svsematest
-    event: *kbuild-gcc-12-x86-preempt_rt_x86_board-node-event
+    event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-x86-rt-chromebook-platforms
 
   - job: rt-tests-svsematest
-    event: *kbuild-gcc-12-arm-preempt_rt-node-event
+    event: *kbuild-gcc-14-arm-preempt_rt-node-event
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
   - job: sleep
-    event: *kbuild-gcc-12-x86-node-event
+    event: *kbuild-gcc-14-x86-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - acer-chromebox-cxi4-puff
 
   - job: h26forge-debian
-    event: *kbuild-gcc-12-arm64-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - rk3399-gru-kevin

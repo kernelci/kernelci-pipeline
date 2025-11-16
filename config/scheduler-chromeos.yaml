@@ -74,26 +74,26 @@ _anchors:
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook
+      name: kbuild-gcc-14-arm64-chromebook
     platforms: *mediatek-platforms
 
   test-job-arm64-mediatek-coverage: &test-job-arm64-mediatek-coverage
     <<: *test-job-arm64-mediatek
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-mediatek-coverage
+      name: kbuild-gcc-14-arm64-chromeos-mediatek-coverage
 
   test-job-arm64-mediatek-cros-kernel: &test-job-arm64-mediatek-cros-kernel
     <<: *test-job-arm64-mediatek
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-daily-mediatek
+      name: kbuild-gcc-14-arm64-chromeos-daily-mediatek
 
   test-job-arm64-mediatek-media-committers: &test-job-arm64-mediatek-media-committers
     <<: *test-job-arm64-mediatek
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook-media-committers
+      name: kbuild-gcc-14-arm64-chromebook-media-committers
 
   test-job-arm64-qualcomm: &test-job-arm64-qualcomm
     <<: *test-job-arm64-mediatek
@@ -103,13 +103,13 @@ _anchors:
     <<: *test-job-arm64-qualcomm
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-qualcomm-coverage
+      name: kbuild-gcc-14-arm64-chromeos-qualcomm-coverage
 
   test-job-arm64-qualcomm-cros-kernel: &test-job-arm64-qualcomm-cros-kernel
     <<: *test-job-arm64-qualcomm
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
+      name: kbuild-gcc-14-arm64-chromeos-daily-qualcomm
 
   test-job-arm64-qualcomm-media-committers: &test-job-arm64-qualcomm-media-committers
     <<: *test-job-arm64-mediatek-media-committers
@@ -119,14 +119,14 @@ _anchors:
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-x86-chromeos-amd
+      name: kbuild-gcc-14-x86-chromeos-amd
     platforms: *amd-platforms
 
   test-job-chromeos-intel: &test-job-chromeos-intel
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-x86-chromeos-intel
+      name: kbuild-gcc-14-x86-chromeos-intel
     platforms: *intel-platforms
 
   test-job-chromeos-intel-tast: &test-job-chromeos-intel-tast
@@ -137,19 +137,19 @@ _anchors:
     <<: *test-job-arm64-mediatek
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-mediatek
+      name: kbuild-gcc-14-arm64-chromeos-mediatek
 
   test-job-chromeos-qualcomm: &test-job-chromeos-qualcomm
     <<: *test-job-arm64-qualcomm
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromeos-qualcomm
+      name: kbuild-gcc-14-arm64-chromeos-qualcomm
 
   test-job-x86: &test-job-x86
     <<: *lava-job-collabora
     event: &test-job-x86-event
       <<: *kbuild-event
-      name: kbuild-gcc-12-x86
+      name: kbuild-gcc-14-x86
 
   test-job-x86-amd: &test-job-x86-amd
     <<: *test-job-x86
@@ -159,13 +159,13 @@ _anchors:
     <<: *test-job-x86-amd
     event:
       <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-amd-coverage
+      name: kbuild-gcc-14-x86-chromeos-amd-coverage
 
   test-job-x86-amd-cros-kernel: &test-job-x86-amd-cros-kernel
     <<: *test-job-x86-amd
     event:
       <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-daily-amd
+      name: kbuild-gcc-14-x86-chromeos-daily-amd
 
   test-job-x86-intel: &test-job-x86-intel
     <<: *test-job-x86
@@ -175,13 +175,13 @@ _anchors:
     <<: *test-job-x86-intel
     event:
       <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-intel-coverage
+      name: kbuild-gcc-14-x86-chromeos-intel-coverage
 
   test-job-x86-intel-cros-kernel: &test-job-x86-intel-cros-kernel
     <<: *test-job-x86-intel
     event:
       <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-daily-intel
+      name: kbuild-gcc-14-x86-chromeos-daily-intel
 
   test-job-x86-intel-fault-injection: &test-job-x86-intel-fault-injection
     <<: *test-job-x86-intel-cros-kernel
@@ -193,7 +193,7 @@ _anchors:
       - hp-x360-12b-ca0010nr-n4020-octopus
     event:
       <<: *test-job-x86-event
-      name: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
+      name: kbuild-gcc-14-x86-chromeos-daily-intel-fault-injection
 
 scheduler:
 
@@ -301,7 +301,7 @@ scheduler:
   - job: baseline-nfs-x86-intel-cros-kernel
     <<: *test-job-x86-intel-cros-kernel
 
-  - job: kbuild-gcc-12-x86-chromeos-daily-intel-fault-injection
+  - job: kbuild-gcc-14-x86-chromeos-daily-intel-fault-injection
     <<: *build-k8s-all
 
   - job: fault-injection-x86-intel-cros-kernel
@@ -346,43 +346,43 @@ scheduler:
   - job: kbuild-clang-17-x86-chromeos-daily-intel
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromebook
+  - job: kbuild-gcc-14-arm64-chromebook
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-mediatek
+  - job: kbuild-gcc-14-arm64-chromeos-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-mediatek-coverage
+  - job: kbuild-gcc-14-arm64-chromeos-mediatek-coverage
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-daily-mediatek
+  - job: kbuild-gcc-14-arm64-chromeos-daily-mediatek
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-qualcomm
+  - job: kbuild-gcc-14-arm64-chromeos-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-qualcomm-coverage
+  - job: kbuild-gcc-14-arm64-chromeos-qualcomm-coverage
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-arm64-chromeos-daily-qualcomm
+  - job: kbuild-gcc-14-arm64-chromeos-daily-qualcomm
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-amd
+  - job: kbuild-gcc-14-x86-chromeos-amd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-amd-coverage
+  - job: kbuild-gcc-14-x86-chromeos-amd-coverage
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-daily-amd
+  - job: kbuild-gcc-14-x86-chromeos-daily-amd
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-intel
+  - job: kbuild-gcc-14-x86-chromeos-intel
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-intel-coverage
+  - job: kbuild-gcc-14-x86-chromeos-intel-coverage
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-12-x86-chromeos-daily-intel
+  - job: kbuild-gcc-14-x86-chromeos-daily-intel
     <<: *build-k8s-all
 
   - job: kselftest-acpi
@@ -719,7 +719,7 @@ scheduler:
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook
+      name: kbuild-gcc-14-arm64-chromebook
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8186-corsola-steelix-sku131072
@@ -732,7 +732,7 @@ scheduler:
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook
+      name: kbuild-gcc-14-arm64-chromebook
     platforms:
       - mt8195-cherry-tomato-r2
 
@@ -740,14 +740,14 @@ scheduler:
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook
+      name: kbuild-gcc-14-arm64-chromebook
     platforms: *mediatek-platforms
 
   - job: kselftest-devices-probe
     <<: *lava-job-collabora
     event:
       <<: *kbuild-event
-      name: kbuild-gcc-12-arm64-chromebook
+      name: kbuild-gcc-14-arm64-chromebook
     platforms: *mediatek-platforms
 
   - job: kselftest-cpufreq
