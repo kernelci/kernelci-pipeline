@@ -68,7 +68,7 @@ are `arm`, `arm64`, `i386`, `x86_64`, `mips`, `riscv`, `um`, might be
 extended in the future.
 
 `compiler` is the compiler that will be used to build the kernel. Possible
-values are `gcc-12`, `clang-17`, might be extended in the future.
+values are `gcc-12`, `clang-21`, might be extended in the future.
 
 `defconfig` is the defconfig that will be used to build the kernel.
 
