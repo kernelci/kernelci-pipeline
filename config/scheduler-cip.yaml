@@ -46,8 +46,8 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
-      - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - job: job-gcc-14-arm64-61-cip
     event:
@@ -57,8 +57,8 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
-      - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - job: job-gcc-14-arm64-510-cip
     event:
@@ -68,8 +68,8 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
-      - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - job: job-gcc-14-arm64-419-cip
     event:
@@ -79,8 +79,8 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
-      - zynqmp-zcu102
       - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - job: kbuild-gcc-14-arm64-612-cip
     <<: *build-k8s-all
@@ -114,9 +114,9 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - beaglebone-black
       - de0-nano-soc
       - r8a7743-iwg20d-q7
-      - beaglebone-black
 
   - job: job-gcc-14-arm-61-cip
     event:
@@ -126,9 +126,9 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - beaglebone-black
       - de0-nano-soc
       - r8a7743-iwg20d-q7
-      - beaglebone-black
 
   - job: job-gcc-14-arm-510-cip
     event:
@@ -138,9 +138,9 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - beaglebone-black
       - de0-nano-soc
       - r8a7743-iwg20d-q7
-      - beaglebone-black
 
   - job: job-gcc-14-arm-419-cip
     event:
@@ -150,9 +150,9 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - beaglebone-black
       - de0-nano-soc
       - r8a7743-iwg20d-q7
-      - beaglebone-black
 
   - job: job-gcc-14-arm-44-cip
     event:
@@ -162,8 +162,8 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
-      - r8a7743-iwg20d-q7
       - beaglebone-black
+      - r8a7743-iwg20d-q7
 
   - job: kbuild-gcc-14-arm-612-cip
     <<: *build-k8s-all
