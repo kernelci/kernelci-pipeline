@@ -46,6 +46,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu-arm64
       - r8a774a1-hihope-rzg2m-ex
       - zynqmp-zcu102
 
@@ -57,6 +58,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu-arm64
       - r8a774a1-hihope-rzg2m-ex
       - zynqmp-zcu102
 
@@ -68,6 +70,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu-arm64
       - r8a774a1-hihope-rzg2m-ex
       - zynqmp-zcu102
 
@@ -79,6 +82,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu-arm64
       - r8a774a1-hihope-rzg2m-ex
       - zynqmp-zcu102
 
@@ -116,6 +120,7 @@ scheduler:
     platforms:
       - beaglebone-black
       - de0-nano-soc
+      - qemu-arm
       - r8a7743-iwg20d-q7
 
   - job: job-gcc-14-arm-61-cip
@@ -128,6 +133,7 @@ scheduler:
     platforms:
       - beaglebone-black
       - de0-nano-soc
+      - qemu-arm
       - r8a7743-iwg20d-q7
 
   - job: job-gcc-14-arm-510-cip
@@ -140,6 +146,7 @@ scheduler:
     platforms:
       - beaglebone-black
       - de0-nano-soc
+      - qemu-arm
       - r8a7743-iwg20d-q7
 
   - job: job-gcc-14-arm-419-cip
@@ -152,6 +159,7 @@ scheduler:
     platforms:
       - beaglebone-black
       - de0-nano-soc
+      - qemu-arm
       - r8a7743-iwg20d-q7
 
   - job: job-gcc-14-arm-44-cip
@@ -163,6 +171,7 @@ scheduler:
       name: lava-cip
     platforms:
       - beaglebone-black
+      - qemu-arm
       - r8a7743-iwg20d-q7
 
   - job: kbuild-gcc-14-arm-612-cip
@@ -189,6 +198,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
@@ -202,6 +212,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
@@ -214,6 +225,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
@@ -226,6 +238,7 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
@@ -238,9 +251,20 @@ scheduler:
       type: lava
       name: lava-cip
     platforms:
+      - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
+
+  - job: job-gcc-14-x86-44-cip
+    event:
+      <<: *kbuild-gcc-14-x86-node-event
+      name: kbuild-gcc-14-x86-44-cip
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - qemu
 
   - job: kbuild-gcc-14-x86-612-cip
     <<: *build-k8s-all
@@ -252,4 +276,7 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-x86-419-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-x86-44-cip
     <<: *build-k8s-all
