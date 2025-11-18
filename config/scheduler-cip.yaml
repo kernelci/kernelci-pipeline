@@ -154,6 +154,17 @@ scheduler:
       - r8a7743-iwg20d-q7
       - beaglebone-black
 
+  - job: job-gcc-14-arm-44-cip
+    event:
+      <<: *kbuild-gcc-14-arm-node-event
+      name: kbuild-gcc-14-arm-44-cip
+    runtime:
+      type: lava
+      name: lava-cip
+    platforms:
+      - r8a7743-iwg20d-q7
+      - beaglebone-black
+
   - job: kbuild-gcc-14-arm-612-cip
     <<: *build-k8s-all
 
@@ -164,6 +175,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-419-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm-44-cip
     <<: *build-k8s-all
 
 # start of CIP x86-64 scheduler
