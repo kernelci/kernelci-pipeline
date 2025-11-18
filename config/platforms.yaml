@@ -429,6 +429,15 @@ platforms:
       machine: virt-2.11,gic-version=3
       guestfs_interface: virtio
 
+  qemu-arm64:
+    <<: *qemu-device
+    arch: arm64
+    context:
+      arch: arm64
+      cpu: cortex-a57
+      machine: virt,gic-version=3
+      guestfs_interface: virtio
+
   rk3288-rock2-square:
     <<: *arm-device
     mach: rockchip

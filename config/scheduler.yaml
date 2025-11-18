@@ -159,6 +159,7 @@ scheduler:
       - mt8365-genio-350-evk
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
+      - qemu-arm64
       - rk3399-gru-kevin
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
