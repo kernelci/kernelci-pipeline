@@ -24,67 +24,41 @@ scheduler:
     event: &kbuild-gcc-14-arm64-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm64
-    runtime: &lava-collabora-runtime
+    runtime: &lava-cip-runtime
       type: lava
-      name: lava-collabora
-    platforms: &collabora-arm64-platforms
-      - bcm2711-rpi-4-b
-      - meson-g12b-a311d-khadas-vim3
-      - mt8365-genio-350-evk
-      - mt8390-genio-700-evk
-      - mt8395-genio-1200-evk
-      - rk3399-gru-kevin
-      - rk3399-rock-pi-4b
-      - rk3588-rock-5b
-      - sun50i-h6-pine-h64
+      name: lava-cip
+    platforms: &cip-arm64-platforms
+      - qemu-arm64
+      - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - job: job-gcc-14-arm64-612-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-612-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu-arm64
-      - r8a774a1-hihope-rzg2m-ex
-      - zynqmp-zcu102
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm64-platforms
 
   - job: job-gcc-14-arm64-61-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-61-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu-arm64
-      - r8a774a1-hihope-rzg2m-ex
-      - zynqmp-zcu102
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm64-platforms
 
   - job: job-gcc-14-arm64-510-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-510-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu-arm64
-      - r8a774a1-hihope-rzg2m-ex
-      - zynqmp-zcu102
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm64-platforms
 
   - job: job-gcc-14-arm64-419-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-419-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu-arm64
-      - r8a774a1-hihope-rzg2m-ex
-      - zynqmp-zcu102
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm64-platforms
 
   - job: kbuild-gcc-14-arm64-612-cip
     <<: *build-k8s-all
@@ -103,72 +77,46 @@ scheduler:
     event: &kbuild-gcc-14-arm-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm
-    runtime: *lava-collabora-runtime
-    platforms: &collabora-arm-platforms
-      - imx6q-sabrelite
-      - odroid-xu3
-      - rk3288-rock2-square
-      - rk3288-veyron-jaq
+    runtime: *lava-cip-runtime
+    platforms: &cip-arm-platforms
+      - beaglebone-black
+      - de0-nano-soc
+      - qemu-arm
+      - r8a7743-iwg20d-q7
 
   - job: job-gcc-14-arm-612-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
       name: kbuild-gcc-14-arm-612-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - beaglebone-black
-      - de0-nano-soc
-      - qemu-arm
-      - r8a7743-iwg20d-q7
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm-platforms
 
   - job: job-gcc-14-arm-61-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
       name: kbuild-gcc-14-arm-61-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - beaglebone-black
-      - de0-nano-soc
-      - qemu-arm
-      - r8a7743-iwg20d-q7
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm-platforms
 
   - job: job-gcc-14-arm-510-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
       name: kbuild-gcc-14-arm-510-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - beaglebone-black
-      - de0-nano-soc
-      - qemu-arm
-      - r8a7743-iwg20d-q7
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm-platforms
 
   - job: job-gcc-14-arm-419-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
       name: kbuild-gcc-14-arm-419-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - beaglebone-black
-      - de0-nano-soc
-      - qemu-arm
-      - r8a7743-iwg20d-q7
+    runtime: *lava-cip-runtime
+    platforms: *cip-arm-platforms
 
   - job: job-gcc-14-arm-44-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
       name: kbuild-gcc-14-arm-44-cip
-    runtime:
-      type: lava
-      name: lava-cip
+    runtime: *lava-cip-runtime
     platforms:
       - beaglebone-black
       - qemu-arm
@@ -194,10 +142,8 @@ scheduler:
     event: &kbuild-gcc-14-x86-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-14-x86
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
+    runtime: *lava-cip-runtime
+    platforms: &cip-x86-platforms
       - qemu
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
@@ -208,61 +154,35 @@ scheduler:
     event:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-612-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu
-      - x86-openblocks-iot-vx2
-      - x86-siemens-mcom
-      - x86-simatic-ipc227e
+    runtime: *lava-cip-runtime
+    platforms: *cip-x86-platforms
 
   - job: job-gcc-14-x86-61-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-61-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu
-      - x86-openblocks-iot-vx2
-      - x86-siemens-mcom
-      - x86-simatic-ipc227e
+    runtime: *lava-cip-runtime
+    platforms: *cip-x86-platforms
 
   - job: job-gcc-14-x86-510-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-510-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu
-      - x86-openblocks-iot-vx2
-      - x86-siemens-mcom
-      - x86-simatic-ipc227e
+    runtime: *lava-cip-runtime
+    platforms: *cip-x86-platforms
 
   - job: job-gcc-14-x86-419-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-419-cip
-    runtime:
-      type: lava
-      name: lava-cip
-    platforms:
-      - qemu
-      - x86-openblocks-iot-vx2
-      - x86-siemens-mcom
-      - x86-simatic-ipc227e
+    runtime: *lava-cip-runtime
+    platforms: *cip-x86-platforms
 
   - job: job-gcc-14-x86-44-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-44-cip
-    runtime:
-      type: lava
-      name: lava-cip
+    runtime: *lava-cip-runtime
     platforms:
       - qemu
 
