@@ -1570,6 +1570,22 @@ jobs:
         - stable
     kcidb_test_suite: kselftest.aaa
 
+  kselftest-aaa-ramdisk: &kselftest-job-ramdisk
+    template: generic.jinja2
+    kind: job
+    params: &kselftest-params-ramdisk
+      test_method: kselftest
+      boot_commands: ramdisk
+      ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      job_timeout: 10
+    rules: &kselftest-rules-ramdisk
+      tree:
+        - mainline
+        - next
+        - stable-rc
+        - stable
+    kcidb_test_suite: kselftest.aaa
+
   kselftest-acct:
     <<: *kselftest-job
     params:
@@ -1594,20 +1610,25 @@ jobs:
     kcidb_test_suite: kselftest.arm64
 
   kselftest-arm64-ramdisk:
-    <<: *kselftest-job
+    <<: *kselftest-job-ramdisk
     template: generic.jinja2
     kind: job
     params:
-      <<: *kselftest-params
+      <<: *kselftest-params-ramdisk
       collections: arm64
-      boot_commands: ramdisk
-      ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
     kcidb_test_suite: kselftest.arm64
 
   kselftest-breakpoints:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: breakpoints
+    kcidb_test_suite: kselftest.breakpoints
+
+  kselftest-breakpoints-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: breakpoints
     kcidb_test_suite: kselftest.breakpoints
 
@@ -1618,10 +1639,24 @@ jobs:
       collections: capabilities
     kcidb_test_suite: kselftest.capabilities
 
+  kselftest-capabilities-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: capabilities
+    kcidb_test_suite: kselftest.capabilities
+
   kselftest-clone3:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: clone3
+    kcidb_test_suite: kselftest.clone3
+
+  kselftest-clone3-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: clone3
     kcidb_test_suite: kselftest.clone3
 
@@ -1632,12 +1667,28 @@ jobs:
       collections: coredump
     kcidb_test_suite: kselftest.coredump
 
+  kselftest-coredump-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: coredump
+    kcidb_test_suite: kselftest.coredump
+
   kselftest-cpufreq:
     <<: *kselftest-job
     template: generic.jinja2
     kind: job
     params:
       <<: *kselftest-params
+      collections: cpufreq
+    kcidb_test_suite: kselftest.cpufreq
+
+  kselftest-cpufreq-ramdisk:
+    <<: *kselftest-job-ramdisk
+    template: generic.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params-ramdisk
       collections: cpufreq
     kcidb_test_suite: kselftest.cpufreq
 
@@ -1706,10 +1757,29 @@ jobs:
       collections: dmabuf-heaps
     kcidb_test_suite: kselftest.dmabuf-heaps
 
+  kselftest-dmabuf-heaps-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: dmabuf-heaps
+    kcidb_test_suite: kselftest.dmabuf-heaps
+
   kselftest-dt:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: dt
+    rules:
+      <<: *kselftest-rules
+      min_version:
+        version: 6
+        patchlevel: 7
+    kcidb_test_suite: kselftest.dt
+
+  kselftest-dt-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: dt
     rules:
       <<: *kselftest-rules
@@ -1725,10 +1795,24 @@ jobs:
       collections: efivars
     kcidb_test_suite: kselftest.efivars
 
+  kselftest-efivars-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: efivars
+    kcidb_test_suite: kselftest.efivars
+
   kselftest-exec:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: exec
+    kcidb_test_suite: kselftest.exec
+
+  kselftest-exec-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: exec
     kcidb_test_suite: kselftest.exec
 
@@ -1746,10 +1830,24 @@ jobs:
       collections: ftrace
     kcidb_test_suite: kselftest.ftrace
 
+  kselftest-ftrace-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: ftrace
+    kcidb_test_suite: kselftest.ftrace
+
   kselftest-futex:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: futex
+    kcidb_test_suite: kselftest.futex
+
+  kselftest-futex-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: futex
     kcidb_test_suite: kselftest.futex
 
@@ -1760,10 +1858,24 @@ jobs:
       collections: gpio
     kcidb_test_suite: kselftest.gpio
 
+  kselftest-gpio-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: gpio
+    kcidb_test_suite: kselftest.gpio
+
   kselftest-iommu:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: iommu
+    kcidb_test_suite: kselftest.iommu
+
+  kselftest-iommu-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: iommu
     kcidb_test_suite: kselftest.iommu
 
@@ -1867,10 +1979,24 @@ jobs:
       collections: perf_events
     kcidb_test_suite: kselftest.perf_events
 
+  kselftest-perf-events-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: perf_events
+    kcidb_test_suite: kselftest.perf_events
+
   kselftest-proc:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: proc
+    kcidb_test_suite: kselftest.proc
+
+  kselftest-proc-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: proc
     kcidb_test_suite: kselftest.proc
 
@@ -1885,6 +2011,13 @@ jobs:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: ring-buffer
+    kcidb_test_suite: kselftest.ring-buffer
+
+  kselftest-ring-buffer-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: ring-buffer
     kcidb_test_suite: kselftest.ring-buffer
 
@@ -1937,10 +2070,24 @@ jobs:
       collections: timers
     kcidb_test_suite: kselftest.timers
 
+  kselftest-timers-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: timers
+    kcidb_test_suite: kselftest.timers
+
   kselftest-tmpfs:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
+      collections: tmpfs
+    kcidb_test_suite: kselftest.tmpfs
+
+  kselftest-tmpfs-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
       collections: tmpfs
     kcidb_test_suite: kselftest.tmpfs
 
