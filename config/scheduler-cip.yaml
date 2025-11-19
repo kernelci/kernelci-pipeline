@@ -89,13 +89,25 @@ scheduler:
   - job: kbuild-gcc-14-arm64-612-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm64-612-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-61-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm64-61-cip-rt
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64-510-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm64-510-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-419-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm64-419-cip-rt
     <<: *build-k8s-all
 
 # start of CIP arm scheduler
@@ -177,16 +189,31 @@ scheduler:
   - job: kbuild-gcc-14-arm-612-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm-612-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm-61-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm-61-cip-rt
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-510-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm-510-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm-419-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm-419-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm-44-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm-44-cip-rt
     <<: *build-k8s-all
 
 # start of CIP x86-64 scheduler
@@ -269,14 +296,29 @@ scheduler:
   - job: kbuild-gcc-14-x86-612-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-x86-612-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-x86-61-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-x86-61-cip-rt
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-x86-510-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-x86-510-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-x86-419-cip
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-x86-419-cip-rt
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-x86-44-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-x86-44-cip-rt
     <<: *build-k8s-all
