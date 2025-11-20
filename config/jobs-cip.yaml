@@ -60,9 +60,9 @@ jobs:
   job-gcc-14-arm64-510-cip: *baseline-job
   job-gcc-14-arm64-419-cip: *baseline-job
 
-  kbuild-gcc-14-arm64-612-cip:
+  kbuild-gcc-14-arm64-612-cip: &kbuild-gcc-14-arm64-612-cip
     <<: *kbuild-gcc-14-arm64-job
-    params:
+    params: &kbuild-gcc-14-arm64-612-cip-params
       <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
@@ -76,9 +76,21 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-14-arm64-61-cip:
-    <<: *kbuild-gcc-14-arm64-job
+  kbuild-gcc-14-arm64-612-cip-rt:
+    <<: *kbuild-gcc-14-arm64-612-cip
     params:
+      <<: *kbuild-gcc-14-arm64-612-cip-params
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.12.y-cip/arm64/cip_merged_defconfig'
+
+  kbuild-gcc-14-arm64-61-cip: &kbuild-gcc-14-arm64-61-cip
+    <<: *kbuild-gcc-14-arm64-job
+    params: &kbuild-gcc-14-arm64-61-cip-params
       <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
@@ -92,9 +104,24 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-14-arm64-510-cip:
-    <<: *kbuild-gcc-14-arm64-job
+  kbuild-gcc-14-arm64-61-cip-rt:
+    <<: *kbuild-gcc-14-arm64-61-cip
     params:
+      <<: *kbuild-gcc-14-arm64-61-cip-params
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.1.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip-rt'
+
+  kbuild-gcc-14-arm64-510-cip: &kbuild-gcc-14-arm64-510-cip
+    <<: *kbuild-gcc-14-arm64-job
+    params: &kbuild-gcc-14-arm64-510-cip-params
       <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
@@ -108,9 +135,24 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-14-arm64-419-cip:
-    <<: *kbuild-gcc-14-arm64-job
+  kbuild-gcc-14-arm64-510-cip-rt:
+    <<: *kbuild-gcc-14-arm64-510-cip
     params:
+      <<: *kbuild-gcc-14-arm64-510-cip-params
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-14-arm64-419-cip: &kbuild-gcc-14-arm64-419-cip
+    <<: *kbuild-gcc-14-arm64-job
+    params: &kbuild-gcc-14-arm64-419-cip-params
       <<: *kbuild-gcc-14-arm64-params
       defconfig:
         - defconfig
@@ -124,6 +166,21 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip'
 
+  kbuild-gcc-14-arm64-419-cip-rt:
+    <<: *kbuild-gcc-14-arm64-419-cip
+    params:
+      <<: *kbuild-gcc-14-arm64-419-cip-params
+      fragments:
+        - 'CONFIG_ARCH_R8A774A1=y'
+        - 'CONFIG_ARCH_ZYNQMP=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
+
 # start of CIP arm configuration for boot tests
   job-gcc-14-arm-612-cip: *baseline-nfs-job
   job-gcc-14-arm-61-cip: *baseline-nfs-job
@@ -131,9 +188,9 @@ jobs:
   job-gcc-14-arm-419-cip: *baseline-nfs-job
   job-gcc-14-arm-44-cip: *baseline-nfs-job
 
-  kbuild-gcc-14-arm-612-cip:
+  kbuild-gcc-14-arm-612-cip: &kbuild-gcc-14-arm-612-cip
     <<: *kbuild-gcc-14-arm-job
-    params:
+    params: &kbuild-gcc-14-arm-612-cip-params
       <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
@@ -148,9 +205,22 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-14-arm-61-cip:
-    <<: *kbuild-gcc-14-arm-job
+  kbuild-gcc-14-arm-612-cip-rt:
+    <<: *kbuild-gcc-14-arm-612-cip
     params:
+      <<: *kbuild-gcc-14-arm-612-cip-params
+      fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.12.y-cip/arm/cip_merged_defconfig'
+
+  kbuild-gcc-14-arm-61-cip: &kbuild-gcc-14-arm-61-cip
+    <<: *kbuild-gcc-14-arm-job
+    params: &kbuild-gcc-14-arm-61-cip-params
       <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
@@ -165,9 +235,25 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-14-arm-510-cip:
-    <<: *kbuild-gcc-14-arm-job
+  kbuild-gcc-14-arm-61-cip-rt:
+    <<: *kbuild-gcc-14-arm-61-cip
     params:
+      <<: *kbuild-gcc-14-arm-61-cip-params
+      fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.1.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip-rt'
+
+  kbuild-gcc-14-arm-510-cip: &kbuild-gcc-14-arm-510-cip
+    <<: *kbuild-gcc-14-arm-job
+    params: &kbuild-gcc-14-arm-510-cip-params
       <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
@@ -182,9 +268,25 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-14-arm-419-cip:
-    <<: *kbuild-gcc-14-arm-job
+  kbuild-gcc-14-arm-510-cip-rt:
+    <<: *kbuild-gcc-14-arm-510-cip
     params:
+      <<: *kbuild-gcc-14-arm-510-cip-params
+      fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://5.10.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-14-arm-419-cip: &kbuild-gcc-14-arm-419-cip
+    <<: *kbuild-gcc-14-arm-job
+    params: &kbuild-gcc-14-arm-419-cip-params
       <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
@@ -199,9 +301,25 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip'
 
-  kbuild-gcc-14-arm-44-cip:
-    <<: *kbuild-gcc-14-arm-job
+  kbuild-gcc-14-arm-419-cip-rt:
+    <<: *kbuild-gcc-14-arm-419-cip
     params:
+      <<: *kbuild-gcc-14-arm-419-cip-params
+      fragments:
+        - 'CONFIG_ARCH_SOCFPGA=y'
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://4.19.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
+
+  kbuild-gcc-14-arm-44-cip: &kbuild-gcc-14-arm-44-cip
+    <<: *kbuild-gcc-14-arm-job
+    params: &kbuild-gcc-14-arm-44-cip-params
       <<: *kbuild-gcc-14-arm-params
       defconfig:
         - multi_v7_defconfig
@@ -215,6 +333,21 @@ jobs:
       branch:
         - 'cip:linux-4.4.y-cip'
 
+  kbuild-gcc-14-arm-44-cip-rt:
+    <<: *kbuild-gcc-14-arm-44-cip
+    params:
+      <<: *kbuild-gcc-14-arm-44-cip-params
+      fragments:
+        - 'CONFIG_ARCH_RENESAS=y'
+        - 'CONFIG_SOC_AM33XX=y'
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://4.4.y-cip/arm/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.4.y-cip-rt'
+
 # start of CIP x86_64 configuration for boot tests
   job-gcc-14-x86-612-cip: *baseline-nfs-job
   job-gcc-14-x86-61-cip: *baseline-nfs-job
@@ -222,9 +355,9 @@ jobs:
   job-gcc-14-x86-419-cip: *baseline-nfs-job
   job-gcc-14-x86-44-cip: *baseline-nfs-job
 
-  kbuild-gcc-14-x86-612-cip:
+  kbuild-gcc-14-x86-612-cip: &kbuild-gcc-14-x86-612-cip
     <<: *kbuild-gcc-14-x86-job-cip
-    params:
+    params: &kbuild-gcc-14-x86-612-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
@@ -234,9 +367,19 @@ jobs:
       branch:
         - 'cip:linux-6.12.y-cip'
 
-  kbuild-gcc-14-x86-61-cip:
-    <<: *kbuild-gcc-14-x86-job-cip
+  kbuild-gcc-14-x86-612-cip-rt:
+    <<: *kbuild-gcc-14-x86-612-cip
     params:
+      <<: *kbuild-gcc-14-x86-612-cip-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.12.y-cip/x86/cip_merged_defconfig'
+
+  kbuild-gcc-14-x86-61-cip: &kbuild-gcc-14-x86-61-cip
+    <<: *kbuild-gcc-14-x86-job-cip
+    params: &kbuild-gcc-14-x86-61-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
@@ -246,9 +389,22 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
 
-  kbuild-gcc-14-x86-510-cip:
-    <<: *kbuild-gcc-14-x86-job-cip
+  kbuild-gcc-14-x86-61-cip-rt:
+    <<: *kbuild-gcc-14-x86-61-cip
     params:
+      <<: *kbuild-gcc-14-x86-61-cip-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://6.1.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip-rt'
+
+  kbuild-gcc-14-x86-510-cip: &kbuild-gcc-14-x86-510-cip
+    <<: *kbuild-gcc-14-x86-job-cip
+    params: &kbuild-gcc-14-x86-510-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
@@ -258,9 +414,22 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
 
-  kbuild-gcc-14-x86-419-cip:
-    <<: *kbuild-gcc-14-x86-job-cip
+  kbuild-gcc-14-x86-510-cip-rt:
+    <<: *kbuild-gcc-14-x86-510-cip
     params:
+      <<: *kbuild-gcc-14-x86-510-cip-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://5.10.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip-rt'
+
+  kbuild-gcc-14-x86-419-cip: &kbuild-gcc-14-x86-419-cip
+    <<: *kbuild-gcc-14-x86-job-cip
+    params: &kbuild-gcc-14-x86-419-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
@@ -270,9 +439,22 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip'
 
-  kbuild-gcc-14-x86-44-cip:
-    <<: *kbuild-gcc-14-x86-job-cip
+  kbuild-gcc-14-x86-419-cip-rt:
+    <<: *kbuild-gcc-14-x86-419-cip
     params:
+      <<: *kbuild-gcc-14-x86-419-cip-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://4.19.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-cip-rt'
+
+  kbuild-gcc-14-x86-44-cip: &kbuild-gcc-14-x86-44-cip
+    <<: *kbuild-gcc-14-x86-job-cip
+    params: &kbuild-gcc-14-x86-44-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'kselftest'
@@ -281,3 +463,16 @@ jobs:
     rules:
       branch:
         - 'cip:linux-4.4.y-cip'
+
+  kbuild-gcc-14-x86-44-cip-rt:
+    <<: *kbuild-gcc-14-x86-44-cip
+    params:
+      <<: *kbuild-gcc-14-x86-44-cip-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'preempt_rt'
+        - 'cip://4.4.y-cip/x86/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-4.4.y-cip-rt'
