@@ -78,6 +78,52 @@ If the node is in "available" state and not timed-out, it will check for holdoff
 The parent node with "closing" state can not have any new child nodes.
 This will generate pub/sub event of node update.
 
+### KCIDB Bridge
+
+The KCIDB Bridge service (`send_kcidb`) listens for completed nodes and submits them to KCIDB (KernelCI Common Reporting Database) for aggregation and reporting across the Linux kernel testing ecosystem.
+
+The service operates in two modes:
+
+1. **Event Mode**: Listens for pub/sub events about nodes transitioning to `state=done` or `state=available` and processes them in real-time.
+2. **Batch Mode**: Periodically searches for unprocessed nodes (created within the last 4 days, updated more than 5 minutes ago) that haven't been sent to KCIDB yet.
+
+#### Node Filtering
+
+To avoid reporting transient failures, the service filters certain nodes:
+
+- **Incomplete kbuild/job nodes**: Only the final retry attempt is sent. Nodes with `result=incomplete` and `retry_counter != 3` are skipped and marked as processed.
+- **Failed baseline jobs**: Only the final retry attempt is sent. Baseline jobs (boot tests) with `result=fail` and `retry_counter != 3` are skipped and marked as processed.
+
+Filtered nodes are immediately marked with `processed_by_kcidb_bridge=True` because the job-retry service creates **new nodes** with incremented retry counters rather than updating existing nodes. This means a node with `retry_counter=0` is permanently done once it fails, and the retry will be tracked in a separate new node with `retry_counter=1`. Only when the final retry node (with `retry_counter=3`) is created will that node be sent to KCIDB.
+
+#### Node Processing
+
+The service processes different node types:
+
+- **Checkout nodes**: Converted to KCIDB `checkouts` format with git revision information
+- **Build nodes (kbuild)**: Converted to KCIDB `builds` format with compiler, architecture, and config details
+- **Test/Job nodes**: Converted to KCIDB `tests` format with platform, runtime, and test path information
+  - For tests hanging directly from checkout (without a kbuild parent), a dummy build node is created
+  - For job nodes with hierarchy enabled, all child test nodes are recursively processed
+
+#### Issue and Incident Generation
+
+For failed build and test nodes with log files, the service uses logspec to analyze logs and generate KCIDB `issues` and `incidents`:
+
+- **Build failures**: Analyzed for build-specific error patterns
+- **Boot failures**: Tests with paths starting with "boot" are analyzed for boot-specific failures
+- The log analysis may upgrade node status (e.g., from `FAIL` to `ERROR` or `MISS`) based on detected issues
+
+#### Node Marking
+
+All nodes are marked with `processed_by_kcidb_bridge=True` after processing to prevent duplicate submissions:
+
+- **Successfully sent nodes**: Marked after KCIDB accepts the data
+- **Filtered nodes** (retry_counter < 3): Marked immediately since they are permanently done (job-retry creates new nodes for retries)
+- **Skipped nodes** (e.g., environment-specific filters): Marked after the decision to skip
+
+This ensures the batch mode doesn't repeatedly query the same nodes from the database.
+
 ### Reporting
 
 Reporting is handled by auxiliary tools (for example the cron jobs under `tools/cron`) rather than a long-running service in `docker-compose.yaml`. Update or add cron jobs when new reports are required.
