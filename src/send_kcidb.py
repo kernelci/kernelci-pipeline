@@ -623,16 +623,21 @@ in {runtime}",
                 time.time() - self._last_unprocessed_search < 5 * 60:
             return None
         try:
-            nodes = self._api.node.findfast({
+            all_nodes = self._api.node.findfast({
                 'state': 'done',
                 'processed_by_kcidb_bridge': False,
                 'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
                 'updated__lt': datetime.datetime.now() - datetime.timedelta(minutes=5),
                 'limit': chunksize,
             })
-            nodes = [
-                node for node in nodes
-                if not (
+
+            # Separate filtered and unfiltered nodes
+            filtered_node_ids = []
+            nodes = []
+
+            for node in all_nodes:
+                # Check if node should be filtered due to retry_counter
+                if (
                     (
                         node["kind"] in ("kbuild", "job")
                         and node["result"] == "incomplete"
@@ -642,8 +647,17 @@ in {runtime}",
                         and node["name"].startswith("baseline")
                         and node["retry_counter"] != 3
                     )
-                )
-            ]
+                ):
+                    # Mark filtered nodes as processed since job-retry creates new nodes
+                    filtered_node_ids.append(node['id'])
+                else:
+                    nodes.append(node)
+
+            # Mark filtered nodes as processed
+            if filtered_node_ids:
+                self.log.info(f"Marking {len(filtered_node_ids)} filtered nodes as processed (retry_counter < 3)")
+                self._nodes_processed(filtered_node_ids)
+
         except Exception as exc:
             self.log.error(f"Failed to find unprocessed nodes: {str(exc)}")
             return []
@@ -710,10 +724,14 @@ in {runtime}",
                     if node["kind"] in ("kbuild", "job"):
                         if node["result"] == "incomplete" and node["retry_counter"] != 3:
                             # Only send final retry for incomplete jobs
+                            # Mark as processed since job-retry creates a new node
+                            self._nodes_processed([node['id']])
                             continue
                     if node["result"] == "fail":
                         # Only send final retry for failed baseline jobs
                         if node["name"].startswith("baseline") and node["retry_counter"] != 3:
+                            # Mark as processed since job-retry creates a new node
+                            self._nodes_processed([node['id']])
                             continue
                 except Exception as e:
                     self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
