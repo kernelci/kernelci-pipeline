@@ -1,5 +1,5 @@
 ---
-title: "Connecting Pull Labs runtime"
+title: "Connecting and Running Pull Labs runtime"
 date: 2025-02-14
 description: "Connecting a PULL_LABS compatible lab to the KernelCI pipeline"
 weight: 4
@@ -8,6 +8,9 @@ weight: 4
 KernelCI supports labs that follow the [PULL_LABS protocol](https://github.com/kernelci/kernelci-core/pull/3008) in addition to
 LAVA- and Kubernetes-based integrations. This guide shows the minimum
 configuration needed to make a lab instance visible to the pipeline.
+
+There is an payload script in `tools/example_pull_lab.py` to which
+provides a simply way to execute these pull-lab payloads.
 
 The examples below mirror the demo entries committed in this repository.
 Replace the names and tokens with the values that match your deployment.
@@ -90,3 +93,32 @@ Ensure the `scheduler` service is started with the `--runtimes pull-labs-demo`
 argument in the relevant `docker-compose` file so the new runtime becomes active.
 The lab will see the generated events once it authenticates with the callback
 token value paired with the token name defined in the pipeline configuration.
+
+## Running the Example Pull Lab Script
+
+The `tools/example_pull_lab.py` script provides a simple way to execute pull-lab
+payloads using tuxrun for QEMU-based virtual targets.
+
+### Prerequisites
+
+Tuxrun is required to run the jobs, Tuxrun requires podman also to be setup to
+execute the jobs.
+
+- Install tuxrun: `pip install tuxrun`
+- Install podman: `sudo apt install podman`
+- Tuxrun handles downloads and QEMU VM execution automatically
+
+### Running the Script
+
+```bash
+python tools/example_pull_lab.py
+```
+
+The script will:
+- Detect architecture from job definitions
+- Support filtering by platform, group, device, and runtime
+- Use `--cache-dir` for storing caches and outputs in `./tuxrun-cache/`
+- Saves output to timestamped directories in `./test_output/`
+
+**TODO:** Support for FVP (Fixed Virtual Platform) and DUT (Device Under Test)
+jobs will be added in future versions, along with publishing to KCIDB.
