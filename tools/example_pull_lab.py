@@ -12,6 +12,8 @@ import os
 import time
 import subprocess
 import shlex
+import re
+from urllib.parse import urlparse
 
 
 BASE_URI = "https://staging.kernelci.org:9000/latest"
@@ -36,6 +38,19 @@ def retrieve_job_definition(url):
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
+
+
+def parse_job_definition_url(url):
+    """Extract date and job ID from job definition URL."""
+    try:
+        parsed = urlparse(url)
+        path = parsed.path
+        match = re.search(r'/pull_labs_jobs/(\d{8})/([a-f0-9]+)\.json', path)
+        if match:
+            return match.group(1), match.group(2)
+    except Exception as e:
+        print(f"Failed to parse job definition URL: {e}")
+    return None, None
 
 
 def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs_url=None, cache_dir=None):
@@ -67,8 +82,8 @@ def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs
 
     if cache_dir:
         os.makedirs(cache_dir, exist_ok=True)
-        cmd.extend(["--save-outputs", "--cache-dir", cache_dir])
-        print(f"Outputs will be saved to: {cache_dir}")
+        cmd.extend(["--save-outputs", "--cache-dir", cache_dir, "--log-file", "-"])
+        print(f"✓ Outputs will be saved to: {cache_dir}")
 
     print(f"Executing command: {' '.join(shlex.quote(arg) for arg in cmd)}")
 
@@ -80,7 +95,7 @@ def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs
         return result.returncode
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         print(f"\n✗ Error running tuxrun: {e}")
-        return e.returncode
+        return e.returncode if hasattr(e, 'returncode') else 1
 
 
 def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override=None, cache_dir=None):
@@ -96,7 +111,6 @@ def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override
     """
     kernel_url = artifacts.get("kernel")
     modules_url = artifacts.get("modules")
-    # Try rootfs first, then ramdisk as fallback
     rootfs_url = rootfs_override if rootfs_override else (artifacts.get("rootfs") or artifacts.get("ramdisk"))
 
     if not kernel_url or not modules_url:
@@ -137,7 +151,13 @@ def main():
     )
     parser.add_argument(
         "--cache-dir",
-        help="Directory to save tuxrun outputs and cache (e.g., ./outputs). Enables --save-outputs flag.",
+        default="./test_output",
+        help="Directory to save tuxrun outputs and cache (default: ./test_output). Use --no-save-outputs to disable.",
+    )
+    parser.add_argument(
+        "--no-save-outputs",
+        action="store_true",
+        help="Disable saving outputs (overrides --cache-dir)",
     )
     parser.add_argument(
         "--platform",
@@ -242,9 +262,13 @@ def main():
                             continue
 
                         cache_dir = None
-                        if args.cache_dir:
-                            node_id = node.get("id", "unknown")
-                            cache_dir = os.path.join(args.cache_dir, node_id)
+                        if not args.no_save_outputs and args.cache_dir:
+                            date, job_id = parse_job_definition_url(job_definition_url)
+                            if date and job_id:
+                                cache_dir = os.path.join(args.cache_dir, date, job_id)
+                            else:
+                                node_id = node.get("id", "unknown")
+                                cache_dir = os.path.join(args.cache_dir, node_id)
 
                         prepare_and_run(
                             job_artifacts,
