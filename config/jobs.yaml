@@ -33,7 +33,7 @@ _anchors:
 
   kbuild-clang-21-arm64-job: &kbuild-clang-21-arm64-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm64_clang-21
     params: &kbuild-clang-21-arm64-params
       arch: arm64
       compiler: clang-21
@@ -42,7 +42,7 @@ _anchors:
 
   kbuild-clang-21-x86-job: &kbuild-clang-21-x86-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_clang-21
     params: &kbuild-clang-21-x86-params
       arch: x86_64
       compiler: clang-21
@@ -50,7 +50,7 @@ _anchors:
 
   kbuild-gcc-14-arm64-job: &kbuild-gcc-14-arm64-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm64_gcc-14
     params: &kbuild-gcc-14-arm64-params
       arch: arm64
       compiler: gcc-14
@@ -62,7 +62,7 @@ _anchors:
 
   kbuild-gcc-14-x86-job: &kbuild-gcc-14-x86-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_gcc-14
     params: &kbuild-gcc-14-x86-params
       arch: x86_64
       compiler: gcc-14
@@ -202,7 +202,7 @@ jobs:
 
   kbuild-clang-21-arm: &kbuild-clang-21-arm-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:arm-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm_clang-21
     params: &kbuild-clang-21-arm-params
       arch: arm
       compiler: clang-21
@@ -404,7 +404,7 @@ jobs:
 
   kbuild-clang-21-i386: &kbuild-clang-21-i386-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/i386_clang-21
     params: &kbuild-clang-21-i386-params
       arch: i386
       compiler: clang-21
@@ -438,7 +438,7 @@ jobs:
 
   kbuild-clang-21-riscv: &kbuild-clang-21-riscv-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:riscv64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/riscv_clang-21
     params: &kbuild-clang-21-riscv-params
       arch: riscv
       compiler: clang-21
@@ -557,7 +557,7 @@ jobs:
   # Default config and build only job
   kbuild-gcc-14-arc-build-only: &kbuild-gcc-14-arc-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arc-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arc_gcc-14
     params: &kbuild-gcc-14-arc-params
       arch: arc
       compiler: gcc-14
@@ -609,7 +609,7 @@ jobs:
 
   kbuild-gcc-14-arm: &kbuild-gcc-14-arm-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm_gcc-14
     params: &kbuild-gcc-14-arm-params
       arch: arm
       compiler: gcc-14
@@ -1105,7 +1105,7 @@ jobs:
 
   kbuild-gcc-14-i386: &kbuild-gcc-14-i386-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/i386_gcc-14
     params: &kbuild-gcc-14-i386-params
       arch: i386
       compiler: gcc-14
@@ -1207,7 +1207,7 @@ jobs:
 
   kbuild-gcc-14-mips-32r2el_defconfig: &kbuild-gcc-14-mips-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:mips-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/mips_gcc-14
     params: &kbuild-gcc-14-mips-params
       arch: mips
       compiler: gcc-14
@@ -1261,7 +1261,7 @@ jobs:
 
   kbuild-gcc-14-riscv: &kbuild-gcc-14-riscv-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:riscv64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/riscv_gcc-14
     params: &kbuild-gcc-14-riscv-params
       arch: riscv
       compiler: gcc-14
@@ -1340,7 +1340,7 @@ jobs:
 
   kbuild-gcc-14-um:
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_gcc-14
     params:
       arch: um
       compiler: gcc-14
@@ -2310,7 +2310,7 @@ jobs:
         - mainline
         - stable-rc
     kcidb_test_suite: kernelci_wifi_basic
-  
+
   nipa-update:
     template: nipa-update.jinja2
     kind: test

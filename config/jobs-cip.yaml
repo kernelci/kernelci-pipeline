@@ -24,7 +24,7 @@ _anchors:
 
   kbuild-gcc-14-arm: &kbuild-gcc-14-arm-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm_gcc-14
     params: &kbuild-gcc-14-arm-params
       arch: arm
       compiler: gcc-14
@@ -33,7 +33,7 @@ _anchors:
 
   kbuild-gcc-14-arm64: &kbuild-gcc-14-arm64-job
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm64_gcc-14
     params: &kbuild-gcc-14-arm64-params
       arch: arm64
       compiler: gcc-14
@@ -45,7 +45,7 @@ _anchors:
 
   kbuild-gcc-14-x86-job-cip: &kbuild-gcc-14-x86-job-cip
     <<: *kbuild-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_gcc-14
     params: &kbuild-gcc-14-x86-params
       arch: x86_64
       compiler: gcc-14

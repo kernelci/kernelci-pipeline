@@ -10,7 +10,7 @@ _anchors:
   kbuild-clang-21-arm64-chromeos: &kbuild-clang-21-arm64-chromeos-job
     template: kbuild.jinja2
     kind: kbuild
-    image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/arm64_clang-21
     params: &kbuild-clang-21-arm64-chromeos-params
       <<: *kbuild-clang-21-chromeos-params
       arch: arm64
@@ -26,7 +26,7 @@ _anchors:
 
   kbuild-clang-21-x86-chromeos: &kbuild-clang-21-x86-chromeos-job
     <<: *kbuild-clang-21-arm64-chromeos-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_clang-21
     params: &kbuild-clang-21-x86-chromeos-params
       <<: *kbuild-clang-21-chromeos-params
       arch: x86_64
@@ -41,7 +41,7 @@ _anchors:
   kbuild-gcc-14-arm64-chromeos: &kbuild-gcc-14-arm64-chromeos-job
     template: kbuild.jinja2
     kind: kbuild
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
+    image:  registry.gitlab.com/linaro/tuxmake/arm64_gcc-14
     params: &kbuild-gcc-14-arm64-chromeos-params
       arch: arm64
       compiler: gcc-14
@@ -62,7 +62,7 @@ _anchors:
 
   kbuild-gcc-14-x86-chromeos: &kbuild-gcc-14-x86-chromeos-job
     <<: *kbuild-gcc-14-arm64-chromeos-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
+    image: registry.gitlab.com/linaro/tuxmake/x86_64_gcc-14
     params: &kbuild-gcc-14-x86-chromeos-params
       arch: x86_64
       compiler: gcc-14
