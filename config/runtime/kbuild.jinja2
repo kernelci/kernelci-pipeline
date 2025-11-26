@@ -18,10 +18,16 @@ import subprocess
 
 {%- block python_globals %}
 {{ super() }}
+{%- if fragment_configs %}
+FRAGMENT_CONFIGS = {{ fragment_configs }}
+{%- else %}
+FRAGMENT_CONFIGS = {}
+{%- endif %}
+
 KBUILD_PARAMS = {
     'arch': '{{ arch }}',
     'compiler': '{{ compiler }}',
-    'defconfig': 
+    'defconfig':
 {%- if defconfig is string %}
     '{{ defconfig }}'
 {%- elif defconfig %}
@@ -30,7 +36,7 @@ KBUILD_PARAMS = {
         '{{ item }}'
         {%- if not loop.last %}, {% endif %}
     {%- endfor %}
-    ]   
+    ]
 {%- endif %},
 {%- if fragments %}
     'fragments': {{ fragments }},
@@ -58,7 +64,8 @@ KBUILD_PARAMS = {
 WORKSPACE = '/tmp/kci'
 
 def main(args):
-    build = KBuild(node=NODE, jobname=JOB_NAME, params=KBUILD_PARAMS, apiconfig=API_CONFIG_YAML)
+    build = KBuild(node=NODE, jobname=JOB_NAME, params=KBUILD_PARAMS, apiconfig=API_CONFIG_YAML,
+                   fragment_configs=FRAGMENT_CONFIGS)
     build.set_workspace(WORKSPACE)
     build.set_storage_config(STORAGE_CONFIG_YAML)
     build.write_script("build.sh")

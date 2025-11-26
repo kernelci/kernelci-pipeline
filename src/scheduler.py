@@ -101,6 +101,8 @@ class Scheduler(Service):
         self._verbose = args.verbose
         self._output = args.output
         self._imgprefix = args.image_prefix or ''
+        # Store raw YAML data for fragment resolution
+        self._raw_yaml = configs.get('_raw_yaml', {})
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._job_tmp_dirs = {}
@@ -193,6 +195,20 @@ class Scheduler(Service):
             if config:
                 runtimes_configs[name] = config
         return runtimes_configs
+
+    def _resolve_fragment_configs(self, fragment_names):
+        """Resolve fragment names to their config content from raw YAML data"""
+        fragments_data = self._raw_yaml.get('fragments', {})
+        resolved = {}
+        for name in fragment_names:
+            if name.startswith('CONFIG_'):
+                # Inline config option, create a pseudo-fragment
+                resolved[name] = {'configs': [name]}
+            elif name in fragments_data:
+                resolved[name] = fragments_data[name]
+            else:
+                self.log.warning(f"Fragment '{name}' not found in fragments.yaml")
+        return resolved
 
     def _cleanup_paths(self):
         job_tmp_dirs = {
@@ -360,6 +376,10 @@ class Scheduler(Service):
         }
         extra_args.update(job.config.params)
         params = job.platform_config.format_params(params, extra_args)
+        # Resolve fragment configs for kbuild jobs
+        if 'fragments' in params and params['fragments']:
+            fragment_configs = self._resolve_fragment_configs(params['fragments'])
+            params['fragment_configs'] = fragment_configs
         # we experience sometimes that the job is not created properly
         # due exception in the runtime.generate method
         try:
@@ -647,5 +667,8 @@ if __name__ == '__main__':
     opts = parse_opts('scheduler', globals())
     yaml_configs = opts.get_yaml_configs() or 'config'
     configs = kernelci.config.load(yaml_configs)
+    # Also load raw YAML data to access fragments
+    raw_yaml_data = kernelci.config.load_yaml(yaml_configs)
+    configs['_raw_yaml'] = raw_yaml_data
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
