@@ -1,12 +1,12 @@
 _anchors:
-  baseline-job: &baseline-job
+  baseline-job-cip: &baseline-job-cip
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
     params:
       ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
 
-  baseline-nfs-job: &baseline-nfs-job
+  baseline-nfs-job-cip: &baseline-nfs-job-cip
     template: baseline-nfs.jinja2
     kind: job
     kcidb_test_suite: boot.nfs
@@ -14,16 +14,12 @@ _anchors:
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
 
-  kbuild-job: &kbuild-job
+  kbuild-job-cip: &kbuild-job-cip
     template: kbuild.jinja2
     kind: kbuild
-    rules:
-      tree:
-      - '!android'
-      - '!chromiumos'
 
   kbuild-gcc-14-arm: &kbuild-gcc-14-arm-job
-    <<: *kbuild-job
+    <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
     params: &kbuild-gcc-14-arm-params
       arch: arm
@@ -32,7 +28,7 @@ _anchors:
       defconfig: multi_v7_defconfig
 
   kbuild-gcc-14-arm64: &kbuild-gcc-14-arm64-job
-    <<: *kbuild-job
+    <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
     params: &kbuild-gcc-14-arm64-params
       arch: arm64
@@ -44,7 +40,7 @@ _anchors:
         - 'kselftest'
 
   kbuild-gcc-14-x86-job-cip: &kbuild-gcc-14-x86-job-cip
-    <<: *kbuild-job
+    <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
     params: &kbuild-gcc-14-x86-params
       arch: x86_64
@@ -55,10 +51,10 @@ _anchors:
 
 jobs:
 # start of CIP arm64 configuration for boot tests
-  job-gcc-14-arm64-612-cip: *baseline-job
-  job-gcc-14-arm64-61-cip: *baseline-job
-  job-gcc-14-arm64-510-cip: *baseline-job
-  job-gcc-14-arm64-419-cip: *baseline-job
+  job-gcc-14-arm64-612-cip: *baseline-job-cip
+  job-gcc-14-arm64-61-cip: *baseline-job-cip
+  job-gcc-14-arm64-510-cip: *baseline-job-cip
+  job-gcc-14-arm64-419-cip: *baseline-job-cip
 
   kbuild-gcc-14-arm64-612-cip:
     <<: *kbuild-gcc-14-arm64-job
@@ -125,11 +121,11 @@ jobs:
         - 'cip:linux-4.19.y-cip'
 
 # start of CIP arm configuration for boot tests
-  job-gcc-14-arm-612-cip: *baseline-nfs-job
-  job-gcc-14-arm-61-cip: *baseline-nfs-job
-  job-gcc-14-arm-510-cip: *baseline-nfs-job
-  job-gcc-14-arm-419-cip: *baseline-nfs-job
-  job-gcc-14-arm-44-cip: *baseline-nfs-job
+  job-gcc-14-arm-612-cip: *baseline-nfs-job-cip
+  job-gcc-14-arm-61-cip: *baseline-nfs-job-cip
+  job-gcc-14-arm-510-cip: *baseline-nfs-job-cip
+  job-gcc-14-arm-419-cip: *baseline-nfs-job-cip
+  job-gcc-14-arm-44-cip: *baseline-nfs-job-cip
 
   kbuild-gcc-14-arm-612-cip:
     <<: *kbuild-gcc-14-arm-job
@@ -216,11 +212,11 @@ jobs:
         - 'cip:linux-4.4.y-cip'
 
 # start of CIP x86_64 configuration for boot tests
-  job-gcc-14-x86-612-cip: *baseline-nfs-job
-  job-gcc-14-x86-61-cip: *baseline-nfs-job
-  job-gcc-14-x86-510-cip: *baseline-nfs-job
-  job-gcc-14-x86-419-cip: *baseline-nfs-job
-  job-gcc-14-x86-44-cip: *baseline-nfs-job
+  job-gcc-14-x86-612-cip: *baseline-nfs-job-cip
+  job-gcc-14-x86-61-cip: *baseline-nfs-job-cip
+  job-gcc-14-x86-510-cip: *baseline-nfs-job-cip
+  job-gcc-14-x86-419-cip: *baseline-nfs-job-cip
+  job-gcc-14-x86-44-cip: *baseline-nfs-job-cip
 
   kbuild-gcc-14-x86-612-cip:
     <<: *kbuild-gcc-14-x86-job-cip
