@@ -30,6 +30,7 @@ _anchors:
       tree:
       - '!android'
       - '!chromiumos'
+      - '!cip'
 
   kbuild-clang-21-arm64-job: &kbuild-clang-21-arm64-job
     <<: *kbuild-job
@@ -104,7 +105,6 @@ _anchors:
     - 'amlogic'
     - 'ardb'
     - 'arnd'
-    - 'cip'
     - 'clk'
     - 'efi'
     - 'khilman'
@@ -982,9 +982,9 @@ jobs:
         - 'kselftest'
     rules:
       tree:
-      - '!omap'
       - '!chromiumos'
       - '!cip'
+      - '!omap'
 
   # Default config and build only job
   kbuild-gcc-14-arm64-build-only:
@@ -1014,9 +1014,9 @@ jobs:
         - lab-setup
     rules:
       tree:
-      - '!omap'
       - '!chromiumos'
       - '!cip'
+      - '!omap'
 
   kbuild-gcc-14-arm64-dtbscheck:
     <<: *kbuild-gcc-14-arm64-job
@@ -1036,8 +1036,9 @@ jobs:
     rules:
       <<: *kbuild-kselftest-rules
       tree:
-      - '!omap'
       - '!chromiumos'
+      - '!cip'
+      - '!omap'
 
   kbuild-gcc-14-arm64-mainline: &kbuild-gcc-14-arm64-mainline-job
     <<: *kbuild-gcc-14-arm64-job
@@ -1073,9 +1074,9 @@ jobs:
         - 'tinyconfig'
     rules:
       tree:
-      - '!omap'
       - '!chromiumos'
       - '!cip'
+      - '!omap'
 
   kbuild-gcc-14-arm64-mfd:
     <<: *kbuild-gcc-14-arm64-job
@@ -1373,8 +1374,9 @@ jobs:
         - 'kselftest'
     rules:
       tree:
-      - '!omap'
       - '!chromiumos'
+      - '!cip'
+      - '!omap'
 
   kbuild-gcc-14-x86-allnoconfig:
     <<: *kbuild-gcc-14-x86-job
@@ -1992,6 +1994,7 @@ jobs:
     rules:
       tree:
       - '!chromiumos'
+      - '!cip'
 
   kunit-x86_64:
     <<: *kunit-job
@@ -1999,8 +2002,9 @@ jobs:
       arch: x86_64
     rules:
       tree:
-        - '!omap'
         - '!chromiumos'
+        - '!cip'
+        - '!omap'
 
   kvm-unit-tests:
     <<: *kvm-unit-tests-job
