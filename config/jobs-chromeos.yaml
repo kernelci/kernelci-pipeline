@@ -58,6 +58,7 @@ _anchors:
       tree:
       - '!android'
       - '!chromiumos'
+      - '!cip'
       - '!omap'
 
   kbuild-gcc-14-x86-chromeos: &kbuild-gcc-14-x86-chromeos-job
@@ -77,6 +78,7 @@ _anchors:
       tree:
       - '!android'
       - '!chromiumos'
+      - '!cip'
 
   min-5_4-rules: &min-5_4-rules
     min_version:
@@ -664,6 +666,7 @@ jobs:
       tree:
         - '!android'
         - '!chromiumos'
+        - '!cip'
         - '!media-committers'
         - '!cip'
 
