@@ -1,0 +1,37 @@
+{# LTP test template for pull-labs runtime #}
+{# This template builds test_definitions for LTP tests on pull-labs #}
+{%- set boot_commands = 'nfs' %}
+{%- set base_template = 'base/pull_labs.jinja2' %}
+
+{#- Build test_definitions from LTP parameters #}
+{%- set ltp_params_list = [] %}
+{%- if tst_cmdfiles is defined %}
+{%-   do ltp_params_list.append('tst_cmdfiles=' ~ tst_cmdfiles) %}
+{%- endif %}
+{%- if skipfile is defined %}
+{%-   do ltp_params_list.append('skipfile=' ~ skipfile) %}
+{%- endif %}
+{%- if workers is defined %}
+{%-   do ltp_params_list.append('workers=' ~ workers) %}
+{%- endif %}
+{%- if skip_install is defined %}
+{%-   do ltp_params_list.append('skip_install=' ~ skip_install) %}
+{%- endif %}
+{%- set ltp_parameters = ltp_params_list | join(' ') %}
+
+{#- Calculate timeout in seconds (default 60 minutes) #}
+{%- set test_timeout = (job_timeout | default(60)) * 60 %}
+
+{%- set test_definitions = [
+  {
+    'id': 'ltp-' ~ (tst_cmdfiles | default('smoketest')),
+    'type': 'ltp',
+    'depends': [],
+    'timeout_s': test_timeout,
+    'parameters': ltp_parameters,
+    'pre_commands': [],
+    'post_commands': []
+  }
+] %}
+
+{%- extends base_template %}

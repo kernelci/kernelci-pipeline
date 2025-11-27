@@ -122,3 +122,76 @@ The script will:
 
 **TODO:** Support for FVP (Fixed Virtual Platform) and DUT (Device Under Test)
 jobs will be added in future versions, along with publishing to KCIDB.
+
+## Running LTP Tests on Pull Labs
+
+In addition to baseline boot tests, pull-labs supports running LTP (Linux Test
+Project) tests. LTP is a comprehensive test suite for Linux kernel stability
+and reliability testing.
+
+### LTP Job Definition
+
+To run LTP tests on pull-labs, a dedicated template and job definition are
+required. The template (`ltp-pull-labs.jinja2`) generates the appropriate
+`test_definitions` structure expected by the pull-labs protocol.
+
+Add a job definition in [`config/jobs.yaml`](../config/jobs.yaml):
+
+```yaml
+jobs:
+  ltp-smoketest-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      boot_commands: nfs
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20251008.0/{debarch}'
+      skip_install: "true"
+      skipfile: skipfile-lkft.yaml
+      workers: max
+      tst_cmdfiles: "smoketest"
+    kcidb_test_suite: ltp
+    rules:
+      fragments:
+        - '!kselftest'
+```
+
+Key parameters:
+- `tst_cmdfiles`: Specifies which LTP test suite to run (e.g., `smoketest`,
+  `syscalls`, `sched`)
+- `nfsroot`: Pre-built NFS rootfs with LTP installed
+- `skipfile`: YAML file listing tests to skip
+
+### LTP Scheduler Entry
+
+Add a scheduler entry in [`config/scheduler.yaml`](../config/scheduler.yaml):
+
+```yaml
+  - job: ltp-smoketest-pull-labs
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - bcm2711-rpi-4-b
+```
+
+### How LTP Tests Work on Pull Labs
+
+1. The scheduler generates an LTP job definition using `ltp-pull-labs.jinja2`
+2. The template creates a `test_definitions` array with:
+   - `type: "ltp"` - tells the lab to run LTP tests
+   - `parameters`: LTP-specific options like `tst_cmdfiles=smoketest`
+   - `timeout_s`: Test timeout in seconds
+3. The lab downloads the NFS rootfs with pre-installed LTP
+4. Tests are executed and results are reported via callback
+
+### Available LTP Test Suites
+
+The `tst_cmdfiles` parameter selects which test suite to run:
+- `smoketest`: Quick smoke test (~10 minutes)
+- `syscalls`: System call tests (longer runtime)
+- `sched`: Scheduler tests
+- `math`: Math operation tests
+- `fs`: Filesystem tests
+
+See the LTP documentation for the complete list of available test suites.
