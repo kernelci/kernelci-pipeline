@@ -665,6 +665,7 @@ jobs:
         - '!android'
         - '!chromiumos'
         - '!media-committers'
+        - '!cip'
 
   kbuild-gcc-14-arm64-chromebook-media-committers:
     <<: *kbuild-gcc-14-arm64-chromebook-job
@@ -683,6 +684,8 @@ jobs:
       min_version:
         version: 6
         patchlevel: 1
+      tree:
+        - '!cip'
 
   kbuild-gcc-14-arm64-chromeos-mediatek-coverage:
     <<: *kbuild-gcc-14-arm64-chromeos-job
@@ -722,6 +725,9 @@ jobs:
     params: &kbuild-gcc-14-arm64-chromeos-qualcomm-params
       <<: *kbuild-gcc-14-arm64-chromeos-params
       flavour: qualcomm
+    rules:
+      tree:
+        - '!cip'
 
   kbuild-gcc-14-arm64-chromeos-qualcomm-coverage:
     <<: *kbuild-gcc-14-arm64-chromeos-job
@@ -750,6 +756,9 @@ jobs:
     params: &kbuild-gcc-14-x86-chromeos-amd-params
       <<: *kbuild-gcc-14-x86-chromeos-params
       flavour: amd-stoneyridge
+    rules:
+      tree:
+        - '!cip'
 
   kbuild-gcc-14-x86-chromeos-amd-coverage:
     <<: *kbuild-gcc-14-x86-chromeos-job
@@ -787,6 +796,9 @@ jobs:
     params: &kbuild-gcc-14-x86-chromeos-intel-params
       <<: *kbuild-gcc-14-x86-chromeos-params
       flavour: intel-pineview
+    rules:
+      tree:
+        - '!cip'
 
   kbuild-gcc-14-x86-chromeos-intel-coverage:
     <<: *kbuild-gcc-14-x86-chromeos-job
