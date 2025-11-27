@@ -8,6 +8,7 @@
 
 import copy
 import datetime
+import re
 import sys
 import time
 
@@ -21,6 +22,28 @@ import hashlib
 from base import Service, validate_url
 
 
+def translate_freq(freq):
+    """
+    Translate the frequency string to seconds.
+    Format is: [Nd][Nh][Nm], where each field is optional.
+    Examples: "1d" = 1 day, "12h" = 12 hours, "1d12h" = 1.5 days
+    """
+    if not freq:
+        return 0
+    freq_sec = 0
+    freq_re = re.compile(r'(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?')
+    freq_match = freq_re.match(freq)
+    if freq_match:
+        days, hours, minutes = freq_match.groups()
+        if days:
+            freq_sec += int(days) * 24 * 60 * 60
+        if hours:
+            freq_sec += int(hours) * 60 * 60
+        if minutes:
+            freq_sec += int(minutes) * 60
+    return freq_sec
+
+
 class Trigger(Service):
 
     def __init__(self, configs, args):
@@ -32,6 +55,43 @@ class Trigger(Service):
     def _log_revision(self, message, build_config, head_commit):
         self.log.info(f"{message:32s} {build_config.name:32s} {head_commit}")
 
+    def _check_frequency(self, build_config):
+        """Check if a checkout can be created based on frequency limit.
+
+        Returns True if a new checkout can be created, False if we should skip
+        due to frequency limit (a recent checkout already exists).
+        """
+        frequency = build_config.frequency
+        if not frequency:
+            return True
+
+        freq_sec = translate_freq(frequency)
+        if not freq_sec or freq_sec < 60:
+            self.log.warning(f"Invalid frequency '{frequency}' for {build_config.name}")
+            return True
+
+        # Calculate the timestamp threshold
+        now = datetime.datetime.now(datetime.UTC)
+        tstamp = now - datetime.timedelta(seconds=freq_sec)
+
+        # Search for checkouts with this tree/branch created after threshold
+        search_terms = {
+            "kind": "checkout",
+            "data.kernel_revision.tree": build_config.tree.name,
+            "data.kernel_revision.branch": build_config.branch,
+            "owner": self._current_user['username'],
+            "submitter": "service:pipeline",
+            "created__gte": tstamp.isoformat(),
+        }
+        node_count = self._api.node.count(search_terms)
+
+        if node_count > 0:
+            self.log.info(f"Skipping {build_config.name}: checkout created within "
+                          f"frequency limit ({frequency})")
+            return False
+
+        return True
+
     def _run_trigger(self, build_config, force, timeout, trees):
         if trees and len(trees) > 1:
             tree_condition = "not" if trees.startswith("!") else "only"
@@ -40,6 +100,10 @@ class Trigger(Service):
             if (tree_in_list and tree_condition == "not") or \
                (not tree_in_list and tree_condition == "only"):
                 return
+
+        # Check frequency limit before doing any git operations
+        if not force and not self._check_frequency(build_config):
+            return
 
         try:
             current_config = copy.copy(build_config)

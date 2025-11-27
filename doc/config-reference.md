@@ -228,3 +228,69 @@ kernel. It is used in `kselftest`-related jobs.
 The `dtbs_check` parameter is used to enable or disable the dtbs_check build.
 The dtbs_check build is additional kind of build that will verify the
 device tree blobs.
+
+## Build Configs configuration
+
+The `build_configs` section defines which kernel trees and branches to monitor
+for new commits. Each build config specifies a tree/branch combination that the
+trigger service will poll for changes.
+
+Build configs are typically defined in separate files under `config/trees/`
+directory, one file per tree (e.g., `config/trees/chromiumos.yaml`).
+
+### Mandatory parameters
+
+- **tree**: string - Name of the tree (must match an entry in `trees` section)
+- **branch**: string - Branch name to monitor
+
+### Optional parameters
+
+- **architectures**: list of strings - Filter to limit which architectures to build
+- **frequency**: string - Limit how often checkout nodes are created
+
+### Parameter frequency (optional)
+
+- **Value**: [Nd][Nh][Nm]
+- **Default**: none (no limit)
+
+The frequency parameter in `build_configs` limits how often the trigger service
+creates new checkout nodes for a tree/branch combination. This is useful for
+trees where all jobs have frequency limits - without this setting, empty
+checkout nodes would be created that show as zeros in the dashboard.
+
+When set, the trigger service checks if a checkout node for the same tree/branch
+was created within the specified time period. If so, it skips creating a new
+checkout node even if a new commit is detected.
+
+This is different from the job-level `frequency` parameter which controls how
+often individual jobs run. The build_config frequency controls checkout node
+creation at the source, preventing empty checkouts entirely.
+
+**Recommendation**: Set this to match the minimum frequency of all jobs
+scheduled for this tree/branch. For example, if all jobs for chromiumos have
+`frequency: 1d` or higher, set `frequency: 1d` in the build_config.
+
+Example:
+```yaml
+build_configs:
+  chromiumos:
+    tree: chromiumos
+    branch: 'master'
+    frequency: 1d
+    architectures:
+      - x86_64
+      - arm64
+      - arm
+
+  chromiumos-6.6:
+    tree: chromiumos
+    branch: 'chromeos-6.6'
+    frequency: 1d
+```
+
+In this example, new checkout nodes for chromiumos branches will only be created
+once per day, even if multiple commits are pushed. This prevents empty checkout
+nodes when all jobs have daily frequency limits.
+
+**Note**: The `--force` flag on the trigger service overrides the frequency
+check, allowing checkout creation regardless of the frequency setting.
