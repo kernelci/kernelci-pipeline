@@ -208,6 +208,9 @@ jobs:
       compiler: clang-21
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
+    rules:
+      tree:
+      - '!cip'
 
   kbuild-clang-21-arm-allmodconfig:
     <<: *kbuild-clang-21-arm-job
@@ -489,6 +492,9 @@ jobs:
 
   kbuild-clang-21-x86:
     <<: *kbuild-clang-21-x86-job
+    rules:
+      tree:
+      - '!cip'
 
   kbuild-clang-21-x86-android-allmodconfig:
     <<: *kbuild-clang-21-x86-job
@@ -978,6 +984,7 @@ jobs:
       tree:
       - '!omap'
       - '!chromiumos'
+      - '!cip'
 
   # Default config and build only job
   kbuild-gcc-14-arm64-build-only:
@@ -1009,6 +1016,7 @@ jobs:
       tree:
       - '!omap'
       - '!chromiumos'
+      - '!cip'
 
   kbuild-gcc-14-arm64-dtbscheck:
     <<: *kbuild-gcc-14-arm64-job
@@ -1067,6 +1075,7 @@ jobs:
       tree:
       - '!omap'
       - '!chromiumos'
+      - '!cip'
 
   kbuild-gcc-14-arm64-mfd:
     <<: *kbuild-gcc-14-arm64-job
@@ -1110,6 +1119,9 @@ jobs:
       arch: i386
       compiler: gcc-14
       defconfig: i386_defconfig
+    rules:
+      tree:
+      - '!cip'
 
   kbuild-clang-21-i386-allmodconfig:
     <<: *kbuild-clang-21-i386-job
@@ -1414,6 +1426,7 @@ jobs:
       tree:
       - '!android'
       - '!chromiumos'
+      - '!cip'
 
   kbuild-gcc-14-x86-kselftest:
     <<: *kbuild-gcc-14-x86-job
