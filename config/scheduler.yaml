@@ -193,6 +193,7 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - cd8180-orion-o6
+      - qemu-arm64
 
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
