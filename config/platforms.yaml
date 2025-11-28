@@ -435,8 +435,9 @@ platforms:
     context:
       arch: arm64
       cpu: cortex-a57
-      machine: virt,gic-version=3
+      machine: virt,virtualization=on,gic-version=3,mte=on
       guestfs_interface: virtio
+      memory: 4G
 
   fvp: &fvp-device
     base_name: fvp
