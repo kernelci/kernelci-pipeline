@@ -438,6 +438,7 @@ platforms:
       machine: virt,virtualization=on,gic-version=3,mte=on
       guestfs_interface: virtio
       memory: 4G
+      serial: ttyAMA0
 
   fvp: &fvp-device
     base_name: fvp
