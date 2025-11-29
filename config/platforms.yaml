@@ -448,7 +448,7 @@ platforms:
       model: Base_RevC-2xAEMvA
       cpu: cortex-a57
 
-  fvp-arm64: *fvp-device
+  fvp-aemva: *fvp-device
 
   rk3288-rock2-square:
     <<: *arm-device
