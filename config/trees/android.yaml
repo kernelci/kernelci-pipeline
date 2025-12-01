@@ -77,3 +77,7 @@ build_configs:
   android16-6.12:
     <<: *android
     branch: 'android16-6.12'
+
+  android17-6.18:
+    <<: *android
+    branch: 'android17-6.18'
