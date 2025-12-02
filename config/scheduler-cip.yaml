@@ -47,6 +47,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-arm64-platforms
 
+  - <<: *job-gcc-14-arm64-612-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-arm64-61-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
@@ -61,6 +64,9 @@ scheduler:
       name: kbuild-gcc-14-arm64-61-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-arm64-platforms
+
+  - <<: *job-gcc-14-arm64-61-cip-rt
+    job: rt-tests-cyclictest
 
   - job: job-gcc-14-arm64-510-cip
     event:
@@ -77,6 +83,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-arm64-platforms
 
+  - <<: *job-gcc-14-arm64-510-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-arm64-419-cip
     event:
       <<: *kbuild-gcc-14-arm64-node-event
@@ -91,6 +100,9 @@ scheduler:
       name: kbuild-gcc-14-arm64-419-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-arm64-platforms
+
+  - <<: *job-gcc-14-arm64-419-cip-rt
+    job: rt-tests-cyclictest
 
   - job: kbuild-gcc-14-arm64-612-cip
     <<: *build-k8s-all
@@ -143,6 +155,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms
 
+  - <<: *job-gcc-14-arm-612-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-arm-61-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
@@ -157,6 +172,9 @@ scheduler:
       name: kbuild-gcc-14-arm-61-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms
+
+  - <<: *job-gcc-14-arm-61-cip-rt
+    job: rt-tests-cyclictest
 
   - job: job-gcc-14-arm-510-cip
     event:
@@ -173,6 +191,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms
 
+  - <<: *job-gcc-14-arm-510-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-arm-419-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
@@ -187,6 +208,9 @@ scheduler:
       name: kbuild-gcc-14-arm-419-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms
+
+  - <<: *job-gcc-14-arm-419-cip-rt
+    job: rt-tests-cyclictest
 
   - job: job-gcc-14-arm-44-cip
     event:
@@ -205,6 +229,9 @@ scheduler:
       name: kbuild-gcc-14-arm-44-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms-44
+
+  - <<: *job-gcc-14-arm-44-cip-rt
+    job: rt-tests-cyclictest
 
   - job: kbuild-gcc-14-arm-612-cip
     <<: *build-k8s-all
@@ -263,6 +290,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-x86-platforms
 
+  - <<: *job-gcc-14-x86-612-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-x86-61-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
@@ -277,6 +307,9 @@ scheduler:
       name: kbuild-gcc-14-x86-61-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-x86-platforms
+
+  - <<: *job-gcc-14-x86-61-cip-rt
+    job: rt-tests-cyclictest
 
   - job: job-gcc-14-x86-510-cip
     event:
@@ -293,6 +326,9 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-x86-platforms
 
+  - <<: *job-gcc-14-x86-510-cip-rt
+    job: rt-tests-cyclictest
+
   - job: job-gcc-14-x86-419-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
@@ -307,6 +343,9 @@ scheduler:
       name: kbuild-gcc-14-x86-419-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-x86-platforms
+
+  - <<: *job-gcc-14-x86-419-cip-rt
+    job: rt-tests-cyclictest
 
   - job: job-gcc-14-x86-44-cip
     event:
@@ -323,6 +362,9 @@ scheduler:
       name: kbuild-gcc-14-x86-44-cip-rt
     runtime: *lava-cip-runtime
     platforms: *cip-x86-platforms-44
+
+  - <<: *job-gcc-14-x86-44-cip-rt
+    job: rt-tests-cyclictest
 
   - job: kbuild-gcc-14-x86-612-cip
     <<: *build-k8s-all
