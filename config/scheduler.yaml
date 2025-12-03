@@ -172,7 +172,8 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - bcm2711-rpi-4-b
-      - fvp-arm64
+      - fvp-aemva
+      - qemu-arm64
 
   - job: ltp-smoketest-pull-labs
     event: *kbuild-gcc-14-arm64-node-event
@@ -397,7 +398,7 @@ scheduler:
     platforms:
       - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
-  
+
   - job: baseline-x86-pull-labs-demo
     event: *kbuild-gcc-14-x86-node-event
     runtime:
