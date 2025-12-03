@@ -434,11 +434,10 @@ platforms:
     arch: arm64
     context:
       arch: arm64
-      cpu: cortex-a57
+      cpu: max,pauth-impdef=on
       machine: virt,virtualization=on,gic-version=3,mte=on
       guestfs_interface: virtio
       memory: 4G
-      serial: ttyAMA0
 
   fvp: &fvp-device
     base_name: fvp
