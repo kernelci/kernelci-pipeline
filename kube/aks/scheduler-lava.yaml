@@ -49,6 +49,7 @@ spec:
             - lava-cip
             - lava-pengutronix
             - lava-foundriesio
+            - lava-kontron
           env:
             - name: KCI_API_TOKEN
               valueFrom:
