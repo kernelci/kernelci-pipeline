@@ -2170,9 +2170,6 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
-    rules:
-      fragments:
-        - '!kselftest'
 
   ltp-syscalls:
     <<: *ltp-job
