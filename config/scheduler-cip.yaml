@@ -353,7 +353,10 @@ scheduler:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-419-cip
     runtime: *lava-cip-runtime
-    platforms: *cip-x86-platforms
+    platforms: &cip-x86-platforms-419
+      - qemu
+      - x86-openblocks-iot-vx2
+      - x86-simatic-ipc227e
 
   - &job-gcc-14-x86-419-cip-rt
     job: job-gcc-14-x86-419-cip-rt
@@ -361,7 +364,7 @@ scheduler:
       <<: *kbuild-gcc-14-x86-node-event
       name: kbuild-gcc-14-x86-419-cip-rt
     runtime: *lava-cip-runtime
-    platforms: *cip-x86-platforms
+    platforms: *cip-x86-platforms-419
 
   - <<: *job-gcc-14-x86-419-cip-rt
     job: rt-tests-cyclicdeadline
