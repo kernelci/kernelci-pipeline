@@ -172,6 +172,7 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - bcm2711-rpi-4-b
+      - cd8180-orion-o6
       - fvp-aemva
       - qemu-arm64
 
@@ -182,6 +183,16 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - bcm2711-rpi-4-b
+
+  - job: ltp-smoketest-pull-labs
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-nfsboot
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - cd8180-orion-o6
 
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
@@ -633,6 +644,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm64-nfsboot
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64-allnoconfig

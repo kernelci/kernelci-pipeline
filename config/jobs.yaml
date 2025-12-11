@@ -61,6 +61,19 @@ _anchors:
         - 'lab-setup'
         - 'kselftest'
 
+  kbuild-gcc-14-arm64-nfsboot-job: &kbuild-gcc-14-arm64-nfsboot-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
+    params: &kbuild-gcc-14-arm64-nfsboot-params
+      arch: arm64
+      compiler: gcc-14
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+        - 'kselftest'
+
   kbuild-gcc-14-x86-job: &kbuild-gcc-14-x86-job
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
@@ -871,6 +884,8 @@ jobs:
       - 'sashal-next'
 
   kbuild-gcc-14-arm64: *kbuild-gcc-14-arm64-job
+
+  kbuild-gcc-14-arm64-nfsboot: *kbuild-gcc-14-arm64-nfsboot-job
 
   kbuild-gcc-14-arm64-chromebook-main:
     <<: *kbuild-gcc-14-arm64-job
