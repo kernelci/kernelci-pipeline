@@ -186,7 +186,6 @@ jobs:
 
 # start of CIP arm configuration for boot tests
   job-gcc-14-arm-612-cip: *baseline-nfs-job-cip
-  job-gcc-14-arm-612-cip-rt: *baseline-nfs-job-cip
   job-gcc-14-arm-61-cip: *baseline-nfs-job-cip
   job-gcc-14-arm-61-cip-rt: *baseline-nfs-job-cip
   job-gcc-14-arm-510-cip: *baseline-nfs-job-cip
@@ -212,19 +211,6 @@ jobs:
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
-
-  kbuild-gcc-14-arm-612-cip-rt:
-    <<: *kbuild-gcc-14-arm-612-cip
-    params:
-      <<: *kbuild-gcc-14-arm-612-cip-params
-      fragments:
-        - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
-        - 'kselftest'
-        - 'lab-setup'
-        - 'preempt_rt'
-        - 'cip://6.12.y-cip/arm/cip_merged_defconfig'
 
   kbuild-gcc-14-arm-61-cip: &kbuild-gcc-14-arm-61-cip
     <<: *kbuild-gcc-14-arm-job

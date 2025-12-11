@@ -159,20 +159,6 @@ scheduler:
     runtime: *lava-cip-runtime
     platforms: *cip-arm-platforms
 
-  - &job-gcc-14-arm-612-cip-rt
-    job: job-gcc-14-arm-612-cip-rt
-    event:
-      <<: *kbuild-gcc-14-arm-node-event
-      name: kbuild-gcc-14-arm-612-cip-rt
-    runtime: *lava-cip-runtime
-    platforms: *cip-arm-platforms
-
-  - <<: *job-gcc-14-arm-612-cip-rt
-    job: rt-tests-cyclicdeadline
-
-  - <<: *job-gcc-14-arm-612-cip-rt
-    job: rt-tests-cyclictest
-
   - job: job-gcc-14-arm-61-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
@@ -261,9 +247,6 @@ scheduler:
     job: rt-tests-cyclictest
 
   - job: kbuild-gcc-14-arm-612-cip
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-14-arm-612-cip-rt
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-61-cip
