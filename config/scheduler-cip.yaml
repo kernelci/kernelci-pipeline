@@ -116,6 +116,15 @@ scheduler:
   - <<: *job-gcc-14-arm64-419-cip-rt
     job: rt-tests-cyclictest
 
+  - job: job-gcc-14-arm64-419-cip-st
+    event:
+      <<: *kbuild-gcc-14-arm64-node-event
+      name: kbuild-gcc-14-arm64-419-cip-st
+    runtime: *lava-cip-runtime
+    platforms:
+      - qemu-arm64
+      - zynqmp-zcu102
+
   - job: kbuild-gcc-14-arm64-612-cip
     <<: *build-k8s-all
 
@@ -138,6 +147,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64-419-cip-rt
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm64-419-cip-st
     <<: *build-k8s-all
 
 # start of CIP arm scheduler
@@ -222,6 +234,17 @@ scheduler:
   - <<: *job-gcc-14-arm-419-cip-rt
     job: rt-tests-cyclictest
 
+  - job: job-gcc-14-arm-419-cip-st
+    event:
+      <<: *kbuild-gcc-14-arm-node-event
+      name: kbuild-gcc-14-arm-419-cip-st
+    runtime: *lava-cip-runtime
+    platforms:
+      - beaglebone-black
+      - de0-nano-soc
+      - qemu-arm
+      - r8a7743-iwg20d-q7
+
   - job: job-gcc-14-arm-44-cip
     event:
       <<: *kbuild-gcc-14-arm-node-event
@@ -246,6 +269,15 @@ scheduler:
   - <<: *job-gcc-14-arm-44-cip-rt
     job: rt-tests-cyclictest
 
+  - job: job-gcc-14-arm-44-cip-st
+    event:
+      <<: *kbuild-gcc-14-arm-node-event
+      name: kbuild-gcc-14-arm-44-cip-st
+    runtime: *lava-cip-runtime
+    platforms:
+      - beaglebone-black
+      - qemu-arm
+
   - job: kbuild-gcc-14-arm-612-cip
     <<: *build-k8s-all
 
@@ -267,10 +299,16 @@ scheduler:
   - job: kbuild-gcc-14-arm-419-cip-rt
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-arm-419-cip-st
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm-44-cip
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-44-cip-rt
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-arm-44-cip-st
     <<: *build-k8s-all
 
 # start of CIP x86-64 scheduler
@@ -372,6 +410,16 @@ scheduler:
   - <<: *job-gcc-14-x86-419-cip-rt
     job: rt-tests-cyclictest
 
+  - job: job-gcc-14-x86-419-cip-st
+    event:
+      <<: *kbuild-gcc-14-x86-node-event
+      name: kbuild-gcc-14-x86-419-cip-st
+    runtime: *lava-cip-runtime
+    platforms:
+      - qemu
+      - x86-openblocks-iot-vx2
+      - x86-simatic-ipc227e
+
   - job: job-gcc-14-x86-44-cip
     event:
       <<: *kbuild-gcc-14-x86-node-event
@@ -393,6 +441,14 @@ scheduler:
 
   - <<: *job-gcc-14-x86-44-cip-rt
     job: rt-tests-cyclictest
+
+  - job: job-gcc-14-x86-44-cip-st
+    event:
+      <<: *kbuild-gcc-14-x86-node-event
+      name: kbuild-gcc-14-x86-44-cip-st
+    runtime: *lava-cip-runtime
+    platforms:
+      - qemu
 
   - job: kbuild-gcc-14-x86-612-cip
     <<: *build-k8s-all
@@ -418,8 +474,14 @@ scheduler:
   - job: kbuild-gcc-14-x86-419-cip-rt
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-x86-419-cip-st
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-x86-44-cip
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-x86-44-cip-rt
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-x86-44-cip-st
     <<: *build-k8s-all

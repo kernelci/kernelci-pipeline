@@ -23,6 +23,10 @@ build_configs:
     <<: *cip-4-4
     branch: 'linux-4.4.y-st'
 
+  cip-4.4-st-rc:
+    <<: *cip-4-4
+    branch: 'linux-4.4.y-st-rc'
+
   cip-4.19: &cip-4-19
     <<: *cip
     branch: 'linux-4.19.y-cip'
@@ -38,6 +42,10 @@ build_configs:
   cip-4.19-st:
     <<: *cip-4-19
     branch: 'linux-4.19.y-st'
+
+  cip-4.19-st-rc:
+    <<: *cip-4-19
+    branch: 'linux-4.19.y-st-rc'
 
   cip-5.10:
     <<: *cip

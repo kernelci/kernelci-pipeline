@@ -59,6 +59,7 @@ jobs:
   job-gcc-14-arm64-510-cip-rt: *baseline-job-cip
   job-gcc-14-arm64-419-cip: *baseline-job-cip
   job-gcc-14-arm64-419-cip-rt: *baseline-job-cip
+  job-gcc-14-arm64-419-cip-st: *baseline-job-cip
 
   kbuild-gcc-14-arm64-612-cip: &kbuild-gcc-14-arm64-612-cip
     <<: *kbuild-gcc-14-arm64-job
@@ -184,6 +185,20 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip-rt'
 
+  kbuild-gcc-14-arm64-419-cip-st:
+    <<: *kbuild-gcc-14-arm64-job
+    params:
+      <<: *kbuild-gcc-14-arm64-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-st'
+        - 'cip:linux-4.19.y-st-rc'
+
 # start of CIP arm configuration for boot tests
   job-gcc-14-arm-612-cip: *baseline-nfs-job-cip
   job-gcc-14-arm-61-cip: *baseline-nfs-job-cip
@@ -192,8 +207,10 @@ jobs:
   job-gcc-14-arm-510-cip-rt: *baseline-nfs-job-cip
   job-gcc-14-arm-419-cip: *baseline-nfs-job-cip
   job-gcc-14-arm-419-cip-rt: *baseline-nfs-job-cip
+  job-gcc-14-arm-419-cip-st: *baseline-nfs-job-cip
   job-gcc-14-arm-44-cip: *baseline-nfs-job-cip
   job-gcc-14-arm-44-cip-rt: *baseline-nfs-job-cip
+  job-gcc-14-arm-44-cip-st: *baseline-nfs-job-cip
 
   kbuild-gcc-14-arm-612-cip: &kbuild-gcc-14-arm-612-cip
     <<: *kbuild-gcc-14-arm-job
@@ -314,6 +331,20 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip-rt'
 
+  kbuild-gcc-14-arm-419-cip-st:
+    <<: *kbuild-gcc-14-arm-job
+    params:
+      <<: *kbuild-gcc-14-arm-params
+      defconfig:
+        - multi_v7_defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-st'
+        - 'cip:linux-4.19.y-st-rc'
+
   kbuild-gcc-14-arm-44-cip: &kbuild-gcc-14-arm-44-cip
     <<: *kbuild-gcc-14-arm-job
     params: &kbuild-gcc-14-arm-44-cip-params
@@ -346,6 +377,20 @@ jobs:
       branch:
         - 'cip:linux-4.4.y-cip-rt'
 
+  kbuild-gcc-14-arm-44-cip-st:
+    <<: *kbuild-gcc-14-arm-job
+    params:
+      <<: *kbuild-gcc-14-arm-params
+      defconfig:
+        - multi_v7_defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+    rules:
+      branch:
+        - 'cip:linux-4.4.y-st'
+        - 'cip:linux-4.4.y-st-rc'
+
 # start of CIP x86_64 configuration for boot tests
   job-gcc-14-x86-612-cip: *baseline-nfs-job-cip
   job-gcc-14-x86-612-cip-rt: *baseline-nfs-job-cip
@@ -355,8 +400,10 @@ jobs:
   job-gcc-14-x86-510-cip-rt: *baseline-nfs-job-cip
   job-gcc-14-x86-419-cip: *baseline-nfs-job-cip
   job-gcc-14-x86-419-cip-rt: *baseline-nfs-job-cip
+  job-gcc-14-x86-419-cip-st: *baseline-nfs-job-cip
   job-gcc-14-x86-44-cip: *baseline-nfs-job-cip
   job-gcc-14-x86-44-cip-rt: *baseline-nfs-job-cip
+  job-gcc-14-x86-44-cip-st: *baseline-nfs-job-cip
 
   kbuild-gcc-14-x86-612-cip: &kbuild-gcc-14-x86-612-cip
     <<: *kbuild-gcc-14-x86-job-cip
@@ -458,6 +505,18 @@ jobs:
       branch:
         - 'cip:linux-4.19.y-cip-rt'
 
+  kbuild-gcc-14-x86-419-cip-st:
+    <<: *kbuild-gcc-14-x86-job-cip
+    params:
+      <<: *kbuild-gcc-14-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+    rules:
+      branch:
+        - 'cip:linux-4.19.y-st'
+        - 'cip:linux-4.19.y-st-rc'
+
   kbuild-gcc-14-x86-44-cip: &kbuild-gcc-14-x86-44-cip
     <<: *kbuild-gcc-14-x86-job-cip
     params: &kbuild-gcc-14-x86-44-cip-params
@@ -483,3 +542,15 @@ jobs:
     rules:
       branch:
         - 'cip:linux-4.4.y-cip-rt'
+
+  kbuild-gcc-14-x86-44-cip-st:
+    <<: *kbuild-gcc-14-x86-job-cip
+    params:
+      <<: *kbuild-gcc-14-x86-params
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+    rules:
+      branch:
+        - 'cip:linux-4.4.y-st'
+        - 'cip:linux-4.4.y-st-rc'
