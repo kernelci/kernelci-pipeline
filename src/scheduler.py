@@ -132,11 +132,15 @@ class Scheduler(Service):
         # Initialize runtimes with KContext
         # Get runtime names from KContext (parsed from CLI --runtimes argument)
         runtime_names = self._kcontext.get_runtimes()
+        runtime_types = self._kcontext.get_runtime_types()
         self.log.info(f"Runtimes from KContext: {runtime_names}")
+        self.log.info(f"Runtime types from KContext: {runtime_types}")
 
         self.log.info(f"Initializing runtimes: {runtime_names}")
 
-        runtimes_configs = self._get_runtimes_configs(configs['runtimes'], runtime_names)
+        runtimes_configs = self._get_runtimes_configs(
+            configs['runtimes'], runtime_names, runtime_types
+        )
 
         # Use the original get_all_runtimes function which properly handles user/token extraction
         # but pass kcictx for new context-aware functionality
@@ -188,12 +192,34 @@ class Scheduler(Service):
                 self._storage = None
                 self._storage_config = None
 
-    def _get_runtimes_configs(self, configs, runtimes):
+    def _get_runtimes_configs(self, configs, runtimes, runtime_types=None):
+        """Get runtime configurations filtered by name and/or type.
+
+        Args:
+            configs: Dictionary of all runtime configurations
+            runtimes: List of runtime names to filter by (empty = all)
+            runtime_types: List of runtime types to filter by (empty = all)
+
+        Returns:
+            Dictionary of filtered runtime configurations
+        """
         runtimes_configs = {}
-        for name in runtimes:
-            config = configs.get(name)
-            if config:
-                runtimes_configs[name] = config
+
+        # If specific runtime names are provided, filter by name
+        if runtimes:
+            for name in runtimes:
+                config = configs.get(name)
+                if config:
+                    runtimes_configs[name] = config
+        # If runtime types are provided, filter by type
+        elif runtime_types:
+            for name, config in configs.items():
+                if config.lab_type in runtime_types:
+                    runtimes_configs[name] = config
+        # If neither is provided, use all runtimes
+        else:
+            runtimes_configs = configs.copy()
+
         return runtimes_configs
 
     def _resolve_fragment_configs(self, fragment_names):
@@ -643,6 +669,11 @@ class cmd_loop(Command):
             'name': '--runtimes',
             'nargs': '*',
             'help': "Runtime environments to use, all by default",
+        },
+        {
+            'name': '--runtime-type',
+            'nargs': '*',
+            'help': "Runtime types to use (lava, kubernetes, docker, shell, pull_labs)",
         },
         {
             'name': '--name',
