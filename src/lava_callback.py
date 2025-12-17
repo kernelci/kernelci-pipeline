@@ -11,6 +11,7 @@ import tempfile
 import gzip
 import json
 import toml
+import yaml
 import threading
 import uvicorn
 import jwt
@@ -216,6 +217,25 @@ def _upload_log(log_parser, job_node, storage):
         return _upload_file(storage, job_node, src, 'log.txt.gz')
 
 
+def _upload_lava_yaml(log_parser, job_node, storage):
+    """Upload structured LAVA log as YAML."""
+    id = job_node['id']
+    with tempfile.TemporaryDirectory(suffix=id) as tmp_dir:
+        yaml_path = os.path.join(tmp_dir, 'lava-logs.yaml')
+        try:
+            log_data = log_parser.get_data()
+            if not log_data:
+                return None
+
+            with open(yaml_path, 'w') as f:
+                yaml.dump(log_data, f, default_flow_style=False)
+
+            return _upload_file(storage, job_node, yaml_path, 'lava-logs.yaml')
+        except Exception as e:
+            logger.warning(f"Failed to upload lava-logs.yaml: {e}")
+            return None
+
+
 @app.get('/', response_class=HTMLResponse)
 async def read_root():
     page = '''
@@ -287,6 +307,10 @@ def async_job_submit(api_helper, node_id, job_callback):
             else:
                 logger.warning("Failed to upload log")
                 metrics.add('lava_callback_late_fail_total', 1)
+            lava_yaml_url = _upload_lava_yaml(log_parser, job_node, storage)
+            if lava_yaml_url:
+                job_node['artifacts']['lava_logs'] = lava_yaml_url
+                logger.info(f"LAVA YAML uploaded to {lava_yaml_url}")
             callback_json_url = _upload_callback_data(callback_data, job_node, storage)
             if callback_json_url:
                 job_node['artifacts']['callback_data'] = callback_json_url
