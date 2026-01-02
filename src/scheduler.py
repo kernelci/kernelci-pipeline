@@ -347,9 +347,13 @@ class Scheduler(Service):
 
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
-            node = self._api_helper.create_job_node(job_config,
-                                                    input_node,
-                                                    runtime, platform, retry_counter)
+            node = self._api_helper.create_job_node(
+                job_config,
+                input_node,
+                runtime=runtime,
+                platform=platform,
+                retry_counter=retry_counter,
+            )
         except KeyError as e:
             self.log.error(' '.join([
                 input_node['id'],
