@@ -345,6 +345,35 @@ class Scheduler(Service):
         except Exception as e:
             self.log.error(f"Failed to backup {filename} to {new_filename}: {e}")
 
+    def _log_lava_queue_status(self, runtime, params, platform):
+        if runtime.config.lab_type != 'lava':
+            return
+        if not hasattr(runtime, 'get_devicetype_job_count'):
+            self.log.warning("LAVA runtime missing get_devicetype_job_count()")
+            return
+
+        device_type = params.get('device_type') or platform.name
+        try:
+            if hasattr(runtime, 'get_device_names_by_type'):
+                device_names = runtime.get_device_names_by_type(
+                    device_type, online_only=True
+                )
+                if not device_names:
+                    self.log.info(
+                        f"LAVA device type {device_type}: no online devices"
+                    )
+                    return
+            queued = runtime.get_devicetype_job_count(device_type)
+            self.log.info(
+                "LAVA queue status: "
+                f"device_type={device_type} "
+                f"queued={queued}"
+            )
+        except Exception as exc:
+            self.log.warning(
+                f"Failed to query LAVA queue status for {device_type}: {exc}"
+            )
+
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(
@@ -463,6 +492,7 @@ class Scheduler(Service):
         tmp = tempfile.TemporaryDirectory(dir=self._output)
         output_file = runtime.save_file(data, tmp.name, params)
         self.backup_job(output_file, node['id'])
+        self._log_lava_queue_status(runtime, params, platform)
         try:
             running_job = runtime.submit(output_file)
         except Exception as e:
