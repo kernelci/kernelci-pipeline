@@ -374,6 +374,50 @@ class Scheduler(Service):
                 f"Failed to query LAVA queue status for {device_type}: {exc}"
             )
 
+    def _should_skip_due_to_queue_depth(self, runtime, job_config, platform):
+        """Check if job should be skipped due to LAVA queue depth.
+
+        Returns True if job should be skipped, False otherwise.
+        """
+        if runtime.config.lab_type != 'lava':
+            return False
+
+        if not hasattr(runtime, 'get_devicetype_job_count'):
+            return False
+
+        max_queue_depth = runtime.config.max_queue_depth
+        device_type = job_config.params.get('device_type') if job_config.params else None
+        if not device_type:
+            device_type = platform.name
+
+        try:
+            if hasattr(runtime, 'get_device_names_by_type'):
+                device_names = runtime.get_device_names_by_type(
+                    device_type, online_only=True
+                )
+                if not device_names:
+                    self.log.info(
+                        f"Skipping job {job_config.name} for {runtime.config.name}: "
+                        f"device_type={device_type} has no online devices"
+                    )
+                    return True  # Skip submission when no online devices
+
+            queued = runtime.get_devicetype_job_count(device_type)
+
+            if queued >= max_queue_depth:
+                self.log.info(
+                    f"Skipping job {job_config.name} for {runtime.config.name}: "
+                    f"device_type={device_type} queue_depth={queued} >= "
+                    f"max={max_queue_depth}"
+                )
+                return True
+            return False
+        except Exception as exc:
+            self.log.warning(
+                f"Failed to check LAVA queue depth for {device_type}: {exc}"
+            )
+            return False  # Fail-open: don't skip on errors
+
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(
@@ -697,6 +741,9 @@ class Scheduler(Service):
                 with self._api_helper_lock:
                     flag = self._api_helper.should_create_node(rules, input_node)
                 if flag:
+                    # Check LAVA queue depth before creating job node
+                    if self._should_skip_due_to_queue_depth(runtime, job, platform):
+                        continue
                     retry_counter = event.get('retry_counter', 0)
                     self._run_job(job, runtime, platform, input_node, retry_counter)
 

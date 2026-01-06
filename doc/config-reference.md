@@ -294,3 +294,101 @@ nodes when all jobs have daily frequency limits.
 
 **Note**: The `--force` flag on the trigger service overrides the frequency
 check, allowing checkout creation regardless of the frequency setting.
+
+## Runtimes configuration
+
+The `runtimes` section defines the runtime environments where jobs are executed.
+Each runtime is defined as a dictionary entry with configuration parameters
+specific to the runtime type.
+
+Runtimes are defined in `config/pipeline.yaml`.
+
+### Common parameters
+
+- **lab_type**: string (required) - Type of runtime (`lava`, `kubernetes`, `docker`, `shell`, `pull_labs`)
+- **rules**: dictionary (optional) - Filtering rules for trees/branches
+
+### LAVA runtime parameters
+
+LAVA runtimes are used to submit test jobs to LAVA labs.
+
+#### Required parameters
+
+- **lab_type**: `lava`
+- **url**: string - URL of the LAVA server API (e.g., `https://lava.example.com/`)
+- **notify.callback.token**: string - Token name for LAVA callbacks
+
+#### Optional parameters
+
+- **priority**: integer or string (`low`, `medium`, `high`) - Job priority (0-100)
+- **priority_min**: integer - Minimum priority level for the lab (0-100)
+- **priority_max**: integer - Maximum priority level for the lab (0-100)
+- **queue_timeout**: dictionary - Timeout for jobs in queue
+  - **days**: integer
+  - **hours**: integer
+- **max_queue_depth**: integer - Maximum number of queued jobs per device type before skipping new submissions
+  - **Default**: 50
+  - When the queue depth for a device type reaches this limit, new jobs will be skipped
+  - Jobs are also skipped if no online devices are available for the device type
+- **rules**: dictionary - Tree/branch filtering rules
+
+#### Example
+
+```yaml
+runtimes:
+
+  lava-collabora:
+    lab_type: lava
+    url: https://lava.collabora.dev/
+    priority_min: 40
+    priority_max: 60
+    max_queue_depth: 100  # Higher limit for larger lab
+    notify:
+      callback:
+        token: kernelci-api-token
+    rules:
+      tree:
+      - '!android'
+
+  lava-small-lab:
+    lab_type: lava
+    url: https://small-lab.example.com/
+    max_queue_depth: 20  # Lower limit for smaller lab
+    notify:
+      callback:
+        token: small-lab-token
+```
+
+#### Queue depth behavior
+
+The `max_queue_depth` parameter controls job submission throttling per LAVA lab:
+
+1. Before submitting a job, the scheduler queries the LAVA API to check:
+   - If there are online devices for the target device type
+   - The current number of queued jobs for that device type
+
+2. The job is **skipped** (not submitted) if:
+   - No online devices are available for the device type
+   - The queue depth is >= `max_queue_depth`
+
+3. When a job is skipped, a log message is generated:
+   ```
+   Skipping job <job-name> for <lab-name>: device_type=<type> queue_depth=<N> >= max=<limit>
+   ```
+
+4. This helps prevent queue overload in busy labs and avoids submitting jobs
+   to device types with no available hardware.
+
+### LAVA token configuration
+
+LAVA tokens are stored separately in the TOML settings file (`kernelci.toml`),
+not in the YAML config:
+
+```toml
+[runtime.lava-collabora]
+runtime_token = "YOUR_LAVA_API_TOKEN"
+callback_token = "YOUR_CALLBACK_TOKEN"  # Optional, if different from runtime_token
+```
+
+The token **name** (description) goes in the YAML config's `notify.callback.token` field,
+while the token **value** (secret) goes in the TOML file.
