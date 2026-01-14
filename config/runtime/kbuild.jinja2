@@ -43,6 +43,9 @@ KBUILD_PARAMS = {
 {%- else %}
     'fragments': [],
 {%- endif %}
+{%- if backend %}
+    'backend': '{{ backend }}',
+{%- endif %}
 {%- if cross_compile %}
     'cross_compile': '{{ cross_compile }}',
 {%- endif %}
