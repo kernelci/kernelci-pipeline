@@ -2,6 +2,7 @@ build_configs:
   android_mainline: &android
     tree: android
     branch: 'android-mainline'
+    priority: low
     architectures:
       - x86_64
       - i386

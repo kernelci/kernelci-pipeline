@@ -2,6 +2,7 @@ build_configs:
   stable-rc_5.10: &stable-rc
     tree: stable-rc
     branch: 'linux-5.10.y'
+    priority: high
 
   stable-rc_5.15:
     <<: *stable-rc

@@ -2,6 +2,7 @@ build_configs:
   cip: &cip
     tree: cip
     branch: 'master'
+    priority: low
     architectures:
       - arm
       - arm64

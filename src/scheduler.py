@@ -101,8 +101,8 @@ class Scheduler(Service):
         self._verbose = args.verbose
         self._output = args.output
         self._imgprefix = args.image_prefix or ''
-        # Store raw YAML data for fragment resolution
         self._raw_yaml = configs.get('_raw_yaml', {})
+        self._build_configs = configs.get('build_configs', {})
         if not os.path.exists(self._output):
             os.makedirs(self._output)
         self._job_tmp_dirs = {}
@@ -418,6 +418,17 @@ class Scheduler(Service):
             )
             return False  # Fail-open: don't skip on errors
 
+    def _get_tree_priority(self, tree_name, branch_name):
+        for build_config in self._build_configs.values():
+            if (build_config.tree.name == tree_name and
+                    build_config.branch == branch_name):
+                priority = build_config.priority
+                if priority is not None:
+                    self.log.debug(f"Tree priority for {tree_name}/{branch_name}: {priority}")
+                return priority
+        self.log.debug(f"No build config found for {tree_name}/{branch_name}")
+        return None
+
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(
@@ -441,6 +452,15 @@ class Scheduler(Service):
         if not node:
             return
         self.log.debug(f"Job node created: {node['id']}. Parent: {node['parent']}")
+
+        kernel_rev = node['data'].get('kernel_revision', {})
+        tree_name = kernel_rev.get('tree')
+        branch_name = kernel_rev.get('branch')
+        if tree_name and branch_name:
+            tree_priority = self._get_tree_priority(tree_name, branch_name)
+            if tree_priority is not None:
+                node['data']['tree_priority'] = tree_priority
+
         # Most of the time, the artifacts we need originate from the parent
         # node. Import those into the current node, working on a copy so the
         # original node doesn't get "polluted" with useless artifacts when we
