@@ -2,6 +2,7 @@ build_configs:
   kernelci_staging-mainline: &kernelci
     tree: kernelci
     branch: 'staging-mainline'
+    priority: low
     architectures:
       - x86_64
       - arm64

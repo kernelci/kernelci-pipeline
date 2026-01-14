@@ -2,6 +2,7 @@ build_configs:
   next_master: &next
     tree: next
     branch: 'master'
+    priority: medium
 
   next_pending-fixes:
     <<: *next

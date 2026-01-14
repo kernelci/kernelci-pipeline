@@ -2,6 +2,7 @@ build_configs:
   stable-rt_v4.14-rt: &stable-rt
     tree: stable-rt
     branch: 'v4.14-rt'
+    priority: medium
 
   stable-rt_v4.14-rt-next:
     <<: *stable-rt

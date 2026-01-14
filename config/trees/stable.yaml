@@ -2,6 +2,7 @@ build_configs:
   stable_5.4: &stable
     tree: stable
     branch: 'linux-5.4.y'
+    priority: high
 
   stable_5.10:
     <<: *stable

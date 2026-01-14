@@ -2,3 +2,4 @@ build_configs:
   mainline:
     tree: mainline
     branch: 'master'
+    priority: high

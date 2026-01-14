@@ -2,6 +2,7 @@ build_configs:
   kselftest_fixes: &kselftest
     tree: kselftest
     branch: 'fixes'
+    priority: medium
 
   kselftest_next:
     <<: *kselftest
