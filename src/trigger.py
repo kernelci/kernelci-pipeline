@@ -19,7 +19,7 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 import requests
 import hashlib
 
-from base import Service, validate_url
+from base import Service, validate_url, SERVICE_PIPELINE
 
 
 def translate_freq(freq):
@@ -80,7 +80,7 @@ class Trigger(Service):
             "data.kernel_revision.tree": build_config.tree.name,
             "data.kernel_revision.branch": build_config.branch,
             "owner": self._current_user['username'],
-            "submitter": "service:pipeline",
+            "submitter": SERVICE_PIPELINE,
             "created__gte": tstamp.isoformat(),
         }
         node_count = self._api.node.count(search_terms)
@@ -130,7 +130,7 @@ class Trigger(Service):
             "kind": "checkout",
             "data.kernel_revision.commit": head_commit,
             "owner": self._current_user['username'],
-            "submitter": "service:pipeline"
+            "submitter": SERVICE_PIPELINE
         }
         node_count = self._api.node.count(search_terms)
         search_terms["result"] = "incomplete"
@@ -186,7 +186,7 @@ class Trigger(Service):
 
         if self._current_user['username'] in ('staging.kernelci.org',
                                               'production'):
-            node['submitter'] = 'service:pipeline'
+            node['submitter'] = SERVICE_PIPELINE
         else:
             node['submitter'] = f"user:{self._current_user['email']}"
 

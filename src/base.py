@@ -14,6 +14,8 @@ from kernelci.api.helper import APIHelper
 
 from logger import Logger
 
+SERVICE_PIPELINE = 'service:pipeline'
+
 
 class Service:
     """Common class for pipeline services"""

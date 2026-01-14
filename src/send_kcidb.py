@@ -28,7 +28,7 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 import kcidb
 from kernelci_pipeline.logspec_api import generate_issues_and_incidents
 
-from base import Service
+from base import Service, SERVICE_PIPELINE
 
 
 MISSED_TEST_CODES = (
@@ -824,7 +824,7 @@ in {runtime}",
     def _should_skip_node(self, node):
         """Check if node should be skipped based on environment"""
         if self._current_user['username'] in ('staging.kernelci.org', 'production', 'qualcomm'):
-            return node['submitter'] != 'service:pipeline'
+            return node['submitter'] != SERVICE_PIPELINE
         return False
 
     def _process_node(self, node, origin, is_hierarchy):
