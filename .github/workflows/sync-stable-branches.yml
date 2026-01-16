@@ -1,0 +1,50 @@
+name: Sync stable-rc branches
+
+on:
+  schedule:
+    # Run weekly on Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check for updates
+        id: check
+        run: |
+          python tools/sync_stable_branches.py --dry-run 2>&1 | tee output.txt
+          if grep -q "Config is already up to date" output.txt; then
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          else
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply updates
+        if: steps.check.outputs.needs_update == 'true'
+        run: python tools/sync_stable_branches.py
+
+      - name: Create Pull Request
+        if: steps.check.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "config/trees: sync stable-rc with kernel.org"
+          title: "config/trees: sync stable-rc with kernel.org"
+          body: |
+            Automated sync of stable-rc.yaml with current kernel.org releases.
+
+            This PR was created automatically by the sync-stable-branches workflow.
+          branch: sync-stable-branches
+          delete-branch: true
