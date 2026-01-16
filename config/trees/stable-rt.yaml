@@ -39,3 +39,7 @@ build_configs:
   stable-rt_v6.6-rt:
     <<: *stable-rt
     branch: 'v6.6-rt'
+
+  stable-rt_v6.12-rt:
+    <<: *stable-rt
+    branch: 'v6.12-rt'
