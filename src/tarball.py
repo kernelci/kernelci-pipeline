@@ -74,14 +74,26 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         commit = revision.get('commit')
         return commit
 
+    def _validate_commitid(self, commitid):
+        if not commitid or not re.fullmatch(r'[0-9a-fA-F]{7,64}', commitid):
+            raise ValueError(f"Invalid commit id: {commitid}")
+        subprocess.run(
+            ['git', '-C', self._service_config.kdir, 'rev-parse',
+             '--verify', f'{commitid}^{{commit}}'],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
     def _checkout_commitid(self, commitid):
         self.log.info(f"Checking out commit {commitid}")
         # i might need something from kernelci.build
         # but i prefer to implement it myself
-        cwd = os.getcwd()
-        os.chdir(self._service_config.kdir)
-        kernelci.shell_cmd(f"git checkout {commitid}", self._service_config.kdir)
-        os.chdir(cwd)
+        self._validate_commitid(commitid)
+        subprocess.run(
+            ['git', '-C', self._service_config.kdir, 'checkout', commitid],
+            check=True,
+        )
         self.log.info("Commit checked out")
 
     def _update_repo(self, config):
@@ -249,7 +261,14 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                                                   'git_checkout_failure',
                                                   'Failed to find commit id')
                 os._exit(1)
-            self._checkout_commitid(commitid)
+            try:
+                self._checkout_commitid(commitid)
+            except (ValueError, subprocess.CalledProcessError) as err:
+                self.log.error(f"Failed to checkout commit: {err}")
+                self._update_failed_checkout_node(checkout_node,
+                                                  'git_checkout_failure',
+                                                  f'Failed to checkout commit: {err}')
+                continue
 
             config_tree = build_config.tree.name
             config_branch = build_config.branch
