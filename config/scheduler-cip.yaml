@@ -311,6 +311,24 @@ scheduler:
   - job: kbuild-gcc-14-arm-44-cip-st
     <<: *build-k8s-all
 
+# start of CIP riscv scheduler
+  - job: job-gcc-14-riscv-612-cip
+    event: &kbuild-gcc-14-riscv-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-riscv-612-cip
+    runtime: *lava-cip-runtime
+    platforms: &cip-riscv-platforms
+      - beaglev-fire
+
+  - job: kbuild-gcc-14-riscv-612-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-61-cip
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-riscv-510-cip
+    <<: *build-k8s-all
+
 # start of CIP x86-64 scheduler
   - job: baseline-x86
     event: &kbuild-gcc-14-x86-node-event

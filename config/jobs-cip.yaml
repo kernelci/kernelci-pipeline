@@ -39,6 +39,18 @@ _anchors:
         - 'lab-setup'
         - 'kselftest'
 
+  kbuild-gcc-14-riscv: &kbuild-gcc-14-riscv-job
+    <<: *kbuild-job-cip
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:riscv64-kselftest-kernelci
+    params: &kbuild-gcc-14-riscv-params
+      arch: riscv
+      compiler: gcc-14
+      cross_compile: 'riscv64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
+
   kbuild-gcc-14-x86-job-cip: &kbuild-gcc-14-x86-job-cip
     <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
@@ -390,6 +402,51 @@ jobs:
       branch:
         - 'cip:linux-4.4.y-st'
         - 'cip:linux-4.4.y-st-rc'
+
+# start of CIP riscv configuration for boot tests
+  job-gcc-14-riscv-612-cip: *baseline-job-cip
+
+  kbuild-gcc-14-riscv-612-cip: &kbuild-gcc-14-riscv-612-cip
+    <<: *kbuild-gcc-14-riscv-job
+    params: &kbuild-gcc-14-riscv-612-cip-params
+      <<: *kbuild-gcc-14-riscv-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.12.y-cip/riscv/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.12.y-cip'
+
+  kbuild-gcc-14-riscv-61-cip: &kbuild-gcc-14-riscv-61-cip
+    <<: *kbuild-gcc-14-riscv-job
+    params: &kbuild-gcc-14-riscv-61-cip-params
+      <<: *kbuild-gcc-14-riscv-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://6.1.y-cip/riscv/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-6.1.y-cip'
+
+  kbuild-gcc-14-riscv-510-cip: &kbuild-gcc-14-riscv-510-cip
+    <<: *kbuild-gcc-14-riscv-job
+    params: &kbuild-gcc-14-riscv-510-cip-params
+      <<: *kbuild-gcc-14-riscv-params
+      defconfig:
+        - defconfig
+      fragments:
+        - 'kselftest'
+        - 'lab-setup'
+        - 'cip://5.10.y-cip/riscv/cip_merged_defconfig'
+    rules:
+      branch:
+        - 'cip:linux-5.10.y-cip'
 
 # start of CIP x86_64 configuration for boot tests
   job-gcc-14-x86-612-cip: *baseline-nfs-job-cip
