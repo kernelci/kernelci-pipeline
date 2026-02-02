@@ -637,15 +637,22 @@ in {runtime}",
 
             for node in all_nodes:
                 # Check if node should be filtered due to retry_counter
+                retry_counter = node.get("retry_counter")
+                if retry_counter is None:
+                    self.log.warning(
+                        f"Node {node.get('id')} missing retry_counter; "
+                        "treating as 0"
+                    )
+                    retry_counter = 0
                 if (
                     (
-                        node["kind"] in ("kbuild", "job")
-                        and node["result"] == "incomplete"
-                        and node["retry_counter"] != 3
+                        node.get("kind") in ("kbuild", "job")
+                        and node.get("result") == "incomplete"
+                        and retry_counter != 3
                     ) or (
-                        node["result"] == "fail"
-                        and node["name"].startswith("baseline")
-                        and node["retry_counter"] != 3
+                        node.get("result") == "fail"
+                        and node.get("name", "").startswith("baseline")
+                        and retry_counter != 3
                     )
                 ):
                     # Mark filtered nodes as processed since job-retry creates new nodes
@@ -721,15 +728,22 @@ in {runtime}",
                 node = None
                 try:
                     node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
-                    if node["kind"] in ("kbuild", "job"):
-                        if node["result"] == "incomplete" and node["retry_counter"] != 3:
+                    retry_counter = node.get("retry_counter")
+                    if retry_counter is None:
+                        self.log.warning(
+                            f"Node {node.get('id')} missing retry_counter; "
+                            "treating as 0"
+                        )
+                        retry_counter = 0
+                    if node.get("kind") in ("kbuild", "job"):
+                        if node.get("result") == "incomplete" and retry_counter != 3:
                             # Only send final retry for incomplete jobs
                             # Mark as processed since job-retry creates a new node
                             self._nodes_processed([node['id']])
                             continue
-                    if node["result"] == "fail":
+                    if node.get("result") == "fail":
                         # Only send final retry for failed baseline jobs
-                        if node["name"].startswith("baseline") and node["retry_counter"] != 3:
+                        if node.get("name", "").startswith("baseline") and retry_counter != 3:
                             # Mark as processed since job-retry creates a new node
                             self._nodes_processed([node['id']])
                             continue
