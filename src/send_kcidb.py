@@ -884,7 +884,14 @@ in {runtime}",
         """Get logspec test type from parsed node"""
         if node_type == "build":
             return "build"
-        elif parsed_node.get("path").startswith("boot"):
+        path = parsed_node.get("path")
+        if not path:
+            self.log.warning(
+                f"Missing test path for failed node {parsed_node.get('id')}; "
+                "this should not happen. Skipping logspec."
+            )
+            return None
+        if path.startswith("boot"):
             return "boot"
         # elif "kselftest" in parsed_node.get("path"):
         #    return "kselftest"
@@ -899,6 +906,12 @@ in {runtime}",
             return None
 
         local_file = self._cached_fetch(parsed_node['log_url'])
+        if not local_file:
+            self.log.warning(
+                f"Failed to fetch log for failed node {parsed_node.get('id')}; "
+                "this should not happen. Skipping logspec."
+            )
+            return None
         local_url = f"file://{local_file}"
 
         parsed_fail, new_status = generate_issues_and_incidents(
