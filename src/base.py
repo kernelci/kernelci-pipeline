@@ -81,7 +81,7 @@ class Service:
         return status
 
 
-def validate_url(url):
+def validate_url(url, timeout=5):
     '''
     Validate URL by:
     - checking if it's not empty
@@ -93,9 +93,9 @@ def validate_url(url):
     if not url.startswith('http'):
         return False
     try:
-        r = requests.head(url)
+        r = requests.head(url, allow_redirects=True, timeout=timeout)
         r.raise_for_status()
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         logging.error(f'Error accessing URL: {e}')
         return False
     return True
