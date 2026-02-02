@@ -220,7 +220,7 @@ def process_log(log_url, parser, start_state):
     return get_logspec_errors(parsed_data, parser)
 
 
-def generate_issues_and_incidents(result_id, log_url, test_type, oo_client):
+def generate_issues_and_incidents(result_id, log_url, test_type):
     parsed_data = {
         'issue_node': [],
         'incident_node': [],
