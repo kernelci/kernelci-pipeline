@@ -373,8 +373,6 @@ jobs:
         - 'stable'
         - 'stable-rc'
         - 'sashal-next'
-      fragments:
-        - kselftest
 
   kbuild-clang-21-arm64-mainline: &kbuild-clang-21-arm64-mainline-job
     <<: *kbuild-clang-21-arm64-job
