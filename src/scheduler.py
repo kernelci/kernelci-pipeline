@@ -230,6 +230,10 @@ class Scheduler(Service):
             for name, config in configs.items():
                 if config.lab_type in runtime_types:
                     runtimes_configs[name] = config
+        else:
+            # No filters supplied: use all runtimes to avoid a silent no-op.
+            self.log.warning("No runtime filters specified; using all configured runtimes")
+            runtimes_configs = configs.copy()
 
         self.log.info(f"Selected {len(runtimes_configs)} runtime(s): {list(runtimes_configs.keys())}")
         return runtimes_configs
