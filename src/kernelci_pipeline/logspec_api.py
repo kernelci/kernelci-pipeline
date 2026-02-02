@@ -51,6 +51,7 @@ def get_log(url, snippet_lines=0):
         If snippet_lines < 0: the last snippet_lines log lines
     """
     schema = url.split(':')[0]
+    raw_data = None
     # if schema is file
     if schema == 'file':
         # url is then file:///path/to/file
@@ -62,10 +63,16 @@ def get_log(url, snippet_lines=0):
             return None
 
     if schema == 'http' or schema == 'https':
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
+        except Exception:
+            return None
         if not len(response.content):
             return None
         raw_data = response.content
+
+    if raw_data is None:
+        return None
 
     try:
         raw_bytes = gzip.decompress(raw_data)
@@ -205,8 +212,10 @@ def process_log(log_url, parser, start_state):
     """
     log = get_log(log_url)
     if not log:
-        return
+        return [], None
     parsed_data = logspec.main.parse_log(log, start_state)
+    if not parsed_data:
+        return [], None
     # return processed data
     return get_logspec_errors(parsed_data, parser)
 
@@ -221,6 +230,8 @@ def generate_issues_and_incidents(result_id, log_url, test_type, oo_client):
     start_state = logspec.main.load_parser(test_types[test_type]['parser'])
     parser = test_types[test_type]['parser']
     error_list, new_status = process_log(log_url, parser, start_state)
+    if not error_list:
+        return parsed_data, new_status
     for error in error_list:
         if error and error['error'].get('signature'):
             # do not generate issues for error_return_code since they are not
