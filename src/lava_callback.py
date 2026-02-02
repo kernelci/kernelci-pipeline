@@ -43,6 +43,8 @@ YAMLCFG = kernelci.config.load_yaml('config')
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
+# Default network timeout (seconds)
+REQUEST_TIMEOUT = 10
 
 # Configure logging to output to stdout
 logging.basicConfig(
@@ -884,7 +886,7 @@ async def patchset(data: PatchSet, request: Request,
                 if not isinstance(patchurl, str):
                     item['message'] = 'Invalid patch URL element type'
                     return JSONResponse(content=item, status_code=400)
-                if not validate_url(patchurl):
+                if not validate_url(patchurl, timeout=REQUEST_TIMEOUT):
                     item['message'] = 'Invalid patch URL'
                     return JSONResponse(content=item, status_code=400)
         else:
