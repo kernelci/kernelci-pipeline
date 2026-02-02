@@ -890,7 +890,8 @@ async def patchset(data: PatchSet, request: Request,
                     item['message'] = 'Invalid patch URL'
                     return JSONResponse(content=item, status_code=400)
         else:
-            return 'Invalid patch URL type', 400
+            item['message'] = 'Invalid patch URL type'
+            return JSONResponse(content=item, status_code=400)
     elif data.patch:
         # We need to implement upload to storage and return URL
         item['message'] = 'Not implemented yet'
