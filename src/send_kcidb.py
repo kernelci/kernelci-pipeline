@@ -929,7 +929,7 @@ in {runtime}",
         local_url = f"file://{local_file}"
 
         parsed_fail, new_status = generate_issues_and_incidents(
-            parsed_node['id'], local_url, test_type, None)
+            parsed_node['id'], local_url, test_type)
 
         if new_status:
             self.log.warning(
