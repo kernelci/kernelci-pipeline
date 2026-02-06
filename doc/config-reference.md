@@ -328,7 +328,8 @@ LAVA runtimes are used to submit test jobs to LAVA labs.
   - **hours**: integer
 - **max_queue_depth**: integer - Maximum number of queued jobs per device type before skipping new submissions
   - **Default**: 50
-  - When the queue depth for a device type reaches this limit, new jobs will be skipped
+  - Used as per-device budget when online device count is available
+  - Effective limit is `max_queue_depth * online_devices` by default
   - Jobs are also skipped if no online devices are available for the device type
 - **rules**: dictionary - Tree/branch filtering rules
 
@@ -342,7 +343,7 @@ runtimes:
     url: https://lava.collabora.dev/
     priority_min: 40
     priority_max: 60
-    max_queue_depth: 100  # Higher limit for larger lab
+    max_queue_depth: 20  # Effective limit scales with online boards
     notify:
       callback:
         token: kernelci-api-token
@@ -369,7 +370,8 @@ The `max_queue_depth` parameter controls job submission throttling per LAVA lab:
 
 2. The job is **skipped** (not submitted) if:
    - No online devices are available for the device type
-   - The queue depth is >= `max_queue_depth`
+   - The queue depth is >= effective queue limit, where:
+     - `max_queue_depth * online_devices`
 
 3. When a job is skipped, a log message is generated:
    ```
