@@ -410,21 +410,20 @@ class Scheduler(Service):
                     f"Skipping job {job_config.name} for {runtime.config.name}: "
                     f"device_type={device_type} has no online devices"
                 )
-                if not device_names:
-                    self.log.info(
-                        f"Skipping job {job_config.name} for {runtime.config.name}: "
-                        f"device_type={device_type} has no online devices"
-                    )
-                    self._telemetry.emit(
-                        'job_skip',
-                        runtime=runtime.config.name,
-                        device_type=device_type,
-                        job_name=job_config.name,
-                        error_type='no_online_devices',
-                        error_msg=f'device_type={device_type} '
-                                  f'has no online devices',
-                    )
-                    return True  # Skip submission when no online devices
+                return True  # Skip submission when no online devices
+
+                self._telemetry.emit(
+                    'job_skip',
+                    runtime=runtime.config.name,
+                    device_type=device_type,
+                    job_name=job_config.name,
+                    error_type='no_online_devices',
+                    error_msg=f'device_type={device_type} '
+                              f'has no online devices',
+                )
+                return True  # Skip submission when no online devices
+
+            online_device_count = len(device_names)
 
             queued = runtime.get_devicetype_job_count(device_type)
             # As requested in https://github.com/kernelci/kernelci-core/issues/3039
