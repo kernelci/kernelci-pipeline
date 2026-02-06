@@ -393,6 +393,8 @@ class Scheduler(Service):
 
         if not hasattr(runtime, 'get_devicetype_job_count'):
             return False
+        if not hasattr(runtime, 'get_device_names_by_type'):
+            return False
 
         max_queue_depth = runtime.config.max_queue_depth
         device_type = job_config.params.get('device_type') if job_config.params else None
@@ -400,9 +402,13 @@ class Scheduler(Service):
             device_type = platform.name
 
         try:
-            if hasattr(runtime, 'get_device_names_by_type'):
-                device_names = runtime.get_device_names_by_type(
-                    device_type, online_only=True
+            device_names = runtime.get_device_names_by_type(
+                device_type, online_only=True
+            )
+            if not device_names:
+                self.log.info(
+                    f"Skipping job {job_config.name} for {runtime.config.name}: "
+                    f"device_type={device_type} has no online devices"
                 )
                 if not device_names:
                     self.log.info(
@@ -421,12 +427,19 @@ class Scheduler(Service):
                     return True  # Skip submission when no online devices
 
             queued = runtime.get_devicetype_job_count(device_type)
+            # As requested in https://github.com/kernelci/kernelci-core/issues/3039
+            # We need to multiply max_queue_depth by number of online devices
+            effective_max_queue_depth = (
+                max_queue_depth * online_device_count
+            )
 
-            if queued >= max_queue_depth:
+            if queued >= effective_max_queue_depth:
                 self.log.info(
                     f"Skipping job {job_config.name} for {runtime.config.name}: "
                     f"device_type={device_type} queue_depth={queued} >= "
-                    f"max={max_queue_depth}"
+                    f"max={effective_max_queue_depth} "
+                    f"(per_device={max_queue_depth}, "
+                    f"online_devices={online_device_count})"
                 )
                 self._telemetry.emit(
                     'job_skip',
