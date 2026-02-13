@@ -14,6 +14,7 @@ import kernelci.config
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
+from telemetry import TelemetryEmitter
 
 
 class Monitor(Service):
@@ -25,6 +26,7 @@ class Monitor(Service):
         self._log_titles = self.LOG_FMT.format(
             time="Time", kind="Kind", commit="Commit", id="Node Id",
             state="State", result="Result", name="Name")
+        self._telemetry = TelemetryEmitter(self._api, 'monitor')
 
     def _setup(self, args):
         return self._api.subscribe('node')
@@ -32,6 +34,7 @@ class Monitor(Service):
     def _stop(self, sub_id):
         if sub_id:
             self._api.unsubscribe(sub_id)
+        self._telemetry.close()
         sys.stdout.flush()
 
     def _run(self, sub_id):
@@ -84,8 +87,60 @@ class Monitor(Service):
                 result=result,
                 name=obj['name']
             ), flush=True)
+            self._emit_node_telemetry(obj)
 
         return True
+
+    def _emit_node_telemetry(self, obj):
+        """Emit telemetry for nodes that reached done state.
+
+        Non-LAVA nodes are always emitted here. LAVA nodes are normally
+        handled by the lava-callback service, but timed-out LAVA nodes
+        never receive a callback, so we emit them here instead.
+        """
+        kind = obj.get('kind')
+        state = obj.get('state')
+        if state != 'done' or kind not in ('kbuild', 'job', 'test'):
+            return
+
+        data = obj.get('data', {})
+        runtime = data.get('runtime', '')
+        error_code = data.get('error_code', '')
+
+        # Skip LAVA nodes that got a normal callback — lava_callback
+        # service already emits richer telemetry for those.  Only let
+        # timed-out LAVA nodes through (error_code == 'node_timeout').
+        # kbuild nodes never go through LAVA callback, so always emit.
+        if (kind != 'kbuild'
+                and runtime.startswith('lava-')
+                and error_code != 'node_timeout'):
+            return
+
+        kernel_rev = data.get('kernel_revision', {})
+        common = {
+            'runtime': runtime,
+            'device_type': data.get('platform', ''),
+            'job_name': obj.get('name', ''),
+            'node_id': obj.get('id'),
+            'tree': kernel_rev.get('tree'),
+            'branch': kernel_rev.get('branch'),
+            'arch': data.get('arch'),
+            'result': obj.get('result'),
+        }
+
+        if error_code == 'node_timeout':
+            common['error_type'] = 'node_timeout'
+            common['error_msg'] = data.get('error_msg', 'Node timed-out')
+
+        kind_map = {
+            'kbuild': 'build_result',
+            'job': 'job_result',
+            'test': 'test_result',
+        }
+        event_kind = kind_map[kind]
+        if kind == 'test':
+            common['test_name'] = obj.get('name', '')
+        self._telemetry.emit(event_kind, **common)
 
 
 class cmd_run(Command):
