@@ -31,6 +31,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 from base import validate_url
+from telemetry import TelemetryEmitter
 
 
 SETTINGS = toml.load(os.getenv('KCI_SETTINGS', 'config/kernelci.toml'))
@@ -161,6 +162,24 @@ class LogSanitizer:
 
 
 metrics = Metrics('pipeline_callback')
+
+# Initialize telemetry emitter with the default API config
+_telemetry_emitter = None
+
+
+def _get_telemetry_emitter():
+    """Lazy-init telemetry emitter using default API config."""
+    global _telemetry_emitter
+    if _telemetry_emitter is None:
+        api_config_name = SETTINGS.get('DEFAULT', {}).get('api_config')
+        if api_config_name:
+            api_token = os.getenv('KCI_API_TOKEN')
+            api_config = CONFIGS['api'][api_config_name]
+            api = kernelci.api.get_api(api_config, api_token)
+            _telemetry_emitter = TelemetryEmitter(
+                api, 'lava-callback'
+            )
+    return _telemetry_emitter
 
 
 def _get_api_helper(api_config_name, api_token):
@@ -340,10 +359,80 @@ def async_job_submit(api_helper, node_id, job_callback):
                 logger.info(f"Artifact {artifact[1]} added with URL {artifact[2]}")
         hierarchy = job_callback.get_hierarchy(results, job_node)
         api_helper.submit_results(hierarchy, job_node)
+
+        # Emit telemetry events
+        _emit_callback_telemetry(
+            job_node, job_callback, hierarchy
+        )
+
         logger.info(f"Completed processing callback for node {node_id}")
     except Exception as e:
         logger.exception(f"Error processing callback for node {node_id}: {e}")
         metrics.add('lava_callback_late_fail_total', 1)
+
+
+def _emit_callback_telemetry(job_node, job_callback, hierarchy):
+    """Emit telemetry for LAVA callback results."""
+    emitter = _get_telemetry_emitter()
+    if not emitter:
+        return
+
+    kernel_rev = job_node.get('data', {}).get('kernel_revision', {})
+    runtime = job_node.get('data', {}).get('runtime', '')
+    device_type = job_node.get('data', {}).get('platform', '')
+    device_id = job_node.get('data', {}).get('device')
+    job_id = job_node.get('data', {}).get('job_id')
+    is_infra = job_callback.is_infra_error() if job_node.get(
+        'result') == 'incomplete' else False
+
+    common = {
+        'runtime': runtime,
+        'device_type': device_type,
+        'device_id': device_id,
+        'job_name': job_node.get('name', ''),
+        'job_id': str(job_id) if job_id else None,
+        'node_id': job_node.get('id'),
+        'tree': kernel_rev.get('tree'),
+        'branch': kernel_rev.get('branch'),
+        'arch': job_node.get('data', {}).get('arch'),
+    }
+
+    # Job-level result
+    emitter.emit(
+        'job_result',
+        result=job_node.get('result'),
+        is_infra_error=is_infra,
+        error_type=job_node.get('data', {}).get('error_code'),
+        error_msg=job_node.get('data', {}).get('error_msg'),
+        **common,
+    )
+
+    # Per-test results from hierarchy
+    child_nodes = hierarchy.get('child_nodes', [])
+    _emit_test_results(emitter, child_nodes, common)
+
+
+def _emit_test_results(emitter, child_nodes, common, suite=None):
+    """Recursively emit test_result events from the hierarchy."""
+    for child in child_nodes:
+        node = child.get('node', {})
+        name = node.get('name', '')
+        kind = node.get('kind', 'test')
+        result = node.get('result')
+        sub_children = child.get('child_nodes', [])
+
+        if kind == 'test':
+            emitter.emit(
+                'test_result',
+                test_name=name,
+                result=result,
+                extra={'suite': suite} if suite else {},
+                **common,
+            )
+        elif sub_children:
+            _emit_test_results(
+                emitter, sub_children, common, suite=name
+            )
 
 
 def submit_job(api_helper, node_id, job_callback):
