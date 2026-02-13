@@ -30,6 +30,7 @@ import kernelci.storage
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
+from telemetry import TelemetryEmitter
 
 BACKUP_DIR = '/tmp/kci-backup'
 WATCHDOG_TIMEOUT = 10 * 60  # 10 minutes in seconds
@@ -192,6 +193,8 @@ class Scheduler(Service):
                 self._storage = None
                 self._storage_config = None
 
+        self._telemetry = TelemetryEmitter(self._api, 'scheduler')
+
     def _get_runtimes_configs(self, configs, runtimes, runtime_types=None):
         """Get runtime configurations filtered by name and/or type.
 
@@ -265,6 +268,8 @@ class Scheduler(Service):
 
     def _stop(self, context):
         self._stop_thread = True
+        if hasattr(self, '_telemetry'):
+            self._telemetry.close()
         for _, sub_id in self._context.items():
             if sub_id:
                 self.log.info(f"Unsubscribing: {sub_id}")
@@ -400,6 +405,15 @@ class Scheduler(Service):
                         f"Skipping job {job_config.name} for {runtime.config.name}: "
                         f"device_type={device_type} has no online devices"
                     )
+                    self._telemetry.emit(
+                        'job_skip',
+                        runtime=runtime.config.name,
+                        device_type=device_type,
+                        job_name=job_config.name,
+                        error_type='no_online_devices',
+                        error_msg=f'device_type={device_type} '
+                                  f'has no online devices',
+                    )
                     return True  # Skip submission when no online devices
 
             queued = runtime.get_devicetype_job_count(device_type)
@@ -410,11 +424,33 @@ class Scheduler(Service):
                     f"device_type={device_type} queue_depth={queued} >= "
                     f"max={max_queue_depth}"
                 )
+                self._telemetry.emit(
+                    'job_skip',
+                    runtime=runtime.config.name,
+                    device_type=device_type,
+                    job_name=job_config.name,
+                    error_type='queue_depth',
+                    error_msg=f'device_type={device_type} '
+                              f'queue_depth={queued} >= '
+                              f'max={max_queue_depth}',
+                    extra={
+                        'queue_depth': queued,
+                        'max_depth': max_queue_depth,
+                    },
+                )
                 return True
             return False
         except Exception as exc:
             self.log.warning(
                 f"Failed to check LAVA queue depth for {device_type}: {exc}"
+            )
+            self._telemetry.emit(
+                'runtime_error',
+                runtime=runtime.config.name,
+                device_type=device_type,
+                job_name=job_config.name,
+                error_type='online_check',
+                error_msg=str(exc),
             )
             return False  # Fail-open: don't skip on errors
 
@@ -428,6 +464,26 @@ class Scheduler(Service):
                 return priority
         self.log.debug(f"No build config found for {tree_name}/{branch_name}")
         return None
+
+    def _telemetry_fields(self, node, job_config, runtime, platform,
+                          retry_counter):
+        """Extract common telemetry fields from a job context."""
+        kernel_rev = node.get('data', {}).get('kernel_revision', {})
+        device_type = None
+        if job_config.params:
+            device_type = job_config.params.get('device_type')
+        if not device_type:
+            device_type = platform.name
+        return {
+            'runtime': runtime.config.name,
+            'device_type': device_type,
+            'job_name': job_config.name,
+            'node_id': node.get('id'),
+            'tree': kernel_rev.get('tree'),
+            'branch': kernel_rev.get('branch'),
+            'arch': job_config.params.get('arch') if job_config.params else None,
+            'retry': retry_counter,
+        }
 
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
@@ -494,6 +550,14 @@ class Scheduler(Service):
             node['state'] = 'done'
             node['result'] = 'incomplete'
             node['data']['error_code'] = 'invalid_job_params'
+            self._telemetry.emit(
+                'runtime_error',
+                error_type='invalid_job_params',
+                error_msg='Invalid job parameters, aborting...',
+                **self._telemetry_fields(
+                    node, job_config, runtime, platform, retry_counter
+                ),
+            )
             try:
                 self._api.node.update(node)
             except requests.exceptions.HTTPError as err:
@@ -529,6 +593,14 @@ class Scheduler(Service):
             node['result'] = 'incomplete'
             node['data']['error_code'] = 'job_generation_error'
             node['data']['error_msg'] = str(e)
+            self._telemetry.emit(
+                'runtime_error',
+                error_type='job_generation_error',
+                error_msg=str(e),
+                **self._telemetry_fields(
+                    node, job_config, runtime, platform, retry_counter
+                ),
+            )
             try:
                 self._api.node.update(node)
             except requests.exceptions.HTTPError as err:
@@ -547,6 +619,15 @@ class Scheduler(Service):
             node['state'] = 'done'
             node['result'] = 'fail'
             node['data']['error_code'] = 'job_generation_error'
+            self._telemetry.emit(
+                'runtime_error',
+                error_type='job_generation_error',
+                error_msg='Failed to generate job definition, '
+                          'aborting...',
+                **self._telemetry_fields(
+                    node, job_config, runtime, platform, retry_counter
+                ),
+            )
             try:
                 self._api.node.update(node)
             except requests.exceptions.HTTPError as err:
@@ -572,6 +653,14 @@ class Scheduler(Service):
             node['result'] = 'incomplete'
             node['data']['error_code'] = 'submit_error'
             node['data']['error_msg'] = str(e)
+            self._telemetry.emit(
+                'runtime_error',
+                error_type='submit_error',
+                error_msg=str(e),
+                **self._telemetry_fields(
+                    node, job_config, runtime, platform, retry_counter
+                ),
+            )
             try:
                 self._api.node.update(node)
             except requests.exceptions.HTTPError as err:
@@ -618,6 +707,15 @@ class Scheduler(Service):
             log_parts.append(job_id)
 
         self.log.info(' '.join(log_parts))
+
+        tfields = self._telemetry_fields(
+            node, job_config, runtime, platform, retry_counter
+        )
+        self._telemetry.emit(
+            'job_submission',
+            job_id=job_id,
+            **tfields,
+        )
 
         if runtime.config.lab_type in ['shell', 'docker']:
             self._job_tmp_dirs[running_job] = tmp
