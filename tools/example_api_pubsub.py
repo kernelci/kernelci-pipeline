@@ -8,6 +8,7 @@ and in production it is preferable to use cloudevents library
 import requests
 import json
 import sys
+import argparse
 
 
 # This is staging server: "https://staging.kernelci.org:9000/latest"
@@ -51,7 +52,16 @@ def process_event(eventdata):
 
 
 def main():
-    token = read_token()
+    parser = argparse.ArgumentParser(
+        description="Simplified example for subscribing to kernelci.org pubsub"
+    )
+    parser.add_argument(
+        "-t",
+        "--token",
+        help="Authentication token to use for API requests",
+    )
+    args = parser.parse_args()
+    token = args.token if args.token else read_token()
     print("Subscribing to node")
     response = subscribe_node(token)
     print(f'Subscribed with id {response["id"]}')
