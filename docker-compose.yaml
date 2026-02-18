@@ -37,7 +37,8 @@ services:
       - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
-      - '--runtimes=shell'
+      - '--runtimes'
+      - 'shell'
       - '--name=scheduler'
     volumes:
 #      - './src:/home/kernelci/pipeline'
@@ -60,7 +61,8 @@ services:
       - './src/scheduler.py'
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
-      - '--runtimes=docker'
+      - '--runtimes'
+      - 'docker'
       - '--name=scheduler_docker'
     volumes:
 #      - './src:/home/kernelci/pipeline'
