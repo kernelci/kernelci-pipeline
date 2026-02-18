@@ -485,6 +485,26 @@ class Scheduler(Service):
             'retry': retry_counter,
         }
 
+    @staticmethod
+    def _normalize_priority(priority):
+        if isinstance(priority, int):
+            return priority
+        if not isinstance(priority, str):
+            return priority
+
+        priority_normalized = priority.strip().lower()
+        priority_map = {
+            'low': 0,
+            'medium': 50,
+            'high': 100,
+        }
+        if priority_normalized in priority_map:
+            return priority_map[priority_normalized]
+        try:
+            return int(priority_normalized)
+        except ValueError:
+            return priority
+
     def _run_job(self, job_config, runtime, platform, input_node, retry_counter):
         try:
             node = self._api_helper.create_job_node(
@@ -528,6 +548,16 @@ class Scheduler(Service):
                 job_node['artifacts'].update(parent_node['artifacts'])
             else:
                 job_node['artifacts'] = parent_node['artifacts']
+
+        if 'priority' in job_node['data']:
+            job_node['data']['priority'] = self._normalize_priority(
+                job_node['data'].get('priority')
+            )
+        if 'tree_priority' in job_node['data']:
+            job_node['data']['tree_priority'] = self._normalize_priority(
+                job_node['data']['tree_priority']
+            )
+
         if job_config.image:
             # handle it as f-string, with possible parameter imgprefix
             image_params = {
