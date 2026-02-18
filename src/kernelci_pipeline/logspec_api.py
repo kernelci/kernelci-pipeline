@@ -19,6 +19,10 @@ import kcidb
 import logspec.main
 
 
+# Default network timeout (seconds)
+REQUEST_TIMEOUT = 10
+
+
 # Configuration tables per object type
 test_types = {
     'build': {
@@ -249,5 +253,3 @@ def generate_issues_and_incidents(result_id, log_url, test_type):
     parsed_data['issue_node'] = list({issue["id"]: issue for issue in parsed_data['issue_node']}.values())
 
     return parsed_data, new_status
-# Default network timeout (seconds)
-REQUEST_TIMEOUT = 10
