@@ -40,11 +40,11 @@ CONFIGS = kernelci.config.load(
 )
 SETTINGS_PREFIX = 'runtime'
 YAMLCFG = kernelci.config.load_yaml('config')
+# Default network timeout (seconds)
+REQUEST_TIMEOUT = 10
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
-# Default network timeout (seconds)
-REQUEST_TIMEOUT = 10
 
 # Configure logging to output to stdout
 logging.basicConfig(
