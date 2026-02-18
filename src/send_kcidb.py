@@ -217,17 +217,16 @@ class KCIDBBridge(Service):
         try:
             # parse compressed file such as lava log files
             buffer_data = io.BytesIO(res.content)
-            with gzip.open(buffer_data, mode='rt') as fp:
+            with gzip.open(buffer_data, mode='rt', encoding='utf-8',
+                           errors='replace') as fp:
                 data = fp.read()
-                trunc_data = data[-(16 * 1024):]
-                self._excerptcache[log_url] = trunc_data
-                return trunc_data
         except gzip.BadGzipFile:
             # parse text file such as kunit log file `test_log`
-            data = res.content.decode("utf-8")
-            trunc_data = data[-(16 * 1024):]
-            self._excerptcache[log_url] = trunc_data
-            return trunc_data
+            data = res.content.decode("utf-8", errors="replace")
+
+        trunc_data = data[-(16 * 1024):]
+        self._excerptcache[log_url] = trunc_data
+        return trunc_data
 
     def _cache_expire(self):
         """Read list of files /tmp/cached_* and remove the oldest one
