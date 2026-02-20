@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2026 Linaro Limited
+
+_anchors:
+  node-event: &node-event-kbuild
+    channel: node
+    kind: kbuild
+    state: available
+
+scheduler:
+
+  - job: baseline-arm-pull-labs-demo
+    event: &kbuild-gcc-14-arm-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm
+    runtime: &pull-labs-demo-runtime
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - beaglebone-black
+      - imx6dl-udoo
+
+  - job: baseline-arm64-pull-labs-demo
+    event: &kbuild-gcc-14-arm64-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - bcm2711-rpi-4-b
+      - cd8180-orion-o6
+      - fvp-aemva
+      - qemu-arm64
+
+  - job: ltp-smoketest-pull-labs
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - bcm2711-rpi-4-b
+
+  - job: ltp-smoketest-pull-labs
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-nfsboot
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - cd8180-orion-o6
+      - qemu-arm64
+
+  - job: baseline-x86-pull-labs-demo
+    event: &kbuild-gcc-14-x86-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-x86
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - qemu

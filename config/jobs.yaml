@@ -160,7 +160,6 @@ jobs:
   baseline-arm: *baseline-job
   baseline-arm-broonie: *baseline-job
   baseline-arm-testpull: *baseline-job
-  baseline-arm-pull-labs-demo: *baseline-job
   baseline-arm-baylibre: *baseline-job
   baseline-arm-clabbe: *baseline-job
   baseline-arm-kontron: *baseline-job
@@ -178,7 +177,6 @@ jobs:
   baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-foundriesio: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
-  baseline-arm64-pull-labs-demo: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job
@@ -188,7 +186,6 @@ jobs:
   baseline-x86-kcidebug-intel: *baseline-job
   baseline-x86-mfd: *baseline-job
   baseline-x86-qualcomm: *baseline-job
-  baseline-x86-pull-labs-demo: *baseline-job
 
   baseline-nfs-arm64: *baseline-nfs-job
   coverage-report-arm: &coverage-report-job
@@ -2330,14 +2327,6 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "smoketest"
-
-  ltp-smoketest-pull-labs:
-    template: ltp-pull-labs.jinja2
-    kind: job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "smoketest"
-    kcidb_test_suite: ltp
 
   ltp-syscalls:
     <<: *ltp-job
