@@ -371,15 +371,7 @@ platforms:
     dtb: dtbs/exynos5422-odroidxu3.dtb
     compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
 
-  # TODO: verify why this platform appears in test results
-  # probably mistake and its same as qcs6490-rb3gen2
-  qcs6490:
-    <<: *arm64-device
-    boot_method: fastboot
-    mach: qcom
-    dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
-    compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
-
+  # Qualcomm Platfrom list
   qcs615-ride:
     <<: *arm64-device
     boot_method: fastboot
@@ -407,6 +399,41 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/qcs9100-ride.dtb
     compatible: ['qcom,qcs9100-ride', 'qcom,qcs9100']
+
+  sm8750-mtp:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/sm8750-mtp.dtb
+    compatible: ['qcom,sm8750-mtp', 'qcom,sm8750']
+
+  kaanapali-qrd:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/kaanapali-qrd.dtb
+    compatible: ['qcom,kaanapali-qrd', 'qcom,kaanapali']
+
+  kaanapali-mtp:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/kaanapali-mtp.dtb
+    compatible: ['qcom,kaanapali-mtp', 'qcom,kaanapali']
+
+  lemans-evk:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/lemans-evk.dtb
+    compatible: ['qcom,lemans-evk', 'qcom,qcs9100', 'qcom,sa8775p']
+
+  monaco-evk:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/monaco-evk.dtb
+    compatible: ['qcom,monaco-evk', 'qcom,qcs8300']
 
   qemu: &qemu-device
     base_name: qemu
