@@ -371,7 +371,7 @@ platforms:
     dtb: dtbs/exynos5422-odroidxu3.dtb
     compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
 
-  # Qualcomm Platfrom list
+  # Qualcomm Platform list
   qcs615-ride:
     <<: *arm64-device
     boot_method: fastboot
