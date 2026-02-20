@@ -328,6 +328,10 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
       - x1e80100
 
   - job: baseline-riscv-broonie
@@ -905,9 +909,15 @@ scheduler:
       type: lava
       name: lava-kci-qualcomm
     platforms:
+      - qcs615-ride
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-breakpoints
     event: *kbuild-gcc-14-arm-node-event
@@ -924,6 +934,23 @@ scheduler:
       - cd8180-orion-o6
       - meson-sm1-s905d3-libretech-cc
 
+  - job: kselftest-breakpoints-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-capabilities
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
@@ -935,6 +962,23 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
+
+  - job: kselftest-capabilities-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-clone3
     event: *kbuild-gcc-14-arm-node-event
@@ -948,6 +992,23 @@ scheduler:
     platforms:
       - meson-gxl-s905x-libretech-cc
 
+  - job: kselftest-clone3-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-coredump
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
@@ -959,6 +1020,23 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - meson-gxl-s905x-libretech-cc
+
+  - job: kselftest-coredump-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-device-error-logs-main
     event: *kbuild-gcc-14-arm-node-event
@@ -1000,6 +1078,23 @@ scheduler:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
 
+  - job: kselftest-dt-ramdisk
+    event: *kbuild-gcc-14-arm-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-efivars
     event:
       <<: *node-event-kbuild
@@ -1007,6 +1102,25 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - cd8180-orion-o6
+
+  - job: kselftest-efivars-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-kselftest
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-fchmodat2
     event:
@@ -1041,6 +1155,25 @@ scheduler:
     platforms:
       - stm32mp157a-dhcor-avenger96
 
+  - job: kselftest-ftrace-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-kselftest
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-futex
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
@@ -1053,6 +1186,23 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: kselftest-futex-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-gpio
     event:
@@ -1069,6 +1219,25 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
+
+  - job: kselftest-gpio-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-kselftest
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-ipc
     event:
@@ -1260,6 +1429,25 @@ scheduler:
       - cd8180-orion-o6
       - sun50i-h5-libretech-all-h3-cc
 
+  - job: kselftest-perf-events-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-kselftest
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-proc
     event:
       <<: *node-event-kbuild
@@ -1276,6 +1464,24 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
+  - job: kselftest-proc-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+
   - job: kselftest-ring-buffer
     event:
       <<: *node-event-kbuild
@@ -1291,6 +1497,25 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
+
+  - job: kselftest-ring-buffer-ramdisk
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-kselftest
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-rlimits
     event:
@@ -1370,6 +1595,23 @@ scheduler:
       - bcm2837-rpi-3-b-plus
       - cd8180-orion-o6
 
+  - job: kselftest-timers-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
+
   - job: kselftest-tmpfs
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
@@ -1381,6 +1623,23 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
+
+  - job: kselftest-tmpfs-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-seccomp
     event:
@@ -1501,6 +1760,23 @@ scheduler:
     platforms:
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
+
+  - job: kselftest-cpufreq-ramdisk
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - kaanapali-qrd
+      - qcs615-ride
+      - qcs6490-rb3gen2
+      - qcs8300-ride
+      - qcs9100-ride
+      - sm8750-mtp
+      - kaanapali-mtp
+      - lemans-evk
+      - monaco-evk
+      - x1e80100
 
   - job: kselftest-cpufreq-suspend
     event: *kbuild-gcc-14-arm64-node-event
