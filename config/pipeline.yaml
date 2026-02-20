@@ -162,14 +162,5 @@ runtimes:
       callback:
         token: kernelci-lab-testpull
 
-  pull-labs-demo:
-    lab_type: pull_labs
-    poll_interval: 45
-    timeout: 7200
-    storage_name: kci-storage
-    notify:
-      callback:
-        token: kernelci-pull-labs-demo
-
   shell:
     lab_type: shell

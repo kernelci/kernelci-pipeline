@@ -82,15 +82,6 @@ scheduler:
       - beaglebone-black
       - imx6dl-udoo
 
-  - job: baseline-arm-pull-labs-demo
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: &pull-labs-demo-runtime
-      type: pull_labs
-      name: pull-labs-demo
-    platforms: &pull-labs-demo-arm
-      - beaglebone-black
-      - imx6dl-udoo
-
   - job: baseline-arm-clabbe
     event: *kbuild-gcc-14-arm-node-event
     runtime: &lava-clabbe-runtime
@@ -164,36 +155,6 @@ scheduler:
       - rk3399-rock-pi-4b
       - rk3588-rock-5b
       - sun50i-h6-pine-h64
-
-  - job: baseline-arm64-pull-labs-demo
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime:
-      type: pull_labs
-      name: pull-labs-demo
-    platforms:
-      - bcm2711-rpi-4-b
-      - cd8180-orion-o6
-      - fvp-aemva
-      - qemu-arm64
-
-  - job: ltp-smoketest-pull-labs
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime:
-      type: pull_labs
-      name: pull-labs-demo
-    platforms:
-      - bcm2711-rpi-4-b
-
-  - job: ltp-smoketest-pull-labs
-    event:
-      <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm64-nfsboot
-    runtime:
-      type: pull_labs
-      name: pull-labs-demo
-    platforms:
-      - cd8180-orion-o6
-      - qemu-arm64
 
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
@@ -410,14 +371,6 @@ scheduler:
     platforms:
       - qemu
       - aaeon-UPN-EHLX4RE-A10-0864
-
-  - job: baseline-x86-pull-labs-demo
-    event: *kbuild-gcc-14-x86-node-event
-    runtime:
-      type: pull_labs
-      name: pull-labs-demo
-    platforms:
-      - qemu
 
   - job: blktests-ddp-x86
     event: *kbuild-gcc-14-x86-node-event

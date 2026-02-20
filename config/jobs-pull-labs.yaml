@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2026 Linaro Limited
+
+_anchors:
+  baseline-job-pull-labs: &baseline-job-pull-labs
+    template: baseline.jinja2
+    kind: job
+    priority: medium
+    kcidb_test_suite: boot
+    params:
+      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
+
+  ltp-params-pull-labs: &ltp-params-pull-labs
+    boot_commands: nfs
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20251201.0/{debarch}'
+    skip_install: "true"
+    skipfile: skipfile-lkft.yaml
+    workers: max
+
+jobs:
+  baseline-arm-pull-labs-demo: *baseline-job-pull-labs
+  baseline-arm64-pull-labs-demo: *baseline-job-pull-labs
+  baseline-x86-pull-labs-demo: *baseline-job-pull-labs
+
+  ltp-smoketest-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "smoketest"
+    kcidb_test_suite: ltp
