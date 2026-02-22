@@ -39,6 +39,7 @@ _anchors:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
     params: &kbuild-clang-21-arm64-params
+      backend: tuxmake
       arch: arm64
       compiler: clang-21
       cross_compile: 'aarch64-linux-gnu-'
@@ -48,6 +49,7 @@ _anchors:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
     params: &kbuild-clang-21-x86-params
+      backend: tuxmake
       arch: x86_64
       compiler: clang-21
       defconfig: x86_64_defconfig
@@ -56,6 +58,7 @@ _anchors:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
     params: &kbuild-gcc-14-arm64-params
+      backend: tuxmake
       arch: arm64
       compiler: gcc-14
       cross_compile: 'aarch64-linux-gnu-'
@@ -81,6 +84,7 @@ _anchors:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
     params: &kbuild-gcc-14-x86-params
+      backend: tuxmake
       arch: x86_64
       compiler: gcc-14
       defconfig: x86_64_defconfig
@@ -219,6 +223,7 @@ jobs:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}clang-21:arm-kselftest-kernelci
     params: &kbuild-clang-21-arm-params
+      backend: tuxmake
       arch: arm
       compiler: clang-21
       cross_compile: 'arm-linux-gnueabihf-'
@@ -456,6 +461,7 @@ jobs:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}clang-21:riscv64-kselftest-kernelci
     params: &kbuild-clang-21-riscv-params
+      backend: tuxmake
       arch: riscv
       compiler: clang-21
       cross_compile: 'riscv64-linux-gnu-'
@@ -630,6 +636,7 @@ jobs:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
     params: &kbuild-gcc-14-arm-params
+      backend: tuxmake
       arch: arm
       compiler: gcc-14
       cross_compile: 'arm-linux-gnueabihf-'
@@ -1291,6 +1298,7 @@ jobs:
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:riscv64-kselftest-kernelci
     params: &kbuild-gcc-14-riscv-params
+      backend: tuxmake
       arch: riscv
       compiler: gcc-14
       cross_compile: 'riscv64-linux-gnu-'
