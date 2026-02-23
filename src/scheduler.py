@@ -559,22 +559,29 @@ class Scheduler(Service):
         job.storage_config = self._storage_config
         try:
             params = runtime.get_params(job, self._api.config)
-        except ValueError as exc:
-            error_detail = str(exc)
+        except Exception as exc:
+            if isinstance(exc, ValueError):
+                error_code = 'invalid_job_params'
+                error_detail = str(exc)
+                log_prefix = "Invalid job parameters:"
+            else:
+                error_code = 'invalid_job_params'
+                error_detail = f"{type(exc).__name__}: {exc}"
+                log_prefix = "Failed to get job parameters:"
             self.log.error(' '.join([
                 node['id'],
                 runtime.config.name,
                 platform.name,
                 job_config.name,
-                f"Invalid job parameters: {error_detail}",
+                f"{log_prefix} {error_detail}",
             ]))
             node['state'] = 'done'
             node['result'] = 'incomplete'
-            node['data']['error_code'] = 'invalid_job_params'
+            node['data']['error_code'] = error_code
             node['data']['error_msg'] = error_detail
             self._telemetry.emit(
                 'runtime_error',
-                error_type='invalid_job_params',
+                error_type=error_code,
                 error_msg=error_detail,
                 **self._telemetry_fields(
                     node, job_config, runtime, platform, retry_counter
