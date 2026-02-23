@@ -557,22 +557,25 @@ class Scheduler(Service):
         job = kernelci.runtime.Job(job_node, job_config)
         job.platform_config = platform
         job.storage_config = self._storage_config
-        params = runtime.get_params(job, self._api.config)
-        if not params:
+        try:
+            params = runtime.get_params(job, self._api.config)
+        except ValueError as exc:
+            error_detail = str(exc)
             self.log.error(' '.join([
                 node['id'],
                 runtime.config.name,
                 platform.name,
                 job_config.name,
-                "Invalid job parameters, aborting...",
+                f"Invalid job parameters: {error_detail}",
             ]))
             node['state'] = 'done'
             node['result'] = 'incomplete'
             node['data']['error_code'] = 'invalid_job_params'
+            node['data']['error_msg'] = error_detail
             self._telemetry.emit(
                 'runtime_error',
                 error_type='invalid_job_params',
-                error_msg='Invalid job parameters, aborting...',
+                error_msg=error_detail,
                 **self._telemetry_fields(
                     node, job_config, runtime, platform, retry_counter
                 ),
