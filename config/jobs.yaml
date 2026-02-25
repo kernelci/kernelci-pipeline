@@ -2322,7 +2322,7 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "sched"
 
-  ltp-smoketest:
+  ltp-smoke:
     <<: *ltp-job
     params:
       <<: *ltp-params
