@@ -105,7 +105,7 @@ _anchors:
     priority: low
     params: &ltp-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20251201.0/{debarch}'
+      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260219.0/{debarch}'
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
       workers: max
