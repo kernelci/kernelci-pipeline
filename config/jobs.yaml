@@ -2244,7 +2244,7 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "fs"
 
-  ltp-fs-bind:
+  ltp-fs_bind:
     <<: *ltp-job
     params:
       <<: *ltp-params
