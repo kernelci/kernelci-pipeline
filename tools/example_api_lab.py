@@ -142,13 +142,13 @@ def main():
         {
             "name": "test1",
             "result": "pass",
-            "platform": "qemu",
+            "platform": "qemu-x86_64",
             "runtime": "lab-abcde",
         },
         {
             "name": "test2",
             "result": "fail",
-            "platform": "qemu-x86",
+            "platform": "qemu-x86_64",
             "runtime": "lab-abcde",
         },
     ]
