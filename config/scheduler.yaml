@@ -1852,13 +1852,13 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-fs-bind
+  - job: ltp-fs_bind
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
-  - job: ltp-fs-bind
+  - job: ltp-fs_bind
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
