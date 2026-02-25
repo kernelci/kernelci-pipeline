@@ -2250,7 +2250,7 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "fs_bind"
 
-  ltp-fs-perms-simple:
+  ltp-fs_perms_simple:
     <<: *ltp-job
     params:
       <<: *ltp-params
