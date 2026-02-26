@@ -107,6 +107,21 @@ platforms:
         - 'stable-rc:linux-6.6.y'
         - 'stable-rc:linux-6.12.y'
 
+  asus-CX3402CVA-brya:
+    <<: *x86-chromebook-device
+    params:
+      <<: *x86-chromebook-device-params
+      short_name: brya
+    rules:
+      <<: *x86-chromebook-device-rules
+      branch:
+        - 'mainline:master'
+        - 'next:master'
+        - 'stable:linux-6.6.y'
+        - 'stable:linux-6.12.y'
+        - 'stable-rc:linux-6.6.y'
+        - 'stable-rc:linux-6.12.y'
+
   asus-CM1400CXA-dalboz: &chromebook-zork-device
     <<: *x86-chromebook-device
     params:
@@ -160,6 +175,19 @@ platforms:
         - 'stable-rc:linux-6.6.y'
         - 'stable-rc:linux-6.12.y'
 
+  mt8196-rauru-navi-sku0:
+    <<: *mediatek-chromebook-device
+    dtb: dtbs/mediatek/mt8196-rauru-navi-sku0.dtb
+    compatible: ['google,rauru-navi-sku0', 'mediatek,mt8196']
+    params:
+      <<: *arm64-chromebook-device-params
+      short_name: rauru
+    rules:
+      <<: *arm64-chromebook-device-rules
+      branch:
+        - 'mainline:master'
+        - 'next:master'
+
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
     dtb:
@@ -206,3 +234,8 @@ platforms:
     <<: *trogdor-chromebook-device
     dtb: dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb
     compatible: ['google,lazor-rev5-sku5', 'google,lazor-rev5-sku6']
+
+  sc7180-trogdor-wormdingler-rev1-boe:
+    <<: *trogdor-chromebook-device
+    dtb: dtbs/qcom/sc7180-trogdor-wormdingler-rev1-boe.dtb
+    compatible: ['google,wormdingler-sku1024', 'qcom,sc7180']

@@ -13,14 +13,17 @@ _anchors:
     - acer-chromebox-cxi5-brask
     - acer-cp514-2h-1130g7-volteer
     - acer-cp514-2h-1160g7-volteer
+    - asus-CX3402CVA-brya
 
   mediatek-platforms: &mediatek-platforms
     - mt8183-kukui-jacuzzi-juniper-sku16
     - mt8195-cherry-tomato-r2
+    - mt8196-rauru-navi-sku0
 
   qualcomm-platforms: &qualcomm-platforms
     - sc7180-trogdor-kingoftown
     - sc7180-trogdor-lazor-limozeen
+    - sc7180-trogdor-wormdingler-rev1-boe
 
   build-k8s-all: &build-k8s-all
     event:
@@ -212,17 +215,14 @@ scheduler:
   - job: kselftest-iommu
     <<: *test-job-arm64-mediatek
 
-  # TODO: Need better hardware coverage
   - job: ltp-crypto
     <<: *test-job-x86
     platforms: *intel-platforms
 
-  # TODO: Need better hardware coverage
   - job: ltp-fcntl-locktests
     <<: *test-job-x86
     platforms: *intel-platforms
 
-  # TODO: Need better hardware coverage
   - job: ltp-ima
     <<: *test-job-x86
     platforms: *intel-platforms
@@ -232,17 +232,14 @@ scheduler:
     platforms:
       - acer-cp514-2h-1130g7-volteer
 
-  # TODO: Need better hardware coverage
   - job: ltp-mm
     <<: *test-job-x86
     platforms: *intel-platforms
 
-  # TODO: Need better hardware coverage
   - job: ltp-pty
     <<: *test-job-x86
     platforms: *intel-platforms
 
-  # TODO: Need better hardware coverage
   - job: ltp-timers
     <<: *test-job-x86
     platforms: *intel-platforms

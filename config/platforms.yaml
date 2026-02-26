@@ -91,6 +91,20 @@ platforms:
 
   docker:
 
+  dragonboard-410c:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/apq8016-sbc.dtb
+    compatible: ['qcom,apq8016-sbc', 'qcom,apq8016']
+
+  dragonboard-820c:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/apq8096-db820c.dtb
+    compatible: ['qcom,apq8096-db820c', 'qcom,apq8096']
+
   eic7700-hifive-premier-p550:
     <<: *riscv-device
     mach: eswin
@@ -405,6 +419,11 @@ platforms:
     dtb: dtbs/qcom/kaanapali-mtp.dtb
     compatible: ['qcom,kaanapali-mtp', 'qcom,kaanapali']
 
+  lenovo-hr330a-7x33cto1ww-emag:
+    <<: *arm64-device
+    mach: ampere
+    boot_method: grub
+
   lemans-evk:
     <<: *arm64-device
     boot_method: fastboot
@@ -462,6 +481,12 @@ platforms:
 
   fvp-aemva: *fvp-device
 
+  r8a779m1-ulcb:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a779m1-ulcb.dtb
+    compatible: ['renesas,h3ulcb', 'renesas,r8a779m1', 'renesas,r8a7795']
+
   rk3399-gru-kevin:
     <<: *arm64-device
     boot_method: depthcharge
@@ -500,11 +525,24 @@ platforms:
     dtb: dtbs/rockchip/rk3568-rock-3a.dts
     compatible: ['radxa,rock3a', 'rockchip,rk3568']
 
+  rk3576-rock-4d:
+    <<: *arm64-device
+    mach: rockchip
+    dtb: dtbs/rockchip/rk3576-rock-4d.dtb
+    compatible: ['radxa,rock-4d', 'rockchip,rk3576']
+
   rk3588-rock-5b:
     <<: *arm64-device
     mach: rockchip
     dtb: dtbs/rockchip/rk3588-rock-5b.dtb
     compatible: ['radxa,rock-5b', 'rockchip,rk3588']
+
+  sm8350-hdk:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/sm8350-hdk.dtb
+    compatible: ['qcom,sm8350-hdk', 'qcom,sm8350']
 
   x1e80100:
     <<: *arm64-device
