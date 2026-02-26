@@ -38,9 +38,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.10.y'
@@ -56,9 +53,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.1'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.1.y'
@@ -74,9 +68,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -92,9 +83,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.15.y'
@@ -110,9 +98,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -128,9 +113,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.4'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.4.y'
@@ -148,9 +130,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -166,9 +145,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -184,9 +160,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.10.y'
@@ -202,9 +175,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.15.y'
@@ -220,9 +190,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.10.y'
@@ -238,9 +205,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.4'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.4.y'
@@ -256,9 +220,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -274,9 +235,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.10.y'
@@ -298,9 +256,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.4'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.4.y'
@@ -316,9 +271,6 @@ platforms:
     rules:
       <<: *x86-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.15.y'
@@ -342,9 +294,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-5.15.y'
@@ -366,9 +315,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.1.y'
@@ -391,9 +337,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.12.y'
@@ -409,9 +352,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-6.1'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -431,9 +371,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -453,9 +390,6 @@ platforms:
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
-        - 'chromiumos:chromeos-5.10'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'
@@ -479,9 +413,6 @@ platforms:
       short_name: trogdor
     rules:
       branch:
-        - 'chromiumos:chromeos-6.6'
-        - 'chromiumos:chromeos-6.12'
-        - 'collabora-chromeos-kernel:for-kernelci'
         - 'mainline:master'
         - 'next:master'
         - 'stable:linux-6.6.y'

@@ -1,121 +1,48 @@
 _anchors:
-  kbuild-clang-21-chromeos:
-    params: &kbuild-clang-21-chromeos-params
-      compiler: clang-21
-      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
-      flavour: '{crosarch}-generic'
-      kselftest: disable
-      frequency: 1d
-
-  kbuild-clang-21-arm64-chromeos: &kbuild-clang-21-arm64-chromeos-job
-    template: kbuild.jinja2
-    kind: kbuild
-    image: ghcr.io/kernelci/{image_prefix}clang-21:arm64-kselftest-kernelci
-    params: &kbuild-clang-21-arm64-chromeos-params
-      <<: *kbuild-clang-21-chromeos-params
-      arch: arm64
-      cross_compile: 'aarch64-linux-gnu-'
-      fragments:
-        - lab-setup
-        - arm64-chromebook
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-clang-21-arm64-chromeos-rules
-      tree:
-      - chromiumos
-
-  kbuild-clang-21-x86-chromeos: &kbuild-clang-21-x86-chromeos-job
-    <<: *kbuild-clang-21-arm64-chromeos-job
-    image: ghcr.io/kernelci/{image_prefix}clang-21:x86-kselftest-kernelci
-    params: &kbuild-clang-21-x86-chromeos-params
-      <<: *kbuild-clang-21-chromeos-params
-      arch: x86_64
-      fragments:
-        - lab-setup
-        - x86-board
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-clang-21-x86-chromeos-rules
-      <<: *kbuild-clang-21-arm64-chromeos-rules
-
-  kbuild-gcc-14-arm64-chromeos: &kbuild-gcc-14-arm64-chromeos-job
+  kbuild-gcc-14-arm64-chromebook: &kbuild-gcc-14-arm64-chromebook-job
     template: kbuild.jinja2
     kind: kbuild
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
-    params: &kbuild-gcc-14-arm64-chromeos-params
+    params:
       arch: arm64
       compiler: gcc-14
       cross_compile: 'aarch64-linux-gnu-'
-      cross_compile_compat: 'arm-linux-gnueabihf-'
-      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromiumos-{flavour}.flavour.config'
-      flavour: '{crosarch}-generic'
+      defconfig: defconfig
       fragments:
         - lab-setup
         - arm64-chromebook
         - CONFIG_MODULE_COMPRESS=n
         - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-gcc-14-arm64-chromeos-rules
+    rules: &kbuild-gcc-14-arm64-chromebook-rules
       tree:
-      - '!android'
-      - '!chromiumos'
-      - '!cip'
-      - '!omap'
+        - '!android'
+        - '!chromiumos'
+        - '!cip'
+        - '!media-committers'
+        - '!omap'
 
-  kbuild-gcc-14-x86-chromeos: &kbuild-gcc-14-x86-chromeos-job
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
-    params: &kbuild-gcc-14-x86-chromeos-params
-      arch: x86_64
-      compiler: gcc-14
-      defconfig: 'cros://chromeos-{krev}/{crosarch}/chromeos-{flavour}.flavour.config'
-      flavour: '{crosarch}-generic'
-      fragments:
-        - lab-setup
-        - x86-board
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules: &kbuild-gcc-14-x86-chromeos-rules
-      tree:
-      - '!android'
-      - '!chromiumos'
-      - '!cip'
-
-  min-5_4-rules: &min-5_4-rules
-    min_version:
-      version: 5
-      patchlevel: 4
-
-  min-6_7-rules: &min-6_7-rules
-    min_version:
-      version: 6
-      patchlevel: 7
-
-  max-6_6-rules: &max-6_6-rules
-    <<: *min-5_4-rules
-    max_version:
-      version: 6
-      patchlevel: 6
-
-  baseline-cros-kernel: &baseline-cros-kernel-job
+  baseline: &baseline-job
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
-    params: &baseline-cros-kernel-params
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
     rules:
       tree:
-        - chromiumos
+        - mainline
+        - stable-rc
+        - stable
 
-  baseline-nfs-cros-kernel: &baseline-nfs-cros-kernel-job
-    <<: *baseline-cros-kernel-job
-    kcidb_test_suite: boot.nfs
+  baseline-nfs: &baseline-nfs-job
+    template: baseline.jinja2
+    kind: job
     params:
-      <<: *baseline-cros-kernel-params
       boot_commands: nfs
       nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+    kcidb_test_suite: boot.nfs
     rules:
       tree:
-        - chromiumos
+        - mainline
+        - stable-rc
+        - stable
 
   kselftest: &kselftest-job
     template: generic.jinja2
@@ -129,29 +56,6 @@ _anchors:
     rules:
       tree:
         - collabora-next:for-kernelci
-
-  kselftest-cros-kernel: &kselftest-cros-kernel-job
-    <<: *kselftest-job
-    params: &kselftest-cros-kernel-params
-      <<: *kselftest-params
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
-    rules: &kselftest-cros-kernel-rules
-      tree:
-        - chromiumos
-
-  ltp-cros-kernel: &ltp-cros-kernel-job
-    template: ltp.jinja2
-    kind: job
-    params: &ltp-cros-kernel-params
-      boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250818.0/{debarch}'
-      skip_install: "true"
-      skipfile: skipfile-lkft.yaml
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
-    kcidb_test_suite: ltp
-    rules: &ltp-cros-kernel-rules
-      tree:
-        - chromiumos
 
   fluster-debian: &fluster-debian-job
     template: 'generic.jinja2'
@@ -167,57 +71,6 @@ _anchors:
       tree:
         - mainline
         - next
-        - collabora-chromeos-kernel
-
-  fault-injection-cros-kernel: &fault-injection-cros-kernel-job
-    template: generic.jinja2
-    kind: job
-    params: &fault-injection-cros-kernel-job-params
-      test_method: fault-injection
-      test_name: suspend-resume
-      test_command: 'rtcwake -m mem -s 15'
-      boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-fault-injection/20250520.0/{debarch}/'
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
-    rules:
-      tree:
-        - chromiumos
-      min_version:
-        version: 5
-        patchlevel: 15
-    kcidb_test_suite: kernelci_fault_injection
-
-  blktests: &blktests-job
-    template: generic.jinja2
-    kind: job
-    params: &blktests-job-params
-      test_method: blktests
-      boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20251016.0/amd64/'
-    kcidb_test_suite: kernelci_blktests
-
-  blktests-cros-kernel: &blktests-cros-kernel-job
-    <<: *blktests-job
-    params: &blktests-cros-kernel-params
-      <<: *blktests-job-params
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
-    rules:
-      tree:
-        - chromiumos
-
-  ltp-fault-injection-cros-kernel: &ltp-fault-injection-cros-kernel-job
-    <<: *ltp-cros-kernel-job
-    params: &ltp-fault-injection-cros-kernel-params
-      <<: *ltp-cros-kernel-params
-      # Uncomment the following line to set a fixed probability value for fault injection,
-      # otherwise a random value between 1 and 100 will be set in ltp.jinja2
-      # extra_kirk_args: "-F 50"
-    kcidb_test_suite: ltp_fault_injection
-    rules: &ltp-fault-injection-cros-kernel-rules
-      <<: *ltp-cros-kernel-rules
-      min_version:
-        version: 5
-        patchlevel: 15
 
   watchdog-reset: &watchdog-reset-job
     template: generic.jinja2
@@ -247,288 +100,24 @@ _anchors:
         - stable
     kcidb_test_suite: kernelci_wifi_basic
 
-  wifi-basic-cros-kernel: &wifi-basic-cros-kernel-job
-    <<: *wifi-basic-job
-    params:
-      <<: *wifi-basic-job-params
-      extra_kernel_args: "lsm=capability,landlock,yama,safesetid,selinux,bpf"
-    rules:
-      tree:
-        - chromiumos
-
 jobs:
 
-  baseline-arm64-mediatek-chromebook: &baseline-job
-    template: baseline.jinja2
-    kind: job
-    kcidb_test_suite: boot
-    rules:
-      tree:
-        - mainline
-        - stable-rc
-        - stable
-
+  baseline-arm64-mediatek-chromebook: *baseline-job
   baseline-arm64-qualcomm-chromebook: *baseline-job
-
-  baseline-nfs-arm64-mediatek-chromebook: &baseline-nfs-job
-    template: baseline.jinja2
-    kind: job
-    params:
-      boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
-    kcidb_test_suite: boot.nfs
-    rules:
-      tree:
-        - mainline
-        - stable-rc
-        - stable
-
+  baseline-nfs-arm64-mediatek-chromebook: *baseline-nfs-job
   baseline-nfs-arm64-qualcomm-chromebook: *baseline-nfs-job
   baseline-nfs-x86-amd-chromebook: *baseline-nfs-job
   baseline-nfs-x86-intel-chromebook: *baseline-nfs-job
   baseline-x86-amd-chromebook: *baseline-job
-  baseline-x86-amd-staging-chromebook: *baseline-job
   baseline-x86-intel-chromebook: *baseline-job
 
-  baseline-arm64-mediatek-cros-kernel: *baseline-cros-kernel-job
-  baseline-arm64-qualcomm-cros-kernel: *baseline-cros-kernel-job
-  baseline-x86-amd-cros-kernel: *baseline-cros-kernel-job
-  baseline-x86-intel-cros-kernel: *baseline-cros-kernel-job
-
-  baseline-nfs-arm64-mediatek-cros-kernel: *baseline-nfs-cros-kernel-job
-  baseline-nfs-arm64-qualcomm-cros-kernel: *baseline-nfs-cros-kernel-job
-  baseline-nfs-x86-amd-cros-kernel: *baseline-nfs-cros-kernel-job
-  baseline-nfs-x86-intel-cros-kernel: *baseline-nfs-cros-kernel-job
-
-  fault-injection-x86-intel-cros-kernel: *fault-injection-cros-kernel-job
-  ltp-fault-injection-x86-intel-cros-kernel: *ltp-fault-injection-cros-kernel-job
-
-  kbuild-clang-21-arm64-chromeos-daily-mediatek:
-    <<: *kbuild-clang-21-arm64-chromeos-job
-    params:
-      <<: *kbuild-clang-21-arm64-chromeos-params
-      flavour: mediatek
-    rules:
-      <<: *kbuild-clang-21-arm64-chromeos-rules
-      branch:
-        - '!chromiumos:chromeos-5.4'
-        - '!chromiumos:chromeos-6.6'
-
-  kbuild-clang-21-arm64-chromeos-daily-qualcomm:
-    <<: *kbuild-clang-21-arm64-chromeos-job
-    params:
-      <<: *kbuild-clang-21-arm64-chromeos-params
-      flavour: qualcomm
-    rules:
-      <<: *kbuild-clang-21-arm64-chromeos-rules
-      branch:
-        - 'chromeos-6.6'
-        - 'chromeos-6.12'
-
-  kbuild-clang-21-x86-chromeos-daily-amd:
-    <<: *kbuild-clang-21-x86-chromeos-job
-    params:
-      <<: *kbuild-clang-21-x86-chromeos-params
-      flavour: amd-stoneyridge
-    rules:
-      <<: *kbuild-clang-21-x86-chromeos-rules
-      branch:
-        - '!chromiumos:chromeos-5.15'
-        - '!chromiumos:chromeos-6.1'
-
-  kbuild-clang-21-x86-chromeos-daily-intel:
-    <<: *kbuild-clang-21-x86-chromeos-job
-    params:
-      <<: *kbuild-clang-21-x86-chromeos-params
-      flavour: intel-pineview
-
-  kbuild-gcc-14-arm64-chromebook: &kbuild-gcc-14-arm64-chromebook-job
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-arm64-chromeos-params
-      cross_compile_compat:
-      defconfig: defconfig
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      tree:
-        - '!android'
-        - '!chromiumos'
-        - '!cip'
-        - '!media-committers'
-        - '!cip'
+  kbuild-gcc-14-arm64-chromebook: *kbuild-gcc-14-arm64-chromebook-job
 
   kbuild-gcc-14-arm64-chromebook-media-committers:
     <<: *kbuild-gcc-14-arm64-chromebook-job
-    # Don't copy parent Job rules because they would get overwritten anyway
     rules:
       tree:
         - 'media-committers'
-
-  kbuild-gcc-14-arm64-chromeos-mediatek:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params: &kbuild-gcc-14-arm64-chromeos-mediatek-params
-      <<: *kbuild-gcc-14-arm64-chromeos-params
-      flavour: mediatek
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      min_version:
-        version: 6
-        patchlevel: 1
-      tree:
-        - '!cip'
-
-  kbuild-gcc-14-arm64-chromeos-mediatek-coverage:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params: &kbuild-gcc-14-arm64-chromeos-mediatek-coverage-params
-      <<: *kbuild-gcc-14-arm64-chromeos-mediatek-params
-      fragments:
-        - arm64-chromebook
-        - coverage
-        - crypto
-        - kselftest
-        - lab-setup
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      min_version:
-        version: 6
-        patchlevel: 1
-      tree:
-        - chromiumos
-
-  kbuild-gcc-14-arm64-chromeos-daily-mediatek:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-arm64-chromeos-mediatek-params
-      frequency: 1d
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      tree:
-        - 'chromiumos'
-      branch:
-        - '!chromiumos:chromeos-5.4'
-        - '!chromiumos:chromeos-6.6'
-
-  kbuild-gcc-14-arm64-chromeos-qualcomm:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params: &kbuild-gcc-14-arm64-chromeos-qualcomm-params
-      <<: *kbuild-gcc-14-arm64-chromeos-params
-      flavour: qualcomm
-    rules:
-      tree:
-        - '!cip'
-
-  kbuild-gcc-14-arm64-chromeos-qualcomm-coverage:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-arm64-chromeos-mediatek-coverage-params
-      flavour: qualcomm
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      tree:
-        - 'chromiumos'
-
-  kbuild-gcc-14-arm64-chromeos-daily-qualcomm:
-    <<: *kbuild-gcc-14-arm64-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-arm64-chromeos-qualcomm-params
-      frequency: 1d
-    rules:
-      <<: *kbuild-gcc-14-arm64-chromeos-rules
-      tree:
-        - 'chromiumos'
-      branch:
-        - 'chromiumos:chromeos-6.6'
-
-  kbuild-gcc-14-x86-chromeos-amd:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params: &kbuild-gcc-14-x86-chromeos-amd-params
-      <<: *kbuild-gcc-14-x86-chromeos-params
-      flavour: amd-stoneyridge
-    rules:
-      tree:
-        - '!cip'
-
-  kbuild-gcc-14-x86-chromeos-amd-coverage:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params: &kbuild-gcc-14-x86-chromeos-amd-coverage-params
-      <<: *kbuild-gcc-14-x86-chromeos-params
-      flavour: amd-stoneyridge
-      fragments:
-        - coverage
-        - crypto
-        - kselftest
-        - lab-setup
-        - x86-board
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules:
-      <<: *kbuild-gcc-14-x86-chromeos-rules
-      tree:
-        - 'chromiumos'
-
-  kbuild-gcc-14-x86-chromeos-daily-amd:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-x86-chromeos-amd-params
-      frequency: 1d
-    rules:
-      <<: *kbuild-gcc-14-x86-chromeos-rules
-      tree:
-        - 'chromiumos'
-      branch:
-        - '!chromiumos:chromeos-5.15'
-        - '!chromiumos:chromeos-6.1'
-
-  kbuild-gcc-14-x86-chromeos-intel:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params: &kbuild-gcc-14-x86-chromeos-intel-params
-      <<: *kbuild-gcc-14-x86-chromeos-params
-      flavour: intel-pineview
-    rules:
-      tree:
-        - '!cip'
-
-  kbuild-gcc-14-x86-chromeos-intel-coverage:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-x86-chromeos-amd-coverage-params
-      flavour: intel-pineview
-    rules:
-      <<: *kbuild-gcc-14-x86-chromeos-rules
-      tree:
-        - 'chromiumos'
-
-  kbuild-gcc-14-x86-chromeos-daily-intel:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-x86-chromeos-intel-params
-      frequency: 1d
-    rules:
-      <<: *kbuild-gcc-14-x86-chromeos-rules
-      tree:
-        - 'chromiumos'
-
-  kbuild-gcc-14-x86-chromeos-daily-intel-fault-injection:
-    <<: *kbuild-gcc-14-x86-chromeos-job
-    params:
-      <<: *kbuild-gcc-14-x86-chromeos-intel-params
-      frequency: 1d
-      fragments:
-        - lab-setup
-        - x86-board
-        - fault-injection
-        - CONFIG_MODULE_COMPRESS=n
-        - CONFIG_MODULE_COMPRESS_NONE=y
-    rules:
-      <<: *kbuild-gcc-14-x86-chromeos-rules
-      tree:
-        - 'chromiumos'
-      branch:
-        - 'chromiumos:chromeos-5.15'
-        - 'chromiumos:chromeos-6.1'
-        - 'chromiumos:chromeos-6.6'
 
   kselftest-acpi:
     <<: *kselftest-job
@@ -537,351 +126,12 @@ jobs:
       collections: acpi
     kcidb_test_suite: kselftest.acpi
 
-  kselftest-cros-kernel-alsa:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: alsa
-    kcidb_test_suite: kselftest.alsa
-
-  kselftest-cros-kernel-arm64:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: arm64
-    kcidb_test_suite: kselftest.arm64
-
-  kselftest-cros-kernel-capabilities:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: capabilities
-    kcidb_test_suite: kselftest.capabilities
-
-  kselftest-cros-kernel-clone3:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: clone3
-    kcidb_test_suite: kselftest.clone3
-
-  kselftest-cros-kernel-cpufreq:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: cpufreq
-    kcidb_test_suite: kselftest.cpufreq
-
-  kselftest-cros-kernel-cpufreq-suspend:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: cpufreq
-      env: 'KSELFTEST_MAIN_SH_ARGS="-t suspend_rtc"'
-    rules:
-      <<: *kselftest-cros-kernel-rules
-      min_version:
-        version: 6
-        patchlevel: 12
-    kcidb_test_suite: kselftest.cpufreq.suspend
-
-  kselftest-cros-kernel-dmabuf-heaps:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: dmabuf-heaps
-    kcidb_test_suite: kselftest.dmabuf-heaps
-
-  kselftest-cros-kernel-dt:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: dt
-    rules:
-      <<: *kselftest-cros-kernel-rules
-      min_version:
-        version: 6
-        patchlevel: 7
-    kcidb_test_suite: kselftest.dt
-
-  kselftest-cros-kernel-exec:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: exec
-    kcidb_test_suite: kselftest.exec
-
-  kselftest-cros-kernel-ftrace:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: ftrace
-    kcidb_test_suite: kselftest.ftrace
-
-  kselftest-cros-kernel-futex:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: futex
-    kcidb_test_suite: kselftest.futex
-
-  kselftest-cros-kernel-kcmp:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: kcmp
-    kcidb_test_suite: kselftest.kcmp
-
-  kselftest-cros-kernel-kvm:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: kvm
-    kcidb_test_suite: kselftest.kvm
-
-  kselftest-cros-kernel-landlock:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: landlock
-    kcidb_test_suite: kselftest.landlock
-
-  kselftest-cros-kernel-lsm:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: lsm
-    kcidb_test_suite: kselftest.lsm
-
-  kselftest-cros-kernel-memfd:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: memfd
-    kcidb_test_suite: kselftest.memfd
-
-  kselftest-cros-kernel-net:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: net
-      job_timeout: 300
-      skipfile: https://storage.kernelci.org/skipfile-net.yaml
-    kcidb_test_suite: kselftest.net
-
-  kselftest-cros-kernel-perf-events:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: perf_events
-    kcidb_test_suite: kselftest.perf_events
-
-  kselftest-cros-kernel-proc:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: proc
-    kcidb_test_suite: kselftest.proc
-
-  kselftest-cros-kernel-ptrace:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: ptrace
-    kcidb_test_suite: kselftest.ptrace
-
-  kselftest-cros-kernel-rlimits:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: rlimits
-    kcidb_test_suite: kselftest.rlimits
-
-  kselftest-cros-kernel-seccomp:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: seccomp
-    kcidb_test_suite: kselftest.seccomp
-
-  kselftest-cros-kernel-splice:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: splice
-    kcidb_test_suite: kselftest.splce
-
-  kselftest-cros-kernel-sync:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: sync
-    kcidb_test_suite: kselftest.sync
-
-  kselftest-cros-kernel-timens:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: timens
-    kcidb_test_suite: kselftest.timens
-
-  kselftest-cros-kernel-timers:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: timers
-    kcidb_test_suite: kselftest.timers
-
-  kselftest-cros-kernel-tpm2:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: tpm2
-    kcidb_test_suite: kselftest.tpm2
-
-  kselftest-cros-kernel-user-events:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: user_events
-    kcidb_test_suite: kselftest.user_events
-
-  kselftest-cros-kernel-vdso:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: vDSO
-    kcidb_test_suite: kselftest.vdso
-
-  kselftest-cros-kernel-zram:
-    <<: *kselftest-cros-kernel-job
-    params:
-      <<: *kselftest-cros-kernel-params
-      collections: zram
-    kcidb_test_suite: kselftest.zram
-
   kselftest-device-error-logs:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
       collections: devices/error_logs
     kcidb_test_suite: kselftest.device_error_logs
-
-  ltp-capability-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "capability"
-
-  ltp-containers-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "containers"
-
-  ltp-crypto-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "crypto"
-    rules:
-      <<: *ltp-cros-kernel-rules
-      fragments:
-        - 'crypto'
-
-  ltp-ima-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "ima"
-
-  ltp-input-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "input"
-
-  ltp-ipc-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "ipc"
-
-  ltp-kernel-misc-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "kernel_misc"
-
-  ltp-mm-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "mm"
-
-  ltp-pty-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "pty"
-
-  ltp-sched-cros-kernel:
-    <<: *ltp-cros-kernel-job
-    params:
-      <<: *ltp-cros-kernel-params
-      tst_cmdfiles: "sched"
-
-  ltp-fault-injection-capability-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "capability"
-
-  ltp-fault-injection-containers-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "containers"
-
-  ltp-fault-injection-crypto-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "crypto"
-    rules:
-      <<: *ltp-fault-injection-cros-kernel-rules
-      fragments:
-        - 'crypto'
-
-  ltp-fault-injection-ima-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "ima"
-
-  ltp-fault-injection-input-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "input"
-
-  ltp-fault-injection-kernel-misc-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "kernel_misc"
-
-  ltp-fault-injection-mm-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "mm"
-
-  ltp-fault-injection-pty-cros-kernel:
-    <<: *ltp-fault-injection-cros-kernel-job
-    params:
-      <<: *ltp-fault-injection-cros-kernel-params
-      tst_cmdfiles: "pty"
 
   fluster-debian-av1:
     <<: *fluster-debian-job
@@ -951,13 +201,6 @@ jobs:
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
     kcidb_test_suite: fluster.debian.v4l2.gstreamer_vp9
 
-  blktests-loopback-cros-kernel:
-    <<: *blktests-cros-kernel-job
-    params:
-      <<: *blktests-cros-kernel-params
-      test_group: "block"
-      test_device: "loop"
-
   watchdog-reset-arm64-mediatek: *watchdog-reset-job
   watchdog-reset-arm64-qualcomm: *watchdog-reset-job
   watchdog-reset-x86-amd: *watchdog-reset-job
@@ -966,7 +209,3 @@ jobs:
   wifi-basic-arm64-mediatek: *wifi-basic-job
   wifi-basic-x86-amd: *wifi-basic-job
   wifi-basic-x86-intel: *wifi-basic-job
-
-  wifi-basic-cros-kernel-arm64-mediatek: *wifi-basic-cros-kernel-job
-  wifi-basic-cros-kernel-x86-amd: *wifi-basic-cros-kernel-job
-  wifi-basic-cros-kernel-x86-intel: *wifi-basic-cros-kernel-job

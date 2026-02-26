@@ -35,20 +35,12 @@ trees:
   broonie-spi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
 
-  chrome-platform:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
-
-  chromiumos:
-    url: "https://chromium.googlesource.com/chromiumos/third_party/kernel.git"
 
   cip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
 
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
-
-  collabora-chromeos-kernel:
-    url: 'https://gitlab.collabora.com/google/chromeos-kernel.git'
 
   collabora-next:
     url: 'https://gitlab.collabora.com/kernel/collabora-next.git'

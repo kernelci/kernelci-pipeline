@@ -96,7 +96,6 @@ runtimes:
     rules:
       tree:
       - '!android'
-      - '!chromiumos'
 
   lava-cip:
     lab_type: lava
