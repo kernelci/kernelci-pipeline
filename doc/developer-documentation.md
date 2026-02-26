@@ -259,7 +259,7 @@ As stated earlier, maestro supports different runtimes for tests, such as
 docker, kubernetes, and LAVA.
 
 We treat LAVA jobs a bit differently with respect to other jobs. All the
-LAVA job nodes will have a `setup` test suite that runs pre-condition checks (e.g. test device login or generate tarball for `tast` test) before running the actual test definition.
+LAVA job nodes will have a `setup` test suite that runs pre-condition checks (e.g. test device login) before running the actual test definition.
 
 Here is the test hierarchy for `kselftest-cpufreq` job:
 
