@@ -5,33 +5,17 @@ _anchors:
     - acer-cp514-3wh-r0qs-guybrush
     - asus-CM1400CXA-dalboz
     - dell-latitude-3445-7520c-skyrim
-    - hp-14-db0003na-grunt
-    - hp-11A-G6-EE-grunt
-    - hp-14b-na0052xx-zork
     - hp-x360-14a-cb0001xx-zork
     - lenovo-TPad-C13-Yoga-zork
 
   intel-platforms: &intel-platforms
-    - acer-cb317-1h-c3z6-dedede
     - acer-cbv514-1h-34uz-brya
-    - acer-chromebox-cxi4-puff
     - acer-chromebox-cxi5-brask
     - acer-cp514-2h-1130g7-volteer
     - acer-cp514-2h-1160g7-volteer
-    - asus-C433TA-AJ0005-rammus
-    - asus-C436FA-Flip-hatch
-    - asus-C523NA-A20057-coral
-    - acer-n20q11-r856ltn-p1s2-nissa
-    - dell-latitude-5300-8145U-arcada
-    - dell-latitude-5400-4305U-sarien
-    - dell-latitude-5400-8665U-sarien
-    - hp-x360-14-G1-sona
-    - hp-x360-12b-ca0010nr-n4020-octopus
 
   mediatek-platforms: &mediatek-platforms
     - mt8183-kukui-jacuzzi-juniper-sku16
-    - mt8186-corsola-steelix-sku131072
-    - mt8192-asurada-spherion-r0
     - mt8195-cherry-tomato-r2
 
   qualcomm-platforms: &qualcomm-platforms
@@ -96,23 +80,11 @@ scheduler:
   - job: baseline-arm64-mediatek-chromebook
     <<: *test-job-arm64-mediatek
 
-  - job: baseline-arm64-mediatek-chromebook
-    <<: *test-job-arm64-mediatek
-    platforms:
-      - mt8195-cherry-tomato-r3
-      - mt8173-elm-hana
-
   - job: baseline-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
 
   - job: baseline-nfs-arm64-mediatek-chromebook
     <<: *test-job-arm64-mediatek
-
-  - job: baseline-nfs-arm64-mediatek-chromebook
-    <<: *test-job-arm64-mediatek
-    platforms:
-      - mt8195-cherry-tomato-r3
-      - mt8173-elm-hana
 
   - job: baseline-nfs-arm64-qualcomm-chromebook
     <<: *test-job-arm64-qualcomm
@@ -142,8 +114,6 @@ scheduler:
       name: kbuild-gcc-14-arm64-chromebook
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
@@ -242,54 +212,40 @@ scheduler:
   - job: kselftest-iommu
     <<: *test-job-arm64-mediatek
 
+  # TODO: Need better hardware coverage
   - job: ltp-crypto
     <<: *test-job-x86
-    platforms:
-      - asus-C523NA-A20057-coral
-      - hp-11A-G6-EE-grunt
-      - hp-x360-12b-ca0010nr-n4020-octopus
+    platforms: *intel-platforms
 
+  # TODO: Need better hardware coverage
   - job: ltp-fcntl-locktests
     <<: *test-job-x86
-    platforms:
-      - asus-C433TA-AJ0005-rammus
-      - asus-C523NA-A20057-coral
-      - hp-11A-G6-EE-grunt
+    platforms: *intel-platforms
 
+  # TODO: Need better hardware coverage
   - job: ltp-ima
     <<: *test-job-x86
-    platforms:
-      - asus-C523NA-A20057-coral
+    platforms: *intel-platforms
 
   - job: ltp-ipc
     <<: *test-job-x86
     platforms:
       - acer-cp514-2h-1130g7-volteer
-      - asus-C436FA-Flip-hatch
-      - hp-11A-G6-EE-grunt
-      - hp-x360-12b-ca0010nr-n4020-octopus
 
+  # TODO: Need better hardware coverage
   - job: ltp-mm
     <<: *test-job-x86
-    platforms:
-      - asus-C436FA-Flip-hatch
-      - hp-11A-G6-EE-grunt
-      - hp-x360-12b-ca0010nr-n4020-octopus
+    platforms: *intel-platforms
 
+  # TODO: Need better hardware coverage
   - job: ltp-pty
     <<: *test-job-x86
-    platforms:
-      - asus-C433TA-AJ0005-rammus
-      - asus-C523NA-A20057-coral
-      - hp-11A-G6-EE-grunt
+    platforms: *intel-platforms
 
+  # TODO: Need better hardware coverage
   - job: ltp-timers
     <<: *test-job-x86
-    platforms:
-      - asus-C433TA-AJ0005-rammus
-      - asus-C436FA-Flip-hatch
-      - asus-C523NA-A20057-coral
-      - hp-11A-G6-EE-grunt
+    platforms: *intel-platforms
 
   - job: fluster-debian-av1
     <<: *test-job-arm64-mediatek
@@ -315,15 +271,11 @@ scheduler:
   - job: fluster-debian-vp8
     <<: *test-job-arm64-mediatek
     platforms:
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: fluster-debian-vp9
     <<: *test-job-arm64-mediatek
     platforms:
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: fluster-debian-h264
@@ -365,15 +317,11 @@ scheduler:
   - job: fluster-debian-vp8
     <<: *test-job-arm64-mediatek-media-committers
     platforms:
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: fluster-debian-vp9
     <<: *test-job-arm64-mediatek-media-committers
     platforms:
-      - mt8186-corsola-steelix-sku131072
-      - mt8192-asurada-spherion-r0
       - mt8195-cherry-tomato-r2
 
   - job: fluster-debian-h264
@@ -402,8 +350,6 @@ scheduler:
 
   - job: watchdog-reset-x86-intel
     <<: *test-job-x86-intel
-    platforms:
-      - hp-x360-12b-ca0010nr-n4020-octopus
 
   - job: wifi-basic-arm64-mediatek
     <<: *test-job-arm64-mediatek

@@ -66,13 +66,6 @@ platforms:
     dtb: dtbs/broadcom/bcm2837-rpi-3-b-plus.dtb
     compatible: ['raspberrypi,3-model-b-plus', rbrcm,bcm2837;]
 
-  # No job is being scheduled on these board as its infrastructure errors need to be fixed first.
-  bcm2836-rpi-2-b:
-    <<: *arm-device
-    mach: broadcom
-    dtb: dtbs/bcm2836-rpi-2-b.dtb
-    compatible: ['raspberrypi,2-model-b', 'brcm,bcm2836']
-
   beagle-xm:
     <<: *arm-device
     mach: omap
@@ -338,9 +331,6 @@ platforms:
     dtb: dtbs/amlogic/meson-sm1-sei610.dtb
     compatible: ['seirobotics,sei610', 'amlogic,sm1']
 
-  # No job is being scheduled on this board as its infrastructure errors need to be fixed first.
-  minnowboard-turbot-E3826: *x86_64-device
-
   mt7629-rfb:
     <<: *arm-device
     mach: mediatek
@@ -364,12 +354,6 @@ platforms:
     mach: mediatek
     dtb: dtbs/mediatek/mt8395-genio-1200-evk.dtb
     compatible: ['mediatek,mt8395-evk', 'mediatek,mt8395', 'mediatek,mt8195']
-
-  odroid-xu3:
-    <<: *arm-device
-    mach: samsung
-    dtb: dtbs/exynos5422-odroidxu3.dtb
-    compatible: ['hardkernel,odroid-xu3', 'samsung,exynos5800', 'samsung,exynos5']
 
   # Qualcomm Platform list
   qcs615-ride:
@@ -477,19 +461,6 @@ platforms:
       cpu: cortex-a57
 
   fvp-aemva: *fvp-device
-
-  rk3288-rock2-square:
-    <<: *arm-device
-    mach: rockchip
-    dtb: dtbs/rk3288-rock2-square.dtb
-    compatible: ['radxa,rock2-square', 'rockchip,rk3288']
-
-  rk3288-veyron-jaq:
-    <<: *arm-device
-    boot_method: depthcharge
-    mach: rockchip
-    dtb: dtbs/rk3288-veyron-jaq.dtb
-    compatible: ['google,veyron-jaq-rev5', 'google,veyron-jaq-rev4']
 
   rk3399-gru-kevin:
     <<: *arm64-device
@@ -653,8 +624,3 @@ platforms:
     dtb: dtbs/allwinner/sun50i-h6-orangepi-3.dtb
     compatible: ['xunlong,orangepi-3', 'allwinner,sun50i-h6']
 
-  sun50i-h6-pine-h64:
-    <<: *arm64-device
-    mach: allwinner
-    dtb: dtbs/allwinner/sun50i-h6-pine-h64.dtb
-    compatible: ['pine64,pine-h64', 'allwinner,sun50i-h6']

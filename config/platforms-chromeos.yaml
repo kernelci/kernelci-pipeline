@@ -30,7 +30,7 @@ _anchors:
         - 'x86-board'
 
 platforms:
-  acer-R721T-grunt: &chromebook-grunt-device
+  acer-R721T-grunt:
     <<: *x86-chromebook-device
     params:
       <<: *x86-chromebook-device-params
@@ -43,21 +43,6 @@ platforms:
         - 'stable:linux-5.10.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-5.10.y'
-        - 'stable-rc:linux-6.12.y'
-
-  acer-cb317-1h-c3z6-dedede:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: dedede
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-6.1.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-6.1.y'
         - 'stable-rc:linux-6.12.y'
 
   acer-cbv514-1h-34uz-brya:
@@ -73,21 +58,6 @@ platforms:
         - 'stable:linux-6.6.y'
         - 'stable:linux-6.12.y'
         - 'stable-rc:linux-6.6.y'
-        - 'stable-rc:linux-6.12.y'
-
-  acer-chromebox-cxi4-puff:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: puff
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.15.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.15.y'
         - 'stable-rc:linux-6.12.y'
 
   acer-chromebox-cxi5-brask:
@@ -137,66 +107,6 @@ platforms:
         - 'stable-rc:linux-6.6.y'
         - 'stable-rc:linux-6.12.y'
 
-  acer-n20q11-r856ltn-p1s2-nissa:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: nissa
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-6.6.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-6.6.y'
-        - 'stable-rc:linux-6.12.y'
-
-  asus-C433TA-AJ0005-rammus:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: rammus
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.10.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.10.y'
-        - 'stable-rc:linux-6.12.y'
-
-  asus-C436FA-Flip-hatch:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: hatch
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.15.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.15.y'
-        - 'stable-rc:linux-6.12.y'
-
-  asus-C523NA-A20057-coral:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: coral
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.10.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.10.y'
-        - 'stable-rc:linux-6.12.y'
-
   asus-CM1400CXA-dalboz: &chromebook-zork-device
     <<: *x86-chromebook-device
     params:
@@ -227,86 +137,12 @@ platforms:
         - 'stable-rc:linux-6.6.y'
         - 'stable-rc:linux-6.12.y'
 
-  dell-latitude-5300-8145U-arcada: &chromebook-sarien-device
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: sarien
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.10.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.10.y'
-        - 'stable-rc:linux-6.12.y'
-
-  dell-latitude-5400-4305U-sarien: *chromebook-sarien-device
-  dell-latitude-5400-8665U-sarien: *chromebook-sarien-device
-  hp-14-db0003na-grunt: *chromebook-grunt-device
-  hp-11A-G6-EE-grunt: *chromebook-grunt-device
-  hp-14b-na0052xx-zork: *chromebook-zork-device
-
-  hp-x360-14-G1-sona:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: nami
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.4.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.4.y'
-        - 'stable-rc:linux-6.12.y'
-
-  hp-x360-12b-ca0010nr-n4020-octopus:
-    <<: *x86-chromebook-device
-    params:
-      <<: *x86-chromebook-device-params
-      short_name: octopus
-    rules:
-      <<: *x86-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.15.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.15.y'
-        - 'stable-rc:linux-6.12.y'
-
   hp-x360-14a-cb0001xx-zork: *chromebook-zork-device
   lenovo-TPad-C13-Yoga-zork: *chromebook-zork-device
 
-  mt8173-elm-hana: &mediatek-chromebook-device
+  mt8183-kukui-jacuzzi-juniper-sku16: &mediatek-chromebook-device
     <<: *arm64-chromebook-device
     mach: mediatek
-    dtb: dtbs/mediatek/mt8173-elm-hana.dtb
-    compatible: ['google,hana-rev6', 'google,hana-rev5', 'google,hana-rev4', 'google,hana-rev3', 'google,hana', 'mediatek,mt8173']
-    context:
-      test_character_delay: 10
-    params:
-      <<: *arm64-chromebook-device-params
-      short_name: hana
-    rules:
-      <<: *arm64-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-5.15.y'
-        - 'stable:linux-6.1.y'
-        - 'stable:linux-6.6.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-5.15.y'
-        - 'stable-rc:linux-6.1.y'
-        - 'stable-rc:linux-6.6.y'
-        - 'stable-rc:linux-6.12.y'
-
-  mt8183-kukui-jacuzzi-juniper-sku16:
-    <<: *mediatek-chromebook-device
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
     compatible: ['google,juniper-sku16', 'google,juniper', 'mediatek,mt8183']
     params:
@@ -324,41 +160,6 @@ platforms:
         - 'stable-rc:linux-6.6.y'
         - 'stable-rc:linux-6.12.y'
 
-  mt8186-corsola-steelix-sku131072:
-    <<: *mediatek-chromebook-device
-    dtb: dtbs/mediatek/mt8186-corsola-steelix-sku131072.dtb
-    compatible: ['google,steelix-sku131072', 'google,steelix']
-    params:
-      <<: *arm64-chromebook-device-params
-      flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/kernel/v6.10-mediatek/
-        image: 'Image'
-      short_name: corsola
-    rules:
-      <<: *arm64-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-6.12.y'
-
-  mt8192-asurada-spherion-r0:
-    <<: *mediatek-chromebook-device
-    dtb: dtbs/mediatek/mt8192-asurada-spherion-r0.dtb
-    compatible: ['google,spherion-rev3', 'google,spherion-rev2']
-    params:
-      <<: *arm64-chromebook-device-params
-      short_name: asurada
-    rules:
-      <<: *arm64-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-6.6.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-6.6.y'
-        - 'stable-rc:linux-6.12.y'
-
   mt8195-cherry-tomato-r2:
     <<: *mediatek-chromebook-device
     dtb:
@@ -368,25 +169,6 @@ platforms:
     params:
       <<: *arm64-chromebook-device-params
       short_name: cherry-r2
-    rules:
-      <<: *arm64-chromebook-device-rules
-      branch:
-        - 'mainline:master'
-        - 'next:master'
-        - 'stable:linux-6.6.y'
-        - 'stable:linux-6.12.y'
-        - 'stable-rc:linux-6.6.y'
-        - 'stable-rc:linux-6.12.y'
-
-  mt8195-cherry-tomato-r3:
-    <<: *mediatek-chromebook-device
-    dtb:
-      - 'dtbs/mediatek/mt8195-cherry-tomato-r3.dtb'
-      - 'dtbs/mediatek/mt8195-tomato-rev3.dtb'
-    compatible: ['google,tomato-rev4', 'google,tomato-rev3','google,tomato', 'mediatek,mt8195']
-    params:
-      <<: *arm64-chromebook-device-params
-      short_name: cherry-r3
     rules:
       <<: *arm64-chromebook-device-rules
       branch:
