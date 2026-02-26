@@ -143,14 +143,20 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms: &collabora-arm64-platforms
       - bcm2711-rpi-4-b
+      - dragonboard-410c
+      - dragonboard-820c
+      - lenovo-hr330a-7x33cto1ww-emag
       - meson-g12b-a311d-khadas-vim3
       - mt8365-genio-350-evk
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
       - qemu-arm64
+      - r8a779m1-ulcb
       - rk3399-gru-kevin
       - rk3399-rock-pi-4b
+      - rk3576-rock-4d
       - rk3588-rock-5b
+      - sm8350-hdk
 
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
@@ -231,6 +237,7 @@ scheduler:
     platforms:
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8195-cherry-tomato-r2
+      - mt8196-rauru-navi-sku0
 
   - job: baseline-arm64-kcidebug-qualcomm
     event: *kbuild-gcc-14-arm64-chromebook-kcidebug-node-event
@@ -346,6 +353,7 @@ scheduler:
       - acer-cbv514-1h-34uz-brya
       - acer-cp514-2h-1130g7-volteer
       - acer-cp514-2h-1160g7-volteer
+      - asus-CX3402CVA-brya
       - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: baseline-x86-mfd
@@ -2002,8 +2010,10 @@ scheduler:
     platforms: &collabora-arm64-chromebook-platforms
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8195-cherry-tomato-r2
+      - mt8196-rauru-navi-sku0
       - sc7180-trogdor-kingoftown
       - sc7180-trogdor-lazor-limozeen
+      - sc7180-trogdor-wormdingler-rev1-boe
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-x86-preempt_rt-node-event
@@ -2021,6 +2031,7 @@ scheduler:
       - acer-cbv514-1h-34uz-brya
       - acer-R721T-grunt
       - acer-cp514-3wh-r0qs-guybrush
+      - asus-CX3402CVA-brya
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-arm-preempt_rt-node-event
@@ -2280,12 +2291,11 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms: *collabora-arm-preempt_rt-platforms
 
-  # TODO: Need better hardware coverage
   - job: sleep
     event: *kbuild-gcc-14-x86-node-event
     runtime: *lava-collabora-runtime
     platforms:
-      - qemu
+      - asus-CX3402CVA-brya
 
   - job: h26forge-debian
     event: *kbuild-gcc-14-arm64-node-event
