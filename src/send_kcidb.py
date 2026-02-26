@@ -367,8 +367,8 @@ the test: {sub_path}")
                         return None
                 else:
                     new_path.append(sub_path)
-            # Handle path such as ['tast-ui-x86-intel', 'tast', 'os-release'] converted
-            # to ['tast', 'tast', 'os-release']
+            # Handle path where the first two components are identical after
+            # mapping, e.g. ['job-name', 'suite', 'test'] -> ['suite', 'suite', 'test']
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
