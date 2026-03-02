@@ -14,7 +14,7 @@ _anchors:
     priority: medium
     kcidb_test_suite: boot
     params:
-      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
+      rootfs_ref: buildroot-baseline
 
   baseline-nfs-job: &baseline-nfs-job
     template: baseline-nfs.jinja2
@@ -23,7 +23,7 @@ _anchors:
     kcidb_test_suite: boot.nfs
     params:
       boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+      rootfs_ref: bookworm
 
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
@@ -93,7 +93,7 @@ _anchors:
     priority: low
     params: &kvm-unit-tests-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kvm-unit-tests/20250624.0/{debarch}'
+      rootfs_ref: bookworm-kvm-unit-tests
     kcidb_test_suite: kvm-unit-tests
     rules:
       fragments:
@@ -105,7 +105,7 @@ _anchors:
     priority: low
     params: &ltp-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260219.0/{debarch}'
+      rootfs_ref: trixie-ltp
       skip_install: "true"
       skipfile: skipfile-lkft.yaml
       workers: max
@@ -1560,7 +1560,7 @@ jobs:
     params:
       test_method: blktests-ddp
       job_timeout: 30
-      rootfs: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20250212.0/amd64'
+      rootfs_ref: bookworm-blktest
     rules:
       tree:
         - aaptel
@@ -1576,7 +1576,7 @@ jobs:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      rootfs_ref: bookworm-kselftest
       job_timeout: 10
     rules: &kselftest-rules
       tree:
@@ -1593,7 +1593,7 @@ jobs:
     params: &kselftest-params-ramdisk
       test_method: kselftest
       boot_commands: ramdisk
-      ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      rootfs_ref: bookworm-kselftest
       job_timeout: 10
     rules: &kselftest-rules-ramdisk
       tree:
@@ -2373,7 +2373,7 @@ jobs:
     priority: low
     params: &rt-tests-params
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240806.0/{debarch}'
+      rootfs_ref: bookworm-rt
     kcidb_test_suite: rt-tests
     rules:
       fragments:
@@ -2465,7 +2465,7 @@ jobs:
     params:
       test_method: sleep
       boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}
+      rootfs_ref: bullseye
       sleep_params: mem freeze
     kcidb_test_suite: kernelci_sleep
 
@@ -2475,7 +2475,7 @@ jobs:
     params:
       test_method: h26forge-debian
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-h26forge/20250117.0/{debarch}/'
+      rootfs_ref: bookworm-gst-h26forge
     rules:
       tree:
         - media
@@ -2487,7 +2487,7 @@ jobs:
     params:
       test_method: wifi-basic
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20250925.0/{debarch}/'
+      rootfs_ref: bookworm-wifi
     rules:
       tree:
         - mainline

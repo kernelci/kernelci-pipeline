@@ -593,6 +593,11 @@ class Scheduler(Service):
                 err_msg = json.loads(err.response.content).get("detail", [])
                 self.log.error(err_msg)
             return
+        # Resolve rootfs config references (before format_params
+        # resolves {brarch}/{debarch} etc.)
+        kernelci.config.resolve_rootfs_params(
+            params, self._raw_yaml.get('rootfs', {})
+        )
         # Process potential f-strings in `params` with configured job params
         # and platform attributes
         kernel_revision = job_node['data']['kernel_revision']['version']

@@ -184,6 +184,42 @@ def validate_platforms(data):
                 )
 
 
+def validate_rootfs_refs(data):
+    """
+    Validate rootfs references:
+    1. Every rootfs_ref in job params resolves to an entry in rootfs section
+    2. Rootfs entries are sorted alphabetically
+    """
+    rootfs_defs = data.get("rootfs", {})
+    if not rootfs_defs:
+        print("Warning: No rootfs definitions found")
+        return
+
+    # Check alphabetical sorting
+    rootfs_names = list(rootfs_defs.keys())
+    sorted_names = sorted(rootfs_names)
+    if rootfs_names != sorted_names:
+        raise yaml.YAMLError(
+            f"Rootfs entries are not sorted alphabetically. "
+            f"Expected order: {sorted_names}"
+        )
+
+    # Check all rootfs_ref values in jobs resolve
+    jobs = data.get("jobs", {})
+    for job_name, job_def in jobs.items():
+        if not job_def or not isinstance(job_def, dict):
+            continue
+        params = job_def.get("params")
+        if not params or not isinstance(params, dict):
+            continue
+        rootfs_ref = params.get("rootfs_ref")
+        if rootfs_ref and rootfs_ref not in rootfs_defs:
+            raise yaml.YAMLError(
+                f"rootfs_ref '{rootfs_ref}' in job '{job_name}' "
+                f"not found in rootfs definitions"
+            )
+
+
 def validate_unused_trees(data):
     """
     Check if all trees are used in build_configs
@@ -273,6 +309,8 @@ def validate_yaml(merged_data):
     validate_build_configs(merged_data)
     validate_unused_trees(merged_data)
     validate_platforms(merged_data)
+    print("Validating rootfs references")
+    validate_rootfs_refs(merged_data)
     print("All yaml files are valid")
 
 

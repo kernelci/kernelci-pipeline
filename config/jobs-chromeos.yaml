@@ -36,8 +36,7 @@ _anchors:
     kind: job
     params:
       boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
-    kcidb_test_suite: boot.nfs
+      rootfs_ref: bookworm
     rules:
       tree:
         - mainline
@@ -50,7 +49,7 @@ _anchors:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
+      rootfs_ref: bookworm-kselftest
       job_timeout: 10
     kcidb_test_suite: kselftest
     rules:
@@ -63,7 +62,7 @@ _anchors:
     params: &fluster-debian-params
       test_method: fluster-debian
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240926.0/{debarch}/'
+      rootfs_ref: bookworm-gst-fluster
       job_timeout: 30
       videodec_parallel_jobs: 1
       videodec_timeout: 90
@@ -92,7 +91,7 @@ _anchors:
     params: &wifi-basic-job-params
       test_method: wifi-basic
       boot_commands: nfs
-      nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20250925.0/{debarch}/'
+      rootfs_ref: bookworm-wifi
     rules:
       tree:
         - mainline
