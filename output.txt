@@ -1,3 +1,9 @@
+Fetching releases from https://www.kernel.org/releases.json...
+Active kernel.org branches: 5.10, 5.15, 6.1, 6.6, 6.12, 6.18, 6.19
+Current config branches: 5.10, 5.15, 6.1, 6.6, 6.12, 6.18
+Branches to add: 6.19
+
+--- New config (dry-run) ---
 build_configs:
   stable-rc_5.10: &stable-rc
     tree: stable-rc
@@ -26,3 +32,4 @@ build_configs:
   stable-rc_6.19:
     <<: *stable-rc
     branch: 'linux-6.19.y'
+
