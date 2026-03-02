@@ -4,7 +4,7 @@ _anchors:
     kind: job
     kcidb_test_suite: boot
     params:
-      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
+      rootfs_ref: buildroot-baseline
 
   baseline-nfs-job-cip: &baseline-nfs-job-cip
     template: baseline-nfs.jinja2
@@ -12,7 +12,7 @@ _anchors:
     kcidb_test_suite: boot.nfs
     params:
       boot_commands: nfs
-      nfsroot: http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}
+      rootfs_ref: bookworm
 
   kbuild-job-cip: &kbuild-job-cip
     template: kbuild.jinja2
