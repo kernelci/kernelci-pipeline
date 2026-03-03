@@ -19,17 +19,17 @@ _anchors:
 
 platforms:
 # arm64 platforms
-  zynqmp-zcu102:
-    <<: *arm64-device
-    mach: zynqmp
-    dtb: dtbs/xilinx/zynqmp-zcu102-rev1.0.dtb
-    compatible: ['xlnx,zynqmp-zcu102-rev1.0', 'xlnx,zynqmp-zcu102', 'xlnx,zynqmp']
-
   r8a774a1-hihope-rzg2m-ex:
     <<: *arm64-device
     mach: renesas
     dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
     compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
+
+  zynqmp-zcu102:
+    <<: *arm64-device
+    mach: zynqmp
+    dtb: dtbs/xilinx/zynqmp-zcu102-rev1.0.dtb
+    compatible: ['xlnx,zynqmp-zcu102-rev1.0', 'xlnx,zynqmp-zcu102', 'xlnx,zynqmp']
 
 # arm platforms
   de0-nano-soc:
