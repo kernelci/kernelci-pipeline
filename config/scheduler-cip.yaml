@@ -37,7 +37,11 @@ scheduler:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-612-cip
     runtime: *lava-cip-runtime
-    platforms: *cip-arm64-platforms
+    platforms: &cip-arm64-platforms-612
+      - k3-am62p5-sk
+      - qemu-arm64
+      - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
 
   - &job-gcc-14-arm64-612-cip-rt
     job: job-gcc-14-arm64-612-cip-rt
@@ -45,7 +49,7 @@ scheduler:
       <<: *kbuild-gcc-14-arm64-node-event
       name: kbuild-gcc-14-arm64-612-cip-rt
     runtime: *lava-cip-runtime
-    platforms: *cip-arm64-platforms
+    platforms: *cip-arm64-platforms-612
 
   - <<: *job-gcc-14-arm64-612-cip-rt
     job: rt-tests-cyclicdeadline
