@@ -23,7 +23,7 @@ _anchors:
     kcidb_test_suite: boot.nfs
     params:
       boot_commands: nfs
-      rootfs_ref: bookworm
+      rootfs_ref: trixie
 
   kbuild-job: &kbuild-job
     template: kbuild.jinja2
@@ -93,7 +93,7 @@ _anchors:
     priority: low
     params: &kvm-unit-tests-params
       boot_commands: nfs
-      rootfs_ref: bookworm-kvm-unit-tests
+      rootfs_ref: trixie-kvm-unit-tests
     kcidb_test_suite: kvm-unit-tests
     rules:
       fragments:
@@ -1560,7 +1560,7 @@ jobs:
     params:
       test_method: blktests-ddp
       job_timeout: 30
-      rootfs_ref: bookworm-blktest
+      rootfs_ref: trixie-blktest
     rules:
       tree:
         - aaptel
@@ -1576,7 +1576,7 @@ jobs:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      rootfs_ref: bookworm-kselftest
+      rootfs_ref: trixie-kselftest
       job_timeout: 10
     rules: &kselftest-rules
       tree:
@@ -1593,7 +1593,7 @@ jobs:
     params: &kselftest-params-ramdisk
       test_method: kselftest
       boot_commands: ramdisk
-      rootfs_ref: bookworm-kselftest
+      rootfs_ref: trixie-kselftest
       job_timeout: 10
     rules: &kselftest-rules-ramdisk
       tree:
@@ -2373,7 +2373,7 @@ jobs:
     priority: low
     params: &rt-tests-params
       boot_commands: nfs
-      rootfs_ref: bookworm-rt
+      rootfs_ref: trixie-rt
     kcidb_test_suite: rt-tests
     rules:
       fragments:
@@ -2475,7 +2475,7 @@ jobs:
     params:
       test_method: h26forge-debian
       boot_commands: nfs
-      rootfs_ref: bookworm-gst-h26forge
+      rootfs_ref: trixie-gst-h26forge
     rules:
       tree:
         - media
@@ -2487,7 +2487,7 @@ jobs:
     params:
       test_method: wifi-basic
       boot_commands: nfs
-      rootfs_ref: bookworm-wifi
+      rootfs_ref: trixie-wifi
     rules:
       tree:
         - mainline

@@ -12,7 +12,7 @@ _anchors:
     kcidb_test_suite: boot.nfs
     params:
       boot_commands: nfs
-      rootfs_ref: bookworm
+      rootfs_ref: trixie
 
   kbuild-job-cip: &kbuild-job-cip
     template: kbuild.jinja2

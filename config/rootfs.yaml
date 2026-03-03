@@ -9,43 +9,6 @@
 
 rootfs:
 
-  bookworm:
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm/20240313.0/{debarch}'
-
-  bookworm-blktest:
-    rootfs: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20250212.0/amd64'
-
-  bookworm-blktest-nfs:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-blktest/20251016.0/amd64/'
-
-  bookworm-fault-injection:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-fault-injection/20250520.0/{debarch}/'
-
-  bookworm-gst-fluster:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-fluster/20240926.0/{debarch}/'
-
-  bookworm-gst-h26forge:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-gst-h26forge/20250117.0/{debarch}/'
-
-  bookworm-kselftest:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
-    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250724.0/{debarch}'
-
-  bookworm-kselftest-boot:
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bookworm-kselftest/20250117.0/{debarch}'
-
-  bookworm-kvm-unit-tests:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-kvm-unit-tests/20250624.0/{debarch}'
-
-  bookworm-ltp:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-ltp/20250818.0/{debarch}'
-
-  bookworm-rt:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-rt/20240806.0/{debarch}'
-
-  bookworm-wifi:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/bookworm-wifi/20250925.0/{debarch}/'
-
   buildroot-baseline:
     ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
 
@@ -58,5 +21,39 @@ rootfs:
   bullseye:
     nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}'
 
+  trixie:
+    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie/20260219.0/{debarch}'
+
+  trixie-blktest:
+    rootfs: 'https://storage.kernelci.org/images/rootfs/debian/trixie-blktest/20260219.0/amd64'
+
+  trixie-blktest-nfs:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-blktest/20260219.0/amd64/'
+
+  trixie-fault-injection:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-fault-injection/20260219.0/{debarch}/'
+
+  trixie-gst-fluster:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-fluster/20260219.0/{debarch}/'
+
+  trixie-gst-h26forge:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-h26forge/20260219.0/{debarch}/'
+
+  trixie-kselftest:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+
+  trixie-kselftest-boot:
+    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+
+  trixie-kvm-unit-tests:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kvm-unit-tests/20260219.0/{debarch}'
+
   trixie-ltp:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20251201.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260219.0/{debarch}'
+
+  trixie-rt:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-rt/20260219.0/{debarch}'
+
+  trixie-wifi:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-wifi/20260219.0/{debarch}/'
