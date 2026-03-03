@@ -36,7 +36,7 @@ _anchors:
     kind: job
     params:
       boot_commands: nfs
-      rootfs_ref: bookworm
+      rootfs_ref: trixie
     rules:
       tree:
         - mainline
@@ -49,7 +49,7 @@ _anchors:
     params: &kselftest-params
       test_method: kselftest
       boot_commands: nfs
-      rootfs_ref: bookworm-kselftest
+      rootfs_ref: trixie-kselftest
       job_timeout: 10
     kcidb_test_suite: kselftest
     rules:
@@ -62,7 +62,7 @@ _anchors:
     params: &fluster-debian-params
       test_method: fluster-debian
       boot_commands: nfs
-      rootfs_ref: bookworm-gst-fluster
+      rootfs_ref: trixie-gst-fluster
       job_timeout: 30
       videodec_parallel_jobs: 1
       videodec_timeout: 90
@@ -91,7 +91,7 @@ _anchors:
     params: &wifi-basic-job-params
       test_method: wifi-basic
       boot_commands: nfs
-      rootfs_ref: bookworm-wifi
+      rootfs_ref: trixie-wifi
     rules:
       tree:
         - mainline
