@@ -19,6 +19,12 @@ _anchors:
 
 platforms:
 # arm64 platforms
+  k3-am62p5-sk:
+    <<: *arm64-device
+    mach: ti
+    dtb: dtbs/ti/k3-am62p5-sk.dtb
+    compatible: ['ti,am62p5-sk', 'ti,am62p5']
+
   r8a774a1-hihope-rzg2m-ex:
     <<: *arm64-device
     mach: renesas
