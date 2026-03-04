@@ -522,7 +522,7 @@ platforms:
     <<: *arm64-device
     boot_method: barebox
     mach: rockchip
-    dtb: dtbs/rockchip/rk3568-rock-3a.dts
+    dtb: dtbs/rockchip/rk3568-rock-3a.dtb
     compatible: ['radxa,rock3a', 'rockchip,rk3568']
 
   rk3576-rock-4d:
