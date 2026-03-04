@@ -76,6 +76,7 @@ _anchors:
     kind: job
     params: &watchdog-reset-job-params
       test_method: watchdog-reset
+      rootfs_ref: buildroot-baseline-depthcharge
       bl_message: 'coreboot-'
       wdt_dev: 'watchdog0'
     rules:
