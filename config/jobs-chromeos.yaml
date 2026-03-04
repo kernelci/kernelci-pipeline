@@ -25,6 +25,8 @@ _anchors:
     template: baseline.jinja2
     kind: job
     kcidb_test_suite: boot
+    params:
+      rootfs_ref: buildroot-baseline-depthcharge
     rules:
       tree:
         - mainline
