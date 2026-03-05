@@ -101,11 +101,11 @@ payloads using tuxrun for QEMU-based virtual targets.
 
 ### Prerequisites
 
-Tuxrun is required to run the jobs, Tuxrun requires podman also to be setup to
-execute the jobs.
+Tuxrun is required to run the jobs. By default tuxrun uses podman, but Docker
+can be used instead by passing `--runtime docker`.
 
-- Install tuxrun: `pip install tuxrun`
-- Install podman: `sudo apt install podman`
+- Python packages: `pip install -r tools/requirements.txt`
+- Install podman: `sudo apt install podman` (or Docker: `sudo apt install docker.io`)
 - Tuxrun handles downloads and QEMU VM execution automatically
 
 ### Running the Script
