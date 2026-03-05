@@ -139,7 +139,7 @@ Add a job definition in [`config/jobs.yaml`](../config/jobs.yaml):
 
 ```yaml
 jobs:
-  ltp-smoketest-pull-labs:
+  ltp-smoke-pull-labs:
     template: ltp-pull-labs.jinja2
     kind: job
     params:
@@ -166,7 +166,7 @@ Key parameters:
 Add a scheduler entry in [`config/scheduler.yaml`](../config/scheduler.yaml):
 
 ```yaml
-  - job: ltp-smoketest-pull-labs
+  - job: ltp-smoke-pull-labs
     event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: pull_labs

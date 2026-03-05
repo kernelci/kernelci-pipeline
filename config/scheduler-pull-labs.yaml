@@ -34,7 +34,7 @@ scheduler:
       - fvp-aemva
       - qemu-arm64
 
-  - job: ltp-smoketest-pull-labs
+  - job: ltp-smoke-pull-labs
     event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: pull_labs
@@ -42,7 +42,7 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
-  - job: ltp-smoketest-pull-labs
+  - job: ltp-smoke-pull-labs
     event:
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm64-nfsboot
