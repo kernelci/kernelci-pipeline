@@ -158,10 +158,25 @@ scheduler:
       - rk3588-rock-5b
       - sm8350-hdk
 
+  # TODO: Add fastboot platforms (dragonboard-410c, dragonboard-820c,
+  # sm8350-hdk) once NFS boot support is implemented for fastboot
+  # devices.  See kernelci-core boot/fastboot.jinja2 for details.
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms:
+      - bcm2711-rpi-4-b
+      - lenovo-hr330a-7x33cto1ww-emag
+      - meson-g12b-a311d-khadas-vim3
+      - mt8365-genio-350-evk
+      - mt8390-genio-700-evk
+      - mt8395-genio-1200-evk
+      - qemu-arm64
+      - r8a779m1-ulcb
+      - rk3399-gru-kevin
+      - rk3399-rock-pi-4b
+      - rk3576-rock-4d
+      - rk3588-rock-5b
 
   - job: wifi-basic
     event:
