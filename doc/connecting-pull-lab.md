@@ -123,6 +123,43 @@ The script will:
 **TODO:** Support for FVP (Fixed Virtual Platform) and DUT (Device Under Test)
 jobs will be added in future versions, along with publishing to KCIDB.
 
+## Running with pytest + QEMU
+
+The `tools/example_pull_lab_pytest.py` script is an alternative that uses
+pytest and labgrid (with QEMU) instead of tuxrun. It boots the kernel from
+a job definition in QEMU and runs simple boot-verification tests.
+
+### Prerequisites
+
+- Python packages: `pip install -r tools/requirements.txt`
+- QEMU: `qemu-system-aarch64`, `qemu-system-x86_64`, or `qemu-system-arm`
+  depending on the job architecture
+
+### Poll mode
+
+Polls the KernelCI events API and runs each matching job automatically:
+
+```bash
+python tools/example_pull_lab_pytest.py poll --runtime pull-labs-demo
+```
+
+Results are saved to `./test_output/<node-id>/` with `results.xml` (JUnit)
+and `log.txt` (full boot and test output).
+
+### Direct mode
+
+Runs pytest against a local job definition JSON file, useful for debugging:
+
+```bash
+python tools/example_pull_lab_pytest.py direct --kci-job-json job.json
+```
+
+### Limitations
+
+The QEMU boot uses `-initrd` so it only works with jobs that provide a
+`ramdisk` artifact (cpio format). Jobs with full rootfs tarballs (e.g.
+LTP NFS root) require tuxrun or a lab with proper provisioning.
+
 ## Running LTP Tests on Pull Labs
 
 In addition to baseline boot tests, pull-labs supports running LTP (Linux Test

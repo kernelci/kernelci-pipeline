@@ -1,2 +1,8 @@
 PyJWT==2.9.0
 toml==0.10.2
+
+# example_pull_lab_pytest.py (also requires qemu-system-*)
+labgrid
+pytest
+pyyaml
+requests
