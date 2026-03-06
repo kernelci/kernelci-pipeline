@@ -438,7 +438,7 @@ platforms:
     dtb: dtbs/qcom/monaco-evk.dtb
     compatible: ['qcom,monaco-evk', 'qcom,qcs8300']
 
-  qemu: &qemu-device
+  qemu-x86_64: &qemu-device
     base_name: qemu
     arch: x86_64
     boot_method: qemu
@@ -447,8 +447,6 @@ platforms:
       arch: x86_64
       cpu: qemu64
       guestfs_interface: ide
-
-  qemu-x86: *qemu-device
 
   qemu-arm:
     <<: *qemu-device
