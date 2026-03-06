@@ -107,6 +107,9 @@ runtimes:
   lava-clabbe:
     lab_type: lava
     url: 'https://lava.montjoie.ovh/'
+    # Lab returns 403 when querying /api/v0.2/jobs/ for queue depth,
+    # which blocks all job submissions. Disable queue depth checking.
+    disable_queue_limit: true
     notify:
       callback:
         token: kernelci-new-api

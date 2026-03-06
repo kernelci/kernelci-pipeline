@@ -394,6 +394,9 @@ class Scheduler(Service):
         if runtime.config.lab_type != 'lava':
             return False
 
+        if getattr(runtime.config, 'disable_queue_limit', False):
+            return False
+
         if not hasattr(runtime, 'get_devicetype_job_count'):
             return False
         if not hasattr(runtime, 'get_device_names_by_type'):

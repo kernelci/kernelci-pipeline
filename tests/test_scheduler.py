@@ -67,10 +67,12 @@ class TestSchedulerQueueDepth(unittest.TestCase):
     def _make_common_mocks(self):
         scheduler = MagicMock(spec=Scheduler)
         scheduler.log = MagicMock()
+        scheduler._telemetry = MagicMock()
 
         runtime = MagicMock()
         runtime.config.lab_type = 'lava'
         runtime.config.name = 'lab-test'
+        runtime.config.disable_queue_limit = False
 
         job_config = MagicMock()
         job_config.name = 'baseline'
@@ -118,6 +120,20 @@ class TestSchedulerQueueDepth(unittest.TestCase):
             scheduler, runtime, job_config, platform
         )
         self.assertTrue(result)
+
+    def test_queue_depth_skipped_when_disable_queue_limit(self):
+        """When disable_queue_limit is True, queue depth check is bypassed."""
+        scheduler, runtime, job_config, platform = self._make_common_mocks()
+        runtime.config.max_queue_depth = 10
+        runtime.config.disable_queue_limit = True
+        runtime.get_device_names_by_type.return_value = ['bbb-1']
+        runtime.get_devicetype_job_count.return_value = 9999
+
+        result = Scheduler._should_skip_due_to_queue_depth(
+            scheduler, runtime, job_config, platform
+        )
+        self.assertFalse(result)
+        runtime.get_devicetype_job_count.assert_not_called()
 
     def test_queue_depth_check_skips_when_device_query_not_available(self):
         """If device query helper is missing, queue-depth check is skipped."""

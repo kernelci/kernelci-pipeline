@@ -331,6 +331,12 @@ LAVA runtimes are used to submit test jobs to LAVA labs.
   - Used as per-device budget when online device count is available
   - Effective limit is `max_queue_depth * online_devices` by default
   - Jobs are also skipped if no online devices are available for the device type
+- **disable_queue_limit**: boolean - Disable queue depth checking entirely for this runtime
+  - **Default**: false
+  - When set to `true`, the scheduler will not query the LAVA API for queue depth
+    before submitting jobs. This is useful for labs that return HTTP 403 errors when
+    the scheduler queries the `/api/v0.2/jobs/` endpoint to check queue depth,
+    which would otherwise block all job submissions to that lab.
 - **rules**: dictionary - Tree/branch filtering rules
 
 #### Example
@@ -358,6 +364,14 @@ runtimes:
     notify:
       callback:
         token: small-lab-token
+
+  lava-restricted-lab:
+    lab_type: lava
+    url: https://restricted-lab.example.com/
+    disable_queue_limit: true  # Lab returns 403 on queue depth queries
+    notify:
+      callback:
+        token: restricted-lab-token
 ```
 
 #### Queue depth behavior
