@@ -1,2 +1,6 @@
 PyJWT==2.9.0
 toml==0.10.2
+
+# example_pull_lab.py (also requires podman or docker)
+requests
+tuxrun
