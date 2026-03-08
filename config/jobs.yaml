@@ -2179,7 +2179,7 @@ jobs:
     params:
       extra_kernel_args: "kvm-arm.mode=protected"
 
-  ltp-cap-bounds:
+  ltp-cap_bounds:
     <<: *ltp-job
     params:
       <<: *ltp-params
@@ -2244,13 +2244,13 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "fs"
 
-  ltp-fs-bind:
+  ltp-fs_bind:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "fs_bind"
 
-  ltp-fs-perms-simple:
+  ltp-fs_perms_simple:
     <<: *ltp-job
     params:
       <<: *ltp-params
@@ -2322,7 +2322,7 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "sched"
 
-  ltp-smoketest:
+  ltp-smoke:
     <<: *ltp-job
     params:
       <<: *ltp-params

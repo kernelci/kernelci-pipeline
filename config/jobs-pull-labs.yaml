@@ -23,7 +23,7 @@ jobs:
   baseline-arm64-pull-labs-demo: *baseline-job-pull-labs
   baseline-x86-pull-labs-demo: *baseline-job-pull-labs
 
-  ltp-smoketest-pull-labs:
+  ltp-smoke-pull-labs:
     template: ltp-pull-labs.jinja2
     kind: job
     params:
