@@ -340,7 +340,7 @@ scheduler:
       name: kbuild-gcc-14-x86
     runtime: *lava-cip-runtime
     platforms: &cip-x86-platforms
-      - qemu
+      - qemu-x86_64
       - x86-openblocks-iot-vx2
       - x86-siemens-mcom
       - x86-simatic-ipc227e
@@ -414,7 +414,7 @@ scheduler:
       name: kbuild-gcc-14-x86-419-cip
     runtime: *lava-cip-runtime
     platforms: &cip-x86-platforms-419
-      - qemu
+      - qemu-x86_64
       - x86-openblocks-iot-vx2
       - x86-simatic-ipc227e
 
@@ -438,7 +438,7 @@ scheduler:
       name: kbuild-gcc-14-x86-419-cip-st
     runtime: *lava-cip-runtime
     platforms:
-      - qemu
+      - qemu-x86_64
       - x86-openblocks-iot-vx2
       - x86-simatic-ipc227e
 
@@ -448,7 +448,7 @@ scheduler:
       name: kbuild-gcc-14-x86-44-cip
     runtime: *lava-cip-runtime
     platforms: &cip-x86-platforms-44
-      - qemu
+      - qemu-x86_64
 
   - &job-gcc-14-x86-44-cip-rt
     job: job-gcc-14-x86-44-cip-rt
@@ -470,7 +470,7 @@ scheduler:
       name: kbuild-gcc-14-x86-44-cip-st
     runtime: *lava-cip-runtime
     platforms:
-      - qemu
+      - qemu-x86_64
 
   - job: kbuild-gcc-14-x86-612-cip
     <<: *build-k8s-all

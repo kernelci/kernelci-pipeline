@@ -161,8 +161,8 @@ def main():
     )
     parser.add_argument(
         "--platform",
-        default="qemu",
-        help="Filter jobs by platform (default: qemu). Use empty string to accept all platforms.",
+        default="qemu-x86_64",
+        help="Filter jobs by platform (default: qemu-x86_64). Use empty string to accept all platforms.",
     )
     parser.add_argument(
         "--runtime",
@@ -246,14 +246,7 @@ def main():
                             print(f"Skipping job - no platform specified in environment")
                             continue
 
-                        # Use platform as device, or construct it if platform is generic
-                        if platform.startswith("qemu-"):
-                            device = platform
-                        elif platform == "qemu":
-                            # Fallback: construct device from platform + arch
-                            device = f"qemu-{arch}"
-                        else:
-                            device = platform
+                        device = platform
 
                         print(f"Job environment: platform={platform}, arch={arch} -> device={device}")
 
