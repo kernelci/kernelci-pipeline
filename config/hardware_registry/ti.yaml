@@ -1,0 +1,586 @@
+schema_info:
+  version: "1.0.0"
+  revision_date: "2025-12-11"
+  compatible_versions: ["1.0.0"]
+
+silicon_vendors:
+  ti:
+    id: "ti"
+    type: "silicon_vendor"
+    url: "https://www.ti.com"
+    details: "Texas Instruments embedded processors, microcontrollers, and analog ICs"
+
+platform_vendors:
+  ti:
+    id: "ti"
+    type: "platform_vendor"
+    url: "https://ti.com"
+    details: "Evaluation boards for Texas Instruments products"
+
+  beagleboard:
+    id: "beagleboard"
+    type: "platform_vendor"
+    url: "https://beagleboard.org"
+    details: "Open-source single-board computers"
+
+processors:
+  am3358:
+    id: "am3358"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM3358"
+    details: "Arm Cortex-A8, 3D graphics, PRU-ICSS, CAN"
+    architecture: "arm"
+    cores: 1
+    max_clock_speed_mhz: 800
+
+  am3359:
+    id: "am3359"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM3359"
+    details: "Arm Cortex-A8, EtherCAT, 3D, PRU-ICSS, CAN"
+    architecture: "arm"
+    cores: 1
+    max_clock_speed_mhz: 800
+
+  am4378:
+    id: "am4378"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM4378"
+    details: "Arm Cortex-A9, PRU-ICSS, 3D graphics"
+    architecture: "arm"
+    cores: 1
+    max_clock_speed_mhz: 1000
+
+  am5718:
+    id: "am5718"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM5718"
+    details: "Arm Cortex-A15 & DSP, multimedia"
+    architecture: "arm"
+    cores: 2
+    max_clock_speed_mhz: 1500
+
+  am5728:
+    id: "am5728"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM5728"
+    details: "Dual Arm Cortex-A15 & dual DSP, multimedia"
+    architecture: "arm"
+    cores: 2
+    max_clock_speed_mhz: 1500
+
+  am5748:
+    id: "am5748"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM5748"
+    details: "Dual arm Cortex-A15 & dual DSP, multimedia, ECC on DDR and secure boot"
+    architecture: "arm"
+    cores: 2
+    max_clock_speed_mhz: 1500
+
+  am625:
+    id: "am625"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM625"
+    details: "Human-machine-interaction SoC with Arm Cortex-A53-based edge AI and full-HD dual display"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 1400
+
+  am62a7:
+    id: "am62a7"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM62A7"
+    details: "2 TOPS vision SoC with RGB-IR ISP for 1-2 cameras, low-power systems, machine vision, robotics"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 1400
+
+  am62d2:
+    id: "am62d2"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM62D-Q1"
+    details: "Automotive 40GFLOPS DSP audio processor with Arm Cortex-A53, Cortex-R5F and LPDDR4"
+    architecture: "arm64"
+    cores: 2
+    max_clock_speed_mhz: 1400
+
+  am62p5:
+    id: "am62p5"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM62P"
+    details: "Arm Cortex-A53 SoC with triple display, 3D graphics, 4K video codec for HMI"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 1400
+
+  am6442:
+    id: "am6442"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM6442"
+    details: "Dual-core 64-bit Arm Cortex-A53, quad-core Cortex-R5F, PCIe, USB 3.0 and security"
+    architecture: "arm64"
+    cores: 2
+    max_clock_speed_mhz: 1000
+
+  am6548:
+    id: "am6548"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM6548"
+    details: "Quad Arm Cortex-A53 and dual Arm Cortex-R5F Sitara processor with gigabit PRU-ICSS, 3D graphics"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 1100
+
+  am68:
+    id: "am68"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM68A"
+    details: "8 TOPS vision SoC for 1-8 cameras, machine vision, smart traffic, retail automation"
+    architecture: "arm64"
+    cores: 8
+    max_clock_speed_mhz: 2000
+
+  am69a:
+    id: "am69a"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/AM69A"
+    details: "32 TOPS vision SoC for 1-12 cameras, autonomous mobile robots, machine vision, mobile DVR, AI-BOX"
+    architecture: "arm64"
+    cores: 8
+    max_clock_speed_mhz: 2000
+
+  dra718:
+    id: "dra718"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/DRA718"
+    details: "1 GHz Arm Cortex-A15 SoC processor with graphics & DSP for infotainment & cluster"
+    architecture: "arm"
+    cores: 1
+    max_clock_speed_mhz: 1000
+
+  dra821u:
+    id: "dra821u"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/DRA821U-Q1"
+    details: "SoC with Dual Arm Cortex-A72, 4 port Ethernet, and 4 lane PCIe for networking and compute"
+    architecture: "arm64"
+    cores: 2
+    max_clock_speed_mhz: 2000
+
+  tda4vm:
+    id: "tda4vm"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/TDA4VM"
+    details: "SoC with Dual Arm Cortex-A72, 8 TOPS of AI, C7xDSP, and GPU for vision perception and analytics"
+    architecture: "arm64"
+    cores: 2
+    max_clock_speed_mhz: 2000
+
+  tda4vl:
+    id: "tda4vl"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/TDA4VL-Q1"
+    details: "SoC with Dual Arm Cortex-A72, 4 TOPS of AI, C7xDSP, and GPU for vision perception and analytics"
+    architecture: "arm64"
+    cores: 2
+    max_clock_speed_mhz: 1200
+
+  tda4ven:
+    id: "tda4ven"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/TDA4VEN-Q1"
+    details: "SoC with Quad Arm Cortex-A53, 4 TOPS of AI, C7xDSP, and GPU for vision perception and analytics"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 1400
+
+  tda4vpe:
+    id: "tda4vpe"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/TDA4VPE-Q1"
+    details: "SoC with Quad Arm Cortex-A72, 16 TOPS of AI, C7xDSP and GPU for vision perception and analytics"
+    architecture: "arm64"
+    cores: 4
+    max_clock_speed_mhz: 2000
+
+  tda4ap:
+    id: "tda4ap"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/TDA4AP-Q1"
+    details: "Octa Cortex-A72 processor for high-performance automotive"
+    architecture: "arm64"
+    cores: 8
+    max_clock_speed_mhz: 2000
+
+  66ak2g12:
+    id: "66ak2g12"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/66AK2G12"
+    details: "High performance multicore DSP+Arm - 1x Arm A15 cores, 1x C66x DSP core"
+    architecture: "arm"
+    cores: 1
+    max_clock_speed_mhz: 1000
+
+  66ak2h14:
+    id: "66ak2h14"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/66AK2H14"
+    details: "High performance multicore DSP+Arm - 4x Arm A15 cores, 8x C66x DSP cores, 10GbE"
+    architecture: "arm"
+    cores: 4
+    max_clock_speed_mhz: 1400
+
+  66al2l06:
+    id: "66al2l06"
+    type: "soc"
+    vendor_id: "ti"
+    url: "https://www.ti.com/product/66AK2L06"
+    details: "Multicore DSP+ARM KeyStone II System-on-Chip"
+    max_clock_speed_mhz: 1200
+    architecture: "arm"
+    cores: 4
+
+system_modules:
+  j721exsomxevm:
+    id: "j721exsomxevm"
+    type: "system_on_module"
+    vendor_id: "ti"
+    processor_id: "tda4vm"
+    url: "https://www.ti.com/tool/J721EXSOMXEVM"
+    details: "TDA4VM and DRA829V socketed system on module"
+    form_factor: "board"
+    category: "development_board"
+
+  j721s2xsomxevm:
+    id: "j721s2xsomxevm"
+    type: "system_on_module"
+    vendor_id: "ti"
+    processor_id: "tda4vl"
+    url: "https://www.ti.com/tool/J721S2XSOMXEVM"
+    details: "TDA4VE-Q1, TDA4VL-Q1 and TDA4AL-Q1 system on module (SoM)"
+    form_factor: "board"
+    category: "development_board"
+
+platforms:
+  am335x-ice:
+    id: "am335x-ice"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am3359"
+    url: "https://www.ti.com/tool/TMDSICE3359"
+    details: "AM3359 Industrial Communications Engine"
+    form_factor: "board"
+
+  am335x-bone-black:
+    id: "am335x-bone-black"
+    type: "single_board_computer"
+    vendor_id: "beagleboard"
+    processor_id: "am3358"
+    url: "https://beagleboard.org/black"
+    details: "BeagleBone Black open-source development board"
+    form_factor: "board"
+
+  am335x-evm:
+    id: "am335x-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am3358"
+    url: "https://www.ti.com/tool/TMDXEVM3358"
+    details: "AM335x evaluation module"
+    form_factor: "board"
+
+  am335x-sk:
+    id: "am335x-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am3358"
+    url: "https://www.ti.com/tool/TMDSSK3358"
+    details: "AM335x Starter Kit evaluation board"
+    form_factor: "board"
+
+  am437x-gpevm:
+    id: "am437x-gpevm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am4378"
+    url: "https://www.ti.com/tool/TMDSEVM437X"
+    details: "AM437x General Purpose evaluation module"
+    form_factor: "board"
+
+  am437x-idk-evm:
+    id: "am437x-idk-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am4378"
+    url: "https://www.ti.com/tool/TMDSIDK437X"
+    details: "AM437x Industrial Development Kit"
+    form_factor: "board"
+
+  am437x-sk-evm:
+    id: "am437x-sk-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am4378"
+    url: "https://www.ti.com/tool/TMDXSK437X"
+    details: "AM437x Starter Kit"
+    form_factor: "board"
+
+  am571x-idk:
+    id: "am571x-idk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am5718"
+    url: "https://www.ti.com/tool/TMDXIDK5718"
+    details: "AM571x Industrial Development Kit"
+    form_factor: "board"
+
+  am57xx-evm:
+    id: "am57xx-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am5728"
+    url: "https://www.ti.com/tool/TMDSEVM572X"
+    details: "AM572x evaluation module"
+    form_factor: "board"
+
+  am572x-idk:
+    id: "am572x-idk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am5728"
+    url: "https://www.ti.com/tool/TMDSIDK572"
+    details: "AM572x Industrial Development Kit"
+    form_factor: "board"
+
+  am57xx-beagle-x15:
+    id: "am57xx-beagle-x15"
+    type: "single_board_computer"
+    vendor_id: "beagleboard"
+    processor_id: "am5728"
+    url: "https://www.beagleboard.org/boards/beagleboard-x15"
+    details: "BeagleBoard X15 high-performance single board computer"
+    form_factor: "board"
+
+  am574x-idk:
+    id: "am574x-idk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am5748"
+    url: "https://www.ti.com/tool/TMDSIDK574"
+    details: "AM5748 Industrial Development Kit"
+    form_factor: "board"
+
+  am62-sk:
+    id: "am62-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am625"
+    url: "https://www.ti.com/tool/SK-AM62"
+    details: "AM62x Starter Kit for Sitara processors"
+    form_factor: "board"
+
+  am62a-sk:
+    id: "am62a-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am62a7"
+    url: "https://www.ti.com/tool/SK-AM62A-LP"
+    details: "AM62A Starter Kit for vision AI applications"
+    form_factor: "board"
+
+  am62d-evm:
+    id: "am62d-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am62d2"
+    url: "https://www.ti.com/tool/AUDIO-AM62D-EVM"
+    details: "AM62D expandable hardware for premium audio"
+    form_factor: "board"
+
+  am62-lp-sk:
+    id: "am62-lp-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am625"
+    url: "https://www.ti.com/tool/SK-AM62-LP"
+    details: "AM62 Low Power Starter Kit"
+    form_factor: "board"
+
+  am62p-sk:
+    id: "am62p-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am62p5"
+    url: "https://www.ti.com/tool/SK-AM62P-LP"
+    details: "AM62P5 Starter Kit"
+    form_factor: "board"
+
+  am64-evm:
+    id: "am64-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am6442"
+    url: "https://www.ti.com/tool/TMDS64EVM"
+    details: "AM64x evaluation module"
+    form_factor: "board"
+
+  am64-sk:
+    id: "am64-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am6442"
+    url: "https://www.ti.com/tool/SK-AM64B"
+    details: "AM64x Starter Kit"
+    form_factor: "board"
+
+  am654-idk:
+    id: "am654-idk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am6548"
+    url: "https://www.ti.com/tool/TMDX654IDKEVM"
+    details: "AM65x industrial development kit"
+    form_factor: "board"
+
+  am68-sk:
+    id: "am68-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am68"
+    url: "https://www.ti.com/tool/SK-AM68"
+    details: "AM68 and AM68A starter kit for vision AI and general purpose processors"
+    form_factor: "board"
+
+  am69-sk:
+    id: "am69-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "am69a"
+    url: "https://www.ti.com/tool/SK-AM69"
+    details: "AM69 and AM69A starter kit for vision AI and general purpose processors"
+    form_factor: "board"
+
+  dra71-evm:
+    id: "dra71-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "dra718"
+    url: "https://www.ti.com/tool/DRA71XEVM"
+    details: "DRA71x evaluation module"
+    form_factor: "board"
+
+  j7200-evm:
+    id: "j7200-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "dra821u"
+    url: ""
+    details: "J7200 evaluation module for automotive applications"
+    form_factor: "board"
+
+  j721e-evm:
+    id: "j721e-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4vm"
+    system_module_id: "j721exsomxevm"
+    url: "https://www.ti.com/tool/J721EXSOMXEVM"
+    details: "J721E evaluation module for automotive and industrial"
+    form_factor: "board"
+
+  j721e-sk:
+    id: "j721e-sk"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4vm"
+    url: "https://www.ti.com/tool/SK-TDA4VM"
+    details: "TDA4VM processor starter kit for edge AI vision systems"
+    form_factor: "board"
+
+  j721s2-evm:
+    id: "j721s2-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4vl"
+    system_module_id: "j721s2xsomxevm"
+    url: "https://www.ti.com/tool/J721S2XSOMXEVM"
+    details: "J721S2 evaluation module"
+    form_factor: "board"
+
+  j722s-evm:
+    id: "j722s-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4ven"
+    url: "https://www.ti.com/tool/J722SXH01EVM"
+    details: "J722S evaluation module"
+    form_factor: "board"
+
+  j742s2-evm:
+    id: "j742s2-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4vpe"
+    url: "https://www.ti.com/tool/J742S2XH01EVM"
+    details: "J742S2 evaluation module for industrial and automotive applications"
+    form_factor: "board"
+
+  j784s4-evm:
+    id: "j784s4-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "tda4ap"
+    url: "https://www.ti.com/tool/J784S4XEVM"
+    details: "J784S4 evaluation module for module for SoC far-field analytic systems"
+    form_factor: "board"
+
+  k2g-evm:
+    id: "k2g-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "66ak2g12"
+    url: "https://www.ti.com/tool/EVMK2GX"
+    details: "66AK2Gx 1GHz evaluation module"
+    form_factor: "board"
+
+  k2hk-evm:
+    id: "k2hk-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "66ak2h14"
+    url: ""
+    details: "K2HK evaluation module for high-performance processing"
+    form_factor: "board"
+
+  k2l-evm:
+    id: "k2l-evm"
+    type: "evaluation_board"
+    vendor_id: "ti"
+    processor_id: "66al2l06"
+    url: ""
+    details: "K2L evaluation module for networking applications"
+    form_factor: "board"
