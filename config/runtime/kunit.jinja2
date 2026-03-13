@@ -23,6 +23,7 @@ RESULT_MAP = {
     'SKIP': 'skip',
 }
 ARCH = '{{ arch }}'
+ARGS = '{{ args }}'
 {% endblock %}
 
 {% block python_job -%}
@@ -104,11 +105,12 @@ cd {src_path}
         if os.path.exists(job_log_path):
             os.remove(job_log_path)
 
+        args = f'{ARGS}' if ARGS else ''
         arch_arg = f'--arch={ARCH}' if ARCH else ''
         steps = {
-            'config': f'config {arch_arg}',
-            'build': f'build --jobs=$(nproc) {arch_arg}',
-            'exec': f'exec --json={kunit_json} {arch_arg}',
+            'config': f'config {args} {arch_arg}',
+            'build': f'build --jobs=$(nproc) {args} {arch_arg}',
+            'exec': f'exec --json={kunit_json} {args} {arch_arg}',
         }
         step_results = {name: (None, []) for name in steps.keys()}
 
