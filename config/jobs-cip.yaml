@@ -80,8 +80,6 @@ jobs:
       defconfig:
         - defconfig
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://6.12.y-cip/arm64/cip_merged_defconfig'
@@ -94,8 +92,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm64-612-cip-params
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -108,8 +104,6 @@ jobs:
       defconfig:
         - defconfig
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://6.1.y-cip/arm64/cip_merged_defconfig'
@@ -123,8 +117,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm64-61-cip-params
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -140,8 +132,6 @@ jobs:
       defconfig:
         - defconfig
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://5.10.y-cip/arm64/cip_merged_defconfig'
@@ -155,8 +145,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm64-510-cip-params
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -172,8 +160,6 @@ jobs:
       defconfig:
         - defconfig
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://4.19.y-cip/arm64/cip_merged_defconfig'
@@ -187,8 +173,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm64-419-cip-params
       fragments:
-        - 'CONFIG_ARCH_R8A774A1=y'
-        - 'CONFIG_ARCH_ZYNQMP=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -233,7 +217,6 @@ jobs:
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
         - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://6.12.y-cip/arm/cip_merged_defconfig'
@@ -249,8 +232,6 @@ jobs:
         - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://6.1.y-cip/arm/cip_merged_defconfig'
@@ -265,8 +246,6 @@ jobs:
       <<: *kbuild-gcc-14-arm-61-cip-params
       fragments:
         - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -282,9 +261,6 @@ jobs:
       defconfig:
         - multi_v7_defconfig
       fragments:
-        - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://5.10.y-cip/arm/cip_merged_defconfig'
@@ -298,9 +274,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm-510-cip-params
       fragments:
-        - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -316,9 +289,6 @@ jobs:
       defconfig:
         - multi_v7_defconfig
       fragments:
-        - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://4.19.y-cip/arm/cip_merged_defconfig'
@@ -332,9 +302,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-arm-419-cip-params
       fragments:
-        - 'CONFIG_ARCH_SOCFPGA=y'
-        - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
@@ -365,7 +332,6 @@ jobs:
         - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'cip://4.4.y-cip/arm/cip_merged_defconfig'
@@ -380,7 +346,6 @@ jobs:
       <<: *kbuild-gcc-14-arm-44-cip-params
       fragments:
         - 'CONFIG_ARCH_RENESAS=y'
-        - 'CONFIG_SOC_AM33XX=y'
         - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
