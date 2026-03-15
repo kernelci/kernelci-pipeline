@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Hardware Registry Index
+#
+# Lists all vendor registry files that are part of the official hardware
+# registry. Add a new entry here when contributing a new vendor file.
+#
+# Schema path is relative to this file's directory.
+
+version: "1.0.0"
+schema: "schema.yaml"
+
+registries:
+  - ti.yaml

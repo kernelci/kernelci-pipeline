@@ -1,0 +1,242 @@
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hardware Catalog Schema"
+description: "Schema for describing silicon vendors, processors/SoCs, system-on-modules (SoMs), platform vendors, and platforms with cross-references"
+type: "object"
+
+$defs:
+  schema_version:
+    type: "object"
+    required: ["version", "revision_date"]
+    properties:
+      version:
+        type: "string"
+        pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+        description: "Semantic version (MAJOR.MINOR.PATCH)"
+      revision_date:
+        type: "string"
+        format: "date"
+        description: "Date of this schema revision"
+      compatible_versions:
+        type: "array"
+        description: "List of schema versions this data is compatible with"
+        items:
+          type: "string"
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+
+  base_entity:
+    type: "object"
+    required: ["id", "type", "url"]
+    properties:
+      id:
+        type: "string"
+        pattern: '^[a-zA-Z0-9_-]+$'
+        description: "Unique identifier (lowercase, underscores allowed)"
+      type:
+        type: "string"
+        description: "Entity type identifier"
+      url:
+        type: "string"
+        format: "uri"
+        description: "Primary URL"
+      details:
+        type: "string"
+        description: "Brief description"
+      version:
+        type: "string"
+        description: "Version identifier for the entity"
+      release_date:
+        type: "string"
+        format: "date"
+        description: "Release or founding date (ISO 8601: YYYY-MM-DD)"
+      spec_url:
+        type: "string"
+        format: "uri"
+        description: "URL to technical documentation"
+      deprecated:
+        type: "boolean"
+        description: "Whether this entity is deprecated"
+        default: false
+      deprecation_date:
+        type: "string"
+        format: "date"
+        description: "Date when this entity was deprecated"
+
+  vendor_entity:
+    allOf:
+      - $ref: "#/$defs/base_entity"
+      - required: ["id", "type", "url"]
+      - properties:
+          type:
+            type: "string"
+            enum: ["silicon_vendor", "platform_vendor"]
+
+  silicon_vendor:
+    allOf:
+      - $ref: "#/$defs/vendor_entity"
+      - properties:
+          type:
+            const: "silicon_vendor"
+
+  platform_vendor:
+    allOf:
+      - $ref: "#/$defs/vendor_entity"
+      - properties:
+          type:
+            const: "platform_vendor"
+
+  processor:
+    allOf:
+      - $ref: "#/$defs/base_entity"
+      - required: ["vendor_id", "id", "architecture", "url"]
+        properties:
+          type:
+            type: "string"
+            enum: ["cpu", "soc", "mcu", "dsp", "fpga", "gpu", "asic"]
+            description: "Type of silicon component"
+          vendor_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Reference to silicon vendor ID"
+          architecture:
+            type: "string"
+            description: "Instruction set architecture"
+            examples: ["arm", "arm64", "x86_64", "risc-v", "mips", "powerpc"]
+          cores:
+            type: "integer"
+            minimum: 1
+            description: "Number of processing cores"
+          max_clock_speed_mhz:
+            type: "number"
+            minimum: 0
+            description: "Maximum rated clock speed in MHz"
+          process_node_nm:
+            type: "number"
+            minimum: 0
+            description: "Manufacturing process node in nanometers"
+
+  # System Modules (System on Module or or System in Package) entity between processor and platform
+  system_module:
+    allOf:
+      - $ref: "#/$defs/base_entity"
+      - required: ["vendor_id", "processor_id", "type", "url"]
+        properties:
+          type:
+            type: "string"
+            enum: ["system_on_module", "system_in_package"]
+            description: "Represents a SoM (System on Module) or SiP (System in Package)"
+          vendor_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Reference to SoM/SiP vendor ID (typically a platform vendor like Toradex/PHYTEC)"
+          processor_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Reference to the processor/SoC ID used inside the SoM/SiP"
+          form_factor:
+            type: "string"
+            description: "SoM/SiP connector/mechanical standard"
+            examples: ["sodimm", "edimm", "mxm", "custom", "package"]
+          memory_mb:
+            type: "integer"
+            minimum: 0
+          storage_gb:
+            type: "number"
+            minimum: 0
+
+  platform:
+    allOf:
+      - $ref: "#/$defs/base_entity"
+      - required: ["vendor_id", "processor_id", "type", "url"]
+        properties:
+          type:
+            type: "string"
+            enum:
+              - "evaluation_board"
+              - "reference_board"
+              - "single_board_computer"
+              - "development_board"
+              - "product_board"
+              - "industrial_gateway"
+              - "laptop"
+              - "desktop"
+            description: "Platform type/category"
+          vendor_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Reference to platform vendor ID"
+          processor_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Reference to processor ID (often same as SoM's processor)"
+          system_module_id:
+            type: "string"
+            pattern: '^[a-zA-Z0-9_-]+$'
+            description: "Optional reference to a System on Module used on this platform"
+          form_factor:
+            type: "string"
+            description: "Physical form factor"
+            examples: ["credit_card", "din_rail", "laptop", "mini_pc", "pcie_card", "m.2", "atx", "matx"]
+          memory_mb:
+            type: "integer"
+            minimum: 0
+            description: "Onboard emory in megabytes"
+          storage_gb:
+            type: "number"
+            minimum: 0
+            description: "Onboard storage in gigabytes"
+
+  entity_collection:
+    type: "object"
+    patternProperties:
+      '^[a-zA-Z0-9_-]+$':
+        type: "object"
+    additionalProperties: false
+
+properties:
+  schema_info:
+    $ref: "#/$defs/schema_version"
+    description: "Schema version and compatibility information"
+
+  silicon_vendors:
+    allOf:
+      - $ref: "#/$defs/entity_collection"
+      - description: "Collection of silicon/chip manufacturers"
+        patternProperties:
+          '^[a-zA-Z0-9_-]+$':
+            $ref: "#/$defs/silicon_vendor"
+
+  platform_vendors:
+    allOf:
+      - $ref: "#/$defs/entity_collection"
+      - description: "Collection of platform manufacturers"
+        patternProperties:
+          '^[a-zA-Z0-9_-]+$':
+            $ref: "#/$defs/platform_vendor"
+
+  processors:
+    allOf:
+      - $ref: "#/$defs/entity_collection"
+      - description: "Collection of processors, SoCs, CPUs, and microcontrollers"
+        patternProperties:
+          '^[a-zA-Z0-9_-]+$':
+            $ref: "#/$defs/processor"
+
+  system_modules:
+    allOf:
+      - $ref: "#/$defs/entity_collection"
+      - description: "Collection of reusable System-on-Modules (SoMs) or System-in-Package (SiPs)"
+        patternProperties:
+          '^[a-zA-Z0-9_-]+$':
+            $ref: "#/$defs/system_module"
+
+  platforms:
+    allOf:
+      - $ref: "#/$defs/entity_collection"
+      - description: "Collection of hardware platforms"
+        patternProperties:
+          '^[a-zA-Z0-9_-]+$':
+            $ref: "#/$defs/platform"
+
+required: ["schema_info", "silicon_vendors", "platform_vendors", "processors", "platforms"]
+additionalProperties: false
