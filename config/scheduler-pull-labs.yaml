@@ -61,4 +61,4 @@ scheduler:
       type: pull_labs
       name: pull-labs-demo
     platforms:
-      - qemu
+      - qemu-x86_64
