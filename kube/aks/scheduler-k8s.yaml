@@ -54,9 +54,7 @@ spec:
             - --yaml-config=/config
             - loop
             - --name=scheduler_k8s
-            - --runtimes
-            - k8s-gke-eu-west4
-            - k8s-all
+            - --runtime-type=kubernetes
           env:
             - name: KCI_API_TOKEN
               valueFrom:

@@ -39,17 +39,9 @@ spec:
             - --yaml-config=/config
             - loop
             - --name=scheduler_lava
-            - --runtimes
-            - lava-collabora
-            - lava-collabora-staging
-            - lava-broonie
-            - lava-baylibre
-            - lava-clabbe
-            - lava-qualcomm
-            - lava-cip
-            - lava-pengutronix
-            - lava-foundriesio
-            - lava-kontron
+            - --runtime-type
+            - lava
+            - pull_labs
           env:
             - name: KCI_API_TOKEN
               valueFrom:

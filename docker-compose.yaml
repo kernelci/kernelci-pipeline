@@ -82,19 +82,9 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_lava'
-      - '--runtimes'
-      - 'lava-collabora'
-      - 'lava-collabora-staging'
-      - 'lava-clabbe'
-      - 'lava-broonie'
-      - 'lava-baylibre'
-      - 'lava-qualcomm'
-      - 'lava-cip'
-      - 'lava-pengutronix'
-      - 'lava-kontron'
-      - 'lava-foundriesio'
-      - 'lava-testpull'
-      - 'pull-labs-demo'
+      - '--runtime-type'
+      - 'lava'
+      - 'pull_labs'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -113,9 +103,7 @@ services:
       - '--settings=${KCI_SETTINGS:-/home/kernelci/config/kernelci.toml}'
       - 'loop'
       - '--name=scheduler_k8s'
-      - '--runtimes'
-      - 'k8s-gke-eu-west4'
-      - 'k8s-all'
+      - '--runtime-type=kubernetes'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
