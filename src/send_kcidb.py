@@ -390,6 +390,8 @@ the test: {sub_path}")
         return test_node['result'].upper()
 
     def _get_parent_build_node(self, node):
+        if not node.get('parent'):
+            return None
         node = self._get_node_cached(node['parent'])
         if not node:
             return None
