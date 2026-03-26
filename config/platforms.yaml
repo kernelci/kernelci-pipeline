@@ -82,6 +82,15 @@ platforms:
     <<: *arm64-device
     mach: cix
     boot_method: grub
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 12
+      tree:
+        - mainline
+        - next
+        - stable
+        - stable-rc
 
   da850-lcdk:
     <<: *arm-device
