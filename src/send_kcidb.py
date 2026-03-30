@@ -108,7 +108,7 @@ class KCIDBBridge(Service):
             revision = self._remove_none_fields(revision)
         except Exception as exc:
             self.log.error(f"Failed to remove None fields: {str(exc)}")
-            return
+            return False
         if any(value for key, value in revision.items() if key != 'version'):
             # remove log_excerpt field, as it is filling up the logs
             self._print_debug(revision)
@@ -119,22 +119,25 @@ class KCIDBBridge(Service):
                 # A bit verbose to know exact reason
                 if not kcidb.io.SCHEMA.is_valid(revision):
                     self.log.error("Invalid data, is_valid failed")
-                    return
+                    return False
                 if not kcidb.io.SCHEMA.is_compatible(revision):
                     self.log.error("Invalid data, is_compatible failed")
-                    return
+                    return False
                 validation = True
             except Exception as exc:
                 self.log.error(f"Validation error: {str(exc)}")
 
             if validation:
                 client.submit(revision)
+                return True
             else:
                 self.log.error("Aborting, invalid data")
                 try:
                     kcidb.io.SCHEMA.validate(revision)
                 except Exception as exc:
                     self.log.error(f"Validation error: {str(exc)}")
+                return False
+        return True
 
     @staticmethod
     def _set_timezone(created_timestamp):
@@ -690,9 +693,12 @@ in {runtime}",
         }
 
         try:
-            self._send_revision(ctx_client, revision)
+            success = self._send_revision(ctx_client, revision)
         except Exception as exc:
             self.log.error(f"Failed to _send-revision to KCIDB: {str(exc)}")
+            return False
+
+        if not success:
             return False
 
         if len(checkouts) > 0:
@@ -710,6 +716,7 @@ in {runtime}",
         if len(incidents) > 0:
             for incident in incidents:
                 self.log.info(f"Sent incident node: {incident['id']}")
+        return True
 
     def _run(self, context):
         """Main run loop that processes nodes and sends data to KCIDB"""
@@ -808,10 +815,14 @@ in {runtime}",
         """Handle submitting accumulated batch data to KCIDB"""
         if any(len(batch[k]) > 0 for k in ['checkouts', 'builds', 'tests', 'issues', 'incidents']):
             try:
-                self._submit_parsed_data(
+                result = self._submit_parsed_data(
                     batch['checkouts'], batch['builds'], batch['tests'],
                     batch['issues'], batch['incidents'], context['client']
                 )
+                if not result:
+                    self.log.error("Submission to KCIDB failed, nodes will be resubmitted later")
+                    batch['nodes'] = []
+                    return False
             except Exception as exc:
                 self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
                 # Don't mark as processed since they were not sent to KCIDB
