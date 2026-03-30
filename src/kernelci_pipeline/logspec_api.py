@@ -80,9 +80,9 @@ def get_log(url, snippet_lines=0):
 
     try:
         raw_bytes = gzip.decompress(raw_data)
-        text = raw_bytes.decode('utf-8')
+        text = raw_bytes.decode('utf-8', errors='replace')
     except gzip.BadGzipFile:
-        text = raw_data.decode('utf-8')
+        text = raw_data.decode('utf-8', errors='replace')
     if snippet_lines > 0:
         lines = text.splitlines()
         return '\n'.join(lines[:snippet_lines])
