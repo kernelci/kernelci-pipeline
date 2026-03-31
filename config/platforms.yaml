@@ -399,7 +399,8 @@ platforms:
 
   qcs6490-rb3gen2:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/rb3gen2/qcom-multimedia-image-rb3gen2-core-kit.rootfs-20260213154145.qcomflash.tar.gz"
     mach: qcom
     dtb: dtbs/qcom/qcs6490-rb3gen2.dtb
     compatible: ['qcom,qcs6490-rb3gen2', 'qcom,qcm6490']
