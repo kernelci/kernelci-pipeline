@@ -5,81 +5,83 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
-import sys
 import datetime
-from time import sleep
 import json
-import requests
+import sys
+from time import sleep
 
 import kernelci
 import kernelci.config
+import requests
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
 
 
 class TimeoutService(Service):
-
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
         self._pending_states = [
-            state.value for state in self._api.node.states
+            state.value
+            for state in self._api.node.states
             if state != state.DONE
         ]
         self._user = self._api.user.whoami()
-        self._username = self._user['username']
+        self._username = self._user["username"]
 
     def _setup(self, args):
         return {
-            'poll_period': args.poll_period,
+            "poll_period": args.poll_period,
         }
 
     def _get_pending_nodes(self, filters=None):
         nodes = {}
         node_filters = filters.copy() if filters else {}
         for state in self._pending_states:
-            node_filters['state'] = state
+            node_filters["state"] = state
             for node in self._api.node.find(node_filters):
                 # Until permissions for the timeout service are fixed:
-                if node['owner'] == self._username:
-                    nodes[node['id']] = node
+                if node["owner"] == self._username:
+                    nodes[node["id"]] = node
         return nodes
 
     def _count_running_child_nodes(self, parent_id, recurse=False):
         nodes_count = 0
-        child_nodes = self._api.node.find({
-            'parent': parent_id,
-        })
+        child_nodes = self._api.node.find(
+            {
+                "parent": parent_id,
+            }
+        )
 
         for child in child_nodes:
-            if child['state'] in self._pending_states:
+            if child["state"] in self._pending_states:
                 nodes_count += 1
             if recurse:
-                nodes_count += self._count_running_child_nodes(child['id'], True)
+                nodes_count += self._count_running_child_nodes(
+                    child["id"], True
+                )
         return nodes_count
 
     def _get_child_nodes_recursive(self, node, recursive, state_filter=None):
-        child_nodes = self._get_pending_nodes({'parent': node['id']})
+        child_nodes = self._get_pending_nodes({"parent": node["id"]})
         for child_id, child in child_nodes.items():
-            if state_filter is None or child['state'] == state_filter:
+            if state_filter is None or child["state"] == state_filter:
                 recursive.update({child_id: child})
-                self._get_child_nodes_recursive(
-                    child, recursive, state_filter
-                )
+                self._get_child_nodes_recursive(child, recursive, state_filter)
 
     def _submit_lapsed_nodes(self, lapsed_nodes, state, mode):
         for node_id, node in lapsed_nodes.items():
             node_update = node.copy()
-            node_update['state'] = state
+            node_update["state"] = state
             self.log.debug(f"{node_id} {mode}")
-            if mode == 'TIMEOUT':
-                if 'data' not in node_update:
-                    node_update['data'] = {}
-                if not node.get('result'):
+            if mode == "TIMEOUT":
+                if "data" not in node_update:
+                    node_update["data"] = {}
+                if not node.get("result"):
                     # Set result as "incomplete" only if any value is not set yet
-                    node_update['result'] = 'incomplete'
-                    node_update['data']['error_code'] = 'node_timeout'
-                    node_update['data']['error_msg'] = 'Node timed-out'
+                    node_update["result"] = "incomplete"
+                    node_update["data"]["error_code"] = "node_timeout"
+                    node_update["data"]["error_msg"] = "Node timed-out"
 
             try:
                 self._api.node.update(node_update)
@@ -89,9 +91,8 @@ class TimeoutService(Service):
 
 
 class Timeout(TimeoutService):
-
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout')
+        super().__init__(configs, args, "timeout")
 
     def _run(self, ctx):
         self.log.info("Looking for nodes with lapsed timeout...")
@@ -99,26 +100,33 @@ class Timeout(TimeoutService):
         self.log.info(f"Current user: {self._username}")
 
         while True:
-            timeout_nodes = self._get_pending_nodes({
-                'timeout__lt': datetime.datetime.isoformat(datetime.datetime.now(datetime.UTC))
-            })
-            self._submit_lapsed_nodes(timeout_nodes, 'done', 'TIMEOUT')
-            sleep(ctx['poll_period'])
+            timeout_nodes = self._get_pending_nodes(
+                {
+                    "timeout__lt": datetime.datetime.isoformat(
+                        datetime.datetime.now(datetime.UTC)
+                    )
+                }
+            )
+            self._submit_lapsed_nodes(timeout_nodes, "done", "TIMEOUT")
+            sleep(ctx["poll_period"])
 
         return True
 
 
 class Holdoff(TimeoutService):
-
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout-holdoff')
+        super().__init__(configs, args, "timeout-holdoff")
 
     def _get_available_nodes(self):
-        nodes = self._api.node.find({
-            'state': 'available',
-            'holdoff__lt': datetime.datetime.isoformat(datetime.datetime.now(datetime.UTC)),
-        })
-        return {node['id']: node for node in nodes}
+        nodes = self._api.node.find(
+            {
+                "state": "available",
+                "holdoff__lt": datetime.datetime.isoformat(
+                    datetime.datetime.now(datetime.UTC)
+                ),
+            }
+        )
+        return {node["id"]: node for node in nodes}
 
     def _check_available_nodes(self, available_nodes):
         # Nodes in "available" state with running descendent nodes should
@@ -137,8 +145,8 @@ class Holdoff(TimeoutService):
                 closing_nodes[node_id] = node
             else:
                 done_nodes[node_id] = node
-        self._submit_lapsed_nodes(closing_nodes, 'closing', 'HOLDOFF')
-        self._submit_lapsed_nodes(done_nodes, 'done', 'DONE')
+        self._submit_lapsed_nodes(closing_nodes, "closing", "HOLDOFF")
+        self._submit_lapsed_nodes(done_nodes, "done", "DONE")
 
     def _run(self, ctx):
         self.log.info("Looking for nodes with lapsed holdoff...")
@@ -147,19 +155,18 @@ class Holdoff(TimeoutService):
         while True:
             available_nodes = self._get_available_nodes()
             self._check_available_nodes(available_nodes)
-            sleep(ctx['poll_period'])
+            sleep(ctx["poll_period"])
 
         return True
 
 
 class Closing(TimeoutService):
-
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'timeout-closing')
+        super().__init__(configs, args, "timeout-closing")
 
     def _get_closing_nodes(self):
-        nodes = self._api.node.find({'state': 'closing'})
-        return {node['id']: node for node in nodes}
+        nodes = self._api.node.find({"state": "closing"})
+        return {node["id"]: node for node in nodes}
 
     def _check_closing_nodes(self, closing_nodes):
         # Nodes in "closing" state should transition to "done" once they have
@@ -173,7 +180,7 @@ class Closing(TimeoutService):
                 self.log.debug(f"{node_id} RUNNING (recursive): {running}")
             if not running:
                 done_nodes[node_id] = node
-        self._submit_lapsed_nodes(done_nodes, 'done', 'DONE')
+        self._submit_lapsed_nodes(done_nodes, "done", "DONE")
 
     def _run(self, ctx):
         self.log.info("Looking for nodes that are done closing...")
@@ -182,15 +189,15 @@ class Closing(TimeoutService):
         while True:
             closing_nodes = self._get_closing_nodes()
             self._check_closing_nodes(closing_nodes)
-            sleep(ctx['poll_period'])
+            sleep(ctx["poll_period"])
 
         return True
 
 
 MODES = {
-    'timeout': Timeout,
-    'holdoff': Holdoff,
-    'closing': Closing,
+    "timeout": Timeout,
+    "holdoff": Holdoff,
+    "closing": Closing,
 }
 
 
@@ -199,14 +206,14 @@ class cmd_run(Command):
     args = [
         Args.api_config,
         {
-            'name': '--poll-period',
-            'type': int,
-            'help': "Polling period in seconds",
-            'default': 60,
+            "name": "--poll-period",
+            "type": int,
+            "help": "Polling period in seconds",
+            "default": 60,
         },
         {
-            'name': '--mode',
-            'choices': MODES.keys(),
+            "name": "--mode",
+            "choices": MODES.keys(),
         },
     ]
 
@@ -214,9 +221,9 @@ class cmd_run(Command):
         return MODES[args.mode](configs, args).run(args)
 
 
-if __name__ == '__main__':
-    opts = parse_opts('timeout', globals())
-    yaml_configs = opts.get_yaml_configs() or 'config'
+if __name__ == "__main__":
+    opts = parse_opts("timeout", globals())
+    yaml_configs = opts.get_yaml_configs() or "config"
     pipeline = kernelci.config.load(yaml_configs)
     status = opts.command(pipeline, opts)
     sys.exit(0 if status is True else 1)

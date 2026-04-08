@@ -5,16 +5,17 @@ Poll KernelCI API for pull-lab jobs and execute them with tuxrun.
 Filters for jobs with job_definition artifacts, auto-detects architecture,
 and passes kernel/module/rootfs URLs directly to tuxrun for execution.
 """
+
 import argparse
-import requests
-import sys
 import os
-import time
-import subprocess
-import shlex
 import re
+import shlex
+import subprocess
+import sys
+import time
 from urllib.parse import urlparse
 
+import requests
 
 BASE_URI = "https://staging.kernelci.org:9000/latest"
 EVENTS_PATH = "/events"
@@ -45,7 +46,7 @@ def parse_job_definition_url(url):
     try:
         parsed = urlparse(url)
         path = parsed.path
-        match = re.search(r'/pull_labs_jobs/(\d{8})/([a-f0-9]+)\.json', path)
+        match = re.search(r"/pull_labs_jobs/(\d{8})/([a-f0-9]+)\.json", path)
         if match:
             return match.group(1), match.group(2)
     except Exception as e:
@@ -53,7 +54,14 @@ def parse_job_definition_url(url):
     return None, None
 
 
-def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs_url=None, cache_dir=None):
+def run_tuxrun(
+    kernel_url,
+    modules_url,
+    device="qemu-x86_64",
+    tests=None,
+    rootfs_url=None,
+    cache_dir=None,
+):
     """
     Launch a test using tuxrun
 
@@ -65,13 +73,18 @@ def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs
         rootfs_url: Optional URL to custom rootfs image
         cache_dir: Optional directory to save tuxrun outputs and cache
     """
-    print(f"Running tuxrun with kernel: {kernel_url}, modules: {modules_url}, device: {device}")
+    print(
+        f"Running tuxrun with kernel: {kernel_url}, modules: {modules_url}, device: {device}"
+    )
 
     cmd = [
         "tuxrun",
-        "--device", device,
-        "--kernel", kernel_url,
-        "--modules", modules_url,
+        "--device",
+        device,
+        "--kernel",
+        kernel_url,
+        "--modules",
+        modules_url,
     ]
 
     if rootfs_url:
@@ -82,23 +95,31 @@ def run_tuxrun(kernel_url, modules_url, device="qemu-x86_64", tests=None, rootfs
 
     if cache_dir:
         os.makedirs(cache_dir, exist_ok=True)
-        cmd.extend(["--save-outputs", "--cache-dir", cache_dir, "--log-file", "-"])
+        cmd.extend(
+            ["--save-outputs", "--cache-dir", cache_dir, "--log-file", "-"]
+        )
         print(f"✓ Outputs will be saved to: {cache_dir}")
 
     print(f"Executing command: {' '.join(shlex.quote(arg) for arg in cmd)}")
 
     try:
         result = subprocess.run(cmd, check=True)
-        print(f"\n✓ tuxrun completed successfully")
+        print("\n✓ tuxrun completed successfully")
         if cache_dir:
             print(f"✓ Outputs saved to: {cache_dir}")
         return result.returncode
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         print(f"\n✗ Error running tuxrun: {e}")
-        return e.returncode if hasattr(e, 'returncode') else 1
+        return e.returncode if hasattr(e, "returncode") else 1
 
 
-def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override=None, cache_dir=None):
+def prepare_and_run(
+    artifacts,
+    device="qemu-x86_64",
+    tests=None,
+    rootfs_override=None,
+    cache_dir=None,
+):
     """
     Run tuxrun with artifact URLs
 
@@ -111,7 +132,11 @@ def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override
     """
     kernel_url = artifacts.get("kernel")
     modules_url = artifacts.get("modules")
-    rootfs_url = rootfs_override if rootfs_override else (artifacts.get("rootfs") or artifacts.get("ramdisk"))
+    rootfs_url = (
+        rootfs_override
+        if rootfs_override
+        else (artifacts.get("rootfs") or artifacts.get("ramdisk"))
+    )
 
     if not kernel_url or not modules_url:
         print("Missing required artifacts (kernel or modules)")
@@ -127,7 +152,14 @@ def prepare_and_run(artifacts, device="qemu-x86_64", tests=None, rootfs_override
     print("Press Enter to launch tuxrun...")
     input()
 
-    return run_tuxrun(kernel_url, modules_url, device=device, tests=tests, rootfs_url=rootfs_url, cache_dir=cache_dir)
+    return run_tuxrun(
+        kernel_url,
+        modules_url,
+        device=device,
+        tests=tests,
+        rootfs_url=rootfs_url,
+        cache_dir=cache_dir,
+    )
 
 
 def main():
@@ -139,7 +171,10 @@ def main():
     parser.add_argument(
         "--device",
         default=None,
-        help="Filter jobs by device type (e.g., qemu-x86_64, qemu-arm64). If not specified, accepts all architectures.",
+        help=(
+            "Filter jobs by device type (e.g., qemu-x86_64, qemu-arm64). "
+            "If not specified, accepts all architectures."
+        ),
     )
     parser.add_argument(
         "--tests",
@@ -152,7 +187,10 @@ def main():
     parser.add_argument(
         "--cache-dir",
         default="./test_output",
-        help="Directory to save tuxrun outputs and cache (default: ./test_output). Use --no-save-outputs to disable.",
+        help=(
+            "Directory to save tuxrun outputs and cache "
+            "(default: ./test_output). Use --no-save-outputs to disable."
+        ),
     )
     parser.add_argument(
         "--no-save-outputs",
@@ -166,12 +204,18 @@ def main():
     )
     parser.add_argument(
         "--runtime",
-        help="Filter jobs by runtime/lab name (e.g., pull-labs-demo). If not specified, accepts all runtimes.",
+        help=(
+            "Filter jobs by runtime/lab name (e.g., pull-labs-demo). "
+            "If not specified, accepts all runtimes."
+        ),
     )
     parser.add_argument(
         "--group-filter",
         default="pull-labs",
-        help="Filter jobs by group name containing this string (default: pull-labs). Use empty string to accept all groups.",
+        help=(
+            "Filter jobs by group name containing this string "
+            "(default: pull-labs). Use empty string to accept all groups."
+        ),
     )
     parser.add_argument(
         "--max-retries",
@@ -202,7 +246,9 @@ def main():
                         continue
 
                     if not job_definition_url.startswith("http"):
-                        print(f"Invalid job_definition URL: {job_definition_url}")
+                        print(
+                            f"Invalid job_definition URL: {job_definition_url}"
+                        )
                         continue
 
                     group = node.get("group", "")
@@ -227,8 +273,12 @@ def main():
 
                     jobdata = retrieve_job_definition(job_definition_url)
                     job_artifacts = jobdata.get("artifacts", {})
-                    if all(key in job_artifacts for key in ["kernel", "modules"]):
-                        print("Job definition contains required artifacts for tuxrun")
+                    if all(
+                        key in job_artifacts for key in ["kernel", "modules"]
+                    ):
+                        print(
+                            "Job definition contains required artifacts for tuxrun"
+                        )
 
                         job_tests = jobdata.get("tests", [])
                         if job_tests:
@@ -243,32 +293,44 @@ def main():
                         platform = environment.get("platform", "")
 
                         if not platform:
-                            print(f"Skipping job - no platform specified in environment")
+                            print(
+                                "Skipping job - no platform specified in environment"
+                            )
                             continue
 
                         device = platform
 
-                        print(f"Job environment: platform={platform}, arch={arch} -> device={device}")
+                        print(
+                            f"Job environment: platform={platform}, arch={arch} -> device={device}"
+                        )
 
                         if args.device and device != args.device:
-                            print(f"Skipping job - device {device} does not match filter {args.device}")
+                            print(
+                                f"Skipping job - device {device} does not match filter {args.device}"
+                            )
                             continue
 
                         cache_dir = None
                         if not args.no_save_outputs and args.cache_dir:
-                            date, job_id = parse_job_definition_url(job_definition_url)
+                            date, job_id = parse_job_definition_url(
+                                job_definition_url
+                            )
                             if date and job_id:
-                                cache_dir = os.path.join(args.cache_dir, date, job_id)
+                                cache_dir = os.path.join(
+                                    args.cache_dir, date, job_id
+                                )
                             else:
                                 node_id = node.get("id", "unknown")
-                                cache_dir = os.path.join(args.cache_dir, node_id)
+                                cache_dir = os.path.join(
+                                    args.cache_dir, node_id
+                                )
 
                         prepare_and_run(
                             job_artifacts,
                             device=device,
                             tests=args.tests,
                             rootfs_override=args.rootfs,
-                            cache_dir=cache_dir
+                            cache_dir=cache_dir,
                         )
                     else:
                         print(
@@ -278,13 +340,16 @@ def main():
                 except Exception as e:
                     print(f"Error processing event: {e}")
                     import traceback
+
                     traceback.print_exc()
 
             if events:
                 timestamp = events[-1]["timestamp"]
         except requests.exceptions.RequestException as e:
             retry_count += 1
-            print(f"Error fetching events (attempt {retry_count}/{args.max_retries}): {e}")
+            print(
+                f"Error fetching events (attempt {retry_count}/{args.max_retries}): {e}"
+            )
             if retry_count >= args.max_retries:
                 print(f"Max retries ({args.max_retries}) reached. Exiting.")
                 sys.exit(1)

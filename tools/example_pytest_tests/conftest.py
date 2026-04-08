@@ -35,7 +35,9 @@ def _download(url, path):
             f.write(chunk)
 
 
-def _write_env_yaml(path, qemu_bin, machine, cpu, console, kernel, ramdisk=None):
+def _write_env_yaml(
+    path, qemu_bin, machine, cpu, console, kernel, ramdisk=None
+):
     extra_args = "-no-reboot"
     if ramdisk:
         extra_args += f" -initrd {ramdisk}"
@@ -84,7 +86,9 @@ def kci_environment(kci_job):
 def shell(kci_job, kci_environment, tmp_path_factory):
     tmpdir = tmp_path_factory.mktemp("qemu")
     arch = kci_environment.get("arch", "x86_64")
-    qemu_name, machine, cpu, console = QEMU_CONFIGS.get(arch, QEMU_CONFIGS["x86_64"])
+    qemu_name, machine, cpu, console = QEMU_CONFIGS.get(
+        arch, QEMU_CONFIGS["x86_64"]
+    )
 
     qemu_bin = shutil.which(qemu_name)
     if not qemu_bin:

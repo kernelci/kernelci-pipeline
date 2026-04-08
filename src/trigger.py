@@ -8,18 +8,17 @@
 
 import copy
 import datetime
+import hashlib
 import re
 import sys
 import time
 
 import kernelci.build
 import kernelci.config
-
-from kernelci.legacy.cli import Args, Command, parse_opts
 import requests
-import hashlib
+from kernelci.legacy.cli import Args, Command, parse_opts
 
-from base import Service, validate_url, SERVICE_PIPELINE
+from base import SERVICE_PIPELINE, Service, validate_url
 
 
 def translate_freq(freq):
@@ -31,7 +30,7 @@ def translate_freq(freq):
     if not freq:
         return 0
     freq_sec = 0
-    freq_re = re.compile(r'(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?')
+    freq_re = re.compile(r"(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?")
     freq_match = freq_re.match(freq)
     if freq_match:
         days, hours, minutes = freq_match.groups()
@@ -45,11 +44,10 @@ def translate_freq(freq):
 
 
 class Trigger(Service):
-
     def __init__(self, configs, args):
-        super().__init__(configs, args, 'trigger')
-        self._build_configs = configs['build_configs']
-        self._trees = configs['trees']
+        super().__init__(configs, args, "trigger")
+        self._build_configs = configs["build_configs"]
+        self._trees = configs["trees"]
         self._current_user = self._api.user.whoami()
 
     def _log_revision(self, message, build_config, head_commit):
@@ -67,7 +65,9 @@ class Trigger(Service):
 
         freq_sec = translate_freq(frequency)
         if not freq_sec or freq_sec < 60:
-            self.log.warning(f"Invalid frequency '{frequency}' for {build_config.name}")
+            self.log.warning(
+                f"Invalid frequency '{frequency}' for {build_config.name}"
+            )
             return True
 
         # Calculate the timestamp threshold
@@ -79,15 +79,17 @@ class Trigger(Service):
             "kind": "checkout",
             "data.kernel_revision.tree": build_config.tree.name,
             "data.kernel_revision.branch": build_config.branch,
-            "owner": self._current_user['username'],
+            "owner": self._current_user["username"],
             "submitter": SERVICE_PIPELINE,
             "created__gte": tstamp.isoformat(),
         }
         node_count = self._api.node.count(search_terms)
 
         if node_count > 0:
-            self.log.info(f"Skipping {build_config.name}: checkout created within "
-                          f"frequency limit ({frequency})")
+            self.log.info(
+                f"Skipping {build_config.name}: checkout created within "
+                f"frequency limit ({frequency})"
+            )
             return False
 
         return True
@@ -95,10 +97,13 @@ class Trigger(Service):
     def _run_trigger(self, build_config, force, timeout, trees):
         if trees and len(trees) > 1:
             tree_condition = "not" if trees.startswith("!") else "only"
-            trees_list = trees.strip("!").split(",")  # Remove leading '!', split by comma
+            trees_list = trees.strip("!").split(
+                ","
+            )  # Remove leading '!', split by comma
             tree_in_list = build_config.tree.name in trees_list
-            if (tree_in_list and tree_condition == "not") or \
-               (not tree_in_list and tree_condition == "only"):
+            if (tree_in_list and tree_condition == "not") or (
+                not tree_in_list and tree_condition == "only"
+            ):
                 return
 
         # Check frequency limit before doing any git operations
@@ -112,25 +117,33 @@ class Trigger(Service):
                 # Following extractor supports only NIPA JSON scheme.
                 # Adding support for other schemas will force moving it to a separate function.
                 branches = response.json()
-                latest = sorted(branches, key=lambda x: x['date'], reverse=True)[0]
+                latest = sorted(
+                    branches, key=lambda x: x["date"], reverse=True
+                )[0]
                 tree = current_config.tree.name
-                self.log.info(f"NIPA Latest branch: {latest['branch']} Date: {latest['date']}"
-                              f" Tree: {tree}")
-                current_config._branch = latest['branch']
+                self.log.info(
+                    f"NIPA Latest branch: {latest['branch']} Date: {latest['date']}"
+                    f" Tree: {tree}"
+                )
+                current_config._branch = latest["branch"]
 
             head_commit = kernelci.build.get_branch_head(current_config)
             if not head_commit:
-                self.log.error(f"Failed to get branch head for {current_config.name:32s}, ignoring")
+                self.log.error(
+                    f"Failed to get branch head for {current_config.name:32s}, ignoring"
+                )
                 return
-        except Exception as ex:
-            self.log.error(f"Failed to get branch head for {current_config.name:32s}, ignoring")
+        except Exception:
+            self.log.error(
+                f"Failed to get branch head for {current_config.name:32s}, ignoring"
+            )
             self.log.traceback()
             return
         search_terms = {
             "kind": "checkout",
             "data.kernel_revision.commit": head_commit,
-            "owner": self._current_user['username'],
-            "submitter": SERVICE_PIPELINE
+            "owner": self._current_user["username"],
+            "submitter": SERVICE_PIPELINE,
         }
         node_count = self._api.node.count(search_terms)
         search_terms["result"] = "incomplete"
@@ -148,7 +161,9 @@ class Trigger(Service):
         if node_count > 0 and incomplete_node_count != node_count:
             if force:
                 self._log_revision(
-                    "Resubmitting existing revision", current_config, head_commit
+                    "Resubmitting existing revision",
+                    current_config,
+                    head_commit,
                 )
             else:
                 self._log_revision(
@@ -156,68 +171,83 @@ class Trigger(Service):
                 )
                 return
         else:
-            self._log_revision(
-                "New revision", current_config, head_commit
-            )
+            self._log_revision("New revision", current_config, head_commit)
 
         revision = {
-            'tree': current_config.tree.name,
-            'url': current_config.tree.url,
-            'branch': current_config.branch,
-            'commit': head_commit,
+            "tree": current_config.tree.name,
+            "url": current_config.tree.url,
+            "branch": current_config.branch,
+            "commit": head_commit,
         }
-        checkout_timeout = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=timeout)
+        checkout_timeout = datetime.datetime.now(
+            datetime.UTC
+        ) + datetime.timedelta(minutes=timeout)
         # treeid is sha256(url+branch+timestamp)
-        hashstr = revision['url'] + revision['branch'] + str(datetime.datetime.now())
+        hashstr = (
+            revision["url"] + revision["branch"] + str(datetime.datetime.now())
+        )
         treeid = hashlib.sha256(hashstr.encode()).hexdigest()
         node = {
-            'name': 'checkout',
-            'path': ['checkout'],
-            'kind': 'checkout',
-            'data': {
-                'kernel_revision': revision,
+            "name": "checkout",
+            "path": ["checkout"],
+            "kind": "checkout",
+            "data": {
+                "kernel_revision": revision,
             },
-            'timeout': checkout_timeout.isoformat(),
-            'treeid': treeid,
+            "timeout": checkout_timeout.isoformat(),
+            "treeid": treeid,
         }
         if current_config.architectures:
-            self.log.info(f"Architecture filter: {current_config.architectures}")
-            node['data']['architecture_filter'] = current_config.architectures
+            self.log.info(
+                f"Architecture filter: {current_config.architectures}"
+            )
+            node["data"]["architecture_filter"] = current_config.architectures
 
-        if self._current_user['username'] in ('staging.kernelci.org',
-                                              'production'):
-            node['submitter'] = SERVICE_PIPELINE
+        if self._current_user["username"] in (
+            "staging.kernelci.org",
+            "production",
+        ):
+            node["submitter"] = SERVICE_PIPELINE
         else:
-            node['submitter'] = f"user:{self._current_user['email']}"
+            node["submitter"] = f"user:{self._current_user['email']}"
 
         try:
             self._api.node.add(node)
         except requests.exceptions.HTTPError as ex:
-            detail = ex.response.json().get('detail')
+            detail = ex.response.json().get("detail")
             if detail:
                 self.log.error(detail)
-        except Exception as ex:
+        except Exception:
             self.log.traceback()
 
     def _iterate_trees(self, force, timeout, trees):
         for tree in self._trees.keys():
-            build_configs = {name: config for name, config in self._build_configs.items() if config.tree.name == tree}
+            build_configs = {
+                name: config
+                for name, config in self._build_configs.items()
+                if config.tree.name == tree
+            }
             for name, config in build_configs.items():
                 self._run_trigger(config, force, timeout, trees)
 
     def _setup(self, args):
         return {
-            'poll_period': int(args.poll_period),
-            'force': args.force,
-            'startup_delay': int(args.startup_delay or 0),
-            'timeout': args.timeout,
-            'trees': args.trees,
+            "poll_period": int(args.poll_period),
+            "force": args.force,
+            "startup_delay": int(args.startup_delay or 0),
+            "timeout": args.timeout,
+            "trees": args.trees,
         }
 
     def _run(self, ctx):
         poll_period, force, startup_delay, timeout, trees = (
-            ctx[key] for key in (
-                'poll_period', 'force', 'startup_delay', 'timeout', 'trees'
+            ctx[key]
+            for key in (
+                "poll_period",
+                "force",
+                "startup_delay",
+                "timeout",
+                "trees",
             )
         )
 
@@ -244,35 +274,35 @@ class cmd_run(Command):
     ]
     opt_args = [
         {
-            'name': '--poll-period',
-            'type': int,
-            'help': "Polling period in seconds, disabled when set to 0",
+            "name": "--poll-period",
+            "type": int,
+            "help": "Polling period in seconds, disabled when set to 0",
         },
         {
-            'name': '--force',
-            'action': 'store_true',
-            'help': "Always create a new checkout node",
+            "name": "--force",
+            "action": "store_true",
+            "help": "Always create a new checkout node",
         },
         {
-            'name': '--name',
-            'help': "Name of pipeline instance",
+            "name": "--name",
+            "help": "Name of pipeline instance",
         },
         {
-            'name': '--startup-delay',
-            'type': int,
-            'help': "Delay loop at startup by a number of seconds",
+            "name": "--startup-delay",
+            "type": int,
+            "help": "Delay loop at startup by a number of seconds",
         },
         {
-            'name': '--timeout',
-            'type': float,
-            'help': "Timeout minutes for checkout node",
+            "name": "--timeout",
+            "type": float,
+            "help": "Timeout minutes for checkout node",
         },
         {
-            'name': '--trees',
-            'help': "Exclude or include certain trees (default: all), " +
-                    "!kernelci for all except kernelci" +
-                    "kernelci for only kernelci" +
-                    "!kernelci,linux not kernelci and not linux",
+            "name": "--trees",
+            "help": "Exclude or include certain trees (default: all), "
+            + "!kernelci for all except kernelci"
+            + "kernelci for only kernelci"
+            + "!kernelci,linux not kernelci and not linux",
         },
     ]
 
@@ -280,9 +310,9 @@ class cmd_run(Command):
         return Trigger(configs, args).run(args)
 
 
-if __name__ == '__main__':
-    opts = parse_opts('trigger', globals())
-    yaml_configs = opts.get_yaml_configs() or 'config'
+if __name__ == "__main__":
+    opts = parse_opts("trigger", globals())
+    yaml_configs = opts.get_yaml_configs() or "config"
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

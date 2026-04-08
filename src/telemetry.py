@@ -16,12 +16,11 @@ import threading
 import time
 from datetime import datetime, timezone
 
-
 logger = logging.getLogger(__name__)
 
 # Default fallback JSONL path when API flush fails
 # May be need to point some persistent volume mount?
-DEFAULT_FALLBACK_PATH = '/tmp/kci-telemetry-fallback.jsonl'
+DEFAULT_FALLBACK_PATH = "/tmp/kci-telemetry-fallback.jsonl"
 
 
 class TelemetryEmitter:
@@ -38,9 +37,14 @@ class TelemetryEmitter:
         fallback_path: JSONL file path for API failure fallback
     """
 
-    def __init__(self, api, service_name,
-                 buffer_size=50, flush_interval=30,
-                 fallback_path=None):
+    def __init__(
+        self,
+        api,
+        service_name,
+        buffer_size=50,
+        flush_interval=30,
+        fallback_path=None,
+    ):
         self._api = api
         self._service_name = service_name
         self._buffer_size = buffer_size
@@ -53,7 +57,7 @@ class TelemetryEmitter:
         # Start background flush thread
         self._flush_thread = threading.Thread(
             target=self._periodic_flush,
-            name=f'telemetry-{service_name}',
+            name=f"telemetry-{service_name}",
             daemon=True,
         )
         self._flush_thread.start()
@@ -70,8 +74,8 @@ class TelemetryEmitter:
             return
 
         event = {
-            'kind': kind,
-            'ts': datetime.now(timezone.utc).isoformat(),
+            "kind": kind,
+            "ts": datetime.now(timezone.utc).isoformat(),
         }
         event.update(kwargs)
 
@@ -106,10 +110,11 @@ class TelemetryEmitter:
             self._api.telemetry.add(events)
         except Exception as exc:
             logger.warning(
-                "Telemetry API flush failed (%s), "
-                "writing %d events to %s: %s",
-                self._service_name, len(events),
-                self._fallback_path, exc,
+                "Telemetry API flush failed (%s), writing %d events to %s: %s",
+                self._service_name,
+                len(events),
+                self._fallback_path,
+                exc,
             )
             self._write_fallback(events)
 
@@ -119,10 +124,8 @@ class TelemetryEmitter:
             fallback_dir = os.path.dirname(self._fallback_path)
             if fallback_dir and not os.path.exists(fallback_dir):
                 os.makedirs(fallback_dir, exist_ok=True)
-            with open(self._fallback_path, 'a') as f:
+            with open(self._fallback_path, "a") as f:
                 for event in events:
-                    f.write(json.dumps(event) + '\n')
+                    f.write(json.dumps(event) + "\n")
         except Exception as exc:
-            logger.error(
-                "Telemetry fallback write failed: %s", exc
-            )
+            logger.error("Telemetry fallback write failed: %s", exc)

@@ -7,14 +7,14 @@
 
 import logging
 import os
-import requests
 
 import kernelci
+import requests
 from kernelci.api.helper import APIHelper
 
 from logger import Logger
 
-SERVICE_PIPELINE = 'service:pipeline'
+SERVICE_PIPELINE = "service:pipeline"
 
 
 class Service:
@@ -23,8 +23,8 @@ class Service:
     def __init__(self, configs, args, name):
         self._name = name
         self._logger = Logger("config/logger.conf", name)
-        self._api_config = configs['api'][args.api_config]
-        api_token = os.getenv('KCI_API_TOKEN')
+        self._api_config = configs["api"][args.api_config]
+        api_token = os.getenv("KCI_API_TOKEN")
         self._api = kernelci.api.get_api(self._api_config, api_token)
         self._api_helper = APIHelper(self._api)
 
@@ -82,20 +82,20 @@ class Service:
 
 
 def validate_url(url, timeout=5):
-    '''
+    """
     Validate URL by:
     - checking if it's not empty
     - checking if it starts with HTTP* scheme
     - requesting HEAD to see if it can be accessed
-    '''
+    """
     if not url:
         return False
-    if not url.startswith('http'):
+    if not url.startswith("http"):
         return False
     try:
         r = requests.head(url, allow_redirects=True, timeout=timeout)
         r.raise_for_status()
     except requests.exceptions.RequestException as e:
-        logging.error(f'Error accessing URL: {e}')
+        logging.error(f"Error accessing URL: {e}")
         return False
     return True

@@ -11,96 +11,100 @@
 """KCIDB bridge service"""
 
 import datetime
-import sys
-import re
-import io
 import gzip
-from urllib.parse import urljoin
-import requests
-import time
 import hashlib
+import io
 import os
+import re
+import sys
+import time
+from urllib.parse import urljoin
 
+import kcidb
 import kernelci
 import kernelci.config
+import requests
 from kernelci.config.runtime import RuntimeLAVA
 from kernelci.legacy.cli import Args, Command, parse_opts
-import kcidb
+
+from base import SERVICE_PIPELINE, Service
 from kernelci_pipeline.logspec_api import generate_issues_and_incidents
 
-from base import Service, SERVICE_PIPELINE
-
-
 MISSED_TEST_CODES = (
-    'Bug',
-    'Configuration',
-    'invalid_job_params',
-    'Job',
-    'job_generation_error',
-    'ObjectNotPersisted',
-    'RequestBodyTooLarge',
-    'submit_error',
-    'Unexisting permission codename.',
-    'kbuild_internal_error',
+    "Bug",
+    "Configuration",
+    "invalid_job_params",
+    "Job",
+    "job_generation_error",
+    "ObjectNotPersisted",
+    "RequestBodyTooLarge",
+    "submit_error",
+    "Unexisting permission codename.",
+    "kbuild_internal_error",
 )
 
 ERRORED_TEST_CODES = (
-    'Canceled',
-    'Infrastructure',
-    'LAVATimeout',
-    'MultinodeTimeout',
-    'Test',
+    "Canceled",
+    "Infrastructure",
+    "LAVATimeout",
+    "MultinodeTimeout",
+    "Test",
 )
 
 
 class KCIDBBridge(Service):
     def __init__(self, configs, args, name):
         super().__init__(configs, args, name)
-        self._jobs = configs['jobs']
-        self._platforms = configs['platforms']
+        self._jobs = configs["jobs"]
+        self._platforms = configs["platforms"]
         self._api_url = self._api_config.url
         self._lava_labs = {}
         self._last_unprocessed_search = None
         self._nodecache = {}
         self._excerptcache = {}
-        for runtime_name, runtime_configs in configs['runtimes'].items():
+        for runtime_name, runtime_configs in configs["runtimes"].items():
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
         self._current_user = self._api.user.whoami()
         self._filters = {
-            'state': ('done', 'available'),
+            "state": ("done", "available"),
         }
 
     def _setup(self, args):
         return {
-            'client': kcidb.Client(
+            "client": kcidb.Client(
                 project_id=args.kcidb_project_id,
-                topic_name=args.kcidb_topic_name
+                topic_name=args.kcidb_topic_name,
             ),
-            'sub_id': self._api_helper.subscribe_filters(self._filters, promiscuous=True),
-            'origin': args.origin,
+            "sub_id": self._api_helper.subscribe_filters(
+                self._filters, promiscuous=True
+            ),
+            "origin": args.origin,
         }
 
     def _stop(self, context):
-        if context['sub_id']:
-            self._api_helper.unsubscribe_filters(context['sub_id'])
+        if context["sub_id"]:
+            self._api_helper.unsubscribe_filters(context["sub_id"])
 
     def _remove_none_fields(self, data):
         """Remove all keys with `None` values as KCIDB doesn't allow it"""
         if isinstance(data, dict):
-            return {key: self._remove_none_fields(val)
-                    for key, val in data.items() if val is not None}
+            return {
+                key: self._remove_none_fields(val)
+                for key, val in data.items()
+                if val is not None
+            }
         if isinstance(data, list):
             return [self._remove_none_fields(item) for item in data]
         return data
 
     def _print_debug(self, data):
         """Print debug information for the data being sent to KCIDB"""
-        fields = ['checkouts', 'builds', 'tests', 'issues', 'incidents']
+        fields = ["checkouts", "builds", "tests", "issues", "incidents"]
         for field in fields:
             if field in data:
                 for item in data[field]:
-                    id = item.get('id')
+                    id = item.get("id")
                     self.log.debug(f"Sending to KCIDB: {field}: {id}")
 
     def _send_revision(self, client, revision):
@@ -109,7 +113,7 @@ class KCIDBBridge(Service):
         except Exception as exc:
             self.log.error(f"Failed to remove None fields: {str(exc)}")
             return False
-        if any(value for key, value in revision.items() if key != 'version'):
+        if any(value for key, value in revision.items() if key != "version"):
             # remove log_excerpt field, as it is filling up the logs
             self._print_debug(revision)
             # TODO: Remove, this should generate exception
@@ -145,47 +149,51 @@ class KCIDBBridge(Service):
         if not created_time.tzinfo:
             tz_utc = datetime.timezone(datetime.timedelta(hours=0))
             created_time = datetime.datetime.fromtimestamp(
-                created_time.timestamp(), tz=tz_utc)
+                created_time.timestamp(), tz=tz_utc
+            )
         return created_time.isoformat()
 
     def _parse_checkout_node(self, origin, checkout_node):
-        result = checkout_node.get('result')
+        result = checkout_node.get("result")
 
         # Don't send "timed-out" checkout node to KCIDB
-        if result == 'incomplete' and \
-                checkout_node['data'].get('error_code') == 'node_timeout':
+        if (
+            result == "incomplete"
+            and checkout_node["data"].get("error_code") == "node_timeout"
+        ):
             return []
 
-        result_map = {
-            'pass': True,
-            'fail': False,
-            'incomplete': False,
-        }
-        valid = result_map[result] if result else None
-        return [{
-            'id': f"{origin}:{checkout_node['id']}",
-            'origin': origin,
-            'tree_name': checkout_node['data']['kernel_revision']['tree'],
-            'git_repository_url':
-                checkout_node['data']['kernel_revision']['url'],
-            'git_commit_hash':
-                checkout_node['data']['kernel_revision']['commit'],
-            'git_commit_name':
-                checkout_node['data']['kernel_revision'].get('describe'),
-            'git_repository_branch':
-                checkout_node['data']['kernel_revision']['branch'],
-            'git_commit_tags':
-                checkout_node['data']['kernel_revision'].get('commit_tags'),
-            'git_commit_message':
-                checkout_node['data']['kernel_revision'].get('commit_message'),
-            'git_repository_branch_tip':
-                checkout_node['data']['kernel_revision'].get('tip_of_branch'),
-            'start_time': self._set_timezone(checkout_node['created']),
-            'patchset_hash': '',
-            'misc': {
-                'submitted_by': 'kernelci-pipeline'
+        return [
+            {
+                "id": f"{origin}:{checkout_node['id']}",
+                "origin": origin,
+                "tree_name": checkout_node["data"]["kernel_revision"]["tree"],
+                "git_repository_url": checkout_node["data"]["kernel_revision"][
+                    "url"
+                ],
+                "git_commit_hash": checkout_node["data"]["kernel_revision"][
+                    "commit"
+                ],
+                "git_commit_name": checkout_node["data"]["kernel_revision"].get(
+                    "describe"
+                ),
+                "git_repository_branch": checkout_node["data"][
+                    "kernel_revision"
+                ]["branch"],
+                "git_commit_tags": checkout_node["data"]["kernel_revision"].get(
+                    "commit_tags"
+                ),
+                "git_commit_message": checkout_node["data"][
+                    "kernel_revision"
+                ].get("commit_message"),
+                "git_repository_branch_tip": checkout_node["data"][
+                    "kernel_revision"
+                ].get("tip_of_branch"),
+                "start_time": self._set_timezone(checkout_node["created"]),
+                "patchset_hash": "",
+                "misc": {"submitted_by": "kernelci-pipeline"},
             }
-        }]
+        ]
 
     def _get_output_files(self, artifacts: dict, exclude_properties=None):
         output_files = []
@@ -195,12 +203,7 @@ class KCIDBBridge(Service):
             # Replace "/" with "_" to match with the allowed pattern
             # for "name" property of "output_files" i.e. '^[^/]+$'
             name = name.replace("/", "_")
-            output_files.append(
-                {
-                    'name': name,
-                    'url': url
-                }
-            )
+            output_files.append({"name": name, "url": url})
         return output_files
 
     def _get_log_excerpt(self, log_url):
@@ -220,22 +223,26 @@ class KCIDBBridge(Service):
         try:
             # parse compressed file such as lava log files
             buffer_data = io.BytesIO(res.content)
-            with gzip.open(buffer_data, mode='rt', encoding='utf-8',
-                           errors='replace') as fp:
+            with gzip.open(
+                buffer_data, mode="rt", encoding="utf-8", errors="replace"
+            ) as fp:
                 data = fp.read()
         except gzip.BadGzipFile:
             # parse text file such as kunit log file `test_log`
             data = res.content.decode("utf-8", errors="replace")
 
-        trunc_data = data[-(16 * 1024):]
+        trunc_data = data[-(16 * 1024) :]
         self._excerptcache[log_url] = trunc_data
         return trunc_data
 
     def _cache_expire(self):
         """Read list of files /tmp/cached_* and remove the oldest one
         if there is more than 100 files"""
-        cached_files = [os.path.join("/tmp", f) for f in
-                        os.listdir("/tmp") if f.startswith("cached_")]
+        cached_files = [
+            os.path.join("/tmp", f)
+            for f in os.listdir("/tmp")
+            if f.startswith("cached_")
+        ]
         if len(cached_files) > 100:
             oldest_file = min(cached_files, key=os.path.getctime)
             os.remove(f"{oldest_file}")
@@ -264,63 +271,63 @@ class KCIDBBridge(Service):
         return path
 
     def _parse_build_node(self, origin, node):
-        result = node.get('result')
-        error_code = node['data'].get('error_code')
+        result = node.get("result")
+        error_code = node["data"].get("error_code")
 
         status_map = {
-            'pass': 'PASS',
-            'fail': 'FAIL',
-            'incomplete': 'ERROR',
+            "pass": "PASS",
+            "fail": "FAIL",
+            "incomplete": "ERROR",
         }
 
         # Submit timed-out build nodes with 'MISS' status
-        if result == 'incomplete' and error_code == 'node_timeout':
-            status = 'MISS'
+        if result == "incomplete" and error_code == "node_timeout":
+            status = "MISS"
 
         else:
             status = status_map.get(result) if result else None
             if error_code:
-                status = 'ERROR'
+                status = "ERROR"
 
         parsed_build_node = {
-            'checkout_id': f"{origin}:{node['parent']}",
-            'id': f"{origin}:{node['id']}",
-            'origin': origin,
-            'comment': node['data']['kernel_revision'].get('describe'),
-            'start_time': self._set_timezone(node['created']),
-            'architecture': node['data'].get('arch'),
-            'compiler': node['data'].get('compiler'),
-            'config_name': node['data'].get('config_full'),
-            'status': status,
-            'misc': {
-                'platform': node['data'].get('platform'),
-                'runtime': node['data'].get('runtime'),
-                'lab': node['data'].get('runtime'),
-                'job_id': node['data'].get('job_id'),
-                'job_context': node['data'].get('job_context'),
-                'kernel_type': node['data'].get('kernel_type'),
-                'error_code': error_code,
-                'error_msg': node['data'].get('error_msg'),
-                'maestro_viewer': f"{self._api_url}/viewer?node_id={node['id']}",
-            }
+            "checkout_id": f"{origin}:{node['parent']}",
+            "id": f"{origin}:{node['id']}",
+            "origin": origin,
+            "comment": node["data"]["kernel_revision"].get("describe"),
+            "start_time": self._set_timezone(node["created"]),
+            "architecture": node["data"].get("arch"),
+            "compiler": node["data"].get("compiler"),
+            "config_name": node["data"].get("config_full"),
+            "status": status,
+            "misc": {
+                "platform": node["data"].get("platform"),
+                "runtime": node["data"].get("runtime"),
+                "lab": node["data"].get("runtime"),
+                "job_id": node["data"].get("job_id"),
+                "job_context": node["data"].get("job_context"),
+                "kernel_type": node["data"].get("kernel_type"),
+                "error_code": error_code,
+                "error_msg": node["data"].get("error_msg"),
+                "maestro_viewer": f"{self._api_url}/viewer?node_id={node['id']}",
+            },
         }
-        artifacts = node.get('artifacts')
+        artifacts = node.get("artifacts")
         if artifacts:
-            parsed_build_node['output_files'] = self._get_output_files(
-                artifacts=artifacts,
-                exclude_properties=('build_log', '_config')
+            parsed_build_node["output_files"] = self._get_output_files(
+                artifacts=artifacts, exclude_properties=("build_log", "_config")
             )
-            parsed_build_node['input_files'] = None
-            parsed_build_node['config_url'] = artifacts.get('_config')
-            parsed_build_node['log_url'] = artifacts.get('build_log')
-            log_url = parsed_build_node['log_url']
+            parsed_build_node["input_files"] = None
+            parsed_build_node["config_url"] = artifacts.get("_config")
+            parsed_build_node["log_url"] = artifacts.get("build_log")
+            log_url = parsed_build_node["log_url"]
             if log_url:
-                parsed_build_node['log_excerpt'] = self._get_log_excerpt(
-                    log_url)
+                parsed_build_node["log_excerpt"] = self._get_log_excerpt(
+                    log_url
+                )
 
         return [parsed_build_node]
 
-    def _replace_restricted_chars(self, path, pattern, replace_char='_'):
+    def _replace_restricted_chars(self, path, pattern, replace_char="_"):
         # Replace restricted characters with "_" to match the allowed pattern
         new_path = ""
         for char in path:
@@ -365,8 +372,10 @@ class KCIDBBridge(Service):
                     if suite_name:
                         new_path.append(suite_name)
                     else:
-                        self.log.error(f"KCIDB test suite mapping not found for \
-the test: {sub_path}")
+                        self.log.error(
+                            f"KCIDB test suite mapping not found for \
+the test: {sub_path}"
+                        )
                         return None
                 else:
                     new_path.append(sub_path)
@@ -375,42 +384,45 @@ the test: {sub_path}")
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
-            path_str = '.'.join(new_path)
+            path_str = ".".join(new_path)
             # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
-            formatted_path_str = self._replace_restricted_chars(path_str, r'^[.a-zA-Z0-9_-]*$')
+            formatted_path_str = self._replace_restricted_chars(
+                path_str, r"^[.a-zA-Z0-9_-]*$"
+            )
             return formatted_path_str if formatted_path_str else None
         return None
 
     def _parse_node_result(self, test_node):
-        if test_node['result'] == 'incomplete':
-            error_code = test_node['data'].get('error_code')
+        if test_node["result"] == "incomplete":
+            error_code = test_node["data"].get("error_code")
             if error_code in ERRORED_TEST_CODES:
-                return 'ERROR'
+                return "ERROR"
             if error_code in MISSED_TEST_CODES:
-                return 'MISS'
+                return "MISS"
             self.log.debug(f"Error code is not set for {test_node['id']}")
             return None
-        return test_node['result'].upper()
+        return test_node["result"].upper()
 
     def _get_parent_build_node(self, node):
-        if not node.get('parent'):
+        if not node.get("parent"):
             return None
-        node = self._get_node_cached(node['parent'])
+        node = self._get_node_cached(node["parent"])
         if not node:
             return None
-        if node['kind'] == 'kbuild' or node['kind'] == 'checkout':
+        if node["kind"] == "kbuild" or node["kind"] == "checkout":
             return node
         return self._get_parent_build_node(node)
 
     def _create_dummy_build_node(self, origin, checkout_node, arch):
         return {
-            'id': f"{origin}:dummy_{checkout_node['id']}_{arch}" if arch
-                  else f"{origin}:dummy_{checkout_node['id']}",
-            'checkout_id': f"{origin}:{checkout_node['id']}",
-            'comment': 'Dummy build for tests hanging from checkout',
-            'origin': origin,
-            'start_time': self._set_timezone(checkout_node['created']),
-            'architecture': arch,
+            "id": f"{origin}:dummy_{checkout_node['id']}_{arch}"
+            if arch
+            else f"{origin}:dummy_{checkout_node['id']}",
+            "checkout_id": f"{origin}:{checkout_node['id']}",
+            "comment": "Dummy build for tests hanging from checkout",
+            "origin": origin,
+            "start_time": self._set_timezone(checkout_node["created"]),
+            "architecture": arch,
         }
 
     def _get_artifacts(self, node):
@@ -419,10 +431,10 @@ the test: {sub_path}")
         it will search through parent nodes recursively until
         it's found.
         """
-        artifacts = node.get('artifacts')
+        artifacts = node.get("artifacts")
         if not artifacts:
-            if node.get('parent'):
-                parent = self._get_node_cached(node['parent'])
+            if node.get("parent"):
+                parent = self._get_node_cached(node["parent"])
                 if parent:
                     artifacts = self._get_artifacts(parent)
         return artifacts
@@ -433,10 +445,10 @@ the test: {sub_path}")
         If the node doesn't have the metadata, it will search through parent nodes
         recursively until it's found.
         """
-        data = node.get('data')
-        if not data.get('job_id'):
-            if node.get('parent'):
-                parent = self._get_node_cached(node['parent'])
+        data = node.get("data")
+        if not data.get("job_id"):
+            if node.get("parent"):
+                parent = self._get_node_cached(node["parent"])
                 if parent:
                     data = self._get_job_metadata(parent)
         return data
@@ -447,10 +459,10 @@ the test: {sub_path}")
         If the node doesn't have the metadata, it will search through parent
         nodes recursively until it's found.
         """
-        data = node.get('data')
-        if not data.get('error_code'):
-            if node.get('parent'):
-                parent = self._get_node_cached(node['parent'])
+        data = node.get("data")
+        if not data.get("error_code"):
+            if node.get("parent"):
+                parent = self._get_node_cached(node["parent"])
                 if parent:
                     data = self._get_error_metadata(parent)
         return data
@@ -464,118 +476,125 @@ the test: {sub_path}")
         build_node = self._get_parent_build_node(test_node)
         if not build_node:
             # broken test node, no parent build node found
-            self.log.error(f"Parent build node not found for test node: {test_node['id']}")
+            self.log.error(
+                f"Parent build node not found for test node: {test_node['id']}"
+            )
             # forcefully set this node as processed, it is broken
             nodes = []
-            nodes.append(test_node['id'])
+            nodes.append(test_node["id"])
             self._nodes_processed(nodes)
             return None, None
         # Create dummy build node if test is hanging directly from checkout
-        if build_node['kind'] == 'checkout':
+        if build_node["kind"] == "checkout":
             is_checkout_child = True
-            dummy_build = self._create_dummy_build_node(origin, build_node,
-                                                        test_node['data'].get('arch'))
-            build_id = dummy_build['id']
+            dummy_build = self._create_dummy_build_node(
+                origin, build_node, test_node["data"].get("arch")
+            )
+            build_id = dummy_build["id"]
         else:
             build_id = f"{origin}:{build_node['id']}"
 
-        platform = test_node['data'].get('platform')
+        platform = test_node["data"].get("platform")
         compatible = None
         if platform:
             platformobj = self._platforms.get(platform)
             if platformobj:
                 compatible = platformobj.compatible
             else:
-                self.log.error(f"Platform {platform} not found in the platform list")
+                self.log.error(
+                    f"Platform {platform} not found in the platform list"
+                )
 
-        runtime = test_node['data'].get('runtime')
-        misc = test_node['data'].get('misc')
+        runtime = test_node["data"].get("runtime")
+        misc = test_node["data"].get("misc")
         parsed_test_node = {
-            'build_id': build_id,
-            'id': f"{origin}:{test_node['id']}",
-            'origin': origin,
-            'comment': f"{test_node['name']} on {platform} \
+            "build_id": build_id,
+            "id": f"{origin}:{test_node['id']}",
+            "origin": origin,
+            "comment": f"{test_node['name']} on {platform} \
 in {runtime}",
-            'start_time': self._set_timezone(test_node['created']),
-            'environment': {
-                'comment': f"Runtime: {runtime}",
-                'compatible': compatible,
-                'misc': {
-                    'platform': platform,
-                    'measurement': misc.get('measurement') if misc else None
-                }
+            "start_time": self._set_timezone(test_node["created"]),
+            "environment": {
+                "comment": f"Runtime: {runtime}",
+                "compatible": compatible,
+                "misc": {
+                    "platform": platform,
+                    "measurement": misc.get("measurement") if misc else None,
+                },
             },
-            'path': self._parse_node_path(test_node['path'], is_checkout_child),
-            'misc': {
-                'test_source': test_node['data'].get('test_source'),
-                'test_revision': test_node['data'].get('test_revision'),
-                'compiler': test_node['data'].get('compiler'),
-                'kernel_type': test_node['data'].get('kernel_type'),
-                'arch': test_node['data'].get('arch'),
-                'runtime': runtime,
-                'maestro_viewer': f"https://api.kernelci.org/viewer?node_id={test_node['id']}"
-
-            }
+            "path": self._parse_node_path(test_node["path"], is_checkout_child),
+            "misc": {
+                "test_source": test_node["data"].get("test_source"),
+                "test_revision": test_node["data"].get("test_revision"),
+                "compiler": test_node["data"].get("compiler"),
+                "kernel_type": test_node["data"].get("kernel_type"),
+                "arch": test_node["data"].get("arch"),
+                "runtime": runtime,
+                "maestro_viewer": f"https://api.kernelci.org/viewer?node_id={test_node['id']}",
+            },
         }
 
-        if test_node['result']:
-            parsed_test_node['status'] = self._parse_node_result(test_node)
-            if parsed_test_node['status'] == 'SKIP':
+        if test_node["result"]:
+            parsed_test_node["status"] = self._parse_node_result(test_node)
+            if parsed_test_node["status"] == "SKIP":
                 # No artifacts and metadata will be available for skipped tests
                 return parsed_test_node, dummy_build
 
         job_metadata = self._get_job_metadata(test_node)
         if job_metadata:
-            lab_url = self._lava_labs.get(job_metadata.get('runtime'))
+            lab_url = self._lava_labs.get(job_metadata.get("runtime"))
             if lab_url:
-                job_url = urljoin(lab_url, f"/scheduler/job/{job_metadata.get('job_id')}")
-                parsed_test_node['environment']['misc']['job_url'] = job_url
-            parsed_test_node['environment']['misc']['job_id'] = job_metadata.get(
-                'job_id')
-            parsed_test_node['environment']['misc']['job_context'] = job_metadata.get(
-                'job_context')
+                job_url = urljoin(
+                    lab_url, f"/scheduler/job/{job_metadata.get('job_id')}"
+                )
+                parsed_test_node["environment"]["misc"]["job_url"] = job_url
+            parsed_test_node["environment"]["misc"]["job_id"] = (
+                job_metadata.get("job_id")
+            )
+            parsed_test_node["environment"]["misc"]["job_context"] = (
+                job_metadata.get("job_context")
+            )
 
         artifacts = self._get_artifacts(test_node)
         if artifacts:
-            parsed_test_node['output_files'] = self._get_output_files(
-                artifacts=artifacts,
-                exclude_properties=('lava_log', 'test_log')
+            parsed_test_node["output_files"] = self._get_output_files(
+                artifacts=artifacts, exclude_properties=("lava_log", "test_log")
             )
-            parsed_test_node['input_files'] = None
-            if artifacts.get('lava_log'):
-                parsed_test_node['log_url'] = artifacts.get('lava_log')
+            parsed_test_node["input_files"] = None
+            if artifacts.get("lava_log"):
+                parsed_test_node["log_url"] = artifacts.get("lava_log")
             else:
-                parsed_test_node['log_url'] = artifacts.get('test_log')
+                parsed_test_node["log_url"] = artifacts.get("test_log")
 
-            log_url = parsed_test_node['log_url']
+            log_url = parsed_test_node["log_url"]
             if log_url:
-                parsed_test_node['log_excerpt'] = self._get_log_excerpt(
-                    log_url)
+                parsed_test_node["log_excerpt"] = self._get_log_excerpt(log_url)
 
-        if test_node['result'] != 'pass':
+        if test_node["result"] != "pass":
             error_metadata = self._get_error_metadata(test_node)
             if error_metadata:
-                parsed_test_node['misc']['error_code'] = error_metadata.get(
-                    'error_code')
-                parsed_test_node['misc']['error_msg'] = error_metadata.get(
-                    'error_msg')
+                parsed_test_node["misc"]["error_code"] = error_metadata.get(
+                    "error_code"
+                )
+                parsed_test_node["misc"]["error_msg"] = error_metadata.get(
+                    "error_msg"
+                )
 
         return parsed_test_node, dummy_build
 
-    def _get_test_data(self, node, origin,
-                       parsed_test_node, parsed_build_node):
-        test_node, build_node = self._parse_test_node(
-            origin, node
-        )
+    def _get_test_data(self, node, origin, parsed_test_node, parsed_build_node):
+        test_node, build_node = self._parse_test_node(origin, node)
         if not test_node:
             return
 
-        if not test_node['path']:
-            self.log.info(f"Not sending test as path information is missing: {test_node['id']}")
+        if not test_node["path"]:
+            self.log.info(
+                f"Not sending test as path information is missing: {test_node['id']}"
+            )
             return
 
-        path = test_node.get('path')
-        if 'setup' in path and 'os-release' not in path:
+        path = test_node.get("path")
+        if "setup" in path and "os-release" not in path:
             # do not send setup tests except `os-release`
             return
 
@@ -583,15 +602,19 @@ in {runtime}",
         if build_node:
             parsed_build_node.append(build_node)
 
-    def _get_test_data_recursively(self, node, origin, parsed_test_node, parsed_build_node):
-        child_nodes = self._api.node.find({'parent': node['id']})
+    def _get_test_data_recursively(
+        self, node, origin, parsed_test_node, parsed_build_node
+    ):
+        child_nodes = self._api.node.find({"parent": node["id"]})
         if not child_nodes:
-            self._get_test_data(node, origin, parsed_test_node,
-                                parsed_build_node)
+            self._get_test_data(
+                node, origin, parsed_test_node, parsed_build_node
+            )
         else:
             for child in child_nodes:
-                self._get_test_data_recursively(child, origin, parsed_test_node,
-                                                parsed_build_node)
+                self._get_test_data_recursively(
+                    child, origin, parsed_test_node, parsed_build_node
+                )
 
     def _nodes_processed(self, nodes):
         """
@@ -601,17 +624,17 @@ in {runtime}",
         This is workaround, until we improve event handling in kernelci-pipeline/api
         """
         self.log.info(f"Marking {len(nodes)} nodes flag as processed")
-        self._api.node.bulkset(nodes, 'processed_by_kcidb_bridge', 'True')
+        self._api.node.bulkset(nodes, "processed_by_kcidb_bridge", "True")
 
     def _node_processed_recursively(self, node):
         """
         Mark the node and its child nodes as processed
         """
         nodeids = []
-        child_nodes = self._api.node.find({'parent': node['id']})
+        child_nodes = self._api.node.find({"parent": node["id"]})
         if child_nodes:
             for child in child_nodes:
-                nodeids.append(child['id'])
+                nodeids.append(child["id"])
         return nodeids
 
     def _find_unprocessed_node(self, chunksize):
@@ -623,17 +646,23 @@ in {runtime}",
         If we don't have anymore unprocessed nodes, we will wait for 5 minutes
         before we search again.
         """
-        if self._last_unprocessed_search and \
-                time.time() - self._last_unprocessed_search < 5 * 60:
+        if (
+            self._last_unprocessed_search
+            and time.time() - self._last_unprocessed_search < 5 * 60
+        ):
             return None
         try:
-            all_nodes = self._api.node.findfast({
-                'state': 'done',
-                'processed_by_kcidb_bridge': False,
-                'created__gt': datetime.datetime.now() - datetime.timedelta(days=4),
-                'updated__lt': datetime.datetime.now() - datetime.timedelta(minutes=5),
-                'limit': chunksize,
-            })
+            all_nodes = self._api.node.findfast(
+                {
+                    "state": "done",
+                    "processed_by_kcidb_bridge": False,
+                    "created__gt": datetime.datetime.now()
+                    - datetime.timedelta(days=4),
+                    "updated__lt": datetime.datetime.now()
+                    - datetime.timedelta(minutes=5),
+                    "limit": chunksize,
+                }
+            )
 
             # Separate filtered and unfiltered nodes
             filtered_node_ids = []
@@ -649,24 +678,25 @@ in {runtime}",
                     )
                     retry_counter = 0
                 if (
-                    (
-                        node.get("kind") in ("kbuild", "job")
-                        and node.get("result") == "incomplete"
-                        and retry_counter != 3
-                    ) or (
-                        node.get("result") == "fail"
-                        and node.get("name", "").startswith("baseline")
-                        and retry_counter != 3
-                    )
+                    node.get("kind") in ("kbuild", "job")
+                    and node.get("result") == "incomplete"
+                    and retry_counter != 3
+                ) or (
+                    node.get("result") == "fail"
+                    and node.get("name", "").startswith("baseline")
+                    and retry_counter != 3
                 ):
                     # Mark filtered nodes as processed since job-retry creates new nodes
-                    filtered_node_ids.append(node['id'])
+                    filtered_node_ids.append(node["id"])
                 else:
                     nodes.append(node)
 
             # Mark filtered nodes as processed
             if filtered_node_ids:
-                self.log.info(f"Marking {len(filtered_node_ids)} filtered nodes as processed (retry_counter < 3)")
+                self.log.info(
+                    f"Marking {len(filtered_node_ids)} filtered nodes as "
+                    "processed (retry_counter < 3)"
+                )
                 self._nodes_processed(filtered_node_ids)
 
         except Exception as exc:
@@ -679,17 +709,16 @@ in {runtime}",
             return nodes
         return []
 
-    def _submit_parsed_data(self, checkouts, builds, tests, issues, incidents, ctx_client):
+    def _submit_parsed_data(
+        self, checkouts, builds, tests, issues, incidents, ctx_client
+    ):
         revision = {
-            'checkouts': checkouts,
-            'builds': builds,
-            'tests': tests,
-            'issues': issues,
-            'incidents': incidents,
-            'version': {
-                'major': 5,
-                'minor': 3
-            }
+            "checkouts": checkouts,
+            "builds": builds,
+            "tests": tests,
+            "issues": issues,
+            "incidents": incidents,
+            "version": {"major": 5, "minor": 3},
         }
 
         try:
@@ -735,7 +764,9 @@ in {runtime}",
                 # Listen and wait for a node instead of processing the queue
                 node = None
                 try:
-                    node, is_hierarchy = self._api_helper.receive_event_node(context['sub_id'])
+                    node, is_hierarchy = self._api_helper.receive_event_node(
+                        context["sub_id"]
+                    )
                     retry_counter = node.get("retry_counter")
                     if retry_counter is None:
                         self.log.warning(
@@ -744,21 +775,31 @@ in {runtime}",
                         )
                         retry_counter = 0
                     if node.get("kind") in ("kbuild", "job"):
-                        if node.get("result") == "incomplete" and retry_counter != 3:
+                        if (
+                            node.get("result") == "incomplete"
+                            and retry_counter != 3
+                        ):
                             # Only send final retry for incomplete jobs
                             # Mark as processed since job-retry creates a new node
-                            self._nodes_processed([node['id']])
+                            self._nodes_processed([node["id"]])
                             continue
                     if node.get("result") == "fail":
                         # Only send final retry for failed baseline jobs
-                        if node.get("name", "").startswith("baseline") and retry_counter != 3:
+                        if (
+                            node.get("name", "").startswith("baseline")
+                            and retry_counter != 3
+                        ):
                             # Mark as processed since job-retry creates a new node
-                            self._nodes_processed([node['id']])
+                            self._nodes_processed([node["id"]])
                             continue
                 except Exception as e:
-                    self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
+                    self.log.error(
+                        f"Error receiving event: {e}, re-subscribing in 10 seconds"
+                    )
                     time.sleep(10)
-                    context['sub_id'] = self._api_helper.subscribe_filters(self._filters, promiscuous=True)
+                    context["sub_id"] = self._api_helper.subscribe_filters(
+                        self._filters, promiscuous=True
+                    )
                     subscribe_retries += 1
                     if subscribe_retries > 3:
                         self.log.error("Failed to re-subscribe to node events")
@@ -792,11 +833,13 @@ in {runtime}",
             # Submit nodes with service origin only for staging pipeline
             if self._should_skip_node(node):
                 self.log.debug(f"Not sending node to KCIDB: {node['id']}")
-                batch['nodes'].append(node['id'])
+                batch["nodes"].append(node["id"])
                 continue
 
             # Process node based on its kind
-            parsed_node = self._process_node(node, context['origin'], is_hierarchy)
+            parsed_node = self._process_node(
+                node, context["origin"], is_hierarchy
+            )
             self._add_to_batch(batch, parsed_node)
 
             # Generate issues and incidents for failed builds/tests
@@ -804,42 +847,51 @@ in {runtime}",
 
             # Mark node and any children as processed
             # TBD: job nodes might have child nodes, mark them as processed as well
-            batch['nodes'].append(node['id'])
+            batch["nodes"].append(node["id"])
             if is_hierarchy:
                 childnodes = self._node_processed_recursively(node)
-                batch['nodes'].extend(childnodes)
+                batch["nodes"].extend(childnodes)
 
         return batch
 
     def _submit_to_kcidb(self, batch, context):
         """Handle submitting accumulated batch data to KCIDB"""
-        if any(len(batch[k]) > 0 for k in ['checkouts', 'builds', 'tests', 'issues', 'incidents']):
+        if any(
+            len(batch[k]) > 0
+            for k in ["checkouts", "builds", "tests", "issues", "incidents"]
+        ):
             try:
                 result = self._submit_parsed_data(
-                    batch['checkouts'], batch['builds'], batch['tests'],
-                    batch['issues'], batch['incidents'], context['client']
+                    batch["checkouts"],
+                    batch["builds"],
+                    batch["tests"],
+                    batch["issues"],
+                    batch["incidents"],
+                    context["client"],
                 )
                 if not result:
-                    self.log.error("Submission to KCIDB failed, nodes will be resubmitted later")
-                    batch['nodes'] = []
+                    self.log.error(
+                        "Submission to KCIDB failed, nodes will be resubmitted later"
+                    )
+                    batch["nodes"] = []
                     return False
             except Exception as exc:
                 self.log.error(f"Failed to submit data to KCIDB: {str(exc)}")
                 # Don't mark as processed since they were not sent to KCIDB
-                batch['nodes'] = []
+                batch["nodes"] = []
                 return False
-        self._nodes_processed(batch['nodes'])
+        self._nodes_processed(batch["nodes"])
         return True
 
     def _reset_batch_data(self):
         """Reset batch data structures"""
         return {
-            'checkouts': [],
-            'builds': [],
-            'tests': [],
-            'issues': [],
-            'incidents': [],
-            'nodes': []
+            "checkouts": [],
+            "builds": [],
+            "tests": [],
+            "issues": [],
+            "incidents": [],
+            "nodes": [],
         }
 
     def _clean_caches(self):
@@ -849,60 +901,77 @@ in {runtime}",
 
     def _should_skip_node(self, node):
         """Check if node should be skipped based on environment"""
-        if self._current_user['username'] in ('staging.kernelci.org', 'production', 'qualcomm'):
-            return node['submitter'] != SERVICE_PIPELINE
+        if self._current_user["username"] in (
+            "staging.kernelci.org",
+            "production",
+            "qualcomm",
+        ):
+            return node["submitter"] != SERVICE_PIPELINE
         return False
 
     def _process_node(self, node, origin, is_hierarchy):
         """Process a node and return parsed data"""
-        parsed_data = {
-            'checkout_node': [],
-            'build_node': [],
-            'test_node': []
-        }
+        parsed_data = {"checkout_node": [], "build_node": [], "test_node": []}
 
-        if node['kind'] == 'checkout':
-            parsed_data['checkout_node'] = self._parse_checkout_node(origin, node)
+        if node["kind"] == "checkout":
+            parsed_data["checkout_node"] = self._parse_checkout_node(
+                origin, node
+            )
 
-        elif node['kind'] == 'kbuild':
-            parsed_data['build_node'] = self._parse_build_node(origin, node)
+        elif node["kind"] == "kbuild":
+            parsed_data["build_node"] = self._parse_build_node(origin, node)
 
-        elif node['kind'] in ['test', 'job', 'process']:
-            self._get_test_data(node, origin, parsed_data['test_node'],
-                                parsed_data['build_node'])
+        elif node["kind"] in ["test", "job", "process"]:
+            self._get_test_data(
+                node,
+                origin,
+                parsed_data["test_node"],
+                parsed_data["build_node"],
+            )
 
-            if is_hierarchy and node['kind'] == 'job':
-                self._get_test_data_recursively(node, origin,
-                                                parsed_data['test_node'],
-                                                parsed_data['build_node'])
+            if is_hierarchy and node["kind"] == "job":
+                self._get_test_data_recursively(
+                    node,
+                    origin,
+                    parsed_data["test_node"],
+                    parsed_data["build_node"],
+                )
 
         return parsed_data
 
     def _add_to_batch(self, batch, parsed_data):
         """Add parsed data to appropriate batch lists"""
-        if 'checkout_node' in parsed_data:
-            batch['checkouts'].extend(parsed_data['checkout_node'])
-        if 'build_node' in parsed_data:
-            batch['builds'].extend(parsed_data['build_node'])
-        if 'test_node' in parsed_data:
-            batch['tests'].extend(parsed_data['test_node'])
-        if 'issue_node' in parsed_data:
-            batch['issues'].extend(parsed_data['issue_node'])
-        if 'incident_node' in parsed_data:
-            batch['incidents'].extend(parsed_data['incident_node'])
+        if "checkout_node" in parsed_data:
+            batch["checkouts"].extend(parsed_data["checkout_node"])
+        if "build_node" in parsed_data:
+            batch["builds"].extend(parsed_data["build_node"])
+        if "test_node" in parsed_data:
+            batch["tests"].extend(parsed_data["test_node"])
+        if "issue_node" in parsed_data:
+            batch["issues"].extend(parsed_data["issue_node"])
+        if "incident_node" in parsed_data:
+            batch["incidents"].extend(parsed_data["incident_node"])
 
     def _handle_failures(self, parsed_data, batch, context):
         """Handle failed builds and tests by generating issues/incidents"""
         # Handle failed builds
-        for parsed_node in parsed_data['build_node']:
-            if parsed_node.get("status") == "FAIL" and parsed_node.get('log_url'):
-                parsed_fail = self._parse_fail_node(parsed_node, context, 'build')
+        for parsed_node in parsed_data["build_node"]:
+            if parsed_node.get("status") == "FAIL" and parsed_node.get(
+                "log_url"
+            ):
+                parsed_fail = self._parse_fail_node(
+                    parsed_node, context, "build"
+                )
                 self._add_to_batch(batch, parsed_fail)
 
         # Handle failed tests
-        for parsed_node in parsed_data['test_node']:
-            if (parsed_node.get("status") == "FAIL" and parsed_node.get("log_url")):
-                parsed_fail = self._parse_fail_node(parsed_node, context, 'test')
+        for parsed_node in parsed_data["test_node"]:
+            if parsed_node.get("status") == "FAIL" and parsed_node.get(
+                "log_url"
+            ):
+                parsed_fail = self._parse_fail_node(
+                    parsed_node, context, "test"
+                )
                 if parsed_fail:
                     self._add_to_batch(batch, parsed_fail)
 
@@ -931,7 +1000,7 @@ in {runtime}",
         if not test_type:
             return None
 
-        local_file = self._cached_fetch(parsed_node['log_url'])
+        local_file = self._cached_fetch(parsed_node["log_url"])
         if not local_file:
             self.log.warning(
                 f"Failed to fetch log for failed node {parsed_node.get('id')}; "
@@ -941,15 +1010,17 @@ in {runtime}",
         local_url = f"file://{local_file}"
 
         parsed_fail, new_status = generate_issues_and_incidents(
-            parsed_node['id'], local_url, test_type)
+            parsed_node["id"], local_url, test_type
+        )
 
         if new_status:
             self.log.warning(
                 f"Changing status from {parsed_node['status']} to {new_status} "
-                f"for {node_type} node {parsed_node['id']}")
-            parsed_node['status'] = new_status
+                f"for {node_type} node {parsed_node['id']}"
+            )
+            parsed_node["status"] = new_status
 
-        if parsed_fail['issue_node'] or parsed_fail['incident_node']:
+        if parsed_fail["issue_node"] or parsed_fail["incident_node"]:
             self.log.debug(f"Generated issues/incidents: {parsed_fail}")
         else:
             self.log.warning(
@@ -965,30 +1036,30 @@ class cmd_run(Command):
     args = [
         Args.api_config,
         {
-            'name': '--kcidb-topic-name',
-            'help': "KCIDB topic name",
+            "name": "--kcidb-topic-name",
+            "help": "KCIDB topic name",
         },
         {
-            'name': '--kcidb-project-id',
-            'help': "KCIDB project ID",
+            "name": "--kcidb-project-id",
+            "help": "KCIDB project ID",
         },
         {
-            'name': '--name',
-            'help': "Name of pipeline instance",
+            "name": "--name",
+            "help": "Name of pipeline instance",
         },
         {
-            'name': '--origin',
-            'help': "CI system identifier",
+            "name": "--origin",
+            "help": "CI system identifier",
         },
     ]
 
     def __call__(self, configs, args):
-        return KCIDBBridge(configs, args, 'send_kcidb').run(args)
+        return KCIDBBridge(configs, args, "send_kcidb").run(args)
 
 
-if __name__ == '__main__':
-    opts = parse_opts('send_kcidb', globals())
-    yaml_configs = opts.get_yaml_configs() or 'config'
+if __name__ == "__main__":
+    opts = parse_opts("send_kcidb", globals())
+    yaml_configs = opts.get_yaml_configs() or "config"
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

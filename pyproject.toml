@@ -1,0 +1,25 @@
+[tool.ruff]
+target-version = "py37"
+src = ["src", "tests", "tools"]
+line-length = 80
+
+[tool.ruff.lint]
+select = ["C901", "E", "F", "I", "W"]
+ignore = [
+    "E203",  # Formatter-compatible slicing whitespace.
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 110
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy or high-churn entrypoints are allowed incremental complexity cleanup.
+"src/job_retry.py" = ["C901"]
+"src/lava_callback.py" = ["C901", "E501"]
+"src/scheduler.py" = ["C901"]
+"src/send_kcidb.py" = ["C901"]
+"src/trigger.py" = ["C901"]
+"tests/hw_reg_checker.py" = ["C901"]
+"tests/validate_yaml.py" = ["C901"]
+"tools/example_pull_lab.py" = ["C901"]
+"tools/example_pull_lab_pytest.py" = ["C901"]

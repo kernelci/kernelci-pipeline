@@ -5,11 +5,12 @@ It uses long polling to get events from the server
 It is not recommended to use this in production, as it is not efficient,
 and in production it is preferable to use cloudevents library
 """
-import requests
+
+import argparse
 import json
 import sys
-import argparse
 
+import requests
 
 # This is staging server: "https://staging.kernelci.org:9000/latest"
 # For production use "https://kernelci-api.westus3.cloudapp.azure.com/latest/"
@@ -64,7 +65,7 @@ def main():
     token = args.token if args.token else read_token()
     print("Subscribing to node")
     response = subscribe_node(token)
-    print(f'Subscribed with id {response["id"]}')
+    print(f"Subscribed with id {response['id']}")
     # Here i skip cloudevents and parse "manually"
     # which is not recommended
     while True:

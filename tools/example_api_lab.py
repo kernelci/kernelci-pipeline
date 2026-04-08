@@ -5,9 +5,10 @@ KernelCI API example
 
 """
 
-import requests
 import json
 import sys
+
+import requests
 
 # KernelCI API URL
 api_url = "https://staging.kernelci.org:9000/latest"
@@ -117,7 +118,9 @@ def submit_job_results(job_node_id, tests, artifacts):
             "treeid": job_node["treeid"],
             "processed_by_kcidb_bridge": False,
         }
-        test_node["data"]["kernel_revision"] = job_node["data"]["kernel_revision"]
+        test_node["data"]["kernel_revision"] = job_node["data"][
+            "kernel_revision"
+        ]
         test_node["data"]["platform"] = test["platform"]
         test_node["data"]["runtime"] = test["runtime"]
         child_node = {"node": test_node, "child_nodes": []}

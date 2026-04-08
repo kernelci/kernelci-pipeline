@@ -3,12 +3,13 @@
 Validate all yaml files in the config/ directory
 """
 
+import argparse
 import glob
 import os
-import yaml
 import re
 import sys
-import argparse
+
+import yaml
 
 
 class NoAliasDumper(yaml.SafeDumper):
@@ -24,7 +25,9 @@ def recursive_merge(d1, d2, detect_same_keys=False):
     for k, v in d2.items():
         if detect_same_keys and k in d1:
             if d1[k] != v:
-                raise ValueError(f"Key {k} has different values in both dictionaries")
+                raise ValueError(
+                    f"Key {k} has different values in both dictionaries"
+                )
         # We have entries duplication in the yaml files, we need to deal with it later
         # so previous verification is very important
         #            else:
@@ -63,9 +66,13 @@ def validate_jobs(jobs):
                     raise yaml.YAMLError(f"Params not found for job: {name}'")
                 params = definition.get("params")
                 if not params.get("test_method"):
-                    raise yaml.YAMLError(f"Test method not found for job: {name}'")
+                    raise yaml.YAMLError(
+                        f"Test method not found for job: {name}'"
+                    )
                 if params.get("fragments"):
-                    raise yaml.YAMLError(f"Fragments not allowed in jobs: {name}'")
+                    raise yaml.YAMLError(
+                        f"Fragments not allowed in jobs: {name}'"
+                    )
 
 
 def validate_scheduler_jobs(data):
@@ -90,16 +97,24 @@ def validate_scheduler_jobs(data):
                 f"Event not found for scheduler entry: {jobname}: {entry}"
             )
         if not event.get("channel"):
-            raise yaml.YAMLError(f"Channel not found for event: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"Channel not found for event: {jobname}: {entry}"
+            )
         if not event.get("state"):
-            raise yaml.YAMLError(f"State not found for event: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"State not found for event: {jobname}: {entry}"
+            )
         if not event.get("kind"):
-            raise yaml.YAMLError(f"Kind not found for event: {jobname}: {entry}")
+            raise yaml.YAMLError(
+                f"Kind not found for event: {jobname}: {entry}"
+            )
         # if we have parameter: platforms, we need to make sure it exists in config
         if entry.get("platforms"):
             for platform in entry.get("platforms"):
                 if platform not in data.get("platforms"):
-                    raise yaml.YAMLError(f"Platform {platform} not found in platforms")
+                    raise yaml.YAMLError(
+                        f"Platform {platform} not found in platforms"
+                    )
         if jobinfo.get("kind") == "kbuild":
             if entry.get("platforms"):
                 # kbuild jobs should not have platforms defined in scheduler
@@ -158,7 +173,7 @@ def validate_build_configs(data):
             raise yaml.YAMLError(f"Tree not found for build config: {entry}'")
         if not build_configs[entry].get("branch"):
             raise yaml.YAMLError(f"Branch not found for build config: {entry}'")
-        if not tree in trees.keys():
+        if tree not in trees.keys():
             raise yaml.YAMLError(f"Tree {tree} not found in trees")
 
 
@@ -174,7 +189,9 @@ def validate_platforms(data):
         if not platforms[entry].get("arch"):
             raise yaml.YAMLError(f"Arch not found for platform: {entry}'")
         if not platforms[entry].get("boot_method"):
-            raise yaml.YAMLError(f"Boot method not found for platform: {entry}'")
+            raise yaml.YAMLError(
+                f"Boot method not found for platform: {entry}'"
+            )
         if not platforms[entry].get("mach"):
             raise yaml.YAMLError(f"Mach not found for platform: {entry}'")
         if platforms[entry].get("compatible"):
@@ -325,7 +342,9 @@ def help():
     print("Usage: python validate_yaml.py -d <directory> -o <output_file>")
     print("Options:")
     print("-d, --dir       Directory to validate yaml files (default: config)")
-    print("-o, --output    Output file to dump merged yaml file without anchors")
+    print(
+        "-o, --output    Output file to dump merged yaml file without anchors"
+    )
     print("-h, --help      Show this help message and exit")
     sys.exit(1)
 

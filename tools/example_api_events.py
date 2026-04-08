@@ -5,12 +5,13 @@ and print them to the console.
 It will filter only completed kernel builds, limit to 100 events per request,
 and retrieve corresponding nodes with artifacts.
 """
+
 import argparse
-import requests
 import json
 import sys
 import time
 
+import requests
 
 # This is staging server: "https://staging.kernelci.org:9000/latest"
 # For production use "https://api.kernelci.org/latest/"
@@ -41,8 +42,13 @@ provide all the information about the node. Eg for checkout it will provide
 the commit hash to test and for builds the location of the kernel binaries built.
 """
 
+
 def pollevents(timestamp, kind):
-    url = BASE_URI + EVENTS_PATH + f"?state=done&kind={kind}&limit=100&recursive=true&from={timestamp}"
+    url = (
+        BASE_URI
+        + EVENTS_PATH
+        + f"?state=done&kind={kind}&limit=100&recursive=true&from={timestamp}"
+    )
     print(url)
     response = requests.get(url)
     response.raise_for_status()

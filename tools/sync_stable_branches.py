@@ -20,7 +20,9 @@ import urllib.request
 from pathlib import Path
 
 RELEASES_URL = "https://www.kernel.org/releases.json"
-CONFIG_PATH = Path(__file__).parent.parent / "config" / "trees" / "stable-rc.yaml"
+CONFIG_PATH = (
+    Path(__file__).parent.parent / "config" / "trees" / "stable-rc.yaml"
+)
 
 
 def fetch_releases():
@@ -97,15 +99,16 @@ def main():
         description="Sync stable-rc.yaml with kernel.org releases"
     )
     parser.add_argument(
-        "--dry-run", "-n",
+        "--dry-run",
+        "-n",
         action="store_true",
-        help="Show what would change without modifying the file"
+        help="Show what would change without modifying the file",
     )
     parser.add_argument(
         "--config",
         type=Path,
         default=CONFIG_PATH,
-        help=f"Path to stable-rc.yaml (default: {CONFIG_PATH})"
+        help=f"Path to stable-rc.yaml (default: {CONFIG_PATH})",
     )
     args = parser.parse_args()
 
@@ -121,10 +124,14 @@ def main():
         print("Error: No active branches found", file=sys.stderr)
         return 1
 
-    print(f"Active kernel.org branches: {', '.join(f'{m}.{n}' for m, n in active_branches)}")
+    print(
+        f"Active kernel.org branches: {', '.join(f'{m}.{n}' for m, n in active_branches)}"
+    )
 
     current_branches = parse_current_branches(args.config)
-    print(f"Current config branches: {', '.join(f'{m}.{n}' for m, n in sorted(current_branches))}")
+    print(
+        f"Current config branches: {', '.join(f'{m}.{n}' for m, n in sorted(current_branches))}"
+    )
 
     # Calculate differences
     to_add = set(active_branches) - current_branches
@@ -135,9 +142,13 @@ def main():
         return 0
 
     if to_add:
-        print(f"Branches to add: {', '.join(f'{m}.{n}' for m, n in sorted(to_add))}")
+        print(
+            f"Branches to add: {', '.join(f'{m}.{n}' for m, n in sorted(to_add))}"
+        )
     if to_remove:
-        print(f"Branches to remove (EOL): {', '.join(f'{m}.{n}' for m, n in sorted(to_remove))}")
+        print(
+            f"Branches to remove (EOL): {', '.join(f'{m}.{n}' for m, n in sorted(to_remove))}"
+        )
 
     new_content = generate_yaml(active_branches)
 

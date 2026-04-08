@@ -11,10 +11,11 @@ latest kernel sources (git shallow copy)
 """
 
 import os
-import sys
-import subprocess
-import yaml
 import re
+import subprocess
+import sys
+
+import yaml
 
 script_path = os.getcwd()
 linux_path = os.path.join(script_path + "/linux")
@@ -24,7 +25,9 @@ def get_kernel_sources():
     """
     Get kernel sources from kernelci-pipeline
     """
-    repo_url = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/"
+    repo_url = (
+        "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/"
+    )
     if not os.path.exists(linux_path):
         subprocess.run(["git", "clone", "--depth", "1", repo_url], check=True)
 
@@ -65,7 +68,9 @@ def get_compatible(dtb, platform, ex_compat):
                     # if this arrays are not equal, print warning
                     compare_arrays = set(array_of_strings) - set(ex_compat)
                     if compare_arrays:
-                        print(f"  #Warning: {compare_arrays} not in {ex_compat}")
+                        print(
+                            f"  #Warning: {compare_arrays} not in {ex_compat}"
+                        )
 
                 break
     if not found:
@@ -106,7 +111,9 @@ def main():
         else:
             print(f"File {sys.argv[1]} does not exist!")
             print("Usage: extract_compatible.py [config.yaml]")
-            print("If no arguments provided, will process all files in ../config")
+            print(
+                "If no arguments provided, will process all files in ../config"
+            )
     else:
         for root, dirs, files in os.walk("../config"):
             for file in files:

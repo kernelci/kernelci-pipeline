@@ -1,1 +1,2 @@
-pycodestyle==2.14.0
+pre-commit==4.5.1
+ruff==0.15.9

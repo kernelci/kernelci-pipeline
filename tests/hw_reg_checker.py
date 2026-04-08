@@ -12,7 +12,7 @@ import os
 import sys
 
 import yaml
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 
 def parse_args():
@@ -53,8 +53,13 @@ def validate_references(data, registry_file):
                 f"not found in {valid_set_name}"
             )
 
-    for section in ("silicon_vendors", "platform_vendors", "processors",
-                    "system_modules", "platforms"):
+    for section in (
+        "silicon_vendors",
+        "platform_vendors",
+        "processors",
+        "system_modules",
+        "platforms",
+    ):
         for key, entity in data.get(section, {}).items():
             entity_id = entity.get("id")
             if entity_id is not None and entity_id != key:
@@ -64,16 +69,34 @@ def validate_references(data, registry_file):
                 )
 
     for key in data.get("processors", {}):
-        check_ref("processors", key, "vendor_id", silicon_vendors, "silicon_vendors")
+        check_ref(
+            "processors", key, "vendor_id", silicon_vendors, "silicon_vendors"
+        )
 
     for key in data.get("system_modules", {}):
-        check_ref("system_modules", key, "vendor_id", platform_vendors, "platform_vendors")
-        check_ref("system_modules", key, "processor_id", processors, "processors")
+        check_ref(
+            "system_modules",
+            key,
+            "vendor_id",
+            platform_vendors,
+            "platform_vendors",
+        )
+        check_ref(
+            "system_modules", key, "processor_id", processors, "processors"
+        )
 
     for key in data.get("platforms", {}):
-        check_ref("platforms", key, "vendor_id", platform_vendors, "platform_vendors")
+        check_ref(
+            "platforms", key, "vendor_id", platform_vendors, "platform_vendors"
+        )
         check_ref("platforms", key, "processor_id", processors, "processors")
-        check_ref("platforms", key, "system_module_id", system_modules, "system_modules")
+        check_ref(
+            "platforms",
+            key,
+            "system_module_id",
+            system_modules,
+            "system_modules",
+        )
 
     return errors
 
@@ -126,21 +149,25 @@ def main():
 
             ref_errors = validate_references(data, registry_file)
             if ref_errors:
-                print(f"  FAIL: Reference errors")
+                print("  FAIL: Reference errors")
                 for err in ref_errors:
                     print(f"    {err}")
                 all_passed = False
             else:
-                print(f"  OK")
-                print(f"  Silicon vendors:  {len(data.get('silicon_vendors', {}))}")
-                print(f"  Platform vendors: {len(data.get('platform_vendors', {}))}")
+                print("  OK")
+                print(
+                    f"  Silicon vendors:  {len(data.get('silicon_vendors', {}))}"
+                )
+                print(
+                    f"  Platform vendors: {len(data.get('platform_vendors', {}))}"
+                )
                 print(f"  Processors:       {len(data.get('processors', {}))}")
                 if "system_modules" in data:
                     print(f"  System modules:   {len(data['system_modules'])}")
                 print(f"  Platforms:        {len(data.get('platforms', {}))}")
 
         except ValidationError as e:
-            print(f"  FAIL: Validation error")
+            print("  FAIL: Validation error")
             print(f"    Message:     {e.message}")
             print(f"    Path:        {' -> '.join(map(str, e.path))}")
             print(f"    Schema path: {' -> '.join(map(str, e.schema_path))}")

@@ -9,26 +9,27 @@
 
 import copy
 import datetime
+import json
 import os
 import re
 import subprocess
 import sys
-import json
-import requests
 import time
+
 import kernelci
 import kernelci.build
 import kernelci.config
-from kernelci.legacy.cli import Args, Command, parse_opts
 import kernelci.storage
+import requests
+from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
 
 KVER_RE = re.compile(
-    r'^v(?P<version>[\d]+)\.'
-    r'(?P<patchlevel>[\d]+)'
-    r'(\.(?P<sublevel>[\d]+))?'
-    r'(?P<extra>.*)?'
+    r"^v(?P<version>[\d]+)\."
+    r"(?P<patchlevel>[\d]+)"
+    r"(\.(?P<sublevel>[\d]+))?"
+    r"(?P<extra>.*)?"
 )
 
 
@@ -42,44 +43,50 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
     def __init__(self, global_configs, service_config, name):
         super().__init__(global_configs, service_config, name)
         self._service_config = service_config
-        self._build_configs = global_configs['build_configs']
+        self._build_configs = global_configs["build_configs"]
         if not os.path.exists(self._service_config.output):
             os.makedirs(self._service_config.output)
-        storage_config = global_configs['storage_configs'][
+        storage_config = global_configs["storage_configs"][
             service_config.storage_config
         ]
         self._storage = kernelci.storage.get_storage(
             storage_config, service_config.storage_cred
         )
         self._filters = {
-            'op': 'created',
-            'kind': 'checkout',
-            'state': 'running',
+            "op": "created",
+            "kind": "checkout",
+            "state": "running",
         }
 
     def _find_build_config(self, node):
-        revision = node['data']['kernel_revision']
-        tree = revision['tree']
-        branch = revision['branch']
+        revision = node["data"]["kernel_revision"]
+        tree = revision["tree"]
+        branch = revision["branch"]
         for config in self._build_configs.values():
             if config.tree.name == tree and config.branch == branch:
                 return config
-            if config.tree.name == tree and config.branch.startswith('http'):
+            if config.tree.name == tree and config.branch.startswith("http"):
                 current = copy.copy(config)
                 current._branch = branch
                 return current
 
     def _find_build_commit(self, node):
-        revision = node['data'].get('kernel_revision')
-        commit = revision.get('commit')
+        revision = node["data"].get("kernel_revision")
+        commit = revision.get("commit")
         return commit
 
     def _validate_commitid(self, commitid):
-        if not commitid or not re.fullmatch(r'[0-9a-fA-F]{7,64}', commitid):
+        if not commitid or not re.fullmatch(r"[0-9a-fA-F]{7,64}", commitid):
             raise ValueError(f"Invalid commit id: {commitid}")
         subprocess.run(
-            ['git', '-C', self._service_config.kdir, 'rev-parse',
-             '--verify', f'{commitid}^{{commit}}'],
+            [
+                "git",
+                "-C",
+                self._service_config.kdir,
+                "rev-parse",
+                "--verify",
+                f"{commitid}^{{commit}}",
+            ],
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -91,16 +98,16 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         # but i prefer to implement it myself
         self._validate_commitid(commitid)
         subprocess.run(
-            ['git', '-C', self._service_config.kdir, 'checkout', commitid],
+            ["git", "-C", self._service_config.kdir, "checkout", commitid],
             check=True,
         )
         self.log.info("Commit checked out")
 
     def _update_repo(self, config):
-        '''
+        """
         Return True - if failed to update repo and need to retry
         Return False - if repo updated successfully
-        '''
+        """
         self.log.info(f"Updating repo for {config.name}")
         try:
             kernelci.build.update_repo(config, self._service_config.kdir)
@@ -108,7 +115,7 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             self.log.error(f"Failed to update: {err}, cleaning stale repo")
             # safeguard, make sure it is git repo
             if not os.path.exists(
-                os.path.join(self._service_config.kdir, '.git')
+                os.path.join(self._service_config.kdir, ".git")
             ):
                 err_msg = f"{self._service_config.kdir} is not a git repo"
                 self.log.error(err_msg)
@@ -123,13 +130,12 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
     def _make_tarball(self, target_dir, tarball_name):
         self.log.info(f"Making tarball {tarball_name}")
         tarball_path = os.path.join(
-            self._service_config.output,
-            f"{tarball_name}.tar.gz"
+            self._service_config.output, f"{tarball_name}.tar.gz"
         )
         cmd = self.TAR_CREATE_CMD.format(
             target_dir=target_dir,
             prefix=tarball_name,
-            tarball_path=tarball_path
+            tarball_path=tarball_path,
         )
         self.log.info(cmd)
         kernelci.shell_cmd(cmd)
@@ -149,62 +155,73 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             self._service_config.kdir
         )
         version = KVER_RE.match(describe_v).groupdict()
-        return {
-            key: value
-            for key, value in version.items()
-            if value
-        }
+        return {key: value for key, value in version.items() if value}
 
     def _get_commit_info(self, path, commit, tree, branch):
-        commit_tags = kernelci.build.git_commit_tags(
-            path, commit
-        )
-        commit_message = kernelci.build.git_commit_message(
-            path, commit
-        )
-        branch_tip = kernelci.build.git_branch_tip(
-            path, commit, tree, branch
-        )
+        commit_tags = kernelci.build.git_commit_tags(path, commit)
+        commit_message = kernelci.build.git_commit_message(path, commit)
+        branch_tip = kernelci.build.git_branch_tip(path, commit, tree, branch)
         return commit_tags, commit_message, branch_tip
 
     # pylint: disable=too-many-arguments
-    def _update_node(self, checkout_node, describe, version, tarball_url,
-                     commit_tags, commit_message, branch_tip):
+    def _update_node(
+        self,
+        checkout_node,
+        describe,
+        version,
+        tarball_url,
+        commit_tags,
+        commit_message,
+        branch_tip,
+    ):
         node = checkout_node.copy()
-        node['data']['kernel_revision'].update({
-            'describe': describe,
-            'version': version,
-            'commit_tags': commit_tags,
-            'commit_message': commit_message,
-            'tip_of_branch': branch_tip,
-        })
-        if 'architecture_filter' in checkout_node['data']:
-            node['data']['architecture_filter'] = checkout_node['data']['architecture_filter']
+        node["data"]["kernel_revision"].update(
+            {
+                "describe": describe,
+                "version": version,
+                "commit_tags": commit_tags,
+                "commit_message": commit_message,
+                "tip_of_branch": branch_tip,
+            }
+        )
+        if "architecture_filter" in checkout_node["data"]:
+            node["data"]["architecture_filter"] = checkout_node["data"][
+                "architecture_filter"
+            ]
 
-        node.update({
-            'state': 'available',
-            'result': 'pass',
-            'artifacts': {
-                'tarball': tarball_url,
-            },
-            'holdoff': str(datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=10))
-        })
+        node.update(
+            {
+                "state": "available",
+                "result": "pass",
+                "artifacts": {
+                    "tarball": tarball_url,
+                },
+                "holdoff": str(
+                    datetime.datetime.now(datetime.UTC)
+                    + datetime.timedelta(minutes=10)
+                ),
+            }
+        )
         try:
             self._api.node.update(node)
         except requests.exceptions.HTTPError as err:
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
-    def _update_failed_checkout_node(self, checkout_node, error_code, error_msg):
+    def _update_failed_checkout_node(
+        self, checkout_node, error_code, error_msg
+    ):
         node = checkout_node.copy()
-        node.update({
-            'state': 'done',
-            'result': 'fail',
-        })
-        if 'data' not in node:
-            node['data'] = {}
-        node['data']['error_code'] = error_code
-        node['data']['error_msg'] = error_msg
+        node.update(
+            {
+                "state": "done",
+                "result": "fail",
+            }
+        )
+        if "data" not in node:
+            node["data"] = {}
+        node["data"]["error_code"] = error_code
+        node["data"]["error_msg"] = error_msg
         try:
             self._api.node.update(node)
         except requests.exceptions.HTTPError as err:
@@ -228,7 +245,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             try:
                 checkout_node, _ = self._api_helper.receive_event_node(sub_id)
             except Exception as e:
-                self.log.error(f"Error receiving event: {e}, re-subscribing in 10 seconds")
+                self.log.error(
+                    f"Error receiving event: {e}, re-subscribing in 10 seconds"
+                )
                 time.sleep(10)
                 # try to resubscribe
                 sub_id = self._api_helper.subscribe_filters(self._filters)
@@ -249,25 +268,31 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                     # critical failure, something wrong with git
                     self.log.error("Failed to update repo again, exit")
                     # Set checkout node result to fail
-                    self._update_failed_checkout_node(checkout_node,
-                                                      'git_checkout_failure',
-                                                      'Failed to init/update git repo')
+                    self._update_failed_checkout_node(
+                        checkout_node,
+                        "git_checkout_failure",
+                        "Failed to init/update git repo",
+                    )
                     os._exit(1)
 
             commitid = self._find_build_commit(checkout_node)
             if commitid is None:
                 self.log.error("Failed to find commit id")
-                self._update_failed_checkout_node(checkout_node,
-                                                  'git_checkout_failure',
-                                                  'Failed to find commit id')
+                self._update_failed_checkout_node(
+                    checkout_node,
+                    "git_checkout_failure",
+                    "Failed to find commit id",
+                )
                 os._exit(1)
             try:
                 self._checkout_commitid(commitid)
             except (ValueError, subprocess.CalledProcessError) as err:
                 self.log.error(f"Failed to checkout commit: {err}")
-                self._update_failed_checkout_node(checkout_node,
-                                                  'git_checkout_failure',
-                                                  f'Failed to checkout commit: {err}')
+                self._update_failed_checkout_node(
+                    checkout_node,
+                    "git_checkout_failure",
+                    f"Failed to checkout commit: {err}",
+                )
                 continue
 
             config_tree = build_config.tree.name
@@ -277,49 +302,62 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 config_tree, self._service_config.kdir
             )
             version = self._get_version_from_describe()
-            tarball_name = '-'.join([
-                'linux',
-                config_tree,
-                config_branch,
-                describe
-            ])
+            tarball_name = "-".join(
+                ["linux", config_tree, config_branch, describe]
+            )
             # replace / by _ in name
-            tarball_name = tarball_name.replace('/', '_')
+            tarball_name = tarball_name.replace("/", "_")
             tarball_path = self._make_tarball(
-                self._service_config.kdir,
-                tarball_name
+                self._service_config.kdir, tarball_name
             )
             tarball_url = self._push_tarball(tarball_path)
             try:
                 commit_tags, commit_message, branch_tip = self._get_commit_info(
-                    self._service_config.kdir, commitid, config_tree, config_branch)
-                self._update_node(checkout_node, describe, version, tarball_url,
-                                  commit_tags, commit_message, branch_tip)
+                    self._service_config.kdir,
+                    commitid,
+                    config_tree,
+                    config_branch,
+                )
+                self._update_node(
+                    checkout_node,
+                    describe,
+                    version,
+                    tarball_url,
+                    commit_tags,
+                    commit_message,
+                    branch_tip,
+                )
             except subprocess.CalledProcessError as err:
                 self._logger.error(f"Git commit info retrieval failed: {err}")
-                self._update_failed_checkout_node(checkout_node, "git_commit_error", str(err))
+                self._update_failed_checkout_node(
+                    checkout_node, "git_commit_error", str(err)
+                )
 
 
 class cmd_run(Command):
     help = "Wait for a new revision event and push a source tarball"
     args = [
-        Args.kdir, Args.output, Args.api_config, Args.storage_config,
+        Args.kdir,
+        Args.output,
+        Args.api_config,
+        Args.storage_config,
     ]
     opt_args = [
-        Args.verbose, Args.storage_cred,
+        Args.verbose,
+        Args.storage_cred,
         {
-            'name': '--name',
-            'help': "Name of pipeline instance",
+            "name": "--name",
+            "help": "Name of pipeline instance",
         },
     ]
 
     def __call__(self, configs, args):
-        return Tarball(configs, args, 'tarball').run(args)
+        return Tarball(configs, args, "tarball").run(args)
 
 
-if __name__ == '__main__':
-    opts = parse_opts('tarball', globals())
-    yaml_configs = opts.get_yaml_configs() or 'config'
+if __name__ == "__main__":
+    opts = parse_opts("tarball", globals())
+    yaml_configs = opts.get_yaml_configs() or "config"
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

@@ -20,7 +20,6 @@ import traceback
 
 import requests
 
-
 BASE_URI = "https://staging.kernelci.org:9000/latest"
 EVENTS_PATH = "/events"
 REQUEST_TIMEOUT = 30
@@ -84,7 +83,9 @@ def run_pytest(job, tests_dir, output_dir=None):
         if output_dir:
             log_path = os.path.join(output_dir, "log.txt")
             with open(log_path, "w") as logfile:
-                result = subprocess.run(cmd, stdout=logfile, stderr=subprocess.STDOUT)
+                result = subprocess.run(
+                    cmd, stdout=logfile, stderr=subprocess.STDOUT
+                )
             log.info("Log saved to %s", log_path)
         else:
             result = subprocess.run(cmd)
@@ -120,8 +121,9 @@ def poll_loop(args):
                     artifacts = node.get("artifacts", {})
                     job_definition_url = artifacts.get("job_definition", "")
 
-                    if not job_definition_url or not job_definition_url.startswith(
-                        "http"
+                    if (
+                        not job_definition_url
+                        or not job_definition_url.startswith("http")
                     ):
                         continue
 
@@ -157,7 +159,9 @@ def poll_loop(args):
                             args.output_dir, node.get("id", "unknown")
                         )
 
-                    run_pytest(jobdata, tests_dir=args.tests_dir, output_dir=output_dir)
+                    run_pytest(
+                        jobdata, tests_dir=args.tests_dir, output_dir=output_dir
+                    )
 
                 except Exception as e:
                     log.error("Error processing event: %s", e)
@@ -174,7 +178,9 @@ def poll_loop(args):
                 e,
             )
             if retry_count >= args.max_retries:
-                log.error("Max retries (%d) reached. Exiting.", args.max_retries)
+                log.error(
+                    "Max retries (%d) reached. Exiting.", args.max_retries
+                )
                 sys.exit(1)
             log.info("Retrying in 30 seconds...")
             time.sleep(30)
@@ -206,14 +212,18 @@ def main():
     parser.add_argument(
         "--no-save-outputs", action="store_true", help="Disable saving outputs."
     )
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging.")
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable debug logging."
+    )
 
     subparsers = parser.add_subparsers(dest="command")
 
     poll_parser = subparsers.add_parser(
         "poll", help="Poll KernelCI events API (default)."
     )
-    poll_parser.add_argument("--platform", default="", help="Filter by platform.")
+    poll_parser.add_argument(
+        "--platform", default="", help="Filter by platform."
+    )
     poll_parser.add_argument("--runtime", help="Filter by runtime/lab name.")
     poll_parser.add_argument(
         "--group-filter",
@@ -221,7 +231,10 @@ def main():
         help="Filter by group (default: pull-labs).",
     )
     poll_parser.add_argument(
-        "--max-retries", type=int, default=5, help="Max API retries (default: 5)."
+        "--max-retries",
+        type=int,
+        default=5,
+        help="Max API retries (default: 5).",
     )
 
     direct_parser = subparsers.add_parser(
