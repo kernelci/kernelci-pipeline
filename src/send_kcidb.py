@@ -365,10 +365,18 @@ class KCIDBBridge(Service):
                 if len(parsed_path) >= 2:
                     if parsed_path[0] == parsed_path[1]:
                         parsed_path = parsed_path[1:]
+            # Filter out empty strings to prevent trailing/leading dots
+            parsed_path = [p for p in parsed_path if p]
             new_path = []
             for sub_path in parsed_path:
                 if sub_path in self._jobs:
-                    suite_name = self._jobs[sub_path].kcidb_test_suite
+                    job = self._jobs[sub_path]
+                    if job.kind == "kbuild":
+                        # TODO: Make kselftest kbuild jobs properly
+                        # appear in dashboard/KCIDB instead of
+                        # silently skipping them
+                        continue
+                    suite_name = job.kcidb_test_suite
                     if suite_name:
                         new_path.append(suite_name)
                     else:
@@ -379,16 +387,23 @@ the test: {sub_path}"
                         return None
                 else:
                     new_path.append(sub_path)
+            # Filter empty components again after mapping
+            new_path = [p for p in new_path if p]
             # Handle path where the first two components are identical after
             # mapping, e.g. ['job-name', 'suite', 'test'] -> ['suite', 'suite', 'test']
             if len(new_path) >= 2:
                 if new_path[0] == new_path[1]:
                     new_path = new_path[1:]
             path_str = ".".join(new_path)
-            # Allowed pattern for test path is ^[.a-zA-Z0-9_-]*$'
+            # KCIDB pattern: ^([a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*)?$
+            # Dots are only valid as separators between segments
             formatted_path_str = self._replace_restricted_chars(
                 path_str, r"^[.a-zA-Z0-9_-]*$"
             )
+            # Strip leading/trailing dots and collapse consecutive dots
+            # to ensure conformance with KCIDB schema
+            formatted_path_str = re.sub(r"\.{2,}", ".", formatted_path_str)
+            formatted_path_str = formatted_path_str.strip(".")
             return formatted_path_str if formatted_path_str else None
         return None
 
