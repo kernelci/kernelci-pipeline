@@ -510,12 +510,22 @@ def decode_jwt(jwtstr):
     JWT secret stored at SETTINGS['jwt']['secret']
     which means secret.toml file should have jwt section
     with parameter secret= "<secret>"
+    Optionally, a unified_secret can be configured as a fallback.
     """
-    secret = SETTINGS.get("jwt", {}).get("secret")
-    if not secret:
+    jwt_settings = SETTINGS.get("jwt", {})
+    secret = jwt_settings.get("secret")
+    unified_secret = jwt_settings.get("unified_secret")
+    if not secret and not unified_secret:
         logger.error("No JWT secret configured")
         return None
-    return jwt.decode(jwtstr, secret, algorithms=["HS256"])
+    if secret:
+        try:
+            return jwt.decode(jwtstr, secret, algorithms=["HS256"])
+        except jwt.InvalidSignatureError:
+            logger.debug("Legacy JWT secret failed, trying unified_secret")
+    if unified_secret:
+        return jwt.decode(jwtstr, unified_secret, algorithms=["HS256"])
+    return None
 
 
 def validate_permissions(jwtoken, permission):

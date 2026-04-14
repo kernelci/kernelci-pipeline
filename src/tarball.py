@@ -163,7 +163,6 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         branch_tip = kernelci.build.git_branch_tip(path, commit, tree, branch)
         return commit_tags, commit_message, branch_tip
 
-    # pylint: disable=too-many-arguments
     def _update_node(
         self,
         checkout_node,
