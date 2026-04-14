@@ -302,8 +302,14 @@ def merge_files(dir="config"):
     """
     Merge all yaml files in the config/ directory
     """
+    # Directories with their own validation (e.g. hardware_registry/)
+    skip_dirs = {"hardware_registry"}
     merged_data = {}
     for file in glob.iglob(os.path.join(dir, "**", "*.yaml"), recursive=True):
+        rel = os.path.relpath(file, dir)
+        top_dir = rel.split(os.sep)[0]
+        if top_dir in skip_dirs:
+            continue
         print(f"Merging {file}")
         with open(file, "r") as stream:
             try:
