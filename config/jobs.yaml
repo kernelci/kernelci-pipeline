@@ -2053,6 +2053,14 @@ jobs:
       collections: rlimits
     kcidb_test_suite: kselftest.rlimits
 
+  kselftest-rseq:
+    <<: *kselftest-job
+    params:
+      <<: *kselftest-params
+      collections: rseq
+      job_timeout: 30
+    kcidb_test_suite: kselftest.rseq
+
   kselftest-seccomp:
     <<: *kselftest-job
     params:
