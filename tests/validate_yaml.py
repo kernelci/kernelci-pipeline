@@ -201,6 +201,28 @@ def validate_platforms(data):
                 )
 
 
+def validate_fragments(data):
+    """
+    Each entry in fragments must be a mapping with a 'path' key.
+    Mirrors kernelci.config.build.Fragment.__init__ which requires
+    'path' as a positional argument; a missing path there surfaces
+    as a cryptic TypeError at pipeline startup.
+    """
+    fragments = data.get("fragments")
+    if not fragments:
+        return
+    for name, entry in fragments.items():
+        if not isinstance(entry, dict):
+            raise yaml.YAMLError(
+                f"Fragment '{name}' is not a mapping: {entry!r}"
+            )
+        if "path" not in entry:
+            raise yaml.YAMLError(
+                f"Fragment '{name}' is missing required 'path' key "
+                f"(keys present: {list(entry.keys())})"
+            )
+
+
 def validate_rootfs_refs(data):
     """
     Validate rootfs references:
@@ -332,6 +354,8 @@ def validate_yaml(merged_data):
     validate_build_configs(merged_data)
     validate_unused_trees(merged_data)
     validate_platforms(merged_data)
+    print("Validating fragments")
+    validate_fragments(merged_data)
     print("Validating rootfs references")
     validate_rootfs_refs(merged_data)
     print("All yaml files are valid")
