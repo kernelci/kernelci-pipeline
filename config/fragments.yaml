@@ -903,3 +903,17 @@ fragments:
 
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
+
+  aws-ec2:
+    path: "kernel/configs/aws-ec2.config"
+    configs:
+      - 'CONFIG_NET_VENDOR_AMAZON=y'
+      - 'CONFIG_ENA_ETHERNET=y'
+      - 'CONFIG_NVME_CORE=y'
+      - 'CONFIG_BLK_DEV_NVME=y'
+      - 'CONFIG_XFS_FS=y'
+      - 'CONFIG_VIRTIO=y'
+      - 'CONFIG_VIRTIO_PCI=y'
+      - 'CONFIG_VIRTIO_BLK=y'
+      - 'CONFIG_VIRTIO_NET=y'
+      - 'CONFIG_DEBUG_INFO=n'

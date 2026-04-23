@@ -58,6 +58,9 @@ KBUILD_PARAMS = {
 {%- if kselftest %}
     'kselftest': '{{ kselftest }}'
 {%- endif %}
+{%- if extra_targets %}
+    'extra_targets': {{ extra_targets }},
+{%- endif %}
 
 }
 {%- endblock %}
