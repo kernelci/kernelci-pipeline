@@ -23,6 +23,6 @@ build_configs:
     <<: *stable-rc
     branch: 'linux-6.18.y'
 
-  stable-rc_6.19:
+  stable-rc_7.0:
     <<: *stable-rc
-    branch: 'linux-6.19.y'
+    branch: 'linux-7.0.y'
