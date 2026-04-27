@@ -5,3 +5,4 @@ data
 *.venv
 *.log
 test_output/
+output.txt
