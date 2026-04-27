@@ -47,7 +47,8 @@ def get_active_branches(releases_data):
             continue
 
         version = release.get("version", "")
-        match = re.match(r"^(\d+)\.(\d+)\.", version)
+        # Match both initial releases (e.g. "7.0") and point releases (e.g. "7.0.1")
+        match = re.match(r"^(\d+)\.(\d+)", version)
         if match:
             major, minor = int(match.group(1)), int(match.group(2))
             branches.add((major, minor))
