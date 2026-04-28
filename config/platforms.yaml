@@ -669,3 +669,13 @@ platforms:
     dtb: dtbs/allwinner/sun50i-h6-orangepi-3.dtb
     compatible: ['xunlong,orangepi-3', 'allwinner,sun50i-h6']
 
+  aws-ec2-x86_64:
+    arch: x86_64
+    boot_method: grub
+    mach: x86
+
+  aws-ec2-arm64:
+    arch: arm64
+    boot_method: grub
+    mach: arm
+

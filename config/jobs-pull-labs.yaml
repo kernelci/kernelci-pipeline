@@ -30,3 +30,15 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+  baseline-x86-aws-ec2:
+    template: baseline.jinja2
+    kind: job
+    priority: medium
+    kcidb_test_suite: boot
+
+  baseline-arm64-aws-ec2:
+    template: baseline.jinja2
+    kind: job
+    priority: medium
+    kcidb_test_suite: boot
