@@ -34,7 +34,22 @@ In the configuration file, you need to have the following section:
 ```
 [jwt]
 secret = "ABCDEFGH..."
+# Optional: shared HS256 key accepted as a fallback alongside `secret`.
+# Set to the same value used by kernelci-api (UNIFIED_SECRET),
+# kernelci-storage (unified_secret) and kcidb-restd-rs (UNIFIED_SECRET)
+# so a single token authenticates a user across all KernelCI services.
+# See UNIFIED_TOKEN.md in the kernelci-deploy repo for the full spec.
+#unified_secret = "ABCDEFGH..."
 ```
+
+Generate either secret with:
+```
+openssl rand -hex 32
+```
+
+The pipeline `lava-callback` validates incoming JWTs against `secret` first
+and falls back to `unified_secret` on signature failure (see
+`decode_jwt()` in `src/lava_callback.py`).
 
 ## Generating tokens for user
 

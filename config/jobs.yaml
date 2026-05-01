@@ -1591,6 +1591,7 @@ jobs:
       - 'stable'
       - 'stable-rc'
       - 'next'
+      - 'kernelci'
 
   blktests-ddp-x86:
     template: blktests-ddp.jinja2
