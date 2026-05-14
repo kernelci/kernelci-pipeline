@@ -31,6 +31,7 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - cd8180-orion-o6
+      - exynos850-e850-96
       - fvp-aemva
       - qemu-arm64
 
