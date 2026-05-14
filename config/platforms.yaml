@@ -120,6 +120,17 @@ platforms:
     dtb: dtbs/eswin/eic7700-hifive-premier-p550.dtb
     compatible: ['sifive,hifive-premier-p550', 'eswin,eic7700']
 
+  exynos850-e850-96:
+    <<: *arm64-device
+    mach: samsung
+    boot_method: fastboot
+    dtb: dtbs/exynos/exynos850-e850-96.dtb
+    compatible: ['winlink,e850-96', 'samsung,exynos850']
+    rules:
+      tree:
+        - mainline
+        - next
+
   imx23-olinuxino:
     <<: *arm-device
     boot_method: barebox
