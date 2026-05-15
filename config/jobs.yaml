@@ -1571,6 +1571,9 @@ jobs:
       extra_targets:
         - 'binrpm-pkg'
     rules:
+      min_version:
+        version: 6
+        patchlevel: 6
       tree:
       - 'mainline'
       - 'stable'
@@ -1586,6 +1589,9 @@ jobs:
       extra_targets:
         - 'binrpm-pkg'
     rules:
+      min_version:
+        version: 6
+        patchlevel: 6
       tree:
       - 'mainline'
       - 'stable'
