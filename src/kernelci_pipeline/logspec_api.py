@@ -41,6 +41,33 @@ test_types = {
 }
 
 
+# Kbuild packaging targets: failures here are packaging-tool infra
+# errors (e.g. rpmbuild "Bad exit status from /var/tmp/rpm-tmp.XXX"),
+# not kernel build errors, so skip generating issues for them.
+PACKAGING_TARGETS = {
+    "rpm-pkg",
+    "binrpm-pkg",
+    "srcrpm-pkg",
+    "deb-pkg",
+    "bindeb-pkg",
+    "srcdeb-pkg",
+    "intdeb-pkg",
+    "snap-pkg",
+    "pacman-pkg",
+    "dir-pkg",
+    "tar-pkg",
+    "targz-pkg",
+    "tarbz2-pkg",
+    "tarxz-pkg",
+    "tarzst-pkg",
+    "perf-tar-src-pkg",
+    "perf-targz-src-pkg",
+    "perf-tarbz2-src-pkg",
+    "perf-tarxz-src-pkg",
+    "perf-tarzst-src-pkg",
+}
+
+
 def get_log(url, snippet_lines=0):
     """Fetches a text log given its url.
     url can be a file path or an http(s) url, supporting
@@ -246,6 +273,10 @@ def generate_issues_and_incidents(result_id, log_url, test_type):
                 error["error"].get("error_type")
                 == "linux.kernel.error_return_code"
             ):
+                continue
+            # Skip kbuild packaging-target failures (binrpm-pkg etc.):
+            # these are RPM/DEB tooling errors, not kernel build errors.
+            if error["error"].get("target") in PACKAGING_TARGETS:
                 continue
 
             issue = new_issue(error, test_type)
