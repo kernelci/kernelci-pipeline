@@ -463,6 +463,13 @@ platforms:
     dtb: dtbs/qcom/monaco-evk.dtb
     compatible: ['qcom,monaco-evk', 'qcom,qcs8300']
 
+  glymur-crd:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/glymur-crd.dtb
+    compatible: ['qcom,glymur-crd', 'qcom,glymur']
+
   qemu-x86_64: &qemu-device
     base_name: qemu
     arch: x86_64
