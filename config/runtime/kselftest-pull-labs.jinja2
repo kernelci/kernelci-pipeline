@@ -1,0 +1,17 @@
+{%- set boot_commands = 'nfs' %}
+{%- set base_template = 'base/pull_labs.jinja2' %}
+{%- set kselftest_collection = collection %}
+{%- set test_timeout = (job_timeout | default(30)) * 60 %}
+
+{%- set test_definitions = [
+  {
+    'id': 'kselftest-' ~ kselftest_collection,
+    'type': 'kselftest-' ~ kselftest_collection,
+    'depends': [],
+    'timeout_s': test_timeout,
+    'pre_commands': [],
+    'post_commands': []
+  }
+] %}
+
+{%- extends base_template %}
