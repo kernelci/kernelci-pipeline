@@ -18,6 +18,11 @@ _anchors:
     skipfile: skipfile-lkft.yaml
     workers: max
 
+  kselftest-params-pull-labs: &kselftest-params-pull-labs
+    boot_commands: nfs
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+    job_timeout: 30
+
 jobs:
   baseline-arm-pull-labs-demo: *baseline-job-pull-labs
   baseline-arm64-pull-labs-demo: *baseline-job-pull-labs
@@ -30,6 +35,14 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+  kselftest-arm64-pull-labs:
+    template: kselftest-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params-pull-labs
+      collection: arm64
+    kcidb_test_suite: kselftest.arm64
 
   baseline-x86-aws-ec2:
     template: baseline.jinja2

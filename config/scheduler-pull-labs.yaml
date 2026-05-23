@@ -54,6 +54,17 @@ scheduler:
       - cd8180-orion-o6
       - qemu-arm64
 
+  - job: kselftest-arm64-pull-labs
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-nfsboot
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - qemu-arm64
+      - cd8180-orion-o6
+
   - job: baseline-x86-pull-labs-demo
     event: &kbuild-gcc-14-x86-node-event
       <<: *node-event-kbuild
