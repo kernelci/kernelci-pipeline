@@ -42,6 +42,7 @@ scheduler:
       name: pull-labs-demo
     platforms:
       - bcm2711-rpi-4-b
+      - exynos850-e850-96
 
   - job: ltp-smoke-pull-labs
     event:
