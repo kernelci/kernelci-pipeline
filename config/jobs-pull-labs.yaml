@@ -44,6 +44,14 @@ jobs:
       collection: arm64
     kcidb_test_suite: kselftest.arm64
 
+  kselftest-breakpoints-pull-labs:
+    template: kselftest-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params-pull-labs
+      collection: breakpoints
+    kcidb_test_suite: kselftest.breakpoints
+
   baseline-x86-aws-ec2:
     template: baseline.jinja2
     kind: job
