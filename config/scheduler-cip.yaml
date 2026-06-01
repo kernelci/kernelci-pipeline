@@ -41,6 +41,7 @@ scheduler:
       - k3-am62p5-sk
       - qemu-arm64
       - r8a774a1-hihope-rzg2m-ex
+      - r9a09g077m44-rzt2h-evk
       - zynqmp-zcu102
 
   - &job-gcc-14-arm64-612-cip-rt

@@ -31,6 +31,12 @@ platforms:
     dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
     compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
 
+  r9a09g077m44-rzt2h-evk:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g077m44-rzt2h-evk.dtb
+    compatible: ['renesas,rzt2h-evk', 'renesas,r9a09g077m44', 'renesas,r9a09g077']
+
   zynqmp-zcu102:
     <<: *arm64-device
     mach: zynqmp
