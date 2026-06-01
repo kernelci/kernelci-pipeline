@@ -66,6 +66,14 @@ scheduler:
       - qemu-arm64
       - cd8180-orion-o6
 
+  - job: kselftest-breakpoints-pull-labs
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - exynos850-e850-96
+
   - job: baseline-x86-pull-labs-demo
     event: &kbuild-gcc-14-x86-node-event
       <<: *node-event-kbuild
