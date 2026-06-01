@@ -56,6 +56,14 @@ scheduler:
       - qemu-arm64
 
   - job: kselftest-arm64-pull-labs
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: pull_labs
+      name: pull-labs-demo
+    platforms:
+      - exynos850-e850-96
+
+  - job: kselftest-arm64-pull-labs
     event:
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm64-nfsboot
