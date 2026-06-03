@@ -444,6 +444,7 @@ fragments:
       - 'CONFIG_IP_PNP=y'
       - 'CONFIG_IP_PNP_DHCP=y'
       - 'CONFIG_IP_PNP_BOOTP=y'
+      - 'CONFIG_EFI_GENERIC_STUB_INITRD_CMDLINE_LOADER=y'
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
