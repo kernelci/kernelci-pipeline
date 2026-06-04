@@ -337,6 +337,20 @@ LAVA runtimes are used to submit test jobs to LAVA labs.
     before submitting jobs. This is useful for labs that return HTTP 403 errors when
     the scheduler queries the `/api/v0.2/jobs/` endpoint to check queue depth,
     which would otherwise block all job submissions to that lab.
+- **max_queue_depth_priority_factor**: float - Highest-priority multiplier applied to
+  the effective queue limit
+  - **Default**: 2.0
+  - The per-device queue ceiling scales linearly with the job's priority, from `1x`
+    at the lowest priority up to this factor at the highest priority. Higher-priority
+    jobs therefore get a larger but still bounded queue allowance instead of bypassing
+    the limit entirely. The hard cap is `max_queue_depth * online_devices * factor`,
+    so devices stay protected from excessive load even under a flood of high-priority
+    jobs.
+  - The priority used is the same one the job is submitted with (tree priority, job
+    config priority, or user priority), normalized within the lab's configured
+    `priority` / `priority_min` / `priority_max` bounds.
+  - Set to `1.0` to disable priority weighting (flat `max_queue_depth * online_devices`
+    limit). Values below `1.0` are clamped to `1.0`.
 - **rules**: dictionary - Tree/branch filtering rules
 
 #### Example
@@ -385,15 +399,21 @@ The `max_queue_depth` parameter controls job submission throttling per LAVA lab:
 2. The job is **skipped** (not submitted) if:
    - No online devices are available for the device type
    - The queue depth is >= effective queue limit, where:
-     - `max_queue_depth * online_devices`
+     - `max_queue_depth * online_devices * priority_factor`
+     - `priority_factor` scales from `1.0` (lowest priority) up to
+       `max_queue_depth_priority_factor` (highest priority), so higher-priority
+       jobs are allowed deeper into the queue but never bypass the limit
+       unconditionally. The offline-device check always applies regardless of
+       priority.
 
 3. When a job is skipped, a log message is generated:
    ```
-   Skipping job <job-name> for <lab-name>: device_type=<type> queue_depth=<N> >= max=<limit>
+   Skipping job <job-name> for <lab-name>: device_type=<type> queue_depth=<N> >= max=<limit> (per_device=<D>, online_devices=<O>, priority_factor=<F>)
    ```
 
 4. This helps prevent queue overload in busy labs and avoids submitting jobs
-   to device types with no available hardware.
+   to device types with no available hardware, while still letting high-priority
+   work through under moderate load.
 
 ### LAVA token configuration
 
