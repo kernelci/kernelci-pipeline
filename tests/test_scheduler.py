@@ -73,11 +73,16 @@ class TestSchedulerQueueDepth(unittest.TestCase):
         scheduler = MagicMock(spec=Scheduler)
         scheduler.log = MagicMock()
         scheduler._telemetry = MagicMock()
+        # Neutral priority factor by default; ceiling-math tests override it.
+        scheduler._queue_priority_factor.return_value = 1.0
 
         runtime = MagicMock()
         runtime.config.lab_type = "lava"
         runtime.config.name = "lab-test"
         runtime.config.disable_queue_limit = False
+        # Disable priority weighting by default so these tests exercise the
+        # plain per-device ceiling; priority scaling is covered separately.
+        runtime.config.max_queue_depth_priority_factor = 1.0
 
         job_config = MagicMock()
         job_config.name = "baseline"
@@ -145,6 +150,124 @@ class TestSchedulerQueueDepth(unittest.TestCase):
         )
         self.assertFalse(result)
         runtime.get_devicetype_job_count.assert_not_called()
+
+    def test_queue_depth_ceiling_scales_with_priority_factor(self):
+        """A high-priority job gets a larger but still bounded ceiling."""
+        scheduler, runtime, job_config, platform = self._make_common_mocks()
+        runtime.config.max_queue_depth = 50
+        runtime.get_device_names_by_type.return_value = ["bbb-1", "bbb-2"]
+        # Highest priority -> factor == max (2x): ceiling 50 * 2 * 2 = 200.
+        scheduler._queue_priority_factor.return_value = 2.0
+
+        runtime.get_devicetype_job_count.return_value = 199
+        self.assertFalse(
+            Scheduler._should_skip_due_to_queue_depth(
+                scheduler, runtime, job_config, platform
+            )
+        )
+
+        runtime.get_devicetype_job_count.return_value = 200
+        self.assertTrue(
+            Scheduler._should_skip_due_to_queue_depth(
+                scheduler, runtime, job_config, platform
+            )
+        )
+
+    def test_high_priority_job_does_not_bypass_unbounded(self):
+        """Even the highest priority is hard-capped, never an open bypass."""
+        scheduler, runtime, job_config, platform = self._make_common_mocks()
+        runtime.config.max_queue_depth = 10
+        runtime.get_device_names_by_type.return_value = ["bbb-1"]
+        scheduler._queue_priority_factor.return_value = 2.0  # the cap
+
+        # 10 * 1 device * 2x cap = 20; a deeper queue is still skipped.
+        runtime.get_devicetype_job_count.return_value = 25
+        self.assertTrue(
+            Scheduler._should_skip_due_to_queue_depth(
+                scheduler, runtime, job_config, platform
+            )
+        )
+
+    def test_queue_priority_factor_scales_between_one_and_cap(self):
+        """Factor goes 1.0 (lowest) -> cap (highest), linearly by fraction."""
+        scheduler = MagicMock(spec=Scheduler)
+
+        runtime = MagicMock()
+        runtime.config.max_queue_depth_priority_factor = 2.0
+
+        job_config = MagicMock()
+        job_config.priority = "high"
+
+        # Lowest priority fraction -> factor 1.0 (no boost).
+        runtime.get_queue_priority_fraction.return_value = 0.0
+        self.assertEqual(
+            Scheduler._queue_priority_factor(
+                scheduler, runtime, job_config, None
+            ),
+            1.0,
+        )
+
+        # Mid priority fraction -> halfway to the cap.
+        runtime.get_queue_priority_fraction.return_value = 0.5
+        self.assertEqual(
+            Scheduler._queue_priority_factor(
+                scheduler, runtime, job_config, None
+            ),
+            1.5,
+        )
+
+        # Highest priority fraction -> the configured cap.
+        runtime.get_queue_priority_fraction.return_value = 1.0
+        self.assertEqual(
+            Scheduler._queue_priority_factor(
+                scheduler, runtime, job_config, None
+            ),
+            2.0,
+        )
+
+    def test_queue_priority_factor_disabled_when_cap_is_one(self):
+        """A cap of 1.0 disables weighting without querying priority."""
+        scheduler = MagicMock(spec=Scheduler)
+
+        runtime = MagicMock()
+        runtime.config.max_queue_depth_priority_factor = 1.0
+
+        job_config = MagicMock()
+
+        result = Scheduler._queue_priority_factor(
+            scheduler, runtime, job_config, None
+        )
+        self.assertEqual(result, 1.0)
+        runtime.get_queue_priority_fraction.assert_not_called()
+
+    def test_queue_priority_factor_uses_tree_priority_from_node(self):
+        """tree_priority from the input node feeds the priority fraction."""
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._get_tree_priority.return_value = "high"
+
+        runtime = MagicMock()
+        runtime.config.max_queue_depth_priority_factor = 3.0
+        runtime.get_queue_priority_fraction.return_value = 1.0
+
+        job_config = MagicMock()
+        job_config.priority = "low"
+
+        input_node = {
+            "data": {
+                "kernel_revision": {"tree": "mainline", "branch": "master"}
+            }
+        }
+
+        result = Scheduler._queue_priority_factor(
+            scheduler, runtime, job_config, input_node
+        )
+        self.assertEqual(result, 3.0)
+        scheduler._get_tree_priority.assert_called_once_with(
+            "mainline", "master"
+        )
+        runtime.get_queue_priority_fraction.assert_called_once_with(
+            "high", "low"
+        )
 
     def test_queue_depth_check_skips_when_device_query_not_available(self):
         """If device query helper is missing, queue-depth check is skipped."""

@@ -446,7 +446,48 @@ class Scheduler(Service):
                 f"Failed to query LAVA queue status for {device_type}: {exc}"
             )
 
-    def _should_skip_due_to_queue_depth(self, runtime, job_config, platform):
+    def _queue_priority_factor(self, runtime, job_config, input_node):
+        """Return the queue-ceiling multiplier (>= 1.0) for this job.
+
+        Higher-priority jobs get a larger but bounded queue allowance: the
+        factor scales linearly from 1.0 (lowest priority) up to the lab's
+        configured ``max_queue_depth_priority_factor`` (highest priority), so
+        a high-priority job is never allowed to bypass the queue limit
+        unconditionally. Returns 1.0 (no scaling) when priority weighting is
+        disabled or unavailable.
+        """
+        factor_max = getattr(
+            runtime.config, "max_queue_depth_priority_factor", 1.0
+        )
+        try:
+            factor_max = float(factor_max)
+        except (TypeError, ValueError):
+            return 1.0
+        if factor_max <= 1.0:
+            return 1.0
+        if not hasattr(runtime, "get_queue_priority_fraction"):
+            return 1.0
+
+        tree_priority = None
+        if input_node:
+            kernel_rev = input_node.get("data", {}).get("kernel_revision", {})
+            tree_name = kernel_rev.get("tree")
+            branch_name = kernel_rev.get("branch")
+            if tree_name and branch_name:
+                tree_priority = self._get_tree_priority(tree_name, branch_name)
+        job_priority = getattr(job_config, "priority", None)
+        try:
+            fraction = float(
+                runtime.get_queue_priority_fraction(tree_priority, job_priority)
+            )
+        except (TypeError, ValueError):
+            return 1.0
+        fraction = max(0.0, min(1.0, fraction))
+        return 1.0 + fraction * (factor_max - 1.0)
+
+    def _should_skip_due_to_queue_depth(
+        self, runtime, job_config, platform, input_node=None
+    ):
         """Check if job should be skipped due to LAVA queue depth.
 
         Returns True if job should be skipped, False otherwise.
@@ -509,8 +550,17 @@ class Scheduler(Service):
 
             queued = runtime.get_devicetype_job_count(device_type)
             # As requested in https://github.com/kernelci/kernelci-core/issues/3039
-            # We need to multiply max_queue_depth by number of online devices
-            effective_max_queue_depth = max_queue_depth * online_device_count
+            # We need to multiply max_queue_depth by number of online devices.
+            # The ceiling is then scaled by the job's priority (bounded by
+            # max_queue_depth_priority_factor) so that higher-priority jobs get
+            # a larger but still capped queue allowance instead of bypassing
+            # the limit entirely.  See kernelci-pipeline#1403.
+            priority_factor = self._queue_priority_factor(
+                runtime, job_config, input_node
+            )
+            effective_max_queue_depth = int(
+                max_queue_depth * online_device_count * priority_factor
+            )
 
             if queued >= effective_max_queue_depth:
                 self.log.info(
@@ -518,7 +568,8 @@ class Scheduler(Service):
                     f"device_type={device_type} queue_depth={queued} >= "
                     f"max={effective_max_queue_depth} "
                     f"(per_device={max_queue_depth}, "
-                    f"online_devices={online_device_count})"
+                    f"online_devices={online_device_count}, "
+                    f"priority_factor={priority_factor:.2f})"
                 )
                 self._telemetry.emit(
                     "job_skip",
@@ -528,10 +579,13 @@ class Scheduler(Service):
                     error_type="queue_depth",
                     error_msg=f"device_type={device_type} "
                     f"queue_depth={queued} >= "
-                    f"max={max_queue_depth}",
+                    f"max={effective_max_queue_depth}",
                     extra={
                         "queue_depth": queued,
-                        "max_depth": max_queue_depth,
+                        "max_depth": effective_max_queue_depth,
+                        "per_device_depth": max_queue_depth,
+                        "online_devices": online_device_count,
+                        "priority_factor": round(priority_factor, 2),
                     },
                 )
                 return True
@@ -1029,7 +1083,7 @@ class Scheduler(Service):
                 if flag:
                     # Check LAVA queue depth before creating job node
                     if self._should_skip_due_to_queue_depth(
-                        runtime, job, platform
+                        runtime, job, platform, input_node
                     ):
                         continue
                     retry_counter = event.get("retry_counter", 0)
