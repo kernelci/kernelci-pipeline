@@ -40,11 +40,11 @@ rootfs:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-h26forge/20260219.0/{debarch}/'
 
   trixie-kselftest:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
-    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260606.0/{debarch}'
+    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260606.0/{debarch}'
 
   trixie-kselftest-boot:
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260219.0/{debarch}'
+    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260606.0/{debarch}'
 
   trixie-kvm-unit-tests:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kvm-unit-tests/20260219.0/{debarch}'
