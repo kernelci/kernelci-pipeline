@@ -179,7 +179,12 @@ def get_logspec_errors(parsed_data, parser):
             k: v for k, v in vars(error).items() if v and not k.startswith("_")
         }
         logspec_dict["error"]["signature"] = error._signature
-        logspec_dict["error"]["log_excerpt"] = error._report
+        # Strip NUL bytes: KCIDB's `log_excerpt` schema forbids them
+        # (pattern `^[^\0]*$`) and they can occur in garbled serial logs.
+        log_excerpt = error._report
+        if isinstance(log_excerpt, str):
+            log_excerpt = log_excerpt.replace("\x00", "")
+        logspec_dict["error"]["log_excerpt"] = log_excerpt
         logspec_dict["error"]["signature_fields"] = {
             field: getattr(error, field) for field in error._signature_fields
         }
