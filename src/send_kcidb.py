@@ -231,6 +231,11 @@ class KCIDBBridge(Service):
             # parse text file such as kunit log file `test_log`
             data = res.content.decode("utf-8", errors="replace")
 
+        # KCIDB's `log_excerpt` field forbids NUL bytes (schema pattern
+        # `^[^\0]*$`). They can appear in interrupted/garbled serial logs and
+        # survive UTF-8 decoding (NUL is valid UTF-8, so errors="replace" keeps
+        # it), so strip them explicitly before truncating.
+        data = data.replace("\x00", "")
         trunc_data = data[-(16 * 1024) :]
         self._excerptcache[log_url] = trunc_data
         return trunc_data
