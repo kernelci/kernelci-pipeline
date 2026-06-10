@@ -19,3 +19,11 @@ runtimes:
     notify:
       callback:
         token: kernelci-pull-labs-aws-ec2
+
+  pull-pengutronix:
+    lab_type: pull_labs
+    poll_interval: 60
+    timeout: 7200
+    notify:
+      callback:
+        token: kernelci-pull-lab
