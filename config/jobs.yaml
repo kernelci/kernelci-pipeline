@@ -169,6 +169,7 @@ jobs:
   baseline-arm-kontron: *baseline-job
   baseline-arm-mfd: *baseline-job
   baseline-arm-pengutronix: *baseline-job
+  baseline-arm-v5-pengutronix: *baseline-job
   baseline-arm64: *baseline-job
   baseline-arm64-android: *baseline-job
   baseline-arm64-baylibre: *baseline-job
