@@ -119,9 +119,6 @@ scheduler:
       type: lava
       name: lava-pengutronix
     platforms:
-      - imx23-olinuxino
-      - imx27-phytec-phycard-s-rdk
-      - imx28-duckbill
       - imx53-qsrb
       - imx6dl-riotboard
       - imx6qp-wandboard-revd1
@@ -135,6 +132,12 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: &lava-broonie-armv5
       - at91sam9g20ek
+
+  - job: baseline-arm-v5-pengutronix
+    event: *kbuild-gcc-14-armv5-node-event
+    runtime: *lava-pengutronix-runtime
+    platforms:
+      - imx27-phytec-phycard-s-rdk
 
   - job: baseline-arm64
     event: &kbuild-gcc-14-arm64-node-event
