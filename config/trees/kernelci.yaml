@@ -7,6 +7,9 @@ build_configs:
       - x86_64
       - arm64
       - arm
+      - loongarch
+      - powerpc
+      - s390
 
   kernelci_staging-next:
     <<: *kernelci

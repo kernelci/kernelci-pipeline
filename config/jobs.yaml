@@ -1241,6 +1241,51 @@ jobs:
       - 'stable'
       - 'sashal-next'
 
+  kbuild-gcc-14-loongarch: &kbuild-gcc-14-loongarch-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:loongarch-kselftest-kernelci
+    params: &kbuild-gcc-14-loongarch-params
+      backend: tuxmake
+      arch: loongarch
+      compiler: gcc-14
+      cross_compile: 'loongarch64-linux-gnu-'
+      defconfig: defconfig
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
+      tree:
+      - 'kernelci'
+      - 'mainline'
+      - 'stable-rc'
+      - 'stable'
+      - 'next'
+      - 'sashal-next'
+
+  kbuild-gcc-14-loongarch-allnoconfig:
+    <<: *kbuild-gcc-14-loongarch-job
+    params:
+      <<: *kbuild-gcc-14-loongarch-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
+      tree:
+        - 'next'
+        - 'sashal-next'
+
+  # Default config and build only job
+  kbuild-gcc-14-loongarch-build-only:
+    <<: *kbuild-gcc-14-loongarch-job
+    rules:
+      <<: *build-only-trees-rules
+      min_version:
+        version: 6
+        patchlevel: 6
+
   kbuild-gcc-14-mips-32r2el_defconfig: &kbuild-gcc-14-mips-job
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:mips-kselftest-kernelci
@@ -1294,6 +1339,41 @@ jobs:
       defconfig:
         - 32r2el_defconfig
         - allnoconfig
+
+  kbuild-gcc-14-powerpc: &kbuild-gcc-14-powerpc-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:powerpc-kselftest-kernelci
+    params: &kbuild-gcc-14-powerpc-params
+      backend: tuxmake
+      arch: powerpc
+      compiler: gcc-14
+      cross_compile: 'powerpc64le-linux-gnu-'
+      defconfig: ppc64le_defconfig
+    rules:
+      tree:
+      - 'kernelci'
+      - 'mainline'
+      - 'stable-rc'
+      - 'stable'
+      - 'next'
+      - 'sashal-next'
+
+  kbuild-gcc-14-powerpc-allnoconfig:
+    <<: *kbuild-gcc-14-powerpc-job
+    params:
+      <<: *kbuild-gcc-14-powerpc-params
+      defconfig:
+        - ppc64le_defconfig
+        - allnoconfig
+    rules:
+      tree:
+        - 'next'
+        - 'sashal-next'
+
+  # Default config and build only job
+  kbuild-gcc-14-powerpc-build-only:
+    <<: *kbuild-gcc-14-powerpc-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-14-riscv: &kbuild-gcc-14-riscv-job
     <<: *kbuild-job
@@ -1374,6 +1454,41 @@ jobs:
       tree:
       - 'riscv'
       - 'sashal-next'
+
+  kbuild-gcc-14-s390: &kbuild-gcc-14-s390-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:s390-kselftest-kernelci
+    params: &kbuild-gcc-14-s390-params
+      backend: tuxmake
+      arch: s390
+      compiler: gcc-14
+      cross_compile: 's390x-linux-gnu-'
+      defconfig: defconfig
+    rules:
+      tree:
+      - 'kernelci'
+      - 'mainline'
+      - 'stable-rc'
+      - 'stable'
+      - 'next'
+      - 'sashal-next'
+
+  kbuild-gcc-14-s390-allnoconfig:
+    <<: *kbuild-gcc-14-s390-job
+    params:
+      <<: *kbuild-gcc-14-s390-params
+      defconfig:
+        - defconfig
+        - allnoconfig
+    rules:
+      tree:
+        - 'next'
+        - 'sashal-next'
+
+  # Default config and build only job
+  kbuild-gcc-14-s390-build-only:
+    <<: *kbuild-gcc-14-s390-job
+    rules: *build-only-trees-rules
 
   kbuild-gcc-14-um:
     <<: *kbuild-job

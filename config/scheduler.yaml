@@ -725,6 +725,15 @@ scheduler:
   - job: kbuild-gcc-14-i386-mfd
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-14-loongarch
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-loongarch-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-loongarch-build-only
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-mips-32r2el_defconfig
     <<: *build-k8s-all
 
@@ -742,6 +751,18 @@ scheduler:
 
   - job: kbuild-gcc-14-mips-mainline-allnoconfig
     <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-powerpc
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-powerpc-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-powerpc-build-only
+    <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-14-riscv
     <<: *build-k8s-all
@@ -772,6 +793,18 @@ scheduler:
 
   - job: kbuild-gcc-14-riscv-smp
     <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-s390
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-s390-allnoconfig
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-14-s390-build-only
+    <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
 
   - job: kbuild-gcc-14-um
     <<: *build-k8s-all
