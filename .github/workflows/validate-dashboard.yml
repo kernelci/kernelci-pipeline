@@ -46,7 +46,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # TODO: switch to the released kci-dev package after kernelci/kci-dev#275 lands.
-          python -m pip install 'kci-dev @ git+https://github.com/kernelci/kci-dev.git@refs/pull/275/head'
+          python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@maestro-validate-json'
 
       - name: Show kci-dev version
         run: kci-dev --version
