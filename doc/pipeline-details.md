@@ -126,4 +126,10 @@ This ensures the batch mode doesn't repeatedly query the same nodes from the dat
 
 ### Reporting
 
-Reporting is handled by auxiliary tools (for example the cron jobs under `tools/cron`) rather than a long-running service in `docker-compose.yaml`. Update or add cron jobs when new reports are required.
+Dashboard consistency is checked by the `Validate KernelCI dashboard` GitHub
+Actions workflow. It runs daily and uses `kci-dev maestro validate` to compare
+recent Maestro build and boot nodes with dashboard records.
+
+The workflow uses the checked-in `tools/cron/kci-dev.toml` settings file for
+KernelCI API endpoints. Add new recurring reports as GitHub Actions workflows
+unless they need access to private production-only services.
