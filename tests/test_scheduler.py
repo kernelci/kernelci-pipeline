@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import collections
+import threading
 import types
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from src.scheduler import Scheduler
 
@@ -292,6 +294,86 @@ class TestSchedulerQueueDepth(unittest.TestCase):
             scheduler, runtime, job_config, platform
         )
         self.assertFalse(result)
+
+
+class TestSchedulerDuplicateGuard(unittest.TestCase):
+    """Test the process-local duplicate-job guard (kernelci-core#2912)."""
+
+    def _make_scheduler(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._recent_jobs = collections.OrderedDict()
+        scheduler._dedup_lock = threading.Lock()
+        return scheduler
+
+    @staticmethod
+    def _job_args(
+        parent="parent1",
+        job="kselftest-dt",
+        runtime_name="lava-broonie",
+        platform_name="beaglebone-black",
+    ):
+        input_node = {"id": parent}
+        job_config = types.SimpleNamespace(name=job)
+        runtime = types.SimpleNamespace(
+            config=types.SimpleNamespace(name=runtime_name)
+        )
+        platform = types.SimpleNamespace(name=platform_name)
+        return input_node, job_config, runtime, platform
+
+    def test_identical_job_is_flagged_as_duplicate(self):
+        """The first call records the job; an identical second call is a dup."""
+        scheduler = self._make_scheduler()
+        args = self._job_args()
+        self.assertFalse(Scheduler._job_recently_scheduled(scheduler, *args, 0))
+        self.assertTrue(Scheduler._job_recently_scheduled(scheduler, *args, 0))
+
+    def test_retry_counter_is_not_suppressed(self):
+        """A retry (different retry_counter) is never treated as duplicate."""
+        scheduler = self._make_scheduler()
+        args = self._job_args()
+        self.assertFalse(Scheduler._job_recently_scheduled(scheduler, *args, 0))
+        self.assertFalse(Scheduler._job_recently_scheduled(scheduler, *args, 1))
+
+    def test_different_platform_is_not_duplicate(self):
+        """Same job on a different platform is a distinct job."""
+        scheduler = self._make_scheduler()
+        self.assertFalse(
+            Scheduler._job_recently_scheduled(
+                scheduler, *self._job_args(platform_name="beaglebone-black"), 0
+            )
+        )
+        self.assertFalse(
+            Scheduler._job_recently_scheduled(
+                scheduler, *self._job_args(platform_name="imx6q-udoo"), 0
+            )
+        )
+
+    def test_entry_reallowed_after_ttl(self):
+        """After the TTL elapses, an identical job is allowed again."""
+        scheduler = self._make_scheduler()
+        args = self._job_args()
+        with patch("src.scheduler.time.time", return_value=1000.0):
+            self.assertFalse(
+                Scheduler._job_recently_scheduled(scheduler, *args, 0)
+            )
+        from src.scheduler import DEDUP_CACHE_TTL
+
+        with patch(
+            "src.scheduler.time.time", return_value=1000.0 + DEDUP_CACHE_TTL + 1
+        ):
+            self.assertFalse(
+                Scheduler._job_recently_scheduled(scheduler, *args, 0)
+            )
+
+    def test_cache_size_is_bounded(self):
+        """The dedup cache never grows past DEDUP_CACHE_MAX entries."""
+        scheduler = self._make_scheduler()
+        with patch("src.scheduler.DEDUP_CACHE_MAX", 5):
+            for i in range(20):
+                Scheduler._job_recently_scheduled(
+                    scheduler, *self._job_args(parent=f"parent-{i}"), 0
+                )
+        self.assertLessEqual(len(scheduler._recent_jobs), 5)
 
 
 if __name__ == "__main__":
