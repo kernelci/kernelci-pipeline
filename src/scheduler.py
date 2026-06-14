@@ -6,6 +6,7 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
+import collections
 import datetime
 import json
 import os
@@ -32,6 +33,10 @@ from telemetry import TelemetryEmitter
 
 BACKUP_DIR = "/tmp/kci-backup"
 WATCHDOG_TIMEOUT = 10 * 60  # 10 minutes in seconds
+# Process-local duplicate-job guard (kernelci-core#2912): how long an
+# identical job is remembered, and the cap on the number of remembered keys.
+DEDUP_CACHE_TTL = 600  # seconds
+DEDUP_CACHE_MAX = 50000
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -136,6 +141,12 @@ class Scheduler(Service):
         self._stop_thread = False
         self._watchdog_timestamps = {}  # Thread name -> last update timestamp
         self._watchdog_lock = threading.Lock()
+        # Best-effort, process-local guard against creating identical jobs
+        # twice in quick succession (kernelci-core#2912). Keyed by
+        # (parent_id, job_name, runtime, platform, retry_counter); retry_counter
+        # is part of the key so legitimate retries are never suppressed.
+        self._recent_jobs = collections.OrderedDict()
+        self._dedup_lock = threading.Lock()
         # Backup is disabled by default, enable via BACKUP_FILE_LIFETIME env variable (in seconds)
         self._backup_file_lifetime = int(os.getenv("BACKUP_FILE_LIFETIME", "0"))
         self._last_backup_cleanup = 0
@@ -997,6 +1008,46 @@ class Scheduler(Service):
             return False
         return True
 
+    def _job_recently_scheduled(
+        self, input_node, job_config, runtime, platform, retry_counter
+    ):
+        """Return True if an identical job was scheduled very recently.
+
+        Best-effort, process-local backstop against duplicate job creation
+        (kernelci-core#2912). The primary fix is edge-triggered scheduling in
+        kernelci-core; this catches any residual rapid double-trigger handled
+        by this single scheduler process (each runtime is served by one
+        scheduler replica). ``retry_counter`` is part of the key so legitimate
+        retries are never suppressed.
+
+        The check is also a "remember": when the job has not been seen, it is
+        recorded before returning False, so the caller should only call this
+        once per scheduling decision.
+        """
+        key = (
+            input_node["id"],
+            job_config.name,
+            runtime.config.name,
+            platform.name,
+            retry_counter,
+        )
+        now = time.time()
+        with self._dedup_lock:
+            # Evict expired entries (OrderedDict preserves insertion order, so
+            # the oldest entries are at the front).
+            while self._recent_jobs:
+                _, oldest_ts = next(iter(self._recent_jobs.items()))
+                if now - oldest_ts > DEDUP_CACHE_TTL:
+                    self._recent_jobs.popitem(last=False)
+                else:
+                    break
+            if key in self._recent_jobs:
+                return True
+            self._recent_jobs[key] = now
+            if len(self._recent_jobs) > DEDUP_CACHE_MAX:
+                self._recent_jobs.popitem(last=False)
+        return False
+
     def _run(self, context):
         for channel, sub_id in self._context.items():
             thread = threading.Thread(
@@ -1087,6 +1138,19 @@ class Scheduler(Service):
                     ):
                         continue
                     retry_counter = event.get("retry_counter", 0)
+                    # Best-effort backstop against creating an identical job
+                    # twice in quick succession (kernelci-core#2912); the
+                    # primary fix is edge-triggered scheduling in kernelci-core.
+                    if self._job_recently_scheduled(
+                        input_node, job, runtime, platform, retry_counter
+                    ):
+                        self.log.info(
+                            "Skipping duplicate job creation: "
+                            f"{input_node['id']} {job.name} "
+                            f"{runtime.config.name} {platform.name} "
+                            f"(retry={retry_counter})"
+                        )
+                        continue
                     self._run_job(
                         job, runtime, platform, input_node, retry_counter
                     )
