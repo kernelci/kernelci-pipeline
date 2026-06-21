@@ -412,9 +412,14 @@ the test: {sub_path}"
             return formatted_path_str if formatted_path_str else None
         return None
 
-    def _parse_node_result(self, test_node):
+    def _parse_node_result(self, test_node, error_metadata=None):
+        error_code = test_node["data"].get("error_code")
+        if not error_code and error_metadata:
+            error_code = error_metadata.get("error_code")
+        if error_code == "Infrastructure":
+            return "ERROR"
+
         if test_node["result"] == "incomplete":
-            error_code = test_node["data"].get("error_code")
             if error_code in ERRORED_TEST_CODES:
                 return "ERROR"
             if error_code in MISSED_TEST_CODES:
@@ -554,8 +559,14 @@ in {runtime}",
             },
         }
 
+        error_metadata = None
+        if test_node["result"] != "pass":
+            error_metadata = self._get_error_metadata(test_node)
+
         if test_node["result"]:
-            parsed_test_node["status"] = self._parse_node_result(test_node)
+            parsed_test_node["status"] = self._parse_node_result(
+                test_node, error_metadata
+            )
             if parsed_test_node["status"] == "SKIP":
                 # No artifacts and metadata will be available for skipped tests
                 return parsed_test_node, dummy_build
@@ -590,15 +601,13 @@ in {runtime}",
             if log_url:
                 parsed_test_node["log_excerpt"] = self._get_log_excerpt(log_url)
 
-        if test_node["result"] != "pass":
-            error_metadata = self._get_error_metadata(test_node)
-            if error_metadata:
-                parsed_test_node["misc"]["error_code"] = error_metadata.get(
-                    "error_code"
-                )
-                parsed_test_node["misc"]["error_msg"] = error_metadata.get(
-                    "error_msg"
-                )
+        if error_metadata:
+            parsed_test_node["misc"]["error_code"] = error_metadata.get(
+                "error_code"
+            )
+            parsed_test_node["misc"]["error_msg"] = error_metadata.get(
+                "error_msg"
+            )
 
         return parsed_test_node, dummy_build
 
