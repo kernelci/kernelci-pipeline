@@ -787,6 +787,20 @@ in {runtime}",
                     node, is_hierarchy = self._api_helper.receive_event_node(
                         context["sub_id"]
                     )
+                    # TODO: introduce a distinct pull-labs "prepared" state.
+                    # "available" currently means both "job ready to be picked
+                    # up" and "result available", so only report test-like nodes
+                    # once they are complete.
+                    if node.get("state") != "done" and node.get("kind") in (
+                        "job",
+                        "test",
+                        "process",
+                    ):
+                        self.log.debug(
+                            f"Deferring node until done before sending to KCIDB: "
+                            f"{node['id']}"
+                        )
+                        continue
                     retry_counter = node.get("retry_counter")
                     if retry_counter is None:
                         self.log.warning(
