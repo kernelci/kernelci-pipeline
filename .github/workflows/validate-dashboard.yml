@@ -61,5 +61,6 @@ jobs:
             maestro validate ${{ matrix.args }} \
             --days "${KCI_VALIDATE_DAYS}" \
             --json \
+            --human-readable \
             --fail-on-mismatch \
             | tee "${RUNNER_TEMP}/${{ matrix.name }}.json"
