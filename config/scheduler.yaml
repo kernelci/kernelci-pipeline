@@ -295,7 +295,6 @@ scheduler:
       name: lava-foundriesio
     platforms:
       - bcm2711-rpi-4-b
-      - qcs6490-rb3gen2
 
   - job: baseline-arm64-qualcomm
     event: *kbuild-gcc-14-arm64-node-event
