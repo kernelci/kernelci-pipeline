@@ -6,9 +6,15 @@
 # registry. Add a new entry here when contributing a new vendor file.
 #
 # Schema path is relative to this file's directory.
+#
+# All content is nested under a single `hardware_registry` key so that loading
+# config/ recursively (kernelci.config.load) does not merge these keys into the
+# pipeline config namespace. Every file in this directory must follow the same
+# convention; tests/hw_reg_checker.py enforces it.
 
-version: "1.0.0"
-schema: "schema.yaml"
+hardware_registry:
+  version: "1.0.0"
+  schema: "schema.yaml"
 
-registries:
-  - ti.yaml
+  registries:
+    - ti.yaml
