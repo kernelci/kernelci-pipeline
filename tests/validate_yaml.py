@@ -348,6 +348,8 @@ def validate_yaml(merged_data):
     """
     Validate all yaml files in the config/ directory
     """
+    print("Validating jobs have a kcidb_test_suite mapping")
+    validate_jobs(merged_data.get("jobs", {}))
     print("Validating scheduler entries to jobs")
     validate_scheduler_jobs(merged_data)
     validate_unused_jobs(merged_data)
