@@ -668,6 +668,16 @@ jobs:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-gcc-15-arm: &kbuild-gcc-15-arm-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:arm-kselftest-kernelci
+    params: &kbuild-gcc-15-arm-params
+      backend: tuxmake
+      arch: arm
+      compiler: gcc-15
+      cross_compile: 'arm-linux-gnueabihf-'
+      defconfig: multi_v7_defconfig
+
   kbuild-gcc-14-arm-allnoconfig: &kbuild-gcc-14-arm-allnoconfig-job
     <<: *kbuild-gcc-14-arm-job
     params:
@@ -919,6 +929,19 @@ jobs:
   kbuild-gcc-14-arm64: *kbuild-gcc-14-arm64-job
 
   kbuild-gcc-15-arm64: *kbuild-gcc-15-arm64-job
+
+  kbuild-gcc-15-arm64-nfsboot: &kbuild-gcc-15-arm64-nfsboot-job
+    <<: *kbuild-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:arm64-kselftest-kernelci
+    params:
+      arch: arm64
+      compiler: gcc-15
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+        - 'kselftest'
 
   kbuild-gcc-14-arm64-nfsboot: *kbuild-gcc-14-arm64-nfsboot-job
 
@@ -1741,6 +1764,43 @@ jobs:
     <<: *kbuild-gcc-14-arm64-job
     params:
       <<: *kbuild-gcc-14-arm64-params
+      fragments:
+        - 'aws-ec2'
+      extra_targets:
+        - 'binrpm-pkg'
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
+      tree:
+      - 'mainline'
+      - 'stable'
+      - 'stable-rc'
+      - 'next'
+      - 'kernelci'
+
+  kbuild-gcc-15-x86-aws-ec2:
+    <<: *kbuild-gcc-15-x86-job
+    params:
+      <<: *kbuild-gcc-15-x86-params
+      fragments:
+        - 'aws-ec2'
+      extra_targets:
+        - 'binrpm-pkg'
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
+      tree:
+      - 'mainline'
+      - 'stable'
+      - 'stable-rc'
+      - 'next'
+
+  kbuild-gcc-15-arm64-aws-ec2:
+    <<: *kbuild-gcc-15-arm64-job
+    params:
+      <<: *kbuild-gcc-15-arm64-params
       fragments:
         - 'aws-ec2'
       extra_targets:
