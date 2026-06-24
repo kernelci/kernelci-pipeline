@@ -11,9 +11,9 @@ _anchors:
 scheduler:
 
   - job: baseline-arm-pull-labs-demo
-    event: &kbuild-gcc-14-arm-node-event
+    event: &kbuild-gcc-15-arm-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm
+      name: kbuild-gcc-15-arm
     runtime: &pull-labs-demo-runtime
       type: pull_labs
       name: pull-labs-demo
@@ -22,9 +22,9 @@ scheduler:
       - imx6dl-udoo
 
   - job: baseline-arm64-pull-labs-demo
-    event: &kbuild-gcc-14-arm64-node-event
+    event: &kbuild-gcc-15-arm64-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm64
+      name: kbuild-gcc-15-arm64
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -36,7 +36,7 @@ scheduler:
       - qemu-arm64
 
   - job: baseline-arm-pull-pengutronix
-    event: *kbuild-gcc-14-arm-node-event
+    event: *kbuild-gcc-15-arm-node-event
     runtime: &pull-pengutronix-runtime
       type: pull_labs
       name: pull-pengutronix
@@ -44,7 +44,7 @@ scheduler:
       - imx6dl-riotboard
 
   - job: ltp-smoke-pull-labs
-    event: *kbuild-gcc-14-arm64-node-event
+    event: *kbuild-gcc-15-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -55,7 +55,7 @@ scheduler:
   - job: ltp-smoke-pull-labs
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm64-nfsboot
+      name: kbuild-gcc-15-arm64-nfsboot
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -64,7 +64,7 @@ scheduler:
       - qemu-arm64
 
   - job: kselftest-arm64-pull-labs
-    event: *kbuild-gcc-14-arm64-node-event
+    event: *kbuild-gcc-15-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -74,7 +74,7 @@ scheduler:
   - job: kselftest-arm64-pull-labs
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm64-nfsboot
+      name: kbuild-gcc-15-arm64-nfsboot
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -83,7 +83,7 @@ scheduler:
       - cd8180-orion-o6
 
   - job: kselftest-breakpoints-pull-labs
-    event: *kbuild-gcc-14-arm64-node-event
+    event: *kbuild-gcc-15-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -91,9 +91,9 @@ scheduler:
       - exynos850-e850-96
 
   - job: baseline-x86-pull-labs-demo
-    event: &kbuild-gcc-14-x86-node-event
+    event: &kbuild-gcc-15-x86-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-x86
+      name: kbuild-gcc-15-x86
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -103,7 +103,7 @@ scheduler:
   - job: baseline-x86-aws-ec2
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-x86-aws-ec2
+      name: kbuild-gcc-15-x86-aws-ec2
     runtime: &pull-labs-aws-ec2-runtime
       type: pull_labs
       name: pull-labs-aws-ec2
@@ -113,7 +113,7 @@ scheduler:
   - job: baseline-arm64-aws-ec2
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-arm64-aws-ec2
+      name: kbuild-gcc-15-arm64-aws-ec2
     runtime: *pull-labs-aws-ec2-runtime
     platforms:
       - aws-ec2-arm64
