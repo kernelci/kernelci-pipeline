@@ -36,6 +36,7 @@ _anchors:
   baseline-nfs: &baseline-nfs-job
     template: baseline.jinja2
     kind: job
+    kcidb_test_suite: boot.nfs
     params:
       boot_commands: nfs
       rootfs_ref: trixie
