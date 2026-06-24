@@ -1,8 +1,8 @@
 hardware_registry:
   schema_info:
-    version: "1.0.0"
-    revision_date: "2025-12-11"
-    compatible_versions: ["1.0.0"]
+    version: "1.1.0"
+    revision_date: "2026-06-12"
+    compatible_versions: ["1.0.0", "1.1.0"]
 
   silicon_vendors:
     ti:
@@ -292,6 +292,9 @@ hardware_registry:
       processor_id: "am3359"
       url: "https://www.ti.com/tool/TMDSICE3359"
       details: "AM3359 Industrial Communications Engine"
+      compatible:
+        - "ti,am3359-icev2"
+        - "ti,am33xx"
       form_factor: "board"
 
     am335x-bone-black:
@@ -301,6 +304,10 @@ hardware_registry:
       processor_id: "am3358"
       url: "https://beagleboard.org/black"
       details: "BeagleBone Black open-source development board"
+      compatible:
+        - "ti,am335x-bone-black"
+        - "ti,am335x-bone"
+        - "ti,am33xx"
       form_factor: "board"
 
     am335x-evm:
@@ -310,6 +317,9 @@ hardware_registry:
       processor_id: "am3358"
       url: "https://www.ti.com/tool/TMDXEVM3358"
       details: "AM335x evaluation module"
+      compatible:
+        - "ti,am335x-evm"
+        - "ti,am33xx"
       form_factor: "board"
 
     am335x-sk:
@@ -319,6 +329,9 @@ hardware_registry:
       processor_id: "am3358"
       url: "https://www.ti.com/tool/TMDSSK3358"
       details: "AM335x Starter Kit evaluation board"
+      compatible:
+        - "ti,am335x-evmsk"
+        - "ti,am33xx"
       form_factor: "board"
 
     am437x-gpevm:
@@ -328,6 +341,10 @@ hardware_registry:
       processor_id: "am4378"
       url: "https://www.ti.com/tool/TMDSEVM437X"
       details: "AM437x General Purpose evaluation module"
+      compatible:
+        - "ti,am437x-gp-evm"
+        - "ti,am4372"
+        - "ti,am43"
       form_factor: "board"
 
     am437x-idk-evm:
@@ -337,6 +354,10 @@ hardware_registry:
       processor_id: "am4378"
       url: "https://www.ti.com/tool/TMDSIDK437X"
       details: "AM437x Industrial Development Kit"
+      compatible:
+        - "ti,am437x-idk-evm"
+        - "ti,am4372"
+        - "ti,am43"
       form_factor: "board"
 
     am437x-sk-evm:
@@ -346,6 +367,10 @@ hardware_registry:
       processor_id: "am4378"
       url: "https://www.ti.com/tool/TMDXSK437X"
       details: "AM437x Starter Kit"
+      compatible:
+        - "ti,am437x-sk-evm"
+        - "ti,am4372"
+        - "ti,am43"
       form_factor: "board"
 
     am571x-idk:
@@ -355,6 +380,10 @@ hardware_registry:
       processor_id: "am5718"
       url: "https://www.ti.com/tool/TMDXIDK5718"
       details: "AM571x Industrial Development Kit"
+      compatible:
+        - "ti,am5718-idk"
+        - "ti,am5718"
+        - "ti,dra7"
       form_factor: "board"
 
     am57xx-evm:
@@ -373,6 +402,10 @@ hardware_registry:
       processor_id: "am5728"
       url: "https://www.ti.com/tool/TMDSIDK572"
       details: "AM572x Industrial Development Kit"
+      compatible:
+        - "ti,am5728-idk"
+        - "ti,am5728"
+        - "ti,dra7"
       form_factor: "board"
 
     am57xx-beagle-x15:
@@ -382,6 +415,12 @@ hardware_registry:
       processor_id: "am5728"
       url: "https://www.beagleboard.org/boards/beagleboard-x15"
       details: "BeagleBoard X15 high-performance single board computer"
+      compatible:
+        - "ti,am572x-beagle-x15"
+        - "ti,am5728"
+        - "ti,dra742"
+        - "ti,dra74"
+        - "ti,dra7"
       form_factor: "board"
 
     am574x-idk:
@@ -391,6 +430,11 @@ hardware_registry:
       processor_id: "am5748"
       url: "https://www.ti.com/tool/TMDSIDK574"
       details: "AM5748 Industrial Development Kit"
+      compatible:
+        - "ti,am5748-idk"
+        - "ti,am5748"
+        - "ti,dra762"
+        - "ti,dra7"
       form_factor: "board"
 
     am62-sk:
@@ -400,6 +444,9 @@ hardware_registry:
       processor_id: "am625"
       url: "https://www.ti.com/tool/SK-AM62"
       details: "AM62x Starter Kit for Sitara processors"
+      compatible:
+        - "ti,am625-sk"
+        - "ti,am625"
       form_factor: "board"
 
     am62a-sk:
@@ -409,6 +456,9 @@ hardware_registry:
       processor_id: "am62a7"
       url: "https://www.ti.com/tool/SK-AM62A-LP"
       details: "AM62A Starter Kit for vision AI applications"
+      compatible:
+        - "ti,am62a7-sk"
+        - "ti,am62a7"
       form_factor: "board"
 
     am62d-evm:
@@ -418,6 +468,9 @@ hardware_registry:
       processor_id: "am62d2"
       url: "https://www.ti.com/tool/AUDIO-AM62D-EVM"
       details: "AM62D expandable hardware for premium audio"
+      compatible:
+        - "ti,am62d2-evm"
+        - "ti,am62d2"
       form_factor: "board"
 
     am62-lp-sk:
@@ -427,6 +480,9 @@ hardware_registry:
       processor_id: "am625"
       url: "https://www.ti.com/tool/SK-AM62-LP"
       details: "AM62 Low Power Starter Kit"
+      compatible:
+        - "ti,am62-lp-sk"
+        - "ti,am625"
       form_factor: "board"
 
     am62p-sk:
@@ -436,6 +492,9 @@ hardware_registry:
       processor_id: "am62p5"
       url: "https://www.ti.com/tool/SK-AM62P-LP"
       details: "AM62P5 Starter Kit"
+      compatible:
+        - "ti,am62p5-sk"
+        - "ti,am62p5"
       form_factor: "board"
 
     am64-evm:
@@ -445,6 +504,9 @@ hardware_registry:
       processor_id: "am6442"
       url: "https://www.ti.com/tool/TMDS64EVM"
       details: "AM64x evaluation module"
+      compatible:
+        - "ti,am642-evm"
+        - "ti,am642"
       form_factor: "board"
 
     am64-sk:
@@ -454,6 +516,9 @@ hardware_registry:
       processor_id: "am6442"
       url: "https://www.ti.com/tool/SK-AM64B"
       details: "AM64x Starter Kit"
+      compatible:
+        - "ti,am642-sk"
+        - "ti,am642"
       form_factor: "board"
 
     am654-idk:
@@ -472,6 +537,9 @@ hardware_registry:
       processor_id: "am68"
       url: "https://www.ti.com/tool/SK-AM68"
       details: "AM68 and AM68A starter kit for vision AI and general purpose processors"
+      compatible:
+        - "ti,am68-sk"
+        - "ti,j721s2"
       form_factor: "board"
 
     am69-sk:
@@ -481,6 +549,9 @@ hardware_registry:
       processor_id: "am69a"
       url: "https://www.ti.com/tool/SK-AM69"
       details: "AM69 and AM69A starter kit for vision AI and general purpose processors"
+      compatible:
+        - "ti,am69-sk"
+        - "ti,j784s4"
       form_factor: "board"
 
     dra71-evm:
@@ -490,6 +561,12 @@ hardware_registry:
       processor_id: "dra718"
       url: "https://www.ti.com/tool/DRA71XEVM"
       details: "DRA71x evaluation module"
+      compatible:
+        - "ti,dra718-evm"
+        - "ti,dra718"
+        - "ti,dra722"
+        - "ti,dra72"
+        - "ti,dra7"
       form_factor: "board"
 
     j7200-evm:
@@ -499,6 +576,9 @@ hardware_registry:
       processor_id: "dra821u"
       url: "https://www.ti.com/tool/J7200XSOMXEVM"
       details: "J7200 evaluation module for automotive applications"
+      compatible:
+        - "ti,j7200-evm"
+        - "ti,j7200"
       form_factor: "board"
 
     j721e-evm:
@@ -509,6 +589,9 @@ hardware_registry:
       system_module_id: "j721exsomxevm"
       url: "https://www.ti.com/tool/J721EXSOMXEVM"
       details: "J721E evaluation module for automotive and industrial"
+      compatible:
+        - "ti,j721e-evm"
+        - "ti,j721e"
       form_factor: "board"
 
     j721e-sk:
@@ -518,6 +601,9 @@ hardware_registry:
       processor_id: "tda4vm"
       url: "https://www.ti.com/tool/SK-TDA4VM"
       details: "TDA4VM processor starter kit for edge AI vision systems"
+      compatible:
+        - "ti,j721e-sk"
+        - "ti,j721e"
       form_factor: "board"
 
     j721s2-evm:
@@ -528,6 +614,9 @@ hardware_registry:
       system_module_id: "j721s2xsomxevm"
       url: "https://www.ti.com/tool/J721S2XSOMXEVM"
       details: "J721S2 evaluation module"
+      compatible:
+        - "ti,j721s2-evm"
+        - "ti,j721s2"
       form_factor: "board"
 
     j722s-evm:
@@ -537,6 +626,9 @@ hardware_registry:
       processor_id: "tda4ven"
       url: "https://www.ti.com/tool/J722SXH01EVM"
       details: "J722S evaluation module"
+      compatible:
+        - "ti,j722s-evm"
+        - "ti,j722s"
       form_factor: "board"
 
     j742s2-evm:
@@ -546,6 +638,9 @@ hardware_registry:
       processor_id: "tda4vpe"
       url: "https://www.ti.com/tool/J742S2XH01EVM"
       details: "J742S2 evaluation module for industrial and automotive applications"
+      compatible:
+        - "ti,j742s2-evm"
+        - "ti,j742s2"
       form_factor: "board"
 
     j784s4-evm:
@@ -555,6 +650,9 @@ hardware_registry:
       processor_id: "tda4ap"
       url: "https://www.ti.com/tool/J784S4XEVM"
       details: "J784S4 evaluation module for module for SoC far-field analytic systems"
+      compatible:
+        - "ti,j784s4-evm"
+        - "ti,j784s4"
       form_factor: "board"
 
     k2g-evm:
@@ -564,6 +662,10 @@ hardware_registry:
       processor_id: "66ak2g12"
       url: "https://www.ti.com/tool/EVMK2GX"
       details: "66AK2Gx 1GHz evaluation module"
+      compatible:
+        - "ti,k2g-evm"
+        - "ti,k2g"
+        - "ti,keystone"
       form_factor: "board"
 
     k2hk-evm:
@@ -573,6 +675,10 @@ hardware_registry:
       processor_id: "66ak2h14"
       url: ""
       details: "K2HK evaluation module for high-performance processing"
+      compatible:
+        - "ti,k2hk-evm"
+        - "ti,k2hk"
+        - "ti,keystone"
       form_factor: "board"
 
     k2l-evm:
@@ -582,4 +688,8 @@ hardware_registry:
       processor_id: "66al2l06"
       url: ""
       details: "K2L evaluation module for networking applications"
+      compatible:
+        - "ti,k2l-evm"
+        - "ti,k2l"
+        - "ti,keystone"
       form_factor: "board"
