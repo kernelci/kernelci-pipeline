@@ -143,7 +143,21 @@ def main():
 
         try:
             with open(registry_path) as f:
-                data = yaml.safe_load(f)
+                raw = yaml.safe_load(f)
+
+            # Registry data is namespaced under a single top-level
+            # `hardware_registry` key so that loading config/ recursively with
+            # kernelci.config.load() does not merge catalog sections (notably
+            # `platforms`) into the pipeline config namespace.
+            if not isinstance(raw, dict) or "hardware_registry" not in raw:
+                print(
+                    "  FAIL: registry file must nest its content under a "
+                    "top-level 'hardware_registry:' key"
+                )
+                all_passed = False
+                print()
+                continue
+            data = raw["hardware_registry"]
 
             validate(instance=data, schema=schema)
 

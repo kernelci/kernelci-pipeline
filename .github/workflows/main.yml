@@ -54,11 +54,15 @@ jobs:
         run: |
           python --version
           python -m pip install --upgrade pip
-          pip install pyyaml PyJWT toml
+          pip install pyyaml PyJWT toml jsonschema
 
       - name: Run basic YAML validation
         run: |
           python tests/validate_yaml.py
+
+      - name: Validate hardware registry
+        run: |
+          python tests/hw_reg_checker.py
 
       - name: Run basic JWT test
         run: |
