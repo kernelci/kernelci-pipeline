@@ -13,7 +13,7 @@
 # convention; tests/hw_reg_checker.py enforces it.
 
 hardware_registry:
-  version: "1.0.0"
+  version: "1.1.0"
   schema: "schema.yaml"
 
   registries:
