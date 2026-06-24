@@ -8,11 +8,19 @@
 #   python3 tests/hw_reg_checker.py /path/to/hardware_registry/index.yaml
 
 import argparse
+import glob
 import os
 import sys
 
 import yaml
 from jsonschema import ValidationError, validate
+
+# Every YAML file in the hardware registry directory must nest its content
+# under this single top-level key. config/ is loaded recursively (and flattened
+# into a single configmap in production), so any other top-level key here would
+# be merged into the pipeline config namespace and could collide with it
+# (notably `platforms`).
+NAMESPACE = "hardware_registry"
 
 
 def parse_args():
@@ -31,6 +39,48 @@ def default_index_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(script_dir)
     return os.path.join(repo_root, "config", "hardware_registry", "index.yaml")
+
+
+def check_namespace_prefix(registry_dir):
+    """Ensure every YAML file in the registry dir is namespaced.
+
+    Each file's sole top-level key must be NAMESPACE, so that merging these
+    files into the recursively-loaded pipeline config cannot collide with it.
+    Returns a list of error strings (empty if all files conform).
+    """
+    errors = []
+    for path in sorted(glob.glob(os.path.join(registry_dir, "*.yaml"))):
+        rel = os.path.relpath(path)
+        try:
+            with open(path) as f:
+                data = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            errors.append(f"{rel}: invalid YAML: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{rel}: top level must be a mapping")
+            continue
+        keys = list(data.keys())
+        if keys != [NAMESPACE]:
+            errors.append(
+                f"{rel}: top-level keys {keys} must be exactly "
+                f"['{NAMESPACE}'] to stay out of the pipeline config namespace"
+            )
+    return errors
+
+
+def load_namespaced(path):
+    """Load a registry YAML file and return its unwrapped content.
+
+    Raises KeyError/ValueError-free; returns (data, error_string)."""
+    with open(path) as f:
+        raw = yaml.safe_load(f)
+    if not isinstance(raw, dict) or list(raw.keys()) != [NAMESPACE]:
+        return None, (
+            f"content must be nested under a single top-level "
+            f"'{NAMESPACE}:' key"
+        )
+    return raw[NAMESPACE], None
 
 
 def validate_references(data, registry_file):
@@ -110,16 +160,29 @@ def main():
         print(f"ERROR: Index file not found: {index_path}")
         sys.exit(1)
 
-    with open(index_path) as f:
-        index = yaml.safe_load(f)
+    # Enforce that the whole directory stays namespaced before anything else.
+    ns_errors = check_namespace_prefix(index_dir)
+    if ns_errors:
+        print("Namespace check FAILED:")
+        for err in ns_errors:
+            print(f"  {err}")
+        sys.exit(1)
+    print(f"Namespace: all files nested under '{NAMESPACE}:' OK")
+
+    index, err = load_namespaced(index_path)
+    if err:
+        print(f"ERROR: index {err}")
+        sys.exit(1)
 
     schema_path = os.path.normpath(os.path.join(index_dir, index["schema"]))
     if not os.path.exists(schema_path):
         print(f"ERROR: Schema file not found: {schema_path}")
         sys.exit(1)
 
-    with open(schema_path) as f:
-        schema = yaml.safe_load(f)
+    schema, err = load_namespaced(schema_path)
+    if err:
+        print(f"ERROR: schema {err}")
+        sys.exit(1)
 
     registries = index.get("registries", [])
     if not registries:
@@ -142,22 +205,12 @@ def main():
             continue
 
         try:
-            with open(registry_path) as f:
-                raw = yaml.safe_load(f)
-
-            # Registry data is namespaced under a single top-level
-            # `hardware_registry` key so that loading config/ recursively with
-            # kernelci.config.load() does not merge catalog sections (notably
-            # `platforms`) into the pipeline config namespace.
-            if not isinstance(raw, dict) or "hardware_registry" not in raw:
-                print(
-                    "  FAIL: registry file must nest its content under a "
-                    "top-level 'hardware_registry:' key"
-                )
+            data, err = load_namespaced(registry_path)
+            if err:
+                print(f"  FAIL: {err}")
                 all_passed = False
                 print()
                 continue
-            data = raw["hardware_registry"]
 
             validate(instance=data, schema=schema)
 
