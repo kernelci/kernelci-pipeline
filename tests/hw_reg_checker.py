@@ -209,6 +209,57 @@ def check_board_compatibles(merged):
     return errors
 
 
+def check_pipeline_platforms(merged, pipeline_platforms):
+    """Cross-check registry compatibles against config/platforms*.yaml.
+
+    Returns (errors, uncovered). A pipeline platform whose board-level
+    compatible appears in a registry platform's list but not as that
+    platform's board-level (first) entry is drift and reported as an
+    error. A pipeline platform with no compatible, or whose board-level
+    compatible is absent from the registry, is reported as uncovered
+    (informational).
+    """
+    errors = []
+    uncovered = []
+    board_index = {}
+    member_index = {}
+    for key, platform in merged["platforms"].items():
+        compatible = platform.get("compatible") or []
+        if compatible:
+            board_index[compatible[0]] = key
+        for value in compatible:
+            member_index.setdefault(value, set()).add(key)
+    for name in sorted(pipeline_platforms):
+        compatible = (pipeline_platforms[name] or {}).get("compatible") or []
+        if not compatible:
+            uncovered.append(name)
+            continue
+        board = compatible[0]
+        if board in board_index:
+            continue
+        if board in member_index:
+            owners = ", ".join(sorted(member_index[board]))
+            errors.append(
+                f"pipeline platform '{name}' board compatible '{board}' "
+                f"appears in registry platform(s) [{owners}] but not as "
+                f"their board-level (first) entry"
+            )
+        else:
+            uncovered.append(name)
+    return errors, uncovered
+
+
+def load_pipeline_platforms(config_dir):
+    """Load all platforms from config/platforms*.yaml in a directory."""
+    platforms = {}
+    for path in sorted(glob.glob(os.path.join(config_dir, "platforms*.yaml"))):
+        with open(path) as f:
+            data = yaml.safe_load(f) or {}
+        for name, config in (data.get("platforms") or {}).items():
+            platforms[name] = config or {}
+    return platforms
+
+
 def main():
     args = parse_args()
     index_path = os.path.abspath(args.index or default_index_path())
@@ -308,6 +359,25 @@ def main():
         print(f"MERGED REGISTRY ERROR: {err}")
     if merge_errors or ref_errors or compat_errors:
         all_passed = False
+
+    config_dir = os.path.dirname(index_dir)
+    pipeline_platforms = load_pipeline_platforms(config_dir)
+    if pipeline_platforms:
+        drift_errors, uncovered = check_pipeline_platforms(
+            merged, pipeline_platforms
+        )
+        for err in drift_errors:
+            print(f"PIPELINE DRIFT ERROR: {err}")
+        if drift_errors:
+            all_passed = False
+        if uncovered:
+            print(
+                f"\nCoverage: {len(uncovered)} pipeline platform(s) "
+                "have no registry entry (informational):"
+            )
+            for name in uncovered:
+                print(f"  {name}")
+            print()
 
     if all_passed:
         print("All registry files passed validation.")

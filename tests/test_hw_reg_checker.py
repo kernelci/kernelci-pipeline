@@ -207,3 +207,50 @@ def test_shared_soc_compatible_allowed():
 def test_platforms_without_compatible_ignored():
     merged = make_data(platforms={"board-a": {"id": "board-a"}})
     assert hw_reg_checker.check_board_compatibles(merged) == []
+
+
+def test_pipeline_platform_matching_registry_board_is_covered():
+    merged = make_data(
+        platforms={
+            "am62-sk": {
+                "id": "am62-sk",
+                "compatible": ["ti,am625-sk", "ti,am625"],
+            }
+        }
+    )
+    pipeline = {"am62x-sk": {"compatible": ["ti,am625-sk", "ti,am625"]}}
+    errors, uncovered = hw_reg_checker.check_pipeline_platforms(
+        merged, pipeline
+    )
+    assert errors == []
+    assert uncovered == []
+
+
+def test_pipeline_board_compatible_buried_in_registry_is_drift():
+    merged = make_data(
+        platforms={
+            "board-a": {
+                "id": "board-a",
+                "compatible": ["ti,board-a", "ti,board-b", "ti,soc"],
+            }
+        }
+    )
+    pipeline = {"board-b": {"compatible": ["ti,board-b", "ti,soc"]}}
+    errors, uncovered = hw_reg_checker.check_pipeline_platforms(
+        merged, pipeline
+    )
+    assert len(errors) == 1
+    assert "ti,board-b" in errors[0]
+
+
+def test_unmatched_pipeline_platform_is_uncovered():
+    merged = make_data()
+    pipeline = {
+        "rpi-4": {"compatible": ["raspberrypi,4-model-b", "brcm,bcm2711"]},
+        "qemu-x86": {},
+    }
+    errors, uncovered = hw_reg_checker.check_pipeline_platforms(
+        merged, pipeline
+    )
+    assert errors == []
+    assert uncovered == ["qemu-x86", "rpi-4"]
