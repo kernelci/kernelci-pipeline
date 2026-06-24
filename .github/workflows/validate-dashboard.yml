@@ -47,6 +47,8 @@ jobs:
           python -m pip install --upgrade pip
           # TODO: switch to the released kci-dev package after kernelci/kci-dev#275 lands.
           python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@wip-validation'
+          # Deps for the pipeline-side miss classifier (config merge + API fetch).
+          python -m pip install pyyaml requests
 
       - name: Show kci-dev version
         run: kci-dev --version
@@ -64,3 +66,17 @@ jobs:
             --human-readable \
             --fail-on-mismatch \
             | tee "${RUNNER_TEMP}/${{ matrix.name }}.json"
+
+      - name: Explain misses against pipeline config
+        # Runs even when validation failed (--fail-on-mismatch exits 1), so the
+        # misses kci-dev found get cross-referenced with our job config:
+        # distinguishes externally-owned jobs (e.g. owner=qualcomm) from a real
+        # missing kcidb_test_suite mapping we own.
+        if: always()
+        run: |
+          report="${RUNNER_TEMP}/${{ matrix.name }}.json"
+          if [ ! -s "$report" ]; then
+            echo "No report at $report; skipping classification."
+            exit 0
+          fi
+          python tests/classify_missing_nodes.py "$report"
