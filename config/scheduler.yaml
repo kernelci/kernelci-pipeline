@@ -539,6 +539,9 @@ scheduler:
   - job: kbuild-gcc-14-arm
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-arm
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm-allnoconfig
     <<: *build-k8s-all
 
@@ -620,10 +623,19 @@ scheduler:
   - job: kbuild-gcc-14-arm64
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-arm64
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-aws-ec2
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-arm64-aws-ec2
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-nfsboot
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-15-arm64-nfsboot
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm64-allnoconfig
@@ -823,7 +835,13 @@ scheduler:
   - job: kbuild-gcc-14-x86
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-x86
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-x86-aws-ec2
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-15-x86-aws-ec2
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-x86-allnoconfig
