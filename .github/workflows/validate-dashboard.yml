@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   validate:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     strategy:
       fail-fast: false
       matrix:

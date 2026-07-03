@@ -9,7 +9,7 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
 
     steps:
       - name: Check out source code
@@ -32,7 +32,7 @@ jobs:
           pre-commit run --all-files --show-diff-on-failure
 
   validate:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-slim
     strategy:
       matrix:
         python-version:
