@@ -414,12 +414,19 @@ the test: {sub_path}"
 
     def _parse_node_result(self, test_node, error_metadata=None):
         error_code = test_node["data"].get("error_code")
+        inherited_error_code = None
         if not error_code and error_metadata:
-            error_code = error_metadata.get("error_code")
-        if error_code == "Infrastructure":
+            inherited_error_code = error_metadata.get("error_code")
+        if (
+            error_code == "Infrastructure"
+            or inherited_error_code == "Infrastructure"
+        ):
             return "ERROR"
 
         if test_node["result"] == "incomplete":
+            # Only the node's own error_code decides ERROR/MISS
+            # classification here, inherited error codes are only
+            # used above to detect Infrastructure errors.
             if error_code in ERRORED_TEST_CODES:
                 return "ERROR"
             if error_code in MISSED_TEST_CODES:
@@ -560,7 +567,7 @@ in {runtime}",
         }
 
         error_metadata = None
-        if test_node["result"] != "pass":
+        if test_node["result"] not in ("pass", "skip"):
             error_metadata = self._get_error_metadata(test_node)
 
         if test_node["result"]:
