@@ -24,10 +24,10 @@ build_configs:
     <<: *stable
     branch: 'linux-6.12.y'
 
-  stable_6.13:
+  stable_6.18:
     <<: *stable
-    branch: 'linux-6.13.y'
+    branch: 'linux-6.18.y'
 
-  stable_6.14:
+  stable_7.1:
     <<: *stable
-    branch: 'linux-6.14.y'
+    branch: 'linux-7.1.y'
