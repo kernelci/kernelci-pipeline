@@ -64,3 +64,11 @@ jobs:
     kind: job
     priority: medium
     kcidb_test_suite: boot
+
+  ltp-smoke-aws-ec2:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "smoketest"
+    kcidb_test_suite: ltp
