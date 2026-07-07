@@ -1,4 +1,4 @@
-name: Sync stable-rc branches
+name: Sync stable branches
 
 on:
   schedule:
@@ -40,10 +40,10 @@ jobs:
         if: steps.check.outputs.needs_update == 'true'
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
-          commit-message: "config/trees: sync stable-rc with kernel.org"
-          title: "config/trees: sync stable-rc with kernel.org"
+          commit-message: "config/trees: sync stable branches with kernel.org"
+          title: "config/trees: sync stable branches with kernel.org"
           body: |
-            Automated sync of stable-rc.yaml with current kernel.org releases.
+            Automated sync of stable-rc.yaml and stable.yaml with current kernel.org releases.
 
             This PR was created automatically by the sync-stable-branches workflow.
           branch: sync-stable-branches

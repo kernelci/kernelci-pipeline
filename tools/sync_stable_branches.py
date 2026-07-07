@@ -5,11 +5,13 @@
 # Copyright (C) 2026 Linaro Limited
 # Author: Ben Copeland <ben.copeland@linaro.org>
 #
-# Sync stable-rc.yaml with current kernel.org stable/longterm branches
+# Sync stable branch build configs with current kernel.org
+# stable/longterm branches
 
 """
 Fetch current stable and longterm kernel versions from kernel.org
-and update config/trees/stable-rc.yaml accordingly.
+and update config/trees/stable-rc.yaml and config/trees/stable.yaml
+accordingly.
 """
 
 import argparse
@@ -20,9 +22,15 @@ import urllib.request
 from pathlib import Path
 
 RELEASES_URL = "https://www.kernel.org/releases.json"
-CONFIG_PATH = (
-    Path(__file__).parent.parent / "config" / "trees" / "stable-rc.yaml"
-)
+CONFIG_DIR = Path(__file__).parent.parent / "config" / "trees"
+
+TREES = {
+    "stable-rc": {},
+    "stable": {
+        "priority": "high",
+        "pinned": {(5, 4): "referenced by chromeos platform rules"},
+    },
+}
 
 
 def fetch_releases():
@@ -56,24 +64,26 @@ def get_active_branches(releases_data):
     return sorted(branches)
 
 
-def generate_yaml(branches):
-    """Generate the stable-rc.yaml content"""
+def generate_yaml(tree, branches, priority=None):
+    """Generate the build_configs YAML content for one tree"""
     lines = ["build_configs:"]
 
     for i, (major, minor) in enumerate(branches):
         version_str = f"{major}.{minor}"
-        config_name = f"stable-rc_{version_str}"
+        config_name = f"{tree}_{version_str}"
         branch_name = f"linux-{version_str}.y"
 
         if i == 0:
             # First entry defines the anchor
-            lines.append(f"  {config_name}: &stable-rc")
-            lines.append("    tree: stable-rc")
+            lines.append(f"  {config_name}: &{tree}")
+            lines.append(f"    tree: {tree}")
             lines.append(f"    branch: '{branch_name}'")
+            if priority:
+                lines.append(f"    priority: {priority}")
         else:
             lines.append("")
             lines.append(f"  {config_name}:")
-            lines.append("    <<: *stable-rc")
+            lines.append(f"    <<: *{tree}")
             lines.append(f"    branch: '{branch_name}'")
 
     lines.append("")
@@ -95,21 +105,66 @@ def parse_current_branches(config_path):
     return branches
 
 
+def sync_tree(tree, spec, active_branches, config_dir, dry_run):
+    """Sync one tree config file; return True if it needed changes"""
+    config_path = config_dir / f"{tree}.yaml"
+    pinned = spec.get("pinned", {})
+    for (major, minor), reason in sorted(pinned.items()):
+        print(f"{tree}: keeping pinned branch {major}.{minor} ({reason})")
+    desired_branches = sorted(set(active_branches) | set(pinned))
+
+    current_branches = parse_current_branches(config_path)
+    print(
+        f"{tree}: current branches: "
+        f"{', '.join(f'{m}.{n}' for m, n in sorted(current_branches))}"
+    )
+
+    # Calculate differences
+    to_add = set(desired_branches) - current_branches
+    to_remove = current_branches - set(desired_branches)
+
+    if not to_add and not to_remove:
+        print(f"{tree}: up to date")
+        return False
+
+    if to_add:
+        print(
+            f"{tree}: branches to add: "
+            f"{', '.join(f'{m}.{n}' for m, n in sorted(to_add))}"
+        )
+    if to_remove:
+        print(
+            f"{tree}: branches to remove (EOL): "
+            f"{', '.join(f'{m}.{n}' for m, n in sorted(to_remove))}"
+        )
+
+    new_content = generate_yaml(tree, desired_branches, spec.get("priority"))
+
+    if dry_run:
+        print(f"\n--- New {config_path.name} (dry-run) ---")
+        print(new_content)
+    else:
+        config_path.write_text(new_content)
+        print(f"Updated {config_path}")
+    return True
+
+
 def main():
+    """Sync all configured trees; print per-tree status"""
     parser = argparse.ArgumentParser(
-        description="Sync stable-rc.yaml with kernel.org releases"
+        description="Sync stable branch configs with kernel.org releases"
     )
     parser.add_argument(
         "--dry-run",
         "-n",
         action="store_true",
-        help="Show what would change without modifying the file",
+        help="Show what would change without modifying the files",
     )
     parser.add_argument(
-        "--config",
+        "--config-dir",
         type=Path,
-        default=CONFIG_PATH,
-        help=f"Path to stable-rc.yaml (default: {CONFIG_PATH})",
+        default=CONFIG_DIR,
+        help=f"Directory containing the tree config files (default: {CONFIG_DIR})",
     )
     args = parser.parse_args()
 
@@ -129,37 +184,15 @@ def main():
         f"Active kernel.org branches: {', '.join(f'{m}.{n}' for m, n in active_branches)}"
     )
 
-    current_branches = parse_current_branches(args.config)
-    print(
-        f"Current config branches: {', '.join(f'{m}.{n}' for m, n in sorted(current_branches))}"
-    )
+    changed = False
+    for tree, spec in TREES.items():
+        if sync_tree(
+            tree, spec, active_branches, args.config_dir, args.dry_run
+        ):
+            changed = True
 
-    # Calculate differences
-    to_add = set(active_branches) - current_branches
-    to_remove = current_branches - set(active_branches)
-
-    if not to_add and not to_remove:
+    if not changed:
         print("Config is already up to date.")
-        return 0
-
-    if to_add:
-        print(
-            f"Branches to add: {', '.join(f'{m}.{n}' for m, n in sorted(to_add))}"
-        )
-    if to_remove:
-        print(
-            f"Branches to remove (EOL): {', '.join(f'{m}.{n}' for m, n in sorted(to_remove))}"
-        )
-
-    new_content = generate_yaml(active_branches)
-
-    if args.dry_run:
-        print("\n--- New config (dry-run) ---")
-        print(new_content)
-        return 0
-
-    args.config.write_text(new_content)
-    print(f"Updated {args.config}")
     return 0
 
 
