@@ -77,7 +77,9 @@ class KCIDBBridge(Service):
                 topic_name=args.kcidb_topic_name,
             ),
             "sub_id": self._api_helper.subscribe_filters(
-                self._filters, promiscuous=True
+                self._filters,
+                promiscuous=True,
+                subscriber_id=self._subscriber_id("node"),
             ),
             "origin": args.origin,
         }
@@ -848,7 +850,9 @@ in {runtime}",
                     )
                     time.sleep(10)
                     context["sub_id"] = self._api_helper.subscribe_filters(
-                        self._filters, promiscuous=True
+                        self._filters,
+                        promiscuous=True,
+                        subscriber_id=self._subscriber_id("node"),
                     )
                     subscribe_retries += 1
                     if subscribe_retries > 3:

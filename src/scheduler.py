@@ -336,10 +336,13 @@ class Scheduler(Service):
             self._event_filters or None,
             channel="node",
             promiscuous=self._promisc,
+            subscriber_id=self._subscriber_id("node"),
         )
         self.log.debug(f"Node channel sub id: {node_sub_id}")
         retry_sub_id = self._api_helper.subscribe_filters(
-            channel="retry", promiscuous=self._promisc
+            channel="retry",
+            promiscuous=self._promisc,
+            subscriber_id=self._subscriber_id("retry"),
         )
         self.log.debug(f"Retry channel sub id: {retry_sub_id}")
         self._context = {"node": node_sub_id, "retry": retry_sub_id}
@@ -1094,7 +1097,10 @@ class Scheduler(Service):
                     self._event_filters if channel == "node" else None
                 )
                 sub_id = self._api_helper.subscribe_filters(
-                    channel_filters, channel=channel, promiscuous=self._promisc
+                    channel_filters,
+                    channel=channel,
+                    promiscuous=self._promisc,
+                    subscriber_id=self._subscriber_id(channel),
                 )
                 with self._context_lock:
                     self._context[channel] = sub_id
