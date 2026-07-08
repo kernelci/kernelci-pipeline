@@ -21,6 +21,8 @@ class Service:
     """Common class for pipeline services"""
 
     def __init__(self, configs, args, name):
+        # Runtime --name identifies the pipeline instance for durable pub/sub;
+        # logger configuration still uses the service type name.
         self._name = getattr(args, "name", None) or name
         self._logger = Logger("config/logger.conf", name)
         self._api_config = configs["api"][args.api_config]
