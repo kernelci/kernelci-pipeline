@@ -23,7 +23,8 @@ class JobRetry(Service):
                 "state": "done",
                 "result": ("incomplete", "fail"),
                 "kind": ("kbuild", "job"),
-            }
+            },
+            subscriber_id=self._subscriber_id("node"),
         )
 
     def _stop(self, sub_id):

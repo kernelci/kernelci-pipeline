@@ -21,7 +21,7 @@ class Service:
     """Common class for pipeline services"""
 
     def __init__(self, configs, args, name):
-        self._name = name
+        self._name = getattr(args, "name", None) or name
         self._logger = Logger("config/logger.conf", name)
         self._api_config = configs["api"][args.api_config]
         api_token = os.getenv("KCI_API_TOKEN")
@@ -31,6 +31,10 @@ class Service:
     @property
     def log(self):
         return self._logger
+
+    def _subscriber_id(self, channel):
+        """Return a stable durable pub/sub subscriber ID for this service."""
+        return f"{self._name}:{channel}"
 
     def _setup(self, args):
         """Set up the service

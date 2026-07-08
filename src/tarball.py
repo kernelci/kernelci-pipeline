@@ -228,7 +228,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             self.log.error(err_msg)
 
     def _setup(self, args):
-        return self._api_helper.subscribe_filters(self._filters)
+        return self._api_helper.subscribe_filters(
+            self._filters, subscriber_id=self._subscriber_id("node")
+        )
 
     def _stop(self, sub_id):
         if sub_id:
@@ -249,7 +251,9 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
                 )
                 time.sleep(10)
                 # try to resubscribe
-                sub_id = self._api_helper.subscribe_filters(self._filters)
+                sub_id = self._api_helper.subscribe_filters(
+                    self._filters, subscriber_id=self._subscriber_id("node")
+                )
                 subscribe_retries += 1
                 if subscribe_retries > 3:
                     self.log.error("Failed to re-subscribe to checkout events")
