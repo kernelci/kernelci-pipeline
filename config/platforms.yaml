@@ -573,6 +573,10 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/sm8350-hdk.dtb
     compatible: ['qcom,sm8350-hdk', 'qcom,sm8350']
+    params:
+      fastboot_boot_image_format: appended-dtb
+      fastboot_mkbootimg_pagesize: 4096
+      fastboot_mkbootimg_base: "0x80000000"
 
   x1e80100:
     <<: *arm64-device
