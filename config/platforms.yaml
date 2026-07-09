@@ -106,6 +106,10 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/apq8016-sbc.dtb
     compatible: ['qcom,apq8016-sbc', 'qcom,apq8016']
+    params:
+      fastboot_boot_image_format: appended-dtb
+      fastboot_mkbootimg_pagesize: 2048
+      fastboot_mkbootimg_base: "0x80000000"
 
   dragonboard-820c:
     <<: *arm64-device
@@ -113,6 +117,10 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/apq8096-db820c.dtb
     compatible: ['qcom,apq8096-db820c', 'qcom,apq8096']
+    params:
+      fastboot_boot_image_format: appended-dtb
+      fastboot_mkbootimg_pagesize: 4096
+      fastboot_mkbootimg_base: "0x80000000"
 
   eic7700-hifive-premier-p550:
     <<: *riscv-device
