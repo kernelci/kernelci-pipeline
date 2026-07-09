@@ -20,20 +20,19 @@ audit of what actually ran:
   * for each checkout, compare the actual kbuild child nodes against the
     forecast built with the checkout's real kernel revision;
   * for each kbuild that passed, compare its actual test job child nodes
-    against the forecast.
+    against the forecast, then recursively validate deeper job descendants.
 
 A missing child is only a finding when its parent succeeded: a failed
-checkout produces no kbuilds and a failed kbuild triggers no test jobs,
-so those absences are expected and are just counted.  Nodes that exist
-but are not in the forecast are reported as unexpected (forecast or
-rules drift).
+checkout produces no kbuilds and a failed kbuild or job triggers no child
+jobs, so those absences are expected and are just counted.  Nodes that
+exist but are not in the forecast are reported as unexpected (forecast
+or rules drift).
 
 Finding categories (actionable, in `findings`):
   * MISSING_KBUILD    - checkout passed, forecast expects the kbuild,
                         no such node exists.
-  * MISSING_JOB       - kbuild passed (or checkout passed for jobs
-                        triggered directly by the checkout), forecast
-                        expects the job, no such node exists.
+  * MISSING_JOB       - checkout, kbuild, or job parent passed, forecast
+                        expects the child job, no such node exists.
   * UNEXPECTED_KBUILD - kbuild node exists but the forecast does not
                         predict it.
   * UNEXPECTED_JOB    - job node exists but the forecast does not
@@ -98,7 +97,9 @@ class MaestroAPI:
         self.session = requests.Session()
         adapter = requests.adapters.HTTPAdapter(
             max_retries=requests.adapters.Retry(
-                total=3, backoff_factor=2, status_forcelist=[500, 502, 504]
+                total=3,
+                backoff_factor=2,
+                status_forcelist=[429, 500, 502, 503, 504],
             )
         )
         self.session.mount("http://", adapter)
@@ -253,8 +254,19 @@ def match_children(expected, actual):
     return missing, unexpected
 
 
+def matches_expected_child(expected, node):
+    """Whether ``node`` matches an expected (name, platform) child key."""
+    name = node.get("name")
+    platform = node.get("data", {}).get("platform")
+    return (name, platform) in expected or (name, None) in expected
+
+
 def node_ok(node):
     return node.get("result") == "pass"
+
+
+def node_failed(node):
+    return node.get("result") == "fail"
 
 
 def node_settled(node):
@@ -270,6 +282,8 @@ def describe_node(node):
         parts.append(f"runtime={data['runtime']}")
     if node.get("owner"):
         parts.append(f"owner={node['owner']}")
+    if node.get("state"):
+        parts.append(f"state={node['state']}")
     parts.append(f"result={node.get('result')}")
     return " ".join(parts)
 
@@ -356,6 +370,7 @@ def validate_checkout(
         "external": [],
         "non_scheduler": [],
         "skipped_failed_kbuilds": [],
+        "skipped_incomplete_kbuilds": [],
         "unsettled_kbuilds": [],
     }
 
@@ -407,6 +422,11 @@ def validate_checkout(
         parent_id=checkout["id"],
         parent_ok=node_ok(checkout),
     )
+    descendant_roots = [
+        node
+        for node in root_jobs
+        if matches_expected_child(expected_root_jobs, node)
+    ]
 
     for kbuild in kbuilds:
         expected_jobs = {
@@ -420,9 +440,12 @@ def validate_checkout(
         if not node_settled(kbuild):
             report["unsettled_kbuilds"].append(describe_node(kbuild))
             continue
-        if not node_ok(kbuild):
+        if node_failed(kbuild):
             # A failed kbuild legitimately triggers nothing; only count it.
             report["skipped_failed_kbuilds"].append(describe_node(kbuild))
+            continue
+        if not node_ok(kbuild):
+            report["skipped_incomplete_kbuilds"].append(describe_node(kbuild))
             continue
         _validate_jobs(
             report,
@@ -433,6 +456,15 @@ def validate_checkout(
             parent_id=kbuild.get("id"),
             parent_ok=True,
         )
+        descendant_roots.extend(
+            node
+            for node in actual_jobs
+            if matches_expected_child(expected_jobs, node)
+        )
+
+    _validate_job_descendants(
+        report, pairs, edges, jobs_by_parent, descendant_roots
+    )
 
     return report
 
@@ -478,6 +510,43 @@ def _validate_jobs(
         _report_unexpected(report, pairs, node, source_name, "UNEXPECTED_JOB")
 
 
+def _validate_job_descendants(report, pairs, edges, jobs_by_parent, roots):
+    """Validate scheduler-created job descendants below ``roots``.
+
+    Direct checkout and kbuild children are validated by ``validate_checkout``.
+    Starting with those children here lets us follow the actual parent links and
+    validate every deeper level forecast for jobs which were actually created.
+    """
+    pending = list(roots)
+    visited = set()
+    while pending:
+        parent = pending.pop()
+        parent_id = parent.get("id")
+        if not parent_id or parent_id in visited:
+            continue
+        visited.add(parent_id)
+
+        source_name = parent.get("name")
+        expected = {
+            (name, platform): runtime
+            for name, platform, kind, runtime in edges.get(source_name, set())
+            if kind == "job"
+        }
+        actual = jobs_by_parent.get(parent_id, [])
+        _validate_jobs(
+            report,
+            pairs,
+            expected,
+            actual,
+            source_name=source_name,
+            parent_id=parent_id,
+            parent_ok=node_ok(parent),
+        )
+        pending.extend(
+            node for node in actual if matches_expected_child(expected, node)
+        )
+
+
 def annotate(checkout_report):
     """Emit one GitHub Actions annotation per checkout with findings"""
     counts = {}
@@ -485,11 +554,7 @@ def annotate(checkout_report):
         counts[finding["category"]] = counts.get(finding["category"], 0) + 1
     if not counts:
         return
-    level = (
-        "warning"
-        if any(category in counts for category in MISSING_CATEGORIES)
-        else "notice"
-    )
+    level = "warning" if "MISSING_JOB" in counts else "notice"
     summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
     viewer = f"https://api.kernelci.org/viewer?node_id={checkout_report['id']}"
     print(
@@ -522,6 +587,10 @@ def print_report(checkout_report, verbose):
             "skipped_failed_kbuilds",
             "kbuilds skipped (failed, no jobs expected)",
         ),
+        (
+            "skipped_incomplete_kbuilds",
+            "kbuilds skipped (incomplete, no jobs expected)",
+        ),
         ("unsettled_kbuilds", "kbuilds not settled yet, skipped"),
         ("external", "externally-owned nodes (not validated)"),
         ("non_scheduler", "runner-created nodes (not scheduler jobs)"),
@@ -542,6 +611,9 @@ def summarize(reports):
         "skipped_failed_kbuilds": sum(
             len(r["skipped_failed_kbuilds"]) for r in reports
         ),
+        "skipped_incomplete_kbuilds": sum(
+            len(r["skipped_incomplete_kbuilds"]) for r in reports
+        ),
         "unsettled_kbuilds": sum(len(r["unsettled_kbuilds"]) for r in reports),
         "external_nodes": sum(len(r["external"]) for r in reports),
         "non_scheduler_nodes": sum(len(r["non_scheduler"]) for r in reports),
@@ -554,6 +626,15 @@ def summarize(reports):
             if f["category"] == category
         )
     return summary
+
+
+def missing_count(args, summary):
+    """Number of missing nodes that should fail the run, per fail mode"""
+    if args.fail_on_miss:
+        return sum(summary[category] for category in MISSING_CATEGORIES)
+    if args.fail_on_missing_jobs:
+        return summary["MISSING_JOB"]
+    return 0
 
 
 def main():
@@ -597,13 +678,22 @@ def main():
         help="Cap the number of checkouts to validate (0 = no cap)",
     )
     parser.add_argument("--json", help="Write the full report to this file")
-    parser.add_argument(
+    fail_group = parser.add_mutually_exclusive_group()
+    fail_group.add_argument(
         "--fail-on-miss",
         action="store_true",
-        help="Exit 1 when forecast jobs are missing from Maestro",
+        help="Exit 1 when forecast kbuilds or jobs are missing from Maestro",
+    )
+    fail_group.add_argument(
+        "--fail-on-missing-jobs",
+        action="store_true",
+        help="Exit 1 only when forecast test/root jobs are missing; "
+        "missing kbuilds are reported but do not fail the run",
     )
     parser.add_argument(
-        "--verbose", action="store_true", help="List skipped failed kbuilds"
+        "--verbose",
+        action="store_true",
+        help="List skipped failed, incomplete, and unsettled kbuilds",
     )
     args = parser.parse_args()
 
@@ -664,8 +754,7 @@ def main():
         with open(args.json, "w") as fp:
             json.dump({"summary": summary, "checkouts": reports}, fp, indent=2)
 
-    missing = sum(summary[category] for category in MISSING_CATEGORIES)
-    if args.fail_on_miss and missing:
+    if missing_count(args, summary):
         return 1
     return 0
 
