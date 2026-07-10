@@ -179,6 +179,22 @@ _anchors:
 
 jobs:
 
+  cvehound:
+    template: cvehound.jinja2
+    kind: job
+    image: ghcr.io/kernelci/{image_prefix}cvehound:kernelci
+    priority: low
+    kcidb_test_suite: security.cvehound
+    params:
+      report_name: cvehound-report.json
+    rules:
+      tree:
+        - mainline
+        - next
+        - stable
+        - stable-rc
+        - kernelci
+
   # FIXME This will need to be reworked later when the fstests scheduler has
   # been removed
   #
