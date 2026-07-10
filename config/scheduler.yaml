@@ -33,6 +33,11 @@ _anchors:
 
 scheduler:
 
+  - job: cvehound
+    event: *checkout-event
+    runtime:
+      name: k8s-all
+
   - job: baseline-arm
     event: &kbuild-gcc-14-arm-node-event
       <<: *node-event-kbuild

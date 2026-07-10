@@ -1,0 +1,119 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{%- extends 'base/python.jinja2' %}
+
+{%- block python_imports %}
+{{ super() }}
+import json
+import subprocess
+{%- endblock %}
+
+{%- block python_local_imports %}
+{{ super() }}
+import kernelci.api.helper
+{%- endblock %}
+
+{%- block python_globals %}
+{{ super() }}
+REPORT_NAME = '{{ report_name }}'
+{% endblock %}
+
+{% block python_job -%}
+class Job(BaseJob):
+    def _upload_artifacts(self, local_artifacts):
+        artifacts = {}
+        try:
+            storage = self._get_storage()
+        except Exception as error:
+            print(f"Unable to initialize artifact storage: {error}")
+            return artifacts
+        if not storage or not self._node:
+            return artifacts
+
+        root_path = '-'.join([JOB_NAME, self._node['id']])
+        print(f"Uploading artifacts to {root_path}")
+        for name, file_path in local_artifacts.items():
+            if not os.path.exists(file_path):
+                continue
+            try:
+                file_url = storage.upload_single(
+                    (file_path, os.path.basename(file_path)), root_path
+                )
+            except Exception as error:
+                print(f"Unable to upload {file_path}: {error}")
+                continue
+            print(file_url)
+            artifacts[name] = file_url
+        return artifacts
+
+    def _result(self, result, artifacts=None, child_nodes=None):
+        return {
+            'node': {
+                'result': result,
+                'state': 'done',
+                'artifacts': artifacts or {},
+            },
+            'child_nodes': child_nodes or [],
+        }
+
+    def _run(self, _src_path):
+        log_path = os.path.join(self._workspace, 'cvehound.log')
+        report_path = os.path.join(self._workspace, REPORT_NAME)
+        local_artifacts = {'cvehound_log': log_path}
+
+        try:
+            src_path = self._get_kernel_source()
+            with open(log_path, 'w', encoding='utf-8') as log_file:
+                completed = subprocess.run(
+                    [
+                        'cvehound',
+                        '--kernel',
+                        src_path,
+                        '--report',
+                        report_path,
+                    ],
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,
+                    check=False,
+                )
+
+            if completed.returncode != 0:
+                print(f"CVEhound exited with status {completed.returncode}")
+                artifacts = self._upload_artifacts(local_artifacts)
+                return self._result('incomplete', artifacts)
+
+            with open(report_path, encoding='utf-8') as report_file:
+                report = json.load(report_file)
+            findings = report.get('results')
+            if not isinstance(findings, dict):
+                raise ValueError("CVEhound report has no 'results' object")
+
+            local_artifacts['cvehound_report'] = report_path
+            artifacts = self._upload_artifacts(local_artifacts)
+            child_nodes = [
+                {
+                    'node': {
+                        'kind': 'test',
+                        'name': cve,
+                        'result': 'fail',
+                        'state': 'done',
+                    },
+                    'child_nodes': [],
+                }
+                for cve in sorted(findings)
+            ]
+            print(f"CVEhound found {len(child_nodes)} potential vulnerabilities")
+            return self._result('pass', artifacts, child_nodes)
+        except Exception as error:
+            print(f"CVEhound scan failed: {error}")
+            artifacts = self._upload_artifacts(local_artifacts)
+            return self._result('incomplete', artifacts)
+
+    def _submit(self, result):
+        result = result.copy()
+        result['node']['name'] = self._node['name']
+        api_helper = kernelci.api.helper.APIHelper(self._api)
+        api_helper.submit_results(result, self._node)
+
+{% endblock %}
