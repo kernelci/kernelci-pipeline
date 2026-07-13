@@ -9,6 +9,52 @@ from unittest.mock import MagicMock, patch
 from src.scheduler import Scheduler
 
 
+class TestSchedulerWatchdog(unittest.TestCase):
+    """Test watchdog progress tracking."""
+
+    def test_heartbeat_records_progress_and_activity(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._watchdog_timestamps = {}
+        scheduler._watchdog_activities = {}
+        scheduler._watchdog_lock = threading.Lock()
+
+        with patch("src.scheduler.time.time", return_value=1234.5):
+            Scheduler._watchdog_heartbeat(
+                scheduler,
+                "processing event=node-1 job=baseline",
+                thread_name="scheduler-node",
+            )
+
+        self.assertEqual(
+            scheduler._watchdog_timestamps["scheduler-node"], 1234.5
+        )
+        self.assertEqual(
+            scheduler._watchdog_activities["scheduler-node"],
+            "processing event=node-1 job=baseline",
+        )
+
+    def test_each_heartbeat_refreshes_progress(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._watchdog_timestamps = {}
+        scheduler._watchdog_activities = {}
+        scheduler._watchdog_lock = threading.Lock()
+
+        with patch("src.scheduler.time.time", side_effect=[100.0, 200.0]):
+            Scheduler._watchdog_heartbeat(
+                scheduler, "first job", thread_name="scheduler-node"
+            )
+            Scheduler._watchdog_heartbeat(
+                scheduler, "second job", thread_name="scheduler-node"
+            )
+
+        self.assertEqual(
+            scheduler._watchdog_timestamps["scheduler-node"], 200.0
+        )
+        self.assertEqual(
+            scheduler._watchdog_activities["scheduler-node"], "second job"
+        )
+
+
 class TestSchedulerTreePriority(unittest.TestCase):
     """Test tree priority lookup in scheduler"""
 

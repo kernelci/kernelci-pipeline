@@ -73,6 +73,7 @@ def run_watchdog(scheduler_instance, logger):
 
         with scheduler_instance._watchdog_lock:
             timestamps = scheduler_instance._watchdog_timestamps.copy()
+            activities = scheduler_instance._watchdog_activities.copy()
 
         # Check each thread's timestamp
         for thread_name, last_update in timestamps.items():
@@ -80,7 +81,9 @@ def run_watchdog(scheduler_instance, logger):
             if time_since_update > WATCHDOG_TIMEOUT:
                 logger.error(
                     f"WATCHDOG: Thread '{thread_name}' stuck for {time_since_update:.0f}s "
-                    f"(timeout: {WATCHDOG_TIMEOUT}s). Forcing immediate exit!"
+                    f"(timeout: {WATCHDOG_TIMEOUT}s, "
+                    f"activity: {activities.get(thread_name, 'unknown')}). "
+                    "Forcing immediate exit!"
                 )
 
                 # Try to print minimal info - avoid complex operations that might also hang
@@ -89,6 +92,9 @@ def run_watchdog(scheduler_instance, logger):
                     logger.error("STUCK THREAD DETECTED - FORCING EXIT")
                     logger.error(
                         f"Thread: {thread_name}, stuck for {time_since_update:.0f}s"
+                    )
+                    logger.error(
+                        f"Last activity: {activities.get(thread_name, 'unknown')}"
                     )
                     logger.error("=" * 80)
                 except Exception:
@@ -140,6 +146,7 @@ class Scheduler(Service):
         self._context = {}
         self._stop_thread = False
         self._watchdog_timestamps = {}  # Thread name -> last update timestamp
+        self._watchdog_activities = {}  # Thread name -> current operation
         self._watchdog_lock = threading.Lock()
         # Best-effort, process-local guard against creating identical jobs
         # twice in quick succession (kernelci-core#2912). Keyed by
@@ -374,6 +381,19 @@ class Scheduler(Service):
         )
         watchdog_thread.start()
         return watchdog_thread
+
+    def _watchdog_heartbeat(self, activity, thread_name=None):
+        """Record scheduler progress and the operation currently in flight.
+
+        A single event may expand into hundreds of jobs.  Refreshing the
+        watchdog between jobs prevents productive event processing from being
+        mistaken for a stuck thread, while a blocked individual operation is
+        still detected after ``WATCHDOG_TIMEOUT``.
+        """
+        thread_name = thread_name or threading.current_thread().name
+        with self._watchdog_lock:
+            self._watchdog_timestamps[thread_name] = time.time()
+            self._watchdog_activities[thread_name] = activity
 
     def backup_cleanup(self):
         """
@@ -1075,8 +1095,9 @@ class Scheduler(Service):
         while True:
             # Update timestamp for watchdog
             thread_name = threading.current_thread().name
-            with self._watchdog_lock:
-                self._watchdog_timestamps[thread_name] = time.time()
+            self._watchdog_heartbeat(
+                f"polling subscription channel={channel}", thread_name
+            )
 
             with self._stop_thread_lock:
                 if self._stop_thread:
@@ -1116,9 +1137,19 @@ class Scheduler(Service):
                 sub_id, event
             ):
                 continue
+            event_id = event.get("id", "unknown")
+            self._watchdog_heartbeat(
+                f"expanding channel={channel} event={event_id}", thread_name
+            )
             for job, runtime, platform, rules in self._sched.get_schedule(
                 event
             ):
+                self._watchdog_heartbeat(
+                    "processing "
+                    f"channel={channel} event={event_id} job={job.name} "
+                    f"runtime={runtime.config.name} platform={platform.name}",
+                    thread_name,
+                )
                 input_node = self._api.node.get(event["id"])
                 jobfilter = event.get("jobfilter")
                 # Add to node data the jobfilter if it exists in event
@@ -1160,6 +1191,9 @@ class Scheduler(Service):
                     self._run_job(
                         job, runtime, platform, input_node, retry_counter
                     )
+            self._watchdog_heartbeat(
+                f"completed channel={channel} event={event_id}", thread_name
+            )
 
         return True
 
