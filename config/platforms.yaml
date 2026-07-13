@@ -107,6 +107,7 @@ platforms:
     dtb: dtbs/qcom/apq8016-sbc.dtb
     compatible: ['qcom,apq8016-sbc', 'qcom,apq8016']
     params:
+      fastboot_docker_image: registry.gitlab.collabora.com/lava/health-check-docker:main
       fastboot_boot_image_format: appended-dtb
       fastboot_mkbootimg_pagesize: 2048
       fastboot_mkbootimg_base: "0x80000000"
@@ -118,6 +119,7 @@ platforms:
     dtb: dtbs/qcom/apq8096-db820c.dtb
     compatible: ['qcom,apq8096-db820c', 'qcom,apq8096']
     params:
+      fastboot_docker_image: registry.gitlab.collabora.com/lava/health-check-docker:main
       fastboot_boot_image_format: appended-dtb
       fastboot_mkbootimg_pagesize: 4096
       fastboot_mkbootimg_base: "0x80000000"
@@ -713,4 +715,3 @@ platforms:
     arch: arm64
     boot_method: grub
     mach: arm
-
