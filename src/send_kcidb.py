@@ -24,7 +24,7 @@ import kcidb
 import kernelci
 import kernelci.config
 import requests
-from kernelci.config.runtime import RuntimeLAVA
+from kernelci.config.runtime import RuntimeLAVA, RuntimePullLabs
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import SERVICE_PIPELINE, Service
@@ -59,12 +59,15 @@ class KCIDBBridge(Service):
         self._platforms = configs["platforms"]
         self._api_url = self._api_config.url
         self._lava_labs = {}
+        self._lab_runtimes = set()
         self._last_unprocessed_search = None
         self._nodecache = {}
         self._excerptcache = {}
         for runtime_name, runtime_configs in configs["runtimes"].items():
             if isinstance(runtime_configs, RuntimeLAVA):
                 self._lava_labs[runtime_name] = runtime_configs.url
+            if isinstance(runtime_configs, (RuntimeLAVA, RuntimePullLabs)):
+                self._lab_runtimes.add(runtime_name)
         self._current_user = self._api.user.whoami()
         self._filters = {
             "state": ("done", "available"),
@@ -277,9 +280,15 @@ class KCIDBBridge(Service):
             f.write(res.content)
         return path
 
+    def _get_lab(self, runtime):
+        """Return the lab name for a runtime, or None when the runtime is
+        an execution backend (shell, Kubernetes, Docker) rather than a lab"""
+        return runtime if runtime in self._lab_runtimes else None
+
     def _parse_build_node(self, origin, node):
         result = node.get("result")
         error_code = node["data"].get("error_code")
+        runtime = node["data"].get("runtime")
 
         status_map = {
             "pass": "PASS",
@@ -308,8 +317,8 @@ class KCIDBBridge(Service):
             "status": status,
             "misc": {
                 "platform": node["data"].get("platform"),
-                "runtime": node["data"].get("runtime"),
-                "lab": node["data"].get("runtime"),
+                "runtime": runtime,
+                "lab": self._get_lab(runtime),
                 "job_id": node["data"].get("job_id"),
                 "job_context": node["data"].get("job_context"),
                 "kernel_type": node["data"].get("kernel_type"),
@@ -564,6 +573,7 @@ in {runtime}",
                 "kernel_type": test_node["data"].get("kernel_type"),
                 "arch": test_node["data"].get("arch"),
                 "runtime": runtime,
+                "lab": self._get_lab(runtime),
                 "maestro_viewer": f"https://api.kernelci.org/viewer?node_id={test_node['id']}",
             },
         }
