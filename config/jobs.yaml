@@ -182,6 +182,7 @@ jobs:
   baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-foundriesio: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-preempt_rt-qualcomm: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job
@@ -1908,12 +1909,26 @@ jobs:
         - collabora-next:for-kernelci
     kcidb_test_suite: kselftest.devices-exist
 
+  kselftest-devices-exist-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: devices-exist
+    kcidb_test_suite: kselftest.devices-exist
+
   kselftest-device-error-logs-main:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
       collections: devices/error_logs
     kcidb_test_suite: kselftest.device_error_logs
+
+  kselftest-device-error-logs-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: device-error-logs
+    kcidb_test_suite: kselftest.device-error-logs
 
   kselftest-devices-probe:
     <<: *kselftest-job
@@ -1926,6 +1941,13 @@ jobs:
       min_version:
         version: 6
         patchlevel: 11
+    kcidb_test_suite: kselftest.devices-probe
+
+  kselftest-devices-probe-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: devices-probe
     kcidb_test_suite: kselftest.devices-probe
 
   kselftest-dmabuf-heaps:
