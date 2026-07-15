@@ -317,6 +317,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: baseline-riscv-broonie
@@ -950,6 +952,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-breakpoints
@@ -983,6 +987,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-capabilities
@@ -1013,6 +1019,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-clone3
@@ -1043,6 +1051,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-coredump
@@ -1073,6 +1083,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-device-error-logs-main
@@ -1131,6 +1143,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-efivars
@@ -1159,6 +1173,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-fchmodat2
@@ -1212,6 +1228,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-futex
@@ -1243,6 +1261,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-gpio
@@ -1279,6 +1299,8 @@ scheduler:
       - qcs6490-rb3gen2
       - qcs8300-ride
       - qcs9100-ride
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-ipc
@@ -1489,6 +1511,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-proc
@@ -1525,6 +1549,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
 
   - job: kselftest-ring-buffer
     event:
@@ -1560,6 +1586,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-rlimits
@@ -1672,6 +1700,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-tmpfs
@@ -1702,6 +1732,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-seccomp
@@ -1840,6 +1872,8 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-evk
+      - purwa-evk
       - x1e80100
 
   - job: kselftest-cpufreq-suspend
