@@ -502,6 +502,28 @@ platforms:
     dtb: dtbs/qcom/glymur-crd.dtb
     compatible: ['qcom,glymur-crd', 'qcom,glymur']
 
+  hamoa-evk:
+    <<: *arm64-device
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/hamoa-evk/qcom-multimedia-image-iq-x7181-evk.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
+    mach: qcom
+    dtb: dtbs/qcom/hamoa-iot-evk.dtb
+    compatible: ['qcom,hamoa-iot-evk', 'qcom,x1e80100']
+
+  purwa-evk:
+    <<: *arm64-device
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/purwa-evk/qcom-multimedia-image-iq-x5121-evk.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
+    mach: qcom
+    dtb: dtbs/qcom/purwa-iot-evk.dtb
+    compatible: ['qcom,purwa-iot-evk', 'qcom,x1e001x0']
+
   qemu-x86_64: &qemu-device
     base_name: qemu
     arch: x86_64
