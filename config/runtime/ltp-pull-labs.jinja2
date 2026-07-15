@@ -19,6 +19,8 @@
 {%- endif %}
 {%- set ltp_parameters = ltp_params_list | join(' ') %}
 
+{%- do tuxrun_parameters.update({'RUNNER': '/opt/kirk/kirk'}) %}
+
 {#- Calculate timeout in seconds (default 60 minutes) #}
 {%- set test_timeout = (job_timeout | default(60)) * 60 %}
 
