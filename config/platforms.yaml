@@ -390,14 +390,18 @@ platforms:
     compatible: ['mediatek,mt8395-evk', 'mediatek,mt8395', 'mediatek,mt8195']
 
   # Qualcomm Platform list
+  # flash_image hosted on Qualcomm's kernelci-lab is generated from https://github.com/qualcomm-linux/meta-qcom
   qcs615-ride:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/qcs615-ride/qcs615-ride.qcomflash.kernelci.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/qcs615-ride.dtb
     compatible: ['qcom,qcs615-ride', 'qcom,qcs615', 'qcom,sm6150']
 
-  # flash_image hosted on Qualcomm's kernelci-lab is generated from https://github.com/qualcomm-linux/meta-qcom
   qcs6490-rb3gen2:
     <<: *arm64-device
     boot_method: efi
@@ -411,21 +415,33 @@ platforms:
 
   qcs8300-ride:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/qcs8300-ride-sx/qcom-multimedia-image-qcs8300-ride-sx.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/qcs8300-ride.dtb
     compatible: ['qcom,qcs8300-ride', 'qcom,qcs8300']
 
   qcs9100-ride:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/qcs9100-ride/qcom-multimedia-image-qcs9100-ride-sx.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/qcs9100-ride.dtb
     compatible: ['qcom,qcs9100-ride', 'qcom,qcs9100']
 
   sm8750-mtp:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/sm8750-mtp/qcom-multimedia-image-sm8750-mtp.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/sm8750-mtp.dtb
     compatible: ['qcom,sm8750-mtp', 'qcom,sm8750']
@@ -439,7 +455,11 @@ platforms:
 
   kaanapali-mtp:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/kaanapali-mtp/qcom-multimedia-image-kaanapali-mtp.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/kaanapali-mtp.dtb
     compatible: ['qcom,kaanapali-mtp', 'qcom,kaanapali']
@@ -451,21 +471,33 @@ platforms:
 
   lemans-evk:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/iq-9075-evk/qcom-multimedia-image-iq-9075-evk.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/lemans-evk.dtb
     compatible: ['qcom,lemans-evk', 'qcom,qcs9100', 'qcom,sa8775p']
 
   monaco-evk:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/iq-8275-evk/21656922932-1/qcom-multimedia-proprietary-image-iq-8275-evk.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/monaco-evk.dtb
     compatible: ['qcom,monaco-evk', 'qcom,qcs8300']
 
   glymur-crd:
     <<: *arm64-device
-    boot_method: fastboot
+    boot_method: efi
+    flash_image: "https://storage-lava-hyd.qualcomm.com/glymur-crd/qcom-multimedia-image-glymur-crd.rootfs.qcomflash.tar.gz"
+    params:
+      flash_image_headers:
+        Authorization: LAVA_BASIC_AUTH
     mach: qcom
     dtb: dtbs/qcom/glymur-crd.dtb
     compatible: ['qcom,glymur-crd', 'qcom,glymur']
