@@ -3,7 +3,7 @@
 This is simplified example how to subscribe to kernelci.org pubsub
 It uses long polling to get events from the server
 It is not recommended to use this in production, as it is not efficient,
-and in production it is preferable to use cloudevents library
+and in production it is preferable to use the kernelci API bindings
 """
 
 import argparse
@@ -66,8 +66,7 @@ def main():
     print("Subscribing to node")
     response = subscribe_node(token)
     print(f"Subscribed with id {response['id']}")
-    # Here i skip cloudevents and parse "manually"
-    # which is not recommended
+    # Parse the CloudEvents JSON envelope manually
     while True:
         r = pollsub(response["id"], token)
         # print(json.dumps(r, indent=2))
