@@ -82,7 +82,7 @@ class Monitor(Service):
                     return False
                 continue
             subscribe_retries = 0
-            obj = event.data
+            obj = event["data"]
             dt = datetime.datetime.fromisoformat(event["time"])
             try:
                 commit = obj["data"]["kernel_revision"]["commit"][:12]
