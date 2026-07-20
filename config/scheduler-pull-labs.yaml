@@ -51,6 +51,7 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - exynos850-e850-96
+      - gs101-oriole
 
   - job: ltp-smoke-pull-labs
     event:

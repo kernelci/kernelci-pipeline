@@ -141,6 +141,17 @@ platforms:
         - mainline
         - next
 
+  gs101-oriole:
+    <<: *arm64-device
+    mach: samsung
+    boot_method: fastboot
+    dtb: dtbs/exynos/google/gs101-oriole.dtb
+    compatible: ['google,gs101-oriole', 'google,gs101']
+    rules:
+      tree:
+        - mainline
+        - next
+
   imx23-olinuxino:
     <<: *arm-device
     boot_method: barebox
