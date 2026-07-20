@@ -1072,9 +1072,10 @@ jobs:
         - 'kselftest'
     rules:
       tree:
-      - '!chromiumos'
-      - '!cip'
-      - '!omap'
+      - 'kernelci'
+      - 'mainline'
+      - 'next'
+      - 'stable'
 
   # Default config and build only job
   kbuild-gcc-14-arm64-build-only:
@@ -1101,6 +1102,7 @@ jobs:
       fragments:
         - arm64-chromebook
         - kcidebug
+        - kcidebug-arm64
         - lab-setup
     rules:
       tree:
@@ -1637,18 +1639,19 @@ jobs:
     rules: *build-only-trees-rules
 
   kbuild-gcc-14-x86-kcidebug:
-    <<: *kbuild-gcc-14-i386-job
+    <<: *kbuild-gcc-14-x86-job
     params:
-      <<: *kbuild-gcc-14-i386-params
-      defconfig: defconfig
+      <<: *kbuild-gcc-14-x86-params
       fragments:
         - kcidebug
+        - kcidebug-x86_64
         - x86-board
     rules:
       tree:
-      - '!android'
-      - '!chromiumos'
-      - '!cip'
+      - 'kernelci'
+      - 'mainline'
+      - 'next'
+      - 'stable'
 
   kbuild-gcc-14-x86-kselftest:
     <<: *kbuild-gcc-14-x86-job
