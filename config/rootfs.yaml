@@ -10,7 +10,7 @@
 rootfs:
 
   buildroot-baseline:
-    ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
+    ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20260721.0/{brarch}/rootfs.cpio.gz'
 
   buildroot-baseline-depthcharge:
     ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230623.0/{brarch}/rootfs.cpio.gz'
