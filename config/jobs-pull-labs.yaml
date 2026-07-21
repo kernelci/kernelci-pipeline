@@ -9,7 +9,7 @@ _anchors:
     priority: medium
     kcidb_test_suite: boot
     params:
-      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230703.0/{brarch}/rootfs.cpio.gz'
+      ramdisk: 'http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20260721.0/{brarch}/rootfs.cpio.gz'
 
   ltp-params-pull-labs: &ltp-params-pull-labs
     boot_commands: nfs
