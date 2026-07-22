@@ -160,6 +160,60 @@ The QEMU boot uses `-initrd` so it only works with jobs that provide a
 `ramdisk` artifact (cpio format). Jobs with full rootfs tarballs (e.g.
 LTP NFS root) require tuxrun or a lab with proper provisioning.
 
+## Running a LAVA Pull Lab
+
+Labs running LAVA behind a firewall cannot use the regular push-style LAVA
+integration because the pipeline has no URL to reach them. For this case
+a `lava` runtime can be declared *without* a `url` in
+[`config/pipeline.yaml`](../config/pipeline.yaml):
+
+```yaml
+  lava-testpull:
+    lab_type: lava
+    notify:
+      callback:
+        token: kernelci-lab-testpull
+```
+
+Instead of submitting to a LAVA server, the pipeline then renders the
+complete LAVA job definition, stores it in external storage and publishes
+its URL as the `job_definition` artifact of the job node (a `.yaml` file,
+unlike the `.json` definitions used by the PULL_LABS protocol).
+
+The lab polls for these jobs and submits the definitions verbatim to its
+local LAVA instance with `tools/example_pull_lab_lava.py`:
+
+```bash
+export LAVA_TOKEN=<lava api token>
+python tools/example_pull_lab_lava.py \
+    --lava-url https://lava.mylab.local --lab-name lava-testpull
+```
+
+The `--lab-name` argument is mandatory in poll mode and must match the
+runtime name from `config/pipeline.yaml` so the lab only picks up jobs
+scheduled for it.
+
+The definition already contains a `notify` callback pointing back at the
+KernelCI pipeline, so results are reported by LAVA itself via outbound
+HTTP — the lab does not need to be reachable from the outside. For the
+callback to authenticate, the LAVA user submitting the jobs must have a
+"remote token" whose name matches the `notify.callback.token` value from
+the runtime configuration (e.g. `kernelci-lab-testpull`), holding the
+secret value shared with the KernelCI pipeline admins.
+
+Useful options:
+
+- `--device-type` (repeatable) only submits jobs for device types the lab
+  actually has
+- `--platform` (repeatable) filters by KernelCI platform name
+- `--job-yaml <file-or-URL> --dry-run` inspects a single definition
+  without submitting it
+- `--wait` blocks until each submitted LAVA job finishes
+- `--journal-file` points at an append-only JSONL journal persisting
+  submitted jobs and the polling position, so restarting the script does
+  not resubmit jobs or replay old events; it tolerates interrupted
+  writes and is compacted automatically
+
 ## Running LTP Tests on Pull Labs
 
 In addition to baseline boot tests, pull-labs supports running LTP (Linux Test
