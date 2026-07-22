@@ -186,6 +186,14 @@ scheduler:
       - rk3576-rock-4d
       - rk3588-rock-5b
 
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-renesas
+    platforms:
+      - r8a774a1-hihope-rzg2m-ex
+
   - job: wifi-basic
     event:
       <<: *node-event-kbuild
