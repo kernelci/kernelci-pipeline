@@ -30,6 +30,7 @@ from pydantic import BaseModel
 
 from base import validate_url
 from telemetry import TelemetryEmitter
+from triage_notifier import TriageNotifier
 
 SETTINGS = toml.load(os.getenv("KCI_SETTINGS", "config/kernelci.toml"))
 CONFIGS = kernelci.config.load(
@@ -39,6 +40,12 @@ SETTINGS_PREFIX = "runtime"
 YAMLCFG = kernelci.config.load_yaml("config")
 # Default network timeout (seconds)
 REQUEST_TIMEOUT = 10
+
+# CALLBACK_DRY_RUN=true skips the two production-mutating side effects in
+# async_job_submit (storage uploads and api.submit_results) so the flow can
+# reach _triage_notifier.maybe_trigger for end-to-end testing without
+# touching production state. Never enable in real deployments.
+_DRY_RUN = os.getenv("CALLBACK_DRY_RUN", "").lower() in ("1", "true", "yes", "on")
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
@@ -168,6 +175,10 @@ metrics = Metrics("pipeline_callback")
 
 # Initialize telemetry emitter with the default API config
 _telemetry_emitter = None
+
+# Triage notifier — no-op unless TRIAGE_ENABLE=true and TRIAGE_AGENT_URL is set.
+# See docs/lava_callback_integration.md in the triage-agent repo for design.
+_triage_notifier = TriageNotifier.from_env(metrics=metrics)
 
 
 def _get_telemetry_emitter():
@@ -321,7 +332,11 @@ def async_job_submit(api_helper, node_id, job_callback):
         storage_config_name = job_callback.get_meta("storage_config_name")
         storage = _get_storage(storage_config_name)
 
-        if log_parser:
+        if _DRY_RUN:
+            logger.info("[CALLBACK_DRY_RUN] skipping storage upload block")
+            if not log_parser:
+                job_result = "incomplete"
+        elif log_parser:
             log_txt_url = _upload_log(log_parser, job_node, storage)
             if log_txt_url:
                 job_node["artifacts"]["lava_log"] = log_txt_url
@@ -367,10 +382,19 @@ def async_job_submit(api_helper, node_id, job_callback):
                     f"Artifact {artifact[1]} added with URL {artifact[2]}"
                 )
         hierarchy = job_callback.get_hierarchy(results, job_node)
-        api_helper.submit_results(hierarchy, job_node)
+        if _DRY_RUN:
+            logger.info("[CALLBACK_DRY_RUN] skipping api_helper.submit_results")
+        else:
+            api_helper.submit_results(hierarchy, job_node)
 
         # Emit telemetry events
         _emit_callback_telemetry(job_node, job_callback, hierarchy)
+
+        # Best-effort triage handoff. Never allowed to fail this path.
+        try:
+            _triage_notifier.maybe_trigger(job_node, job_callback, hierarchy)
+        except Exception:
+            logger.exception(f"triage_notifier.maybe_trigger raised for node {node_id}")
 
         logger.info(f"Completed processing callback for node {node_id}")
     except Exception as e:
