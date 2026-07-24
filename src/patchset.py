@@ -168,13 +168,12 @@ patch -p1 < {patch_file}
         return dict(sorted(node_artifacts.items(), key=patch_key))
 
     def _gen_checkout_name(self, checkout_node):
-        revision = checkout_node["data"]["kernel_revision"]
-        return "-".join([
-            "linux",
-            revision["tree"],
-            revision["branch"],
-            revision["describe"],
-        ])
+        # The directory inside the tarball matches the tarball file name,
+        # so derive it from the artifact URL to stay consistent with the
+        # naming used by the tarball service
+        tarball_url = checkout_node["artifacts"]["tarball"]
+        tar_filename = os.path.basename(urlparse(tarball_url).path)
+        return tar_filename.removesuffix(".tar.gz")
 
     def _process_patchset(self, checkout_node, patchset_node):
         patch_artifacts = self._get_patch_artifacts(patchset_node)
