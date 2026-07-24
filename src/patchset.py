@@ -47,10 +47,14 @@ cd {target_dir}
 tar --create --transform "s/^/{prefix}\\//" * | gzip > {tarball_path}
 """
 
+    # --unified disables patch(1) format auto-detection, so ed-style
+    # scripts (CVE-2018-1000156) can never be interpreted; --force keeps
+    # it non-interactive and --no-backup-if-mismatch avoids .orig files
+    # ending up in the released tarball
     APPLY_PATCH_SHELL_CMD = """\
 set -e
 cd {checkout_path}
-patch -p1 < {patch_file}
+patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
 """
 
     def _hash_patch(self, patch_name, patch_file):
