@@ -57,6 +57,19 @@ cd {checkout_path}
 patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
 """
 
+    def __init__(self, global_configs, service_config, name):
+        super().__init__(global_configs, service_config, name)
+        # Patches uploaded through the pipeline API land on the pipeline
+        # storage, so its domain is always allowed alongside the
+        # configured ones
+        self._allowed_domains = set(self._service_config.allowed_domains or [])
+        storage_config = global_configs["storage_configs"][
+            service_config.storage_config
+        ]
+        storage_host = urlparse(storage_config.base_url).hostname
+        if storage_host:
+            self._allowed_domains.add(storage_host)
+
     def _hash_patch(self, patch_name, patch_file):
         allowed_prefixes = {
             b"old mode",  # Old file permissions
@@ -298,10 +311,10 @@ patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
 
     def _has_allowed_domain(self, url):
         domain = urlparse(url).hostname
-        if domain not in self._service_config.allowed_domains:
+        if domain not in self._allowed_domains:
             raise RuntimeError(
                 f"Forbidden patch domain {domain}, allowed domains: "
-                f"{self._service_config.allowed_domains}"
+                f"{sorted(self._allowed_domains)}"
             )
 
     def _get_patch_artifacts(self, patchset_node):

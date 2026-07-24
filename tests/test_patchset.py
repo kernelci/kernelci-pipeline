@@ -164,5 +164,26 @@ index 1234567..89abcde 100644
         self.validate(VALID_PATCH + b"\n-- \n2.39.1\n\n" + VALID_PATCH)
 
 
+class TestAllowedDomains(unittest.TestCase):
+    def setUp(self):
+        self.service = object.__new__(Patchset)
+        self.service._allowed_domains = {
+            "patchwork.kernel.org",
+            "files.kernelci.org",
+        }
+
+    def test_allowed_domain_accepted(self):
+        self.service._has_allowed_domain(
+            "https://patchwork.kernel.org/series/1/mbox/"
+        )
+        self.service._has_allowed_domain(
+            "https://files.kernelci.org/custom-patches/x.patch"
+        )
+
+    def test_forbidden_domain_rejected(self):
+        with self.assertRaises(RuntimeError):
+            self.service._has_allowed_domain("https://evil.example.com/x")
+
+
 if __name__ == "__main__":
     unittest.main()
