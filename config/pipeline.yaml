@@ -164,5 +164,11 @@ runtimes:
       callback:
         token: kernelci-lab-testpull
 
+  lava-renesas:
+    lab_type: lava
+    notify:
+      callback:
+        token: kernelci-lab-renesas
+
   shell:
     lab_type: shell
