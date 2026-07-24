@@ -53,10 +53,24 @@ and falls back to `unified_secret` on signature failure (see
 
 ## Generating tokens for user
 
-You can use the `jwt_generator.py` script in the tools directory to generate user tokens.
+Use `jwt_generator.py` in the tools directory to generate a unified user token.
+The subject is the user's ID in `kernelci-api`; the origin identifies the
+submitter to KCIDB:
 
-`jwt_generator.py --secret ABCDEFGH... --email user@email.com`
+```
+jwt_generator.py --toml kernelci.toml \
+  --email user@email.com \
+  --subject 65265305c74695807499037f \
+  --origin kernelci-pipeline
+```
 
-Include the permissions your workflow needs, for example:
+The tool reads `[jwt].unified_secret` when `--toml` is used. Alternatively,
+pass the same key directly with `--secret`. Tokens contain the claims required
+by `kernelci-api`, `kernelci-pipeline`, `kernelci-storage`, and
+`kcidb-restd-rs`, and expire after ten years by default. Use
+`--lifetime-seconds` to select a shorter lifetime.
 
-`jwt_generator.py --secret ABCDEFGH... --email user@email.com --permissions checkout,patchset,testretry`
+The default permissions include `checkout`, `patchset`, and `testretry`,
+including the `patchset` endpoint provided by
+[kernelci-pipeline#1563](https://github.com/kernelci/kernelci-pipeline/pull/1563).
+Restrict them to the operations the user needs with `--permissions`.
