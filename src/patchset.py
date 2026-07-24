@@ -101,13 +101,18 @@ patch -p1 < {patch_file}
     def _download_checkout_archive(self, download_path, tarball_url, retries=3):
         self.log.info(f"Downloading checkout tarball, url: {tarball_url}")
         tar_filename = os.path.basename(urlparse(tarball_url).path)
-        kernelci.build.pull_tarball(
+        if not kernelci.build.pull_tarball(
             kdir=download_path,
             url=tarball_url,
-            dest_filename=tar_filename,
+            dest_filename=os.path.join(
+                self._service_config.output, tar_filename
+            ),
             retries=retries,
-            delete=True
-        )
+            delete=True,
+        ):
+            raise RuntimeError(
+                f"Failed to download checkout tarball {tarball_url}"
+            )
 
     def _update_node(
         self,
@@ -144,17 +149,15 @@ patch -p1 < {patch_file}
         domain = urlparse(url).hostname
         if domain not in self._service_config.allowed_domains:
             raise RuntimeError(
-                "Forbidden mbox domain %s, allowed domains: %s",
-                domain,
-                self._service_config.allowed_domains,
+                f"Forbidden patch domain {domain}, allowed domains: "
+                f"{self._service_config.allowed_domains}"
             )
 
     def _get_patch_artifacts(self, patchset_node):
         node_artifacts = patchset_node.get("artifacts")
         if not node_artifacts:
             raise ValueError(
-                "Patchset node %s has no artifacts",
-                patchset_node["id"],
+                f"Patchset node {patchset_node['id']} has no artifacts"
             )
 
         for patch_mbox_url in node_artifacts.values():
@@ -176,6 +179,11 @@ patch -p1 < {patch_file}
         return tar_filename.removesuffix(".tar.gz")
 
     def _process_patchset(self, checkout_node, patchset_node):
+        if not checkout_node.get("artifacts", {}).get("tarball"):
+            raise ValueError(
+                f"Checkout node {checkout_node['id']} has no tarball artifact"
+            )
+
         patch_artifacts = self._get_patch_artifacts(patchset_node)
 
         # Tarball download implicitely removes destination dir
@@ -221,8 +229,8 @@ patch -p1 < {patch_file}
     def _mark_failed_if_no_parent(self, patchset_node):
         if not patchset_node["parent"]:
             self.log.error(
-                f"Patchset node {patchset_node['id']} as has no parent"
-                "checkout node , marking node as failed",
+                f"Patchset node {patchset_node['id']} has no parent "
+                "checkout node, marking node as failed",
             )
             self._mark_failed(patchset_node)
             return True
