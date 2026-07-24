@@ -29,6 +29,8 @@ patchset_short_hash_len = 13
 # domains allowed to fetch patches from
 allowed_domains = ["patchwork.kernel.org"]
 polling_delay_secs = 30
+# maximum size of a single downloaded patch (mbox) file
+patchset_max_patch_size_mb = 10
 
 [scheduler]
 # directory to store temporary job templates
