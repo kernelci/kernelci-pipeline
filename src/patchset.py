@@ -24,6 +24,19 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 
 from tarball import Tarball
 
+DEFAULT_MAX_PATCH_SIZE_MB = 10
+
+HUNK_HEADER_RE = re.compile(rb"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
+GIT_DIFF_RE = re.compile(rb"^diff --git a/(\S+) b/(\S+)$")
+RENAME_COPY_RE = re.compile(rb"^(?:rename|copy) (?:from|to) (.+)$")
+MODE_LINE_RE = re.compile(
+    rb"^(?:old mode|new mode|new file mode|deleted file mode) (\d+)$"
+)
+
+
+class PatchValidationError(Exception):
+    """Raised when a patch fails safety validation"""
+
 
 class Patchset(Tarball):
     # The checkout sources come from an extracted tarball, not a git
@@ -63,6 +76,145 @@ patch -p1 < {patch_file}
         self.log.debug(f"Patch {patch_name} hash: {patch_hash_digest}")
         return patch_hash_digest
 
+    def _validate_patch_path(self, raw_path, checkout_path, strip=1):
+        """Check that a file path referenced by a patch stays inside the
+        checkout source tree once `patch -p1` strips its first component"""
+        try:
+            path = raw_path.decode("utf-8")
+        except UnicodeDecodeError:
+            raise PatchValidationError(
+                f"Undecodable file path in patch: {raw_path!r}"
+            )
+        # Timestamps after a tab are legal in ---/+++ header lines
+        path = path.split("\t")[0].rstrip("\r")
+        if path == "/dev/null":
+            return
+        if path.startswith('"'):
+            raise PatchValidationError(f"Quoted file path not allowed: {path}")
+        if path.startswith("/"):
+            raise PatchValidationError(
+                f"Absolute file path not allowed: {path}"
+            )
+        parts = path.split("/")
+        if ".." in parts:
+            raise PatchValidationError(f"Path traversal not allowed: {path}")
+        target_parts = parts[strip:]
+        if not target_parts or not all(target_parts):
+            raise PatchValidationError(f"Invalid file path: {path}")
+        if target_parts[0] == ".git":
+            raise PatchValidationError(f"Patching .git is not allowed: {path}")
+        # Resolve symlinks to catch in-tree links pointing outside the tree
+        checkout_real = os.path.realpath(checkout_path)
+        target_real = os.path.realpath(
+            os.path.join(checkout_path, *target_parts)
+        )
+        if not target_real.startswith(checkout_real + os.sep):
+            raise PatchValidationError(f"Path escapes the source tree: {path}")
+
+    @staticmethod
+    def _skip_hunk_body(lines, i, hunk_match):
+        """Skip past a unified diff hunk body, returning the next index"""
+        old_count = int(hunk_match.group(1) or 1)
+        new_count = int(hunk_match.group(2) or 1)
+        while (old_count > 0 or new_count > 0) and i < len(lines):
+            first = lines[i][:1]
+            if first == b"-":
+                old_count -= 1
+            elif first == b"+":
+                new_count -= 1
+            elif first != b"\\":
+                # Context line; "\ No newline at end of file" markers
+                # don't count towards either side
+                old_count -= 1
+                new_count -= 1
+            i += 1
+        return i
+
+    def _validate_header_line(self, line, patch_name, checkout_path):
+        """Validate a single line outside hunk bodies
+
+        Returns the number of file headers found on this line.
+        """
+        if line.startswith(b"GIT binary patch") or line.startswith(
+            b"Binary files "
+        ):
+            raise PatchValidationError(f"Binary patch content in {patch_name}")
+        mode = MODE_LINE_RE.match(line)
+        if mode and mode.group(1)[:2] in (b"12", b"16"):
+            raise PatchValidationError(
+                f"Symlink or submodule mode not allowed in {patch_name}"
+            )
+        git_diff = GIT_DIFF_RE.match(line)
+        if git_diff:
+            # The a/ and b/ prefixes are already consumed by the regex
+            self._validate_patch_path(git_diff.group(1), checkout_path, strip=0)
+            self._validate_patch_path(git_diff.group(2), checkout_path, strip=0)
+            return 1
+        if line.startswith(b"diff --git"):
+            raise PatchValidationError(
+                f"Unparseable diff header in {patch_name}: {line!r}"
+            )
+        rename_copy = RENAME_COPY_RE.match(line)
+        if rename_copy:
+            self._validate_patch_path(
+                rename_copy.group(1), checkout_path, strip=0
+            )
+        return 0
+
+    def _validate_patch(self, patch_name, patch_data, checkout_path):
+        """Reject binary or malicious patches before they reach patch(1)
+
+        Only text-only unified diffs are accepted and every file path
+        they reference must stay inside the checkout source tree.
+        """
+        max_size = (
+            1024
+            * 1024
+            * int(
+                self._service_config.patchset_max_patch_size_mb
+                or DEFAULT_MAX_PATCH_SIZE_MB
+            )
+        )
+        if len(patch_data) > max_size:
+            raise PatchValidationError(
+                f"Patch {patch_name} exceeds maximum size of {max_size} bytes"
+            )
+        if b"\x00" in patch_data:
+            raise PatchValidationError(
+                f"Patch {patch_name} contains binary data"
+            )
+
+        lines = patch_data.split(b"\n")
+        file_headers = 0
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            hunk = HUNK_HEADER_RE.match(line)
+            if hunk:
+                # Consume the hunk body so its content (which may itself
+                # look like diff headers) is not misparsed
+                i = self._skip_hunk_body(lines, i + 1, hunk)
+                continue
+            file_headers += self._validate_header_line(
+                line, patch_name, checkout_path
+            )
+            if (
+                line.startswith(b"--- ")
+                and i + 1 < len(lines)
+                and lines[i + 1].startswith(b"+++ ")
+            ):
+                file_headers += 1
+                self._validate_patch_path(line[4:], checkout_path)
+                self._validate_patch_path(lines[i + 1][4:], checkout_path)
+                i += 2
+                continue
+            i += 1
+
+        if not file_headers:
+            raise PatchValidationError(
+                f"No unified diff content found in {patch_name}"
+            )
+
     def _apply_patch(self, checkout_path, patch_name, patch_url):
         self.log.info(f"Applying patch {patch_name}, url: {patch_url}")
         with tempfile.NamedTemporaryFile(
@@ -75,6 +227,8 @@ patch -p1 < {patch_file}
                     f"Error downloading patch from {patch_url}"
                 )
 
+            self._validate_patch(patch_name, tmp_f.read(), checkout_path)
+
             kernelci.shell_cmd(
                 self.APPLY_PATCH_SHELL_CMD.format(
                     checkout_path=checkout_path,
@@ -82,6 +236,7 @@ patch -p1 < {patch_file}
                 )
             )
 
+            tmp_f.seek(0)
             return self._hash_patch(patch_name, tmp_f)
 
     def _apply_patches(self, checkout_path, patch_artifacts):
