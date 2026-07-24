@@ -5,6 +5,8 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # Author: Nikolay Yurin <yurinnick@meta.com>
 
+import copy
+import datetime
 import os
 import re
 import sys
@@ -13,7 +15,6 @@ import requests
 import time
 import tempfile
 import hashlib
-from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
 import kernelci
@@ -121,15 +122,17 @@ patch -p1 < {patch_file}
         tarball_url,
         patchset_hash
     ):
-        patchset_data = checkout_node.get("data", {}).copy()
+        patchset_data = copy.deepcopy(checkout_node.get("data", {}))
         patchset_data["kernel_revision"]["patchset"] = patchset_hash
 
         updated_node = patchset_node.copy()
         updated_node["artifacts"]["tarball"] = tarball_url
         updated_node["state"] = "available"
+        updated_node["result"] = "pass"
         updated_node["data"] = patchset_data
         updated_node["holdoff"] = str(
-            datetime.utcnow() + timedelta(minutes=10)
+            datetime.datetime.now(datetime.UTC)
+            + datetime.timedelta(minutes=10)
         )
 
         try:
