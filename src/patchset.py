@@ -6,6 +6,7 @@
 # Author: Nikolay Yurin <yurinnick@meta.com>
 
 import os
+import re
 import sys
 import json
 import requests
@@ -159,7 +160,12 @@ patch -p1 < {patch_file}
         for patch_mbox_url in node_artifacts.values():
             self._has_allowed_domain(patch_mbox_url)
 
-        return node_artifacts
+        # Sort patches numerically (patch0, patch1, ..., patch10)
+        def patch_key(item):
+            match = re.search(r"(\d+)$", item[0])
+            return int(match.group(1)) if match else 0
+
+        return dict(sorted(node_artifacts.items(), key=patch_key))
 
     def _gen_checkout_name(self, checkout_node):
         revision = checkout_node["data"]["kernel_revision"]
