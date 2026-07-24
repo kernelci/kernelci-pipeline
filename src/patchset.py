@@ -138,12 +138,11 @@ patch -p1 < {patch_file}
             err_msg = json.loads(err.response.content).get("detail", [])
             self.log.error(err_msg)
 
-    def _setup(self, *args):
-        return self._api_helper.subscribe_filters({
-            "op": "created",
-            "name": "patchset",
-            "state": "running",
-        })
+    def _setup(self, args):
+        # This service polls for patchset nodes instead of listening to
+        # pub/sub events, as it also needs to wait for the parent checkout
+        # node to complete before processing
+        return None
 
     def _has_allowed_domain(self, url):
         domain = urlparse(url).hostname
@@ -251,55 +250,57 @@ patch -p1 < {patch_file}
 
         return False
 
+    def _process_pending_patchset_nodes(self):
+        patchset_nodes = self._api.node.find({
+            "name": "patchset",
+            "state": "running",
+        })
+
+        if patchset_nodes:
+            self.log.debug(f"Found patchset nodes: {patchset_nodes}")
+
+        for patchset_node in patchset_nodes:
+            if self._mark_failed_if_no_parent(patchset_node):
+                continue
+
+            checkout_node = self._api.node.get(patchset_node["parent"])
+
+            if self._mark_failed_if_parent_failed(
+                patchset_node,
+                checkout_node
+            ):
+                continue
+
+            if checkout_node["state"] == "running":
+                self.log.info(
+                    f"Patchset node {patchset_node['id']} is waiting "
+                    f"for checkout node {checkout_node['id']} to complete",
+                )
+                continue
+
+            try:
+                self.log.info(
+                    f"Processing patchset node: {patchset_node['id']}",
+                )
+                self._process_patchset(checkout_node, patchset_node)
+            except Exception as e:
+                self.log.error(
+                    f"Patchset node {patchset_node['id']} "
+                    f"processing failed: {e}",
+                )
+                self.log.traceback()
+                self._mark_failed(patchset_node)
+
     def _run(self, _sub_id):
-        self.log.info("Listening for new trigger events")
+        self.log.info("Polling for patchset nodes")
         self.log.info("Press Ctrl-C to stop.")
 
         while True:
-            patchset_nodes = self._api.node.find({
-                "name": "patchset",
-                "state": "running",
-            })
+            try:
+                self._process_pending_patchset_nodes()
+            except requests.exceptions.RequestException as e:
+                self.log.error(f"Error polling patchset nodes: {e}")
 
-            if patchset_nodes:
-                self.log.debug(f"Found patchset nodes: {patchset_nodes}")
-
-            for patchset_node in patchset_nodes:
-                if self._mark_failed_if_no_parent(patchset_node):
-                    continue
-
-                checkout_node = self._api.node.get(patchset_node["parent"])
-
-                if self._mark_failed_if_parent_failed(
-                    patchset_node,
-                    checkout_node
-                ):
-                    continue
-
-                if checkout_node["state"] == "running":
-                    self.log.info(
-                        f"Patchset node {patchset_node['id']} is waiting "
-                        f"for checkout node {checkout_node['id']} to complete",
-                    )
-                    continue
-
-                try:
-                    self.log.info(
-                        f"Processing patchset node: {patchset_node['id']}",
-                    )
-                    self._process_patchset(checkout_node, patchset_node)
-                except Exception as e:
-                    self.log.error(
-                        f"Patchset node {patchset_node['id']} "
-                        f"processing failed: {e}",
-                    )
-                    self.log.traceback()
-                    self._mark_failed(patchset_node)
-
-            self.log.info(
-                "Waiting %d seconds for new nodes..." %
-                self._service_config.polling_delay_secs,
-            )
             time.sleep(self._service_config.polling_delay_secs)
 
 
