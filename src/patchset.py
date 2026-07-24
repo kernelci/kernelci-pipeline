@@ -7,27 +7,27 @@
 
 import copy
 import datetime
+import hashlib
+import json
 import os
 import re
 import sys
-import json
-import requests
-import time
 import tempfile
-import hashlib
+import time
 from urllib.parse import urlparse
 
 import kernelci
 import kernelci.build
 import kernelci.config
+import requests
 from kernelci.legacy.cli import Args, Command, parse_opts
-import kernelci.storage
 
-from base import Service
 from tarball import Tarball
 
 
 class Patchset(Tarball):
+    # The checkout sources come from an extracted tarball, not a git
+    # repository, so `git archive` can't be used here
     TAR_CREATE_CMD = """\
 set -e
 cd {target_dir}
@@ -40,14 +40,12 @@ cd {checkout_path}
 patch -p1 < {patch_file}
 """
 
-    # FIXME: I really don"t have a good idea what I"m doing here
-    # This code probably needs rework and put into kernelci.patch
     def _hash_patch(self, patch_name, patch_file):
         allowed_prefixes = {
             b"old mode",  # Old file permissions
             b"new mode",  # New file permissions
-            b"-",  # This convers both removed lines and source file
-            b"+",  # This convers both added lines and target file
+            b"-",  # This covers both removed lines and source file
+            b"+",  # This covers both added lines and target file
             # "@" I don"t know how we should handle hunks yet
         }
         hashable_patch_lines = []
@@ -65,15 +63,11 @@ patch -p1 < {patch_file}
         self.log.debug(f"Patch {patch_name} hash: {patch_hash_digest}")
         return patch_hash_digest
 
-    # FIXME: move into kernelci.patch
     def _apply_patch(self, checkout_path, patch_name, patch_url):
-        self.log.info(
-            f"Applying patch {patch_name}, url: {patch_url}",
-        )
+        self.log.info(f"Applying patch {patch_name}, url: {patch_url}")
         with tempfile.NamedTemporaryFile(
             prefix="{}-{}-".format(
-                self._service_config.patchset_tmp_file_prefix,
-                patch_name
+                self._service_config.patchset_tmp_file_prefix, patch_name
             ),
         ) as tmp_f:
             if not kernelci.build._download_file(patch_url, tmp_f.name):
@@ -81,14 +75,15 @@ patch -p1 < {patch_file}
                     f"Error downloading patch from {patch_url}"
                 )
 
-            kernelci.shell_cmd(self.APPLY_PATCH_SHELL_CMD.format(
-                checkout_path=checkout_path,
-                patch_file=tmp_f.name,
-            ))
+            kernelci.shell_cmd(
+                self.APPLY_PATCH_SHELL_CMD.format(
+                    checkout_path=checkout_path,
+                    patch_file=tmp_f.name,
+                )
+            )
 
             return self._hash_patch(patch_name, tmp_f)
 
-    # FIXME: move into kernelci.patch
     def _apply_patches(self, checkout_path, patch_artifacts):
         patchset_hash = hashlib.sha256()
         for patch_name, patch_url in patch_artifacts.items():
@@ -116,11 +111,7 @@ patch -p1 < {patch_file}
             )
 
     def _update_node(
-        self,
-        patchset_node,
-        checkout_node,
-        tarball_url,
-        patchset_hash
+        self, patchset_node, checkout_node, tarball_url, patchset_hash
     ):
         patchset_data = copy.deepcopy(checkout_node.get("data", {}))
         patchset_data["kernel_revision"]["patchset"] = patchset_hash
@@ -131,8 +122,7 @@ patch -p1 < {patch_file}
         updated_node["result"] = "pass"
         updated_node["data"] = patchset_data
         updated_node["holdoff"] = str(
-            datetime.datetime.now(datetime.UTC)
-            + datetime.timedelta(minutes=10)
+            datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=10)
         )
 
         try:
@@ -192,7 +182,7 @@ patch -p1 < {patch_file}
         # there's no need to cleanup this directory
         self._download_checkout_archive(
             download_path=self._service_config.kdir,
-            tarball_url=checkout_node["artifacts"]["tarball"]
+            tarball_url=checkout_node["artifacts"]["tarball"],
         )
 
         checkout_name = self._gen_checkout_name(checkout_node)
@@ -200,12 +190,12 @@ patch -p1 < {patch_file}
 
         patchset_hash = self._apply_patches(checkout_path, patch_artifacts)
         patchset_hash_short = patchset_hash[
-            :self._service_config.patchset_short_hash_len
+            : self._service_config.patchset_short_hash_len
         ]
 
         tarball_path = self._make_tarball(
             target_dir=checkout_path,
-            tarball_name=f"{checkout_name}-{patchset_hash_short}"
+            tarball_name=f"{checkout_name}-{patchset_hash_short}",
         )
         tarball_url = self._push_tarball(tarball_path)
 
@@ -213,15 +203,17 @@ patch -p1 < {patch_file}
             patchset_node=patchset_node,
             checkout_node=checkout_node,
             tarball_url=tarball_url,
-            patchset_hash=patchset_hash
+            patchset_hash=patchset_hash,
         )
 
     def _mark_failed(self, patchset_node):
         node = patchset_node.copy()
-        node.update({
-            "state": "done",
-            "result": "fail",
-        })
+        node.update(
+            {
+                "state": "done",
+                "result": "fail",
+            }
+        )
         try:
             self._api.node.update(node)
         except requests.exceptions.HTTPError as err:
@@ -232,7 +224,7 @@ patch -p1 < {patch_file}
         if not patchset_node["parent"]:
             self.log.error(
                 f"Patchset node {patchset_node['id']} has no parent "
-                "checkout node, marking node as failed",
+                "checkout node, marking node as failed"
             )
             self._mark_failed(patchset_node)
             return True
@@ -241,12 +233,12 @@ patch -p1 < {patch_file}
 
     def _mark_failed_if_parent_failed(self, patchset_node, checkout_node):
         if (
-            checkout_node["state"] == "done" and
-            checkout_node["result"] == "fail"
+            checkout_node["state"] == "done"
+            and checkout_node["result"] == "fail"
         ):
             self.log.error(
                 f"Parent checkout node {checkout_node['id']} failed, "
-                f"marking patchset node {patchset_node['id']} as failed",
+                f"marking patchset node {patchset_node['id']} as failed"
             )
             self._mark_failed(patchset_node)
             return True
@@ -254,10 +246,12 @@ patch -p1 < {patch_file}
         return False
 
     def _process_pending_patchset_nodes(self):
-        patchset_nodes = self._api.node.find({
-            "name": "patchset",
-            "state": "running",
-        })
+        patchset_nodes = self._api.node.find(
+            {
+                "name": "patchset",
+                "state": "running",
+            }
+        )
 
         if patchset_nodes:
             self.log.debug(f"Found patchset nodes: {patchset_nodes}")
@@ -268,28 +262,25 @@ patch -p1 < {patch_file}
 
             checkout_node = self._api.node.get(patchset_node["parent"])
 
-            if self._mark_failed_if_parent_failed(
-                patchset_node,
-                checkout_node
-            ):
+            if self._mark_failed_if_parent_failed(patchset_node, checkout_node):
                 continue
 
             if checkout_node["state"] == "running":
                 self.log.info(
                     f"Patchset node {patchset_node['id']} is waiting "
-                    f"for checkout node {checkout_node['id']} to complete",
+                    f"for checkout node {checkout_node['id']} to complete"
                 )
                 continue
 
             try:
                 self.log.info(
-                    f"Processing patchset node: {patchset_node['id']}",
+                    f"Processing patchset node: {patchset_node['id']}"
                 )
                 self._process_patchset(checkout_node, patchset_node)
             except Exception as e:
                 self.log.error(
                     f"Patchset node {patchset_node['id']} "
-                    f"processing failed: {e}",
+                    f"processing failed: {e}"
                 )
                 self.log.traceback()
                 self._mark_failed(patchset_node)
@@ -313,23 +304,27 @@ class cmd_run(Command):
         "and push a source+patchset tarball"
     )
     args = [
-        Args.kdir, Args.output, Args.api_config, Args.storage_config,
+        Args.kdir,
+        Args.output,
+        Args.api_config,
+        Args.storage_config,
     ]
     opt_args = [
-        Args.verbose, Args.storage_cred,
+        Args.verbose,
+        Args.storage_cred,
         {
-            'name': '--name',
-            'help': "Name of pipeline instance",
+            "name": "--name",
+            "help": "Name of pipeline instance",
         },
     ]
 
     def __call__(self, configs, args):
-        return Patchset(configs, args, 'patchset').run(args)
+        return Patchset(configs, args, "patchset").run(args)
 
 
 if __name__ == "__main__":
     opts = parse_opts("patchset", globals())
-    yaml_configs = opts.get_yaml_configs() or 'config'
+    yaml_configs = opts.get_yaml_configs() or "config"
     configs = kernelci.config.load(yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
