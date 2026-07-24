@@ -518,13 +518,26 @@ def decode_jwt(jwtstr):
     if not secret and not unified_secret:
         logger.error("No JWT secret configured")
         return None
+    # Unified tokens carry kernelci-api's audience. Pipeline endpoints
+    # authorize the permissions claim instead, so do not validate aud here.
+    # PyJWT still validates the signature and expiration with this option.
     if secret:
         try:
-            return jwt.decode(jwtstr, secret, algorithms=["HS256"])
+            return jwt.decode(
+                jwtstr,
+                secret,
+                algorithms=["HS256"],
+                options={"verify_aud": False},
+            )
         except jwt.InvalidSignatureError:
             logger.debug("Legacy JWT secret failed, trying unified_secret")
     if unified_secret:
-        return jwt.decode(jwtstr, unified_secret, algorithms=["HS256"])
+        return jwt.decode(
+            jwtstr,
+            unified_secret,
+            algorithms=["HS256"],
+            options={"verify_aud": False},
+        )
     return None
 
 
