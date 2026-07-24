@@ -9,6 +9,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 import tempfile
 import threading
@@ -39,6 +40,9 @@ SETTINGS_PREFIX = "runtime"
 YAMLCFG = kernelci.config.load_yaml("config")
 # Default network timeout (seconds)
 REQUEST_TIMEOUT = 10
+# Limits for inline patches submitted through /api/patchset
+MAX_INLINE_PATCHES = 32
+MAX_INLINE_PATCH_SIZE = 10 * 1024 * 1024
 
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=16)
@@ -193,6 +197,31 @@ def _get_storage(storage_config_name):
     storage_config = CONFIGS["storage_configs"][storage_config_name]
     storage_cred = SETTINGS["storage"][storage_config_name]["storage_cred"]
     return kernelci.storage.get_storage(storage_config, storage_cred)
+
+
+def _upload_patches(patches, email, nodeid):
+    """Upload inline patches to the default storage
+
+    Returns the list of public URLs, in the same order as *patches*.
+    Files are stored as patchset/<user>/<nodeid>-<timestamp>-<n>.patch
+    so uploads are easy to attribute, browse and clean up.
+    """
+    storage_config_name = SETTINGS.get("DEFAULT", {}).get("storage_config")
+    if not storage_config_name:
+        raise RuntimeError("No default storage config set")
+    storage = _get_storage(storage_config_name)
+    user_dir = re.sub(r"[^A-Za-z0-9._-]", "_", email)
+    dest_dir = f"patchset/{user_dir}"
+    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    urls = []
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        for i, patch in enumerate(patches):
+            filename = f"{nodeid}-{timestamp}-{i}.patch"
+            file_path = os.path.join(tmp_dir, filename)
+            with open(file_path, "wb") as f:
+                f.write(patch.encode("utf-8"))
+            urls.append(storage.upload_single((file_path, filename), dest_dir))
+    return urls
 
 
 def _upload_file(storage, job_node, source_name, destination_name=None):
@@ -913,10 +942,31 @@ async def patchset(
         else:
             item["message"] = "Invalid patch URL type"
             return JSONResponse(content=item, status_code=400)
+        patch_urls = data.patchurl
     elif data.patch:
-        # We need to implement upload to storage and return URL
-        item["message"] = "Not implemented yet"
-        return JSONResponse(content=item, status_code=501)
+        if not isinstance(data.patch, list):
+            item["message"] = "Invalid patch type"
+            return JSONResponse(content=item, status_code=400)
+        if len(data.patch) > MAX_INLINE_PATCHES:
+            item["message"] = "Too many patches"
+            return JSONResponse(content=item, status_code=400)
+        for patch in data.patch:
+            if not isinstance(patch, str) or not patch:
+                item["message"] = "Invalid patch element type"
+                return JSONResponse(content=item, status_code=400)
+            if len(patch) > MAX_INLINE_PATCH_SIZE:
+                item["message"] = "Patch too large"
+                return JSONResponse(content=item, status_code=400)
+            if "\x00" in patch:
+                item["message"] = "Binary patch content not allowed"
+                return JSONResponse(content=item, status_code=400)
+        try:
+            patch_urls = _upload_patches(data.patch, email, data.nodeid)
+        except Exception as e:
+            logger.error(f"Failed to upload patches to storage: {e}")
+            item["message"] = "Failed to upload patches to storage"
+            return JSONResponse(content=item, status_code=500)
+        logger.info(f"Uploaded {len(patch_urls)} patches for {email}")
     else:
         item["message"] = "Missing patch URL or patch"
         return JSONResponse(content=item, status_code=400)
@@ -949,9 +999,8 @@ async def patchset(
     newnode["timeout"] = patchset_timeout.isoformat()
     newnode["submitter"] = f"user:{email}"
     newnode["treeid"] = treeid
-    if data.patchurl:
-        for i, patchurl in enumerate(data.patchurl):
-            newnode["artifacts"][f"patch{i}"] = patchurl
+    for i, patchurl in enumerate(patch_urls):
+        newnode["artifacts"][f"patch{i}"] = patchurl
     if data.jobfilter:
         newnode["jobfilter"] = data.jobfilter
     if data.platformfilter:
