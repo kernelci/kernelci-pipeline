@@ -14,7 +14,6 @@ import tempfile
 import hashlib
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from urllib.request import urlopen
 
 import kernelci
 import kernelci.build
@@ -73,22 +72,11 @@ patch -p1 < {patch_file}
         self.log.info(
             f"Applying patch {patch_name}, url: {patch_url}",
         )
-        try:
-            encoding = urlopen(patch_url).headers.get_charsets()[0]
-        except Exception as e:
-            self.log.warn(
-                "Failed to fetch encoding from patch "
-                f"{patch_name} headers: {e}"
-            )
-            self.log.warn("Falling back to utf-8 encoding")
-            encoding = "utf-8"
-
         with tempfile.NamedTemporaryFile(
             prefix="{}-{}-".format(
                 self._service_config.patchset_tmp_file_prefix,
                 patch_name
             ),
-            encoding=encoding
         ) as tmp_f:
             if not kernelci.build._download_file(patch_url, tmp_f.name):
                 raise FileNotFoundError(
