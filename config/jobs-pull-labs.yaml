@@ -18,6 +18,17 @@ _anchors:
     skipfile: skipfile-lkft.yaml
     workers: max
 
+  ltp-job-pull-labs: &ltp-job-pull-labs
+    template: ltp-pull-labs.jinja2
+    kind: job
+    priority: low
+    kcidb_test_suite: ltp
+    rules:
+      tree:
+        - mainline
+        - next
+        - stable
+
   kselftest-params-pull-labs: &kselftest-params-pull-labs
     boot_commands: nfs
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260606.0/{debarch}'
@@ -36,6 +47,166 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+  ltp-cap_bounds-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "cap_bounds"
+
+  ltp-capability-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "capability"
+
+  ltp-commands-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "commands"
+
+  ltp-containers-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "containers"
+
+  ltp-controllers-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "controllers"
+      job_timeout: 120
+
+  ltp-cpuhotplug-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "cpuhotplug"
+
+  ltp-crypto-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "crypto"
+
+  ltp-cve-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "cve"
+      job_timeout: 90
+
+  ltp-dio-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "dio"
+
+  ltp-fcntl-locktests-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fcntl-locktests"
+
+  ltp-filecaps-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "filecaps"
+
+  ltp-fs-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fs"
+      job_timeout: 75
+
+  ltp-fs_bind-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fs_bind"
+
+  ltp-fs_perms_simple-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fs_perms_simple"
+
+  ltp-fsx-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fsx"
+
+  ltp-hugetlb-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "hugetlb"
+
+  ltp-io-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "io"
+
+  ltp-ipc-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "ipc"
+
+  ltp-math-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "math"
+
+  ltp-mm-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "mm"
+
+  ltp-nptl-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "nptl"
+
+  ltp-pty-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "pty"
+
+  ltp-sched-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "sched"
+
+  ltp-securebits-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "securebits"
+
+  ltp-syscalls-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "syscalls"
+      job_timeout: 90
+
+  ltp-tracing-pull-labs:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "tracing"
 
   kselftest-arm64-pull-labs:
     template: kselftest-pull-labs.jinja2

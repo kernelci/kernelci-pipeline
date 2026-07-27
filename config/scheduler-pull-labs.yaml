@@ -54,7 +54,7 @@ scheduler:
       - gs101-oriole
 
   - job: ltp-smoke-pull-labs
-    event:
+    event: &kbuild-gcc-15-arm64-nfsboot-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-15-arm64-nfsboot
     runtime:
@@ -63,6 +63,139 @@ scheduler:
     platforms:
       - cd8180-orion-o6
       - qemu-arm64
+
+  - job: ltp-cap_bounds-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: &ltp-full-qemu-runtime
+      type: pull_labs
+      name: pull-labs-demo
+    platforms: &ltp-full-qemu-platforms
+      - qemu-arm64
+
+  - job: ltp-capability-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-commands-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-containers-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-controllers-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-cpuhotplug-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-crypto-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-cve-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-dio-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-fcntl-locktests-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-filecaps-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-fs-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-fs_bind-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-fs_perms_simple-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-fsx-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-hugetlb-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-io-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-ipc-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-math-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-mm-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-nptl-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-pty-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-sched-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-securebits-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-syscalls-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
+
+  - job: ltp-tracing-pull-labs
+    event: *kbuild-gcc-15-arm64-nfsboot-node-event
+    runtime: *ltp-full-qemu-runtime
+    platforms: *ltp-full-qemu-platforms
 
   - job: kselftest-arm64-pull-labs
     event: *kbuild-gcc-15-arm64-node-event
