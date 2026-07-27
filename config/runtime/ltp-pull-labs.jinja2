@@ -20,6 +20,12 @@
 {%- set ltp_parameters = ltp_params_list | join(' ') %}
 
 {%- do tuxrun_parameters.update({'RUNNER': '/opt/kirk/kirk'}) %}
+{%- if skipfile is defined %}
+{%-   do tuxrun_parameters.update({'SKIPFILE': skipfile}) %}
+{%- endif %}
+{%- if workers is defined %}
+{%-   do tuxrun_parameters.update({'KIRK_WORKERS': workers}) %}
+{%- endif %}
 
 {#- Calculate timeout in seconds (default 60 minutes) #}
 {%- set test_timeout = (job_timeout | default(60)) * 60 %}
