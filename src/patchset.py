@@ -103,7 +103,7 @@ patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
                 f"Undecodable file path in patch: {raw_path!r}"
             )
         # Timestamps after a tab are legal in ---/+++ header lines
-        path = path.split("\t")[0].rstrip("\r")
+        path = path.split("\t")[0]
         if path == "/dev/null":
             return
         if path.startswith('"'):
@@ -201,7 +201,10 @@ patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
                 f"Patch {patch_name} contains binary data"
             )
 
-        lines = patch_data.split(b"\n")
+        # patch(1) tolerates CRLF patches, so drop the carriage returns
+        # once here: otherwise every anchored header regex below would
+        # silently fail to match and skip the checks it stands for
+        lines = [line.rstrip(b"\r") for line in patch_data.split(b"\n")]
         file_headers = 0
         i = 0
         while i < len(lines):

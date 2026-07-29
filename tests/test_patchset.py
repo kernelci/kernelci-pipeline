@@ -160,6 +160,34 @@ index 1234567..89abcde 100644
 """
         self.validate(patch)
 
+    def test_crlf_patch_accepted(self):
+        self.validate(VALID_PATCH.replace(b"\n", b"\r\n"))
+
+    def test_crlf_symlink_mode_rejected(self):
+        # Carriage returns must not let a mode line slip past the check
+        patch = VALID_PATCH.replace(
+            b"index 1234567..89abcde 100644",
+            b"new file mode 120000",
+        ).replace(b"\n", b"\r\n")
+        with self.assertRaises(PatchValidationError):
+            self.validate(patch)
+
+    def test_crlf_path_traversal_rejected(self):
+        patch = VALID_PATCH.replace(
+            b"b/Makefile", b"b/../../etc/passwd"
+        ).replace(b"\n", b"\r\n")
+        with self.assertRaises(PatchValidationError):
+            self.validate(patch)
+
+    def test_crlf_rename_outside_tree_rejected(self):
+        patch = VALID_PATCH + (
+            b"diff --git a/Makefile b/Makefile\n"
+            b"rename from Makefile\n"
+            b"rename to ../outside\n"
+        )
+        with self.assertRaises(PatchValidationError):
+            self.validate(patch.replace(b"\n", b"\r\n"))
+
     def test_multi_patch_mbox_accepted(self):
         self.validate(VALID_PATCH + b"\n-- \n2.39.1\n\n" + VALID_PATCH)
 
