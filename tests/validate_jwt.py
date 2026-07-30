@@ -12,8 +12,8 @@ import time
 
 import jwt
 
-SECRET = "unified-secret"
-LEGACY_SECRET = "legacy-secret"
+SECRET = "unified-test-secret-key-32-bytes"
+LEGACY_SECRET = "legacy-test-secret-key--32-bytes"
 EMAIL = "test@test.com"
 SUBJECT = "65265305c74695807499037f"
 ORIGIN = "kernelci-pipeline"
@@ -21,6 +21,7 @@ LIFETIME_SECONDS = 3600
 
 
 def generate_token(secret_args):
+    before_generate = int(time.time())
     result = subprocess.run(
         [
             "python3",
@@ -38,6 +39,7 @@ def generate_token(secret_args):
         capture_output=True,
         text=True,
     )
+    after_generate = int(time.time())
     if result.returncode != 0:
         print("Error generating JWT token:", result.stderr)
         sys.exit(1)
@@ -52,25 +54,23 @@ def generate_token(secret_args):
         print("JWT token not found in output")
         sys.exit(1)
 
-    return jwt_token
+    return jwt_token, before_generate, after_generate
 
 
-def validate_claims(jwt_token, secret):
-    before_decode = int(time.time())
+def validate_claims(jwt_token, secret, before_generate, after_generate):
     payload = jwt.decode(
         jwt_token,
         secret,
         algorithms=["HS256"],
         audience="fastapi-users:auth",
     )
-    after_decode = int(time.time())
 
     assert payload["sub"] == SUBJECT
     assert payload["email"] == EMAIL
     assert payload["origin"] == ORIGIN
     assert payload["permissions"] == ["checkout", "testretry", "patchset"]
     assert payload["aud"] == ["fastapi-users:auth"]
-    assert before_decode <= payload["iat"] <= after_decode
+    assert before_generate <= payload["iat"] <= after_generate
     assert payload["exp"] - payload["iat"] == LIFETIME_SECONDS
 
     # lava-callback authorizes with permissions rather than an audience.
@@ -85,8 +85,10 @@ def validate_claims(jwt_token, secret):
 
 
 def test_explicit_secret():
-    jwt_token = generate_token(["--secret", SECRET])
-    validate_claims(jwt_token, SECRET)
+    jwt_token, before_generate, after_generate = generate_token(
+        ["--secret", SECRET]
+    )
+    validate_claims(jwt_token, SECRET, before_generate, after_generate)
 
 
 def test_toml_unified_secret():
@@ -95,9 +97,11 @@ def test_toml_unified_secret():
             f'[jwt]\nsecret = "{LEGACY_SECRET}"\nunified_secret = "{SECRET}"\n'
         )
         config.flush()
-        jwt_token = generate_token(["--toml", config.name])
+        jwt_token, before_generate, after_generate = generate_token(
+            ["--toml", config.name]
+        )
 
-    validate_claims(jwt_token, SECRET)
+    validate_claims(jwt_token, SECRET, before_generate, after_generate)
     try:
         jwt.decode(
             jwt_token,
