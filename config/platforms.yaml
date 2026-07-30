@@ -592,13 +592,6 @@ platforms:
     dtb: dtbs/renesas/r8a779m1-ulcb.dtb
     compatible: ['renesas,h3ulcb', 'renesas,r8a779m1', 'renesas,r8a7795']
 
-  rk3399-gru-kevin:
-    <<: *arm64-device
-    boot_method: depthcharge
-    mach: rockchip
-    dtb: dtbs/rockchip/rk3399-gru-kevin.dtb
-    compatible: ['google,kevin-rev15', 'google,kevin-rev14']
-
   rk3399-khadas-edge-v:
     <<: *arm64-device
     mach: rockchip
