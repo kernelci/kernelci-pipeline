@@ -43,8 +43,10 @@ class Patchset(Tarball):
     # repository, so `git archive` can't be used here
     TAR_CREATE_CMD = """\
 set -e
-cd {target_dir}
-tar --create --transform "s/^/{prefix}\\//" * | gzip > {tarball_path}
+tar --create --gzip --file "{tarball_path}" \\
+    --directory "{target_dir}" \\
+    --transform "flags=rh;s|^|{prefix}/|" \\
+    .
 """
 
     # --unified disables patch(1) format auto-detection, so ed-style
