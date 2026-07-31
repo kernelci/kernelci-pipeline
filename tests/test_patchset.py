@@ -255,6 +255,15 @@ class TestPatchsetTarball(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
+    def test_name_uses_short_unique_node_id_suffix(self):
+        name = self.service._gen_patchset_tarball_name(
+            "linux-mainline", "1fbd2fbfcd2ad", "6a6c8b3285f256844a5acd44"
+        )
+
+        self.assertEqual(
+            "linux-mainline-1fbd2fbfcd2ad-56844a5acd44", name
+        )
+
     def test_patched_tree_survives_tarball_round_trip(self):
         def provide_patch(_url, destination):
             with open(destination, "wb") as patch_file:

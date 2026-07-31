@@ -25,6 +25,7 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 from tarball import Tarball
 
 DEFAULT_MAX_PATCH_SIZE_MB = 10
+PATCHSET_NODE_ID_SUFFIX_LEN = 12
 
 HUNK_HEADER_RE = re.compile(rb"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
 GIT_DIFF_RE = re.compile(rb"^diff --git a/(\S+) b/(\S+)$")
@@ -347,6 +348,13 @@ patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
         tar_filename = os.path.basename(urlparse(tarball_url).path)
         return tar_filename.removesuffix(".tar.gz")
 
+    @staticmethod
+    def _gen_patchset_tarball_name(
+        checkout_name, patchset_hash_short, patchset_node_id
+    ):
+        node_id_suffix = patchset_node_id[-PATCHSET_NODE_ID_SUFFIX_LEN:]
+        return f"{checkout_name}-{patchset_hash_short}-{node_id_suffix}"
+
     def _process_patchset(self, checkout_node, patchset_node):
         if not checkout_node.get("artifacts", {}).get("tarball"):
             raise ValueError(
@@ -372,7 +380,11 @@ patch -p1 --unified --force --no-backup-if-mismatch < {patch_file}
 
         tarball_path = self._make_tarball(
             target_dir=checkout_path,
-            tarball_name=f"{checkout_name}-{patchset_hash_short}",
+            tarball_name=self._gen_patchset_tarball_name(
+                checkout_name,
+                patchset_hash_short,
+                patchset_node["id"],
+            ),
         )
         tarball_url = self._push_tarball(tarball_path)
 
