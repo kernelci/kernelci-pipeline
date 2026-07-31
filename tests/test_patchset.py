@@ -2,13 +2,16 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Tests for the patch validation logic of the patchset service
+# Tests for the patchset service
 
 import os
+import stat
+import subprocess
 import sys
 import tempfile
 import types
 import unittest
+from unittest import mock
 
 sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src")
@@ -39,9 +42,34 @@ index 1234567..89abcde 100644
 def make_service(tmp_dir, max_size_mb=None):
     service = object.__new__(Patchset)
     service._service_config = types.SimpleNamespace(
+        output=tmp_dir,
         patchset_max_patch_size_mb=max_size_mb,
+        patchset_tmp_file_prefix="kernel-patch",
     )
+    service._logger = mock.Mock()
     return service
+
+
+def tree_manifest(root):
+    """Return file contents, types and symlink targets below root."""
+    manifest = {}
+    for current, dirs, files in os.walk(root, followlinks=False):
+        for name in dirs + files:
+            path = os.path.join(current, name)
+            relative = os.path.relpath(path, root)
+            mode = os.lstat(path).st_mode
+            if stat.S_ISLNK(mode):
+                manifest[relative] = ("symlink", os.readlink(path))
+            elif stat.S_ISDIR(mode):
+                manifest[relative] = ("directory",)
+            else:
+                with open(path, "rb") as source:
+                    manifest[relative] = (
+                        "file",
+                        stat.S_IMODE(mode),
+                        source.read(),
+                    )
+    return manifest
 
 
 class TestPatchValidation(unittest.TestCase):
@@ -190,6 +218,83 @@ index 1234567..89abcde 100644
 
     def test_multi_patch_mbox_accepted(self):
         self.validate(VALID_PATCH + b"\n-- \n2.39.1\n\n" + VALID_PATCH)
+
+
+class TestPatchsetTarball(unittest.TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.checkout = os.path.join(self._tmp.name, "linux-test")
+        os.makedirs(
+            os.path.join(self.checkout, "scripts", "dtc", "include-prefixes")
+        )
+        os.makedirs(os.path.join(self.checkout, "include", "dt-bindings"))
+        os.makedirs(os.path.join(self.checkout, "empty-directory"))
+        with open(os.path.join(self.checkout, "Makefile"), "w") as source:
+            source.write("VERSION = 6\nPATCHLEVEL = 16\n")
+        with open(os.path.join(self.checkout, ".clang-format"), "w") as source:
+            source.write("BasedOnStyle: LLVM\n")
+        with open(
+            os.path.join(self.checkout, "include", "dt-bindings", "irq.h"),
+            "w",
+        ) as source:
+            source.write("#define IRQ_TYPE_NONE 0\n")
+        os.symlink(
+            "../../../include/dt-bindings",
+            os.path.join(
+                self.checkout,
+                "scripts",
+                "dtc",
+                "include-prefixes",
+                "dt-bindings",
+            ),
+        )
+        self.service = make_service(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_patched_tree_survives_tarball_round_trip(self):
+        def provide_patch(_url, destination):
+            with open(destination, "wb") as patch_file:
+                patch_file.write(VALID_PATCH)
+            return True
+
+        with mock.patch(
+            "patchset.kernelci.build._download_file",
+            side_effect=provide_patch,
+        ):
+            self.service._apply_patch(
+                self.checkout,
+                "patch0",
+                "https://files.kernelci.org/trivial.patch",
+            )
+
+        expected = tree_manifest(self.checkout)
+        tarball = self.service._make_tarball(self.checkout, "linux-patched")
+        unpacked = os.path.join(self._tmp.name, "unpacked")
+        os.makedirs(unpacked)
+        subprocess.run(
+            ["tar", "-xzf", tarball, "-C", unpacked],
+            check=True,
+        )
+
+        actual = tree_manifest(os.path.join(unpacked, "linux-patched"))
+        self.assertEqual(expected, actual)
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(
+                    unpacked,
+                    "linux-patched",
+                    "scripts",
+                    "dtc",
+                    "include-prefixes",
+                    "dt-bindings",
+                    "irq.h",
+                )
+            )
+        )
 
 
 class TestAllowedDomains(unittest.TestCase):
