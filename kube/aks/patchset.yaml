@@ -1,0 +1,72 @@
+---
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2026 Collabora Limited
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patchset
+  namespace: kernelci-pipeline
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: patchset
+  template:
+    metadata:
+      labels:
+        app: patchset
+    spec:
+      initContainers:
+        - name: wait-for-api
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until curl --fail --silent --insecure https://kernelci-api.westus3.cloudapp.azure.com/; do
+                echo "Waiting for API endpoint..."; sleep 5;
+              done
+      containers:
+        - name: patchset
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 5Gi
+              cpu: 500m
+            limits:
+              memory: 8Gi
+              cpu: 2
+          command:
+            - ./src/patchset.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config
+            - run
+            - --name=patchset
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: work
+              mountPath: /home/kernelci/data
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: secrets
+          secret:
+            secretName: pipeline-secrets
+        - name: work
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: pipeline-configmap
