@@ -260,9 +260,7 @@ class TestPatchsetTarball(unittest.TestCase):
             "linux-mainline", "1fbd2fbfcd2ad", "6a6c8b3285f256844a5acd44"
         )
 
-        self.assertEqual(
-            "linux-mainline-1fbd2fbfcd2ad-56844a5acd44", name
-        )
+        self.assertEqual("linux-mainline-1fbd2fbfcd2ad-56844a5acd44", name)
 
     def test_patched_tree_survives_tarball_round_trip(self):
         def provide_patch(_url, destination):
