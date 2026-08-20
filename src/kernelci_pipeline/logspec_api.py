@@ -199,17 +199,21 @@ def new_issue(logspec_error, test_type):
     Returns the issue as a dict.
     """
     error_copy = deepcopy(logspec_error)
-    signature = error_copy["error"].pop("signature")
-    comment = ""
-    if "error_summary" in error_copy["error"]:
-        comment += f" {error_copy['error']['error_summary']}"
-    if "target" in error_copy["error"]:
-        comment += f" in {error_copy['error']['target']}"
-        if "src_file" in error_copy["error"]:
-            comment += f" ({error_copy['error']['src_file']})"
-        elif "script" in error_copy["error"]:
-            comment += f" ({error_copy['error']['script']})"
-    comment += f" [logspec:{test_types[test_type]['parser']},{error_copy['error']['error_type']}]"
+    error = error_copy["error"]
+    signature = error.pop("signature")
+    # logspec may not be able to extract a description, for instance for
+    # a generic kbuild failure with no diagnostic line preceding the make
+    # error. Fall back to a placeholder so the comment isn't left empty.
+    comment = error.get("error_summary", "").strip() or "Error"
+    if "target" in error:
+        comment += f" in {error['target']}"
+        if "src_file" in error:
+            comment += f" ({error['src_file']})"
+        elif "script" in error:
+            comment += f" ({error['script']})"
+    comment += (
+        f" [logspec:{test_types[test_type]['parser']},{error['error_type']}]"
+    )
     issue = {
         "origin": "maestro",
         "id": f"maestro:{signature}",
