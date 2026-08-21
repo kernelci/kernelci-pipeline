@@ -586,6 +586,12 @@ platforms:
 
   fvp-aemva: *fvp-device
 
+  r8a774a1-hihope-rzg2m-ex:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
+
   r8a779m1-ulcb:
     <<: *arm64-device
     mach: renesas
