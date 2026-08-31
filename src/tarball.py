@@ -12,6 +12,7 @@ import datetime
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -113,15 +114,13 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
             kernelci.build.update_repo(config, self._service_config.kdir)
         except Exception as err:
             self.log.error(f"Failed to update: {err}, cleaning stale repo")
-            # safeguard, make sure it is git repo
-            if not os.path.exists(
-                os.path.join(self._service_config.kdir, ".git")
-            ):
-                err_msg = f"{self._service_config.kdir} is not a git repo"
-                self.log.error(err_msg)
-                raise Exception(err_msg)
-            # cleanup the repo and return True, so we try again
-            kernelci.shell_cmd(f"rm -rf {self._service_config.kdir}")
+            # A failed clone can leave a partial directory without a .git
+            # directory.  Remove it as well so the retry can clone afresh.
+            repo_path = self._service_config.kdir
+            if os.path.islink(repo_path):
+                os.unlink(repo_path)
+            elif os.path.exists(repo_path):
+                shutil.rmtree(repo_path)
             return True
 
         self.log.info("Repo updated")
