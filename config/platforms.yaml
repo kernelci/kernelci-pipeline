@@ -561,7 +561,7 @@ platforms:
     context:
       arch: arm
       cpu: cortex-a15
-      machine: virt-2.11,gic-version=3
+      machine: virt,gic-version=3
       guestfs_interface: virtio
 
   qemu-arm64:
