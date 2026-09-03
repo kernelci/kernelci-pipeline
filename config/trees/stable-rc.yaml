@@ -26,3 +26,7 @@ build_configs:
   stable-rc_7.1:
     <<: *stable-rc
     branch: 'linux-7.1.y'
+
+  stable-rc_7.2:
+    <<: *stable-rc
+    branch: 'linux-7.2.y'
