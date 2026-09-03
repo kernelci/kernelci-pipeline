@@ -243,3 +243,11 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+  unixbench-aws-ec2:
+    template: unixbench-pull-labs.jinja2
+    kind: job
+    priority: low
+    kcidb_test_suite: unixbench
+    params:
+      job_timeout: 90

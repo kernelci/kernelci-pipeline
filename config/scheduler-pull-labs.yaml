@@ -263,3 +263,16 @@ scheduler:
     runtime: *pull-labs-aws-ec2-runtime
     platforms:
       - aws-ec2-arm64
+
+# UnixBench A/B benchmark, staged but not scheduled yet.
+#
+# The job and template are complete, but the pull-labs runner cannot honour an
+# A/B benchmark yet: a job definition carries a single kernel and the benchmark
+# needs two to compare against each other. Enable this once the runner can
+# accept both, otherwise the job runs and reports against one kernel only.
+#
+#  - job: unixbench-aws-ec2
+#    event: *kbuild-gcc-14-x86-aws-ec2-node-event
+#    runtime: *pull-labs-aws-ec2-runtime
+#    platforms:
+#      - aws-ec2-x86_64
