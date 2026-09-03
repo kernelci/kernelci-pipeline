@@ -338,7 +338,7 @@ def merge_files(dir="config"):
                 data = yaml.safe_load(stream)
                 validate_duplicate_jobs(data, file)
                 merged_data = recursive_merge(merged_data, data)
-            except yaml.YAMLError as exc:
+            except (yaml.YAMLError, ValueError) as exc:
                 print(f"Error in {file}: {exc}")
                 sys.exit(1)
     return merged_data
