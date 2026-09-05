@@ -338,7 +338,7 @@ def merge_files(dir="config"):
                 data = yaml.safe_load(stream)
                 validate_duplicate_jobs(data, file)
                 merged_data = recursive_merge(merged_data, data)
-            except yaml.YAMLError as exc:
+            except (yaml.YAMLError, ValueError) as exc:
                 print(f"Error in {file}: {exc}")
                 sys.exit(1)
     return merged_data
@@ -394,11 +394,15 @@ def main():
         "-o", "--output", type=str, help="Output file to dump yaml files"
     )
     args = parser.parse_args()
-    merged_data = merge_files(args.dir)
-    if args.output:
-        dumper(args.output, merged_data)
+    try:
+        merged_data = merge_files(args.dir)
+        if args.output:
+            dumper(args.output, merged_data)
 
-    validate_yaml(merged_data)
+        validate_yaml(merged_data)
+    except (yaml.YAMLError, ValueError, OSError) as exc:
+        print(f"Validation failed: {exc}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
