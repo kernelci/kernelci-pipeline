@@ -28,6 +28,6 @@ build_configs:
     <<: *stable
     branch: 'linux-6.18.y'
 
-  stable_7.1:
+  stable_7.2:
     <<: *stable
-    branch: 'linux-7.1.y'
+    branch: 'linux-7.2.y'
