@@ -10,6 +10,7 @@ import collections
 import datetime
 import json
 import os
+import queue
 import re
 import shutil
 import sys
@@ -37,6 +38,11 @@ WATCHDOG_TIMEOUT = 10 * 60  # 10 minutes in seconds
 # identical job is remembered, and the cap on the number of remembered keys.
 DEDUP_CACHE_TTL = 600  # seconds
 DEDUP_CACHE_MAX = 50000
+# Event reception is decoupled from job submission: how long a processing
+# thread waits on its queue before re-checking for a stop request, and how
+# many queued events between backlog warnings.
+EVENT_QUEUE_POLL_TIMEOUT = 1  # seconds
+EVENT_QUEUE_WARN_DEPTH = 100
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -140,6 +146,7 @@ class Scheduler(Service):
             os.makedirs(self._output)
         self._job_tmp_dirs = {}
         self._threads = []
+        self._event_queues = {}
         self._api_helper_lock = threading.Lock()
         self._stop_thread_lock = threading.Lock()
         self._context_lock = threading.Lock()
@@ -1073,24 +1080,46 @@ class Scheduler(Service):
 
     def _run(self, context):
         for channel, sub_id in self._context.items():
-            thread = threading.Thread(
-                target=self._run_scheduler,
+            event_queue = queue.Queue()
+            self._event_queues[channel] = event_queue
+            receiver = threading.Thread(
+                target=self._receive_events,
                 args=(
                     channel,
                     sub_id,
+                    event_queue,
+                ),
+                name=f"receiver-{channel}",
+            )
+            processor = threading.Thread(
+                target=self._process_events,
+                args=(
+                    channel,
+                    event_queue,
                 ),
                 name=f"scheduler-{channel}",
             )
-            self._threads.append(thread)
-            thread.start()
+            self._threads += [receiver, processor]
+            receiver.start()
+            processor.start()
 
         for thread in self._threads:
             thread.join()
 
-    def _run_scheduler(self, channel, sub_id):
-        self.log.info("Listening for available checkout events")
+    def _receive_events(self, channel, sub_id, event_queue):
+        """Poll the API for events and hand them over for processing
+
+        Receiving is deliberately kept separate from job submission: the API
+        drops any subscription that has not been polled for
+        SUBSCRIPTION_MAX_AGE_MINUTES, along with every event buffered on it.
+        Submitting inline used to let a single slow or unreachable LAVA lab
+        stall the polling for longer than that, silently losing the events of
+        all the other runtimes as well.
+        """
+        self.log.info(f"Listening for events on channel: {channel}")
         self.log.info("Press Ctrl-C to stop.")
         subscribe_retries = 0
+        warned_depth = 0
 
         while True:
             # Update timestamp for watchdog
@@ -1137,65 +1166,102 @@ class Scheduler(Service):
                 sub_id, event
             ):
                 continue
-            event_id = event.get("id", "unknown")
-            self._watchdog_heartbeat(
-                f"expanding channel={channel} event={event_id}", thread_name
-            )
-            for job, runtime, platform, rules in self._sched.get_schedule(
-                event
-            ):
-                self._watchdog_heartbeat(
-                    "processing "
-                    f"channel={channel} event={event_id} job={job.name} "
-                    f"runtime={runtime.config.name} platform={platform.name}",
-                    thread_name,
+            event_queue.put(event)
+            # Report the backlog once per EVENT_QUEUE_WARN_DEPTH events so a
+            # processing thread falling behind is visible before it matters.
+            depth = event_queue.qsize()
+            if depth >= warned_depth + EVENT_QUEUE_WARN_DEPTH:
+                warned_depth = depth
+                self.log.warning(
+                    f"Event backlog on channel {channel}: {depth} events "
+                    "queued, job submission is falling behind"
                 )
-                input_node = self._api.node.get(event["id"])
-                jobfilter = event.get("jobfilter")
-                # Add to node data the jobfilter if it exists in event
-                if jobfilter and isinstance(jobfilter, list):
-                    input_node["jobfilter"] = jobfilter
-                platform_filter = event.get("platform_filter")
-                if platform_filter and isinstance(platform_filter, list):
-                    input_node["platform_filter"] = platform_filter
-                # we cannot use rules, as we need to have info about job too
-                if job.params.get("frequency", None):
-                    if not self._verify_frequency(job, input_node, platform):
-                        continue
-                if not self._verify_architecture_filter(job, input_node):
-                    continue
-                with self._api_helper_lock:
-                    flag = self._api_helper.should_create_node(
-                        rules, input_node
-                    )
-                if flag:
-                    # Check LAVA queue depth before creating job node
-                    if self._should_skip_due_to_queue_depth(
-                        runtime, job, platform, input_node
-                    ):
-                        continue
-                    retry_counter = event.get("retry_counter", 0)
-                    # Best-effort backstop against creating an identical job
-                    # twice in quick succession (kernelci-core#2912); the
-                    # primary fix is edge-triggered scheduling in kernelci-core.
-                    if self._job_recently_scheduled(
-                        input_node, job, runtime, platform, retry_counter
-                    ):
-                        self.log.info(
-                            "Skipping duplicate job creation: "
-                            f"{input_node['id']} {job.name} "
-                            f"{runtime.config.name} {platform.name} "
-                            f"(retry={retry_counter})"
-                        )
-                        continue
-                    self._run_job(
-                        job, runtime, platform, input_node, retry_counter
-                    )
-            self._watchdog_heartbeat(
-                f"completed channel={channel} event={event_id}", thread_name
-            )
+            elif depth < warned_depth:
+                warned_depth = 0
 
         return True
+
+    def _process_events(self, channel, event_queue):
+        """Expand queued events into jobs and submit them"""
+        thread_name = threading.current_thread().name
+
+        while True:
+            self._watchdog_heartbeat(
+                f"waiting for events channel={channel}", thread_name
+            )
+            with self._stop_thread_lock:
+                if self._stop_thread:
+                    break
+            try:
+                event = event_queue.get(timeout=EVENT_QUEUE_POLL_TIMEOUT)
+            except queue.Empty:
+                continue
+
+            event_id = event.get("id", "unknown")
+            try:
+                self._process_event(channel, event, thread_name)
+            except Exception as e:
+                # Keep draining the queue: dying here would leave the
+                # receiving thread feeding a queue nobody reads.
+                self.log.error(f"Error processing event {event_id}: {e}")
+            finally:
+                event_queue.task_done()
+
+        return True
+
+    def _process_event(self, channel, event, thread_name):
+        """Create and submit all the jobs matching a single event"""
+        event_id = event.get("id", "unknown")
+        self._watchdog_heartbeat(
+            f"expanding channel={channel} event={event_id}", thread_name
+        )
+        for job, runtime, platform, rules in self._sched.get_schedule(event):
+            self._watchdog_heartbeat(
+                "processing "
+                f"channel={channel} event={event_id} job={job.name} "
+                f"runtime={runtime.config.name} platform={platform.name}",
+                thread_name,
+            )
+            input_node = self._api.node.get(event["id"])
+            jobfilter = event.get("jobfilter")
+            # Add to node data the jobfilter if it exists in event
+            if jobfilter and isinstance(jobfilter, list):
+                input_node["jobfilter"] = jobfilter
+            platform_filter = event.get("platform_filter")
+            if platform_filter and isinstance(platform_filter, list):
+                input_node["platform_filter"] = platform_filter
+            # we cannot use rules, as we need to have info about job too
+            if job.params.get("frequency", None):
+                if not self._verify_frequency(job, input_node, platform):
+                    continue
+            if not self._verify_architecture_filter(job, input_node):
+                continue
+            with self._api_helper_lock:
+                flag = self._api_helper.should_create_node(rules, input_node)
+            if flag:
+                # Check LAVA queue depth before creating job node
+                if self._should_skip_due_to_queue_depth(
+                    runtime, job, platform, input_node
+                ):
+                    continue
+                retry_counter = event.get("retry_counter", 0)
+                # Best-effort backstop against creating an identical job
+                # twice in quick succession (kernelci-core#2912); the
+                # primary fix is edge-triggered scheduling in kernelci-core.
+                if self._job_recently_scheduled(
+                    input_node, job, runtime, platform, retry_counter
+                ):
+                    self.log.info(
+                        "Skipping duplicate job creation: "
+                        f"{input_node['id']} {job.name} "
+                        f"{runtime.config.name} {platform.name} "
+                        f"(retry={retry_counter})"
+                    )
+                    continue
+                self._run_job(job, runtime, platform, input_node, retry_counter)
+        self._watchdog_heartbeat(
+            f"completed channel={channel} event={event_id}", thread_name
+        )
 
 
 class cmd_loop(Command):
