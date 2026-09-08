@@ -8,7 +8,7 @@ import types
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.scheduler import Scheduler
+from src.scheduler import RUNTIME_LIVENESS_TTL, Scheduler
 
 
 class TestSchedulerWatchdog(unittest.TestCase):
@@ -538,6 +538,161 @@ class TestSchedulerEventDecoupling(unittest.TestCase):
 
         self.assertFalse(processor.is_alive())
         self.assertEqual(processed, ["bad", "good"])
+
+
+class TestSchedulerRuntimeLiveness(unittest.TestCase):
+    """Test the cached runtime liveness probe and the skip it drives."""
+
+    def _make_scheduler(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler.log = MagicMock()
+        scheduler._telemetry = MagicMock()
+        scheduler._runtime_liveness = {}
+        scheduler._liveness_lock = threading.Lock()
+        scheduler._disable_device_health_check = False
+        # Exercise the real probe through the skip helper.
+        scheduler._is_runtime_alive.side_effect = (
+            lambda runtime: Scheduler._is_runtime_alive(scheduler, runtime)
+        )
+        return scheduler
+
+    @staticmethod
+    def _make_runtime(name="lava-broonie"):
+        runtime = MagicMock()
+        runtime.config.name = name
+        runtime.is_alive.return_value = (True, "version 2026.07")
+        return runtime
+
+    def test_probe_result_is_cached_for_the_ttl(self):
+        """A live runtime is probed once, not once per job."""
+        scheduler = self._make_scheduler()
+        runtime = self._make_runtime()
+        for _ in range(5):
+            alive, _ = Scheduler._is_runtime_alive(scheduler, runtime)
+            self.assertTrue(alive)
+        runtime.is_alive.assert_called_once()
+
+    def test_probe_is_repeated_after_the_ttl(self):
+        """Once the cached result has expired the runtime is probed again."""
+        scheduler = self._make_scheduler()
+        runtime = self._make_runtime()
+        Scheduler._is_runtime_alive(scheduler, runtime)
+        # Age the cached entry past the TTL.
+        checked_at, alive, detail = scheduler._runtime_liveness["lava-broonie"]
+        scheduler._runtime_liveness["lava-broonie"] = (
+            checked_at - RUNTIME_LIVENESS_TTL - 1,
+            alive,
+            detail,
+        )
+        Scheduler._is_runtime_alive(scheduler, runtime)
+        self.assertEqual(runtime.is_alive.call_count, 2)
+
+    def test_unreachable_runtime_skips_the_job(self):
+        """An unreachable lab skips its jobs instead of blocking on them."""
+        scheduler = self._make_scheduler()
+        runtime = self._make_runtime()
+        runtime.is_alive.return_value = (False, "Network is unreachable")
+        job_config = types.SimpleNamespace(name="baseline-arm64")
+        platform = types.SimpleNamespace(name="qemu-arm64")
+
+        self.assertTrue(
+            Scheduler._should_skip_unreachable_runtime(
+                scheduler, runtime, job_config, platform
+            )
+        )
+        kinds = [c.args[0] for c in scheduler._telemetry.emit.call_args_list]
+        self.assertIn("job_skip", kinds)
+
+    def test_reachable_runtime_does_not_skip(self):
+        """A lab that answers must not have its jobs skipped."""
+        scheduler = self._make_scheduler()
+        runtime = self._make_runtime()
+        job_config = types.SimpleNamespace(name="baseline-arm64")
+        platform = types.SimpleNamespace(name="qemu-arm64")
+
+        self.assertFalse(
+            Scheduler._should_skip_unreachable_runtime(
+                scheduler, runtime, job_config, platform
+            )
+        )
+
+    def test_event_processing_skips_unreachable_runtime_and_continues(self):
+        """A down runtime must not prevent other jobs in an event running."""
+        scheduler = self._make_scheduler()
+        scheduler._sched = MagicMock()
+        scheduler._api = MagicMock()
+        scheduler._api_helper = MagicMock()
+        scheduler._should_skip_unreachable_runtime.side_effect = (
+            lambda *args: Scheduler._should_skip_unreachable_runtime(
+                scheduler, *args
+            )
+        )
+        scheduler._api_helper_lock = threading.Lock()
+        scheduler._should_skip_due_to_queue_depth.return_value = False
+        scheduler._job_recently_scheduled.return_value = False
+        down = self._make_runtime("lava-down")
+        down.is_alive.return_value = (False, "Network is unreachable")
+        alive = self._make_runtime("lava-alive")
+        job = types.SimpleNamespace(name="baseline-arm64", params={})
+        platform = types.SimpleNamespace(name="qemu-arm64")
+        scheduler._sched.get_schedule.return_value = [
+            (job, down, platform, []),
+            (job, alive, platform, []),
+        ]
+        input_node = {"id": "node-1"}
+        scheduler._api.node.get.return_value = input_node
+
+        Scheduler._process_event(scheduler, "node", input_node, "processor")
+
+        scheduler._api.node.get.assert_called_once_with("node-1")
+        scheduler._run_job.assert_called_once_with(
+            job, alive, platform, input_node, 0
+        )
+
+    def test_probe_error_fails_open(self):
+        """A probe that raises must not stop jobs being scheduled."""
+        scheduler = self._make_scheduler()
+        runtime = self._make_runtime()
+        runtime.is_alive.side_effect = RuntimeError("boom")
+        job_config = types.SimpleNamespace(name="baseline-arm64")
+        platform = types.SimpleNamespace(name="qemu-arm64")
+
+        self.assertFalse(
+            Scheduler._should_skip_unreachable_runtime(
+                scheduler, runtime, job_config, platform
+            )
+        )
+
+    def test_health_check_flag_disables_the_skip(self):
+        """--disable-device-health-check bypasses the liveness skip."""
+        scheduler = self._make_scheduler()
+        scheduler._disable_device_health_check = True
+        runtime = self._make_runtime()
+        runtime.is_alive.return_value = (False, "Network is unreachable")
+        job_config = types.SimpleNamespace(name="baseline-arm64")
+        platform = types.SimpleNamespace(name="qemu-arm64")
+
+        self.assertFalse(
+            Scheduler._should_skip_unreachable_runtime(
+                scheduler, runtime, job_config, platform
+            )
+        )
+        runtime.is_alive.assert_not_called()
+
+    def test_runtime_without_probe_is_not_skipped(self):
+        """A runtime from an older kernelci-core has no is_alive()."""
+        scheduler = self._make_scheduler()
+        runtime = types.SimpleNamespace(
+            config=types.SimpleNamespace(name="k8s-all")
+        )
+        job_config = types.SimpleNamespace(name="kbuild-gcc-14-arm64")
+        platform = types.SimpleNamespace(name="kubernetes")
+
+        self.assertFalse(
+            Scheduler._should_skip_unreachable_runtime(
+                scheduler, runtime, job_config, platform
+            )
+        )
 
 
 if __name__ == "__main__":

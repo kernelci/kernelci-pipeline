@@ -43,6 +43,10 @@ DEDUP_CACHE_MAX = 50000
 # many queued events between backlog warnings.
 EVENT_QUEUE_POLL_TIMEOUT = 1  # seconds
 EVENT_QUEUE_WARN_DEPTH = 100
+# How long a runtime liveness result is trusted.  A lab that has gone away
+# makes every device and queue query block until it times out, once per job
+# and per platform; one cheap probe per interval replaces all of them.
+RUNTIME_LIVENESS_TTL = 60  # seconds
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -161,6 +165,9 @@ class Scheduler(Service):
         # is part of the key so legitimate retries are never suppressed.
         self._recent_jobs = collections.OrderedDict()
         self._dedup_lock = threading.Lock()
+        # Cached runtime liveness: name -> (checked_at, alive, detail)
+        self._runtime_liveness = {}
+        self._liveness_lock = threading.Lock()
         # Backup is disabled by default, enable via BACKUP_FILE_LIFETIME env variable (in seconds)
         self._backup_file_lifetime = int(os.getenv("BACKUP_FILE_LIFETIME", "0"))
         self._last_backup_cleanup = 0
@@ -525,6 +532,69 @@ class Scheduler(Service):
             return 1.0
         fraction = max(0.0, min(1.0, fraction))
         return 1.0 + fraction * (factor_max - 1.0)
+
+    def _is_runtime_alive(self, runtime):
+        """Cached liveness of a runtime, probed at most once per TTL
+
+        Transitions are logged so a lab going away, and coming back, is
+        visible without one message per skipped job.
+        """
+        name = runtime.config.name
+        with self._liveness_lock:
+            checked_at, alive, detail = self._runtime_liveness.get(
+                name, (0.0, True, "")
+            )
+            now = time.time()
+            if now - checked_at < RUNTIME_LIVENESS_TTL:
+                return alive, detail
+            was_alive = alive
+            try:
+                alive, detail = runtime.is_alive()
+            except Exception as exc:
+                # Fail open: a broken probe must not stop scheduling.
+                alive, detail = True, f"liveness probe error: {exc}"
+            self._runtime_liveness[name] = (now, alive, detail)
+
+        if alive != was_alive:
+            if alive:
+                self.log.info(f"Runtime {name} is reachable again: {detail}")
+                kind = "runtime_warning"
+            else:
+                self.log.error(f"Runtime {name} is unreachable: {detail}")
+                kind = "runtime_error"
+            self._telemetry.emit(
+                kind,
+                runtime=name,
+                error_type="liveness",
+                error_msg=detail[:200],
+            )
+        return alive, detail
+
+    def _should_skip_unreachable_runtime(self, runtime, job_config, platform):
+        """Check if job should be skipped because its runtime is down.
+
+        Returns True if job should be skipped, False otherwise.
+        """
+        if self._disable_device_health_check:
+            return False
+        if not hasattr(runtime, "is_alive"):
+            return False
+        alive, detail = self._is_runtime_alive(runtime)
+        if alive:
+            return False
+        self.log.info(
+            f"Skipping job {job_config.name} for {runtime.config.name}: "
+            f"runtime unreachable ({detail})"
+        )
+        self._telemetry.emit(
+            "job_skip",
+            runtime=runtime.config.name,
+            device_type=platform.name,
+            job_name=job_config.name,
+            error_type="runtime_unreachable",
+            error_msg=f"runtime unreachable: {detail}"[:200],
+        )
+        return True
 
     def _should_skip_due_to_queue_depth(
         self, runtime, job_config, platform, input_node=None
@@ -1222,6 +1292,8 @@ class Scheduler(Service):
                 f"runtime={runtime.config.name} platform={platform.name}",
                 thread_name,
             )
+            if self._should_skip_unreachable_runtime(runtime, job, platform):
+                continue
             input_node = self._api.node.get(event["id"])
             jobfilter = event.get("jobfilter")
             # Add to node data the jobfilter if it exists in event
@@ -1300,7 +1372,10 @@ class cmd_loop(Command):
         {
             "name": "--disable-device-health-check",
             "action": "store_true",
-            "help": "Do not skip jobs when no online devices are reported by LAVA",
+            "help": (
+                "Do not skip jobs when the runtime is unreachable or "
+                "reports no online devices"
+            ),
         },
         {
             "name": "--disable-watchdog",
