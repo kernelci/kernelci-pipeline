@@ -221,7 +221,7 @@ class KCIDBBridge(Service):
             res = requests.get(log_url, timeout=60)
             if res.status_code != 200:
                 return None
-        except requests.exceptions.ConnectionError as exc:
+        except requests.exceptions.RequestException as exc:
             self.log.error(f"{str(exc)}")
             return None
 
@@ -273,7 +273,7 @@ class KCIDBBridge(Service):
             res = requests.get(url, timeout=60)
             if res.status_code != 200:
                 return None
-        except requests.exceptions.ConnectionError as exc:
+        except requests.exceptions.RequestException as exc:
             self.log.error(f"Retrieving file failed: {str(exc)}")
             return None
         with open(path, "wb") as f:
