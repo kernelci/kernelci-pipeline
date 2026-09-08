@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import collections
+import queue
 import threading
+import time
 import types
 import unittest
 from unittest.mock import MagicMock, patch
@@ -420,6 +422,122 @@ class TestSchedulerDuplicateGuard(unittest.TestCase):
                     scheduler, *self._job_args(parent=f"parent-{i}"), 0
                 )
         self.assertLessEqual(len(scheduler._recent_jobs), 5)
+
+
+class TestSchedulerEventDecoupling(unittest.TestCase):
+    """Event reception must not be blocked by job submission.
+
+    The API drops any subscription that has not been polled recently, taking
+    every event buffered on it with it, so a slow runtime must never stall the
+    polling loop.
+    """
+
+    @staticmethod
+    def _make_scheduler():
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler.log = MagicMock()
+        scheduler._api_helper = MagicMock()
+        scheduler._api_helper.pubsub_event_filter.return_value = True
+        scheduler._stop_thread = False
+        scheduler._stop_thread_lock = threading.Lock()
+        scheduler._context_lock = threading.Lock()
+        scheduler._context = {"node": 1}
+        scheduler._event_filters = {}
+        scheduler._promisc = False
+        return scheduler
+
+    def _stop(self, scheduler):
+        with scheduler._stop_thread_lock:
+            scheduler._stop_thread = True
+
+    def test_receiver_queues_events_without_submitting(self):
+        """The receiving thread only enqueues; it never submits a job."""
+        scheduler = self._make_scheduler()
+        events = [{"id": "n1"}, {"id": "n2"}, {"id": "n3"}]
+        pending = list(events)
+
+        def receive(_sub_id, block=False):
+            if pending:
+                return pending.pop(0)
+            self._stop(scheduler)
+            return None
+
+        scheduler._api_helper.receive_event_data.side_effect = receive
+
+        event_queue = queue.Queue()
+        Scheduler._receive_events(scheduler, "node", 1, event_queue)
+
+        self.assertEqual([event_queue.get_nowait() for _ in events], events)
+        scheduler._run_job.assert_not_called()
+        scheduler._process_event.assert_not_called()
+
+    def test_receiver_keeps_polling_while_processing_is_stuck(self):
+        """A processing thread stuck on one event must not stop polling."""
+        scheduler = self._make_scheduler()
+        released = threading.Event()
+        scheduler._process_event.side_effect = (
+            lambda *args, **kwargs: released.wait(10)
+        )
+
+        polls = []
+
+        def receive(_sub_id, block=False):
+            polls.append(len(polls))
+            if len(polls) > 20:
+                self._stop(scheduler)
+                return None
+            return {"id": f"n{len(polls)}"}
+
+        scheduler._api_helper.receive_event_data.side_effect = receive
+
+        event_queue = queue.Queue()
+        processor = threading.Thread(
+            target=Scheduler._process_events,
+            args=(scheduler, "node", event_queue),
+        )
+        processor.start()
+        try:
+            Scheduler._receive_events(scheduler, "node", 1, event_queue)
+        finally:
+            released.set()
+            self._stop(scheduler)
+            processor.join(10)
+
+        self.assertFalse(processor.is_alive())
+        # Every event was received even though the processor was stuck on the
+        # first one for the whole run.
+        self.assertEqual(len(polls), 21)
+        self.assertGreater(event_queue.qsize(), 0)
+
+    def test_processing_error_does_not_stop_the_loop(self):
+        """A failing event must not leave the queue without a consumer."""
+        scheduler = self._make_scheduler()
+        processed = []
+
+        def process(_channel, event, _thread_name):
+            processed.append(event["id"])
+            if event["id"] == "bad":
+                raise RuntimeError("boom")
+
+        scheduler._process_event.side_effect = process
+
+        event_queue = queue.Queue()
+        event_queue.put({"id": "bad"})
+        event_queue.put({"id": "good"})
+
+        processor = threading.Thread(
+            target=Scheduler._process_events,
+            args=(scheduler, "node", event_queue),
+        )
+        processor.start()
+        deadline = time.time() + 10
+        while len(processed) < 2 and time.time() < deadline:
+            time.sleep(0.01)
+        self._stop(scheduler)
+        processor.join(10)
+
+        self.assertFalse(processor.is_alive())
+        self.assertEqual(processed, ["bad", "good"])
 
 
 if __name__ == "__main__":
