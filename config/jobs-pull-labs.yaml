@@ -243,3 +243,27 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+# These boot the machine's own installed rootfs, so they follow the
+# baseline-*-aws-ec2 entries rather than *baseline-job-pull-labs (which sets a
+# buildroot ramdisk).
+
+  baseline-arm64-sasha-lab:
+    template: baseline.jinja2
+    kind: job
+    priority: medium
+    kcidb_test_suite: boot
+    rules:
+      tree:
+        - mainline
+        - next
+
+  baseline-x86-sasha-lab:
+    template: baseline.jinja2
+    kind: job
+    priority: medium
+    kcidb_test_suite: boot
+    rules:
+      tree:
+        - mainline
+        - next
