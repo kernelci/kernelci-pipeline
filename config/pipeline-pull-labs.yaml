@@ -27,3 +27,8 @@ runtimes:
     notify:
       callback:
         token: kernelci-pull-lab
+
+  sasha-lab:
+    lab_type: pull_labs
+    poll_interval: 60
+    timeout: 7200

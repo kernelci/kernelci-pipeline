@@ -25,7 +25,6 @@ _anchors:
     boot_method: grub
     mach: x86
 
-
 platforms:
 
   aaeon-UPN-EHLX4RE-A10-0864: *x86_64-device
@@ -773,3 +772,23 @@ platforms:
     arch: arm64
     boot_method: grub
     mach: arm
+
+  # Jetson Orin Nano devkit: P3767 module on P3768 carrier. SD root.
+  jetson-orin-nano-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra234-p3768-0000+p3767-0005.dtb
+    compatible:
+      - 'nvidia,p3768-0000+p3767-0005'
+      - 'nvidia,tegra234'
+
+  # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
+  nvidia-p3809-gb300:
+    <<: *arm64-device
+    mach: nvidia
+    boot_method: grub
+
+  # HPE ProLiant DL345 Gen11, AMD EPYC 9655P.
+  hpe-proliant-dl345-gen11:
+    <<: *x86_64-device
+    boot_method: grub

@@ -263,3 +263,18 @@ scheduler:
     runtime: *pull-labs-aws-ec2-runtime
     platforms:
       - aws-ec2-arm64
+
+  - job: baseline-arm64-sasha-lab
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: &sasha-lab-runtime
+      type: pull_labs
+      name: sasha-lab
+    platforms:
+      - jetson-orin-nano-devkit
+      - nvidia-p3809-gb300
+
+  - job: baseline-x86-sasha-lab
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms:
+      - hpe-proliant-dl345-gen11
