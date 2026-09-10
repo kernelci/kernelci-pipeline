@@ -410,6 +410,10 @@ fragments:
       - 'CONFIG_DWMAC_MEDIATEK=m'
       - 'CONFIG_NET_VENDOR_MEDIATEK=y'
       - 'CONFIG_NET_MEDIATEK_STAR_EMAC=m'
+      - 'CONFIG_RAVB=y'
+      - 'CONFIG_STMMAC_ETH=y'
+      - 'CONFIG_STMMAC_PLATFORM=y'
+      - 'CONFIG_DWMAC_RENESAS_GBETH=y'
 
   ltp:
     path: "kernel/configs/ltp.config"
