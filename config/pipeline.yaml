@@ -164,5 +164,13 @@ runtimes:
       callback:
         token: kernelci-lab-testpull
 
+  lava-renesas:
+    lab_type: lava
+    priority_min: 35
+    priority_max: 45
+    notify:
+      callback:
+        token: kernelci-lab-renesas
+
   shell:
     lab_type: shell
