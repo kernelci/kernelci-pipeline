@@ -278,3 +278,94 @@ scheduler:
     runtime: *sasha-lab-runtime
     platforms:
       - hpe-proliant-dl345-gen11
+
+  # sasha-lab test suites. The tree restriction lives on the runtime, so these
+  # reuse the shared job definitions and only select platforms here.
+  - job: ltp-smoke-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: &sasha-lab-arm64-platforms
+      - jetson-orin-nano-devkit
+      - nvidia-p3809-gb300
+
+  - job: ltp-smoke-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: &sasha-lab-x86-platforms
+      - hpe-proliant-dl345-gen11
+
+  - job: kselftest-cgroup-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-platforms
+
+  - job: kselftest-cgroup-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  - job: kselftest-cpu-hotplug-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-platforms
+
+  - job: kselftest-cpu-hotplug-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  - job: kselftest-futex-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-platforms
+
+  - job: kselftest-futex-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  # The Jetson Orin Nano has 8 GB, which is not enough for the mm selftests,
+  # and every job on it costs a full reflash -- so the heavier suites run on
+  # the servers only.
+  - job: ltp-syscalls-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: &sasha-lab-arm64-servers
+      - nvidia-p3809-gb300
+
+  - job: ltp-syscalls-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  - job: kselftest-mm-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-servers
+
+  - job: kselftest-mm-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  - job: kselftest-kvm-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-servers
+
+  - job: kselftest-kvm-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms
+
+  # Architecture-specific collections go only to the matching architecture:
+  # the arm64 kselftest tarball contains no x86 tests and vice versa.
+  - job: kselftest-arm64-pull-labs
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-arm64-servers
+
+  - job: kselftest-x86-pull-labs
+    event: *kbuild-gcc-15-x86-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-x86-platforms

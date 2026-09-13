@@ -32,3 +32,7 @@ runtimes:
     lab_type: pull_labs
     poll_interval: 60
     timeout: 7200
+    rules:
+      tree:
+        - mainline
+        - next
