@@ -585,11 +585,23 @@ platforms:
 
   fvp-aemva: *fvp-device
 
+  r8a774a1-hihope-rzg2m-ex:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
+
   r8a779m1-ulcb:
     <<: *arm64-device
     mach: renesas
     dtb: dtbs/renesas/r8a779m1-ulcb.dtb
     compatible: ['renesas,h3ulcb', 'renesas,r8a779m1', 'renesas,r8a7795']
+
+  r9a07g044l2-smarc-rzg2l:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a07g044l2-smarc.dtb
+    compatible: ['renesas,smarc-evk', 'renesas,r9a07g044l2', 'renesas,r9a07g044']
 
   rk3399-khadas-edge-v:
     <<: *arm64-device
