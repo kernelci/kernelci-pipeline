@@ -9,11 +9,11 @@ _anchors:
     priority: medium
     kcidb_test_suite: boot
     params:
-      ramdisk: 'https://storage.kernelci.org/images/rootfs/debian/buildroot-baseline/20260721.0/{brarch}/rootfs.cpio.gz'
+      ramdisk: 'https://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20260915.0/{brarch}/rootfs.cpio.gz'
 
   ltp-params-pull-labs: &ltp-params-pull-labs
     boot_commands: nfs
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260730.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260915.0/{debarch}'
     skip_install: "true"
     skipfile: skipfile-lkft.yaml
     workers: max
@@ -31,7 +31,7 @@ _anchors:
 
   kselftest-params-pull-labs: &kselftest-params-pull-labs
     boot_commands: nfs
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260606.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260915.0/{debarch}'
     job_timeout: 30
 
 jobs:
