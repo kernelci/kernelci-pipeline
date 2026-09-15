@@ -573,6 +573,10 @@ platforms:
       guestfs_interface: virtio
       memory: 4G
 
+  qemu-riscv64:
+    <<: *qemu-device
+    arch: riscv
+
   fvp: &fvp-device
     base_name: fvp
     arch: arm64

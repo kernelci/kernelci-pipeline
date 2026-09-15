@@ -224,6 +224,28 @@ scheduler:
     platforms:
       - exynos850-e850-96
 
+  - job: baseline-riscv-pull-labs
+    event: &kbuild-gcc-14-riscv-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-riscv
+    runtime: &pull-labs-riscv-runtime
+      type: pull_labs
+      name: pull-labs-riscv
+    platforms:
+      - qemu-riscv64
+
+  - job: kselftest-riscv-pull-labs
+    event: *kbuild-gcc-14-riscv-node-event
+    runtime: *pull-labs-riscv-runtime
+    platforms:
+      - qemu-riscv64
+
+  - job: kselftest-kvm-riscv-pull-labs
+    event: *kbuild-gcc-14-riscv-node-event
+    runtime: *pull-labs-riscv-runtime
+    platforms:
+      - qemu-riscv64
+
   - job: baseline-x86-pull-labs-demo
     event: &kbuild-gcc-15-x86-node-event
       <<: *node-event-kbuild
