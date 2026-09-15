@@ -62,7 +62,7 @@ def pollevents(api_url, timestamp, kind):
     url = (
         api_url
         + EVENTS_PATH
-        + f"?state=done&kind={kind}&limit=1000&recursive=true&from={timestamp}"
+        + f"?kind={kind}&limit=1000&recursive=true&from={timestamp}"
     )
     print(url)
     response = requests.get(url, timeout=60)
