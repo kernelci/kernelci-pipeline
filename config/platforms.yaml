@@ -16,6 +16,14 @@ _anchors:
     <<: *arm64-device
     arch: arm
 
+  # ARMv5 cores have no hardware floating point, so Debian rootfs images must
+  # use `armel`.  Without this override the Debian architecture is derived from
+  # the kernel architecture, which maps `arm` to the ARMv7 `armhf` and produces
+  # binaries these platforms cannot execute.
+  armv5-device: &armv5-device
+    <<: *arm-device
+    debarch: armel
+
   riscv-device: &riscv-device
     arch: riscv
     boot_method: u-boot
@@ -48,7 +56,7 @@ platforms:
     compatible: ['atmel,sama5d4-xplained', 'atmel,sama5d4', 'atmel,sama5']
 
   at91sam9g20ek:
-    <<: *arm-device
+    <<: *armv5-device
     mach: atmel
     dtb: dtbs/at91sam9g20ek.dtb
     compatible: ['atmel,at91sam9g20ek', 'atmel,at91sam9g20', 'atmel,at91sam9']
@@ -92,7 +100,7 @@ platforms:
         - stable-rc
 
   da850-lcdk:
-    <<: *arm-device
+    <<: *armv5-device
     mach: davinci
     dtb: dtbs/da850-lcdk.dtb
     compatible: ['ti,da850-lcdk', 'ti,da850']
@@ -152,21 +160,21 @@ platforms:
         - next
 
   imx23-olinuxino:
-    <<: *arm-device
+    <<: *armv5-device
     boot_method: barebox
     mach: imx
     dtb: dtbs/imx23-olinuxino.dtb
     compatible: ['olimex,imx23-olinuxino', '"fsl,imx23']
 
   imx27-phytec-phycard-s-rdk:
-    <<: *arm-device
+    <<: *armv5-device
     boot_method: barebox
     mach: imx
     dtb: dtbs/imx27-phytec-phycard-s-rdk.dtb
     compatible: ['phytec,imx27-pca100-rdk', 'phytec,imx27-pca100', 'fsl,imx27']
 
   imx28-duckbill:
-    <<: *arm-device
+    <<: *armv5-device
     boot_method: barebox
     mach: imx
     dtb: dtbs/imx28-duckbill.dtb
