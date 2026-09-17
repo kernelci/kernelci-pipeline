@@ -224,6 +224,16 @@ jobs:
       collection: breakpoints
     kcidb_test_suite: kselftest.breakpoints
 
+  baseline-riscv-pull-labs: *baseline-job-pull-labs
+
+  kselftest-riscv-pull-labs:
+    template: kselftest-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *kselftest-params-pull-labs
+      collection: riscv
+    kcidb_test_suite: kselftest.riscv
+
   kselftest-cgroup-pull-labs:
     template: kselftest-pull-labs.jinja2
     kind: job
