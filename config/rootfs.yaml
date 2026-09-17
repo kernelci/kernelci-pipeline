@@ -22,7 +22,7 @@ rootfs:
     nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/bullseye/20240129.0/{debarch}'
 
   trixie:
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie/20260915.0/{debarch}'
+    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie/20260917.0/{debarch}'
 
   trixie-blktest:
     rootfs: 'https://storage.kernelci.org/images/rootfs/debian/trixie-blktest/20260219.0/amd64'
@@ -31,29 +31,29 @@ rootfs:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-blktest/20260219.0/amd64/'
 
   trixie-fault-injection:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-fault-injection/20260915.0/{debarch}/'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-fault-injection/20260917.0/{debarch}/'
 
   trixie-gst-fluster:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-fluster/20260915.0/{debarch}/'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-fluster/20260917.0/{debarch}/'
 
   trixie-gst-h26forge:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-h26forge/20260915.0/{debarch}/'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-gst-h26forge/20260917.0/{debarch}/'
 
   trixie-kselftest:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260915.0/{debarch}'
-    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260915.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260917.0/{debarch}'
+    ramdiskroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260917.0/{debarch}'
 
   trixie-kselftest-boot:
-    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260915.0/{debarch}'
+    nfsroot: 'http://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20260917.0/{debarch}'
 
   trixie-kvm-unit-tests:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kvm-unit-tests/20260915.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kvm-unit-tests/20260917.0/{debarch}'
 
   trixie-ltp:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260915.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20260917.0/{debarch}'
 
   trixie-rt:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-rt/20260915.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-rt/20260917.0/{debarch}'
 
   trixie-wifi:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-wifi/20260915.0/{debarch}/'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-wifi/20260918.0/{debarch}/'
