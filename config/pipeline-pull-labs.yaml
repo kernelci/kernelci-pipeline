@@ -36,3 +36,16 @@ runtimes:
       tree:
         - mainline
         - next
+
+  pull-labs-riscv:
+    lab_type: pull_labs
+    poll_interval: 45
+    timeout: 7200
+    rules:
+      tree:
+        - mainline
+        - next
+        - riscv
+    notify:
+      callback:
+        token: kernelci-pull-labs-riscv
