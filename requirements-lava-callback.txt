@@ -2,3 +2,4 @@ uwsgi==2.0.31
 uvicorn==0.52.4
 fastapi==0.141.1
 pyjwt==2.13.0
+requests>=2.31

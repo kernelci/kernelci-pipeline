@@ -2,3 +2,7 @@ uwsgi==2.0.22
 uvicorn==0.30.1
 fastapi==0.111.0
 pyjwt==2.13.0
+# Used by src/triage_notifier to POST the triage handoff. Present in the base
+# image via kernelci-core today; pinned here so the callback does not depend
+# on that staying true.
+requests>=2.31
