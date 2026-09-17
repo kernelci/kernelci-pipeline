@@ -165,20 +165,26 @@ scheduler:
       - rk3588-rock-5b
       - sm8350-hdk
 
+  # collabora-arm64-platforms minus the devices that cannot boot over NFS.
+  #
   # TODO: Add fastboot platforms (dragonboard-410c, dragonboard-820c,
   # sm8350-hdk) once NFS boot support is implemented for fastboot
   # devices.  See kernelci-core boot/fastboot.jinja2 for details.
+  #
+  # qemu platforms are excluded for the same reason: boot/qemu.jinja2 only
+  # knows how to pass -initrd, so a job with boot_commands: nfs renders an
+  # empty ramdisk URL and LAVA rejects it with "Unsupported url protocol
+  # scheme".
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
-    platforms:
+    platforms: &collabora-arm64-nfs-platforms
       - bcm2711-rpi-4-b
       - lenovo-hr330a-7x33cto1ww-emag
       - meson-g12b-a311d-khadas-vim3
       - mt8365-genio-350-evk
       - mt8390-genio-700-evk
       - mt8395-genio-1200-evk
-      - qemu-arm64
       - r8a779m1-ulcb
       - rk3399-rock-pi-4b
       - rk3576-rock-4d
@@ -2238,11 +2244,9 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
-  - job: ltp-timers_qemu
-    event: *kbuild-gcc-14-x86-node-event
-    runtime: *lava-collabora-runtime
-    platforms:
-      - qemu-x86_64
+  # ltp-timers_qemu is not scheduled: its only platform is qemu-x86_64 and the
+  # job boots over NFS, which boot/qemu.jinja2 cannot do.  The job definition is
+  # kept in jobs.yaml so it can be scheduled again once qemu grows NFS support.
 
   - job: ltp-watchqueue
     event: *kbuild-gcc-14-arm-node-event
@@ -2261,7 +2265,7 @@ scheduler:
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm64-preempt_rt
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2281,7 +2285,8 @@ scheduler:
       <<: *node-event-kbuild
       name: kbuild-gcc-14-x86-preempt_rt
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: &collabora-x86-nfs-platforms
+      - aaeon-UPN-EHLX4RE-A10-0864
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2305,7 +2310,7 @@ scheduler:
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2315,7 +2320,7 @@ scheduler:
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-cyclictest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2330,7 +2335,7 @@ scheduler:
   - job: rt-tests-pi-stress
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-pi-stress
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2340,7 +2345,7 @@ scheduler:
   - job: rt-tests-pi-stress
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-pi-stress
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2355,7 +2360,7 @@ scheduler:
   - job: rt-tests-pmqtest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-pmqtest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2365,7 +2370,7 @@ scheduler:
   - job: rt-tests-pmqtest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-pmqtest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2380,7 +2385,7 @@ scheduler:
   - job: rt-tests-ptsematest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-ptsematest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2390,7 +2395,7 @@ scheduler:
   - job: rt-tests-ptsematest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-ptsematest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2405,7 +2410,7 @@ scheduler:
   - job: rt-tests-rt-migrate-test
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-rt-migrate-test
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2415,7 +2420,7 @@ scheduler:
   - job: rt-tests-rt-migrate-test
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-rt-migrate-test
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2430,7 +2435,7 @@ scheduler:
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2440,7 +2445,7 @@ scheduler:
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-rtla-osnoise
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2455,7 +2460,7 @@ scheduler:
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2465,7 +2470,7 @@ scheduler:
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-rtla-timerlat
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2480,7 +2485,7 @@ scheduler:
   - job: rt-tests-signaltest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-signaltest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2490,7 +2495,7 @@ scheduler:
   - job: rt-tests-signaltest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-signaltest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2505,7 +2510,7 @@ scheduler:
   - job: rt-tests-sigwaittest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-sigwaittest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2515,7 +2520,7 @@ scheduler:
   - job: rt-tests-sigwaittest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-sigwaittest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
@@ -2530,7 +2535,7 @@ scheduler:
   - job: rt-tests-svsematest
     event: *kbuild-gcc-14-arm64-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-arm64-platforms
+    platforms: *collabora-arm64-nfs-platforms
 
   - job: rt-tests-svsematest
     event: *kbuild-gcc-14-arm64-preempt_rt_chromebook-node-event
@@ -2540,7 +2545,7 @@ scheduler:
   - job: rt-tests-svsematest
     event: *kbuild-gcc-14-x86-preempt_rt-node-event
     runtime: *lava-collabora-runtime
-    platforms: *collabora-x86-platforms
+    platforms: *collabora-x86-nfs-platforms
 
   - job: rt-tests-svsematest
     event: *kbuild-gcc-14-x86-preempt_rt_x86_board-node-event
