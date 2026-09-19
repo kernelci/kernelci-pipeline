@@ -299,6 +299,7 @@ scheduler:
       name: sasha-lab
     platforms:
       - jetson-orin-nano-devkit
+      - jetson-agx-orin-devkit
       - nvidia-p3809-gb300
 
   - job: baseline-x86-sasha-lab
@@ -314,6 +315,7 @@ scheduler:
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-arm64-platforms
       - jetson-orin-nano-devkit
+      - jetson-agx-orin-devkit
       - nvidia-p3809-gb300
 
   - job: ltp-smoke-pull-labs
@@ -359,6 +361,7 @@ scheduler:
     event: *kbuild-gcc-15-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-arm64-servers
+      - jetson-agx-orin-devkit
       - nvidia-p3809-gb300
 
   - job: ltp-syscalls-pull-labs
