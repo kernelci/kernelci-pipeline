@@ -790,6 +790,14 @@ platforms:
       - 'nvidia,p3768-0000+p3767-0005'
       - 'nvidia,tegra234'
 
+  jetson-agx-orin-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra234-p3737-0000+p3701-0000.dtb
+    compatible:
+      - 'nvidia,p3737-0000+p3701-0000'
+      - 'nvidia,tegra234'
+
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
     <<: *arm64-device
