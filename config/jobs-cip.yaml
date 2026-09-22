@@ -576,3 +576,53 @@ jobs:
       branch:
         - 'cip:linux-4.4.y-st'
         - 'cip:linux-4.4.y-st-rc'
+
+# Start of CIP kselftest test jobs
+  kselftest-job-cip: &kselftest-job-cip
+    template: generic.jinja2
+    kind: job
+    priority: medium
+    params: &kselftest-params-cip
+      test_method: kselftest
+      boot_commands: nfs
+      rootfs_ref: trixie-kselftest
+      job_timeout: 10
+    rules:
+      tree:
+        - cip
+    kcidb_test_suite: kselftest.aaa
+
+  kselftest-futex-cip:
+    <<: *kselftest-job-cip
+    params:
+      <<: *kselftest-params-cip
+      collections: futex
+    kcidb_test_suite: kselftest.futex
+
+  kselftest-ipc-cip:
+    <<: *kselftest-job-cip
+    params:
+      <<: *kselftest-params-cip
+      collections: ipc
+    kcidb_test_suite: kselftest.ipc
+
+  kselftest-rseq-cip:
+    <<: *kselftest-job-cip
+    params:
+      <<: *kselftest-params-cip
+      collections: rseq
+    kcidb_test_suite: kselftest.rseq
+
+  kselftest-seccomp-cip:
+    <<: *kselftest-job-cip
+    params:
+      <<: *kselftest-params-cip
+      collections: seccomp
+    kcidb_test_suite: kselftest.seccomp
+
+  kselftest-timers-cip:
+    <<: *kselftest-job-cip
+    params:
+      <<: *kselftest-params-cip
+      collections: timers
+    kcidb_test_suite: kselftest.timers
