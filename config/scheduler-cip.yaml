@@ -809,3 +809,526 @@ scheduler:
 
   - <<: *kselftest-riscv-612-cip
     job: kselftest-timers-cip
+
+# Start of CIP LTP scheduler
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-arm64-platforms-612
+      - k3-am62p5-sk
+      - r8a774a1-hihope-rzg2m-ex
+      - r9a09g077m44-rzt2h-evk
+      - zynqmp-zcu102
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm64-platforms-612
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-arm64-platforms
+      - r8a774a1-hihope-rzg2m-ex
+      - zynqmp-zcu102
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm64-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-arm-platforms
+      - beaglebone-black
+      - de0-nano-soc
+      - r8a7743-iwg20d-q7
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm-platforms
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-arm-platforms-44
+      - beaglebone-black
+      - r8a7743-iwg20d-q7
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-arm-platforms-44
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-x86-platforms
+      - x86-openblocks-iot-vx2
+      - x86-siemens-mcom
+      - x86-simatic-ipc227e
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-smoke-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-x86-platforms
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-x86-platforms-419
+      - x86-openblocks-iot-vx2
+      - x86-simatic-ipc227e
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-x86-platforms-419
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-smoke-cip
+    platforms: &ltp-cip-riscv-platforms
+      - beaglev-fire
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-syscalls-ipc-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-ipc-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-sched-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-cap_bounds-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-filecaps-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-timers-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-syscalls-cip
+    platforms: *ltp-cip-riscv-platforms
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-cve-cip
+    platforms: *ltp-cip-riscv-platforms
+
