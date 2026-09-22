@@ -809,3 +809,410 @@ scheduler:
 
   - <<: *kselftest-riscv-612-cip
     job: kselftest-timers-cip
+
+# Start of CIP LTP scheduler
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm64-612-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm64-61-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm64-510-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm64-419-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm-612-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm-61-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm-510-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm-419-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-arm-44-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-x86-612-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-x86-61-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-x86-510-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-x86-419-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-x86-44-cip
+    job: ltp-cve-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-smoke-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-syscalls-ipc-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-ipc-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-sched-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-cap_bounds-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-filecaps-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-timers-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-syscalls-cip
+
+  - <<: *kselftest-riscv-612-cip
+    job: ltp-cve-cip
+

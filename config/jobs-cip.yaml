@@ -626,3 +626,76 @@ jobs:
       <<: *kselftest-params-cip
       collections: timers
     kcidb_test_suite: kselftest.timers
+
+# Start of CIP LTP test jobs
+  ltp-job-cip: &ltp-job-cip
+    template: ltp.jinja2
+    kind: job
+    priority: low
+    params: &ltp-params-cip
+      boot_commands: nfs
+      rootfs_ref: trixie-ltp
+      skip_install: "true"
+      skipfile: skipfile-lkft.yaml
+      workers: max
+    rules:
+      tree:
+        - cip
+    kcidb_test_suite: ltp
+
+  ltp-smoke-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "smoketest"
+
+  ltp-syscalls-ipc-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "syscalls-ipc"
+
+  ltp-ipc-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "ipc"
+
+  ltp-sched-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "sched"
+
+  ltp-cap_bounds-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "cap_bounds"
+
+  ltp-filecaps-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "filecaps"
+
+  ltp-timers-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      grp_test: "TMR"
+      job_timeout: 30
+
+  ltp-syscalls-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "syscalls"
+      job_timeout: 120
+
+  ltp-cve-cip:
+    <<: *ltp-job-cip
+    params:
+      <<: *ltp-params-cip
+      tst_cmdfiles: "cve"
+      job_timeout: 45
