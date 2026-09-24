@@ -947,6 +947,17 @@ jobs:
 
   kbuild-gcc-15-arm64: *kbuild-gcc-15-arm64-job
 
+  kbuild-gcc-15-arm64-baseline:
+    <<: *kbuild-gcc-15-arm64-job
+    params:
+      backend: tuxmake
+      arch: arm64
+      compiler: gcc-15
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'lab-setup'
+
   kbuild-gcc-15-arm64-nfsboot: &kbuild-gcc-15-arm64-nfsboot-job
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-15:arm64-kselftest-kernelci
