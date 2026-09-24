@@ -981,6 +981,7 @@ jobs:
       fragments:
         - 'netdev'
         - 'nfs-root-boot'
+        - 'ltp'
 
   kbuild-gcc-14-arm64-nfsboot: *kbuild-gcc-14-arm64-nfsboot-job
 
