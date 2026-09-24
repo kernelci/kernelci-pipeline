@@ -659,6 +659,9 @@ scheduler:
   - job: kbuild-gcc-15-arm64
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-arm64-baseline
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-aws-ec2
     <<: *build-k8s-all
 

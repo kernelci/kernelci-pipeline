@@ -8,6 +8,14 @@ _anchors:
     kind: kbuild
     state: available
 
+  kbuild-gcc-15-arm64-event: &kbuild-gcc-15-arm64-node-event
+    <<: *node-event-kbuild
+    name: kbuild-gcc-15-arm64
+
+  kbuild-gcc-15-arm64-baseline-event: &kbuild-gcc-15-arm64-baseline-node-event
+    <<: *node-event-kbuild
+    name: kbuild-gcc-15-arm64-baseline
+
 scheduler:
 
   - job: baseline-arm-pull-labs-demo
@@ -22,9 +30,7 @@ scheduler:
       - imx6dl-udoo
 
   - job: baseline-arm64-pull-labs-demo
-    event: &kbuild-gcc-15-arm64-node-event
-      <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm64
+    event: *kbuild-gcc-15-arm64-baseline-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -287,7 +293,7 @@ scheduler:
       - aws-ec2-arm64
 
   - job: baseline-arm64-sasha-lab
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-15-arm64-baseline-node-event
     runtime: &sasha-lab-runtime
       type: pull_labs
       name: sasha-lab
