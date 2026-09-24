@@ -671,6 +671,9 @@ scheduler:
   - job: kbuild-gcc-15-arm64-nfsboot
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-arm64-nfsboot-ltp
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-arm64-allnoconfig
     <<: *build-k8s-all
 

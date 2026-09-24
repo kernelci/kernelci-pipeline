@@ -960,6 +960,17 @@ jobs:
         - 'nfs-root-boot'
         - 'kselftest'
 
+  kbuild-gcc-15-arm64-nfsboot-ltp:
+    <<: *kbuild-gcc-15-arm64-nfsboot-job
+    params:
+      arch: arm64
+      compiler: gcc-15
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+
   kbuild-gcc-14-arm64-nfsboot: *kbuild-gcc-14-arm64-nfsboot-job
 
   kbuild-gcc-14-arm64-chromebook-main:
