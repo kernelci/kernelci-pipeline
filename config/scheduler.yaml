@@ -191,7 +191,9 @@ scheduler:
       - rk3588-rock-5b
 
   - job: baseline-nfs-arm64
-    event: *kbuild-gcc-14-arm64-node-event
+    event: &kbuild-gcc-15-arm64-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-15-arm64
     runtime:
       type: lava
       name: lava-renesas
@@ -210,7 +212,7 @@ scheduler:
         - stable-rc
 
   - job: baseline-nfs-arm64
-    event: *kbuild-gcc-14-arm64-node-event
+    event: *kbuild-gcc-15-arm64-node-event
     runtime:
       type: lava
       name: lava-renesas
