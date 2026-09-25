@@ -194,16 +194,16 @@ scheduler:
     event: &kbuild-gcc-15-arm64-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-15-arm64
-    runtime:
+    runtime: &lava-renesas-runtime
       type: lava
       name: lava-renesas
     platforms:
       - r8a774a1-hihope-rzg2m-ex
     rules:
-      min_version:
+      min_version: &min-version-rzg2m
         version: 5
         patchlevel: 3
-      tree:
+      tree: &lava-renesas-trees
         - kernelci
         - mainline
         - next
@@ -213,22 +213,146 @@ scheduler:
 
   - job: baseline-nfs-arm64
     event: *kbuild-gcc-15-arm64-node-event
-    runtime:
-      type: lava
-      name: lava-renesas
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a774b1-hihope-rzg2n-ex
+    rules:
+      min_version: &min-version-rzg2n
+        version: 5
+        patchlevel: 5
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a774c0-ek874
+    rules:
+      min_version: &min-version-rzg2e
+        version: 5
+        patchlevel: 1
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a774e1-hihope-rzg2h-ex
+    rules:
+      min_version: &min-version-rzg2h
+        version: 5
+        patchlevel: 9
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a07g043u11-smarc-rzg2ul
+    rules:
+      min_version: &min-version-rzg2ul
+        version: 5
+        patchlevel: 19
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a07g044c2-smarc-rzg2lc
+    rules:
+      min_version: &min-version-rzg2lc
+        version: 5
+        patchlevel: 18
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
     platforms:
       - r9a07g044l2-smarc-rzg2l
     rules:
-      min_version:
+      min_version: &min-version-rzg2l
         version: 5
         patchlevel: 16
-      tree:
-        - kernelci
-        - mainline
-        - next
-        - renesas
-        - stable
-        - stable-rc
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a07g054l2-smarc-rzv2l
+    rules:
+      min_version: &min-version-rzv2l
+        version: 5
+        patchlevel: 18
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a08g045s33-smarc-rzg3s
+    rules:
+      min_version: &min-version-rzg3s
+        version: 6
+        patchlevel: 8
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a09g047e57-smarc-rzg3e
+    rules:
+      min_version: &min-version-rzg3e
+        version: 6
+        patchlevel: 17
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a09g056n48-rzv2n-evk
+    rules:
+      min_version: &min-version-rzv2n
+        version: 6
+        patchlevel: 17
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a09g057h44-rzv2h-evk
+    rules:
+      min_version: &min-version-rzv2h
+        version: 6
+        patchlevel: 17
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a09g077m44-rzt2h-evk
+    rules:
+      min_version: &min-version-rzt2h
+        version: 6
+        patchlevel: 19
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a09g087m44-rzn2h-evk
+    rules:
+      min_version: &min-version-rzn2h
+        version: 6
+        patchlevel: 19
+      tree: *lava-renesas-trees
 
   - job: wifi-basic
     event:

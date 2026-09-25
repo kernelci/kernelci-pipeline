@@ -603,17 +603,89 @@ platforms:
     dtb: dtbs/renesas/r8a774a1-hihope-rzg2m-ex.dtb
     compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2m', 'renesas,r8a774a1']
 
+  r8a774b1-hihope-rzg2n-ex:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a774b1-hihope-rzg2n-ex.dtb
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2n', 'renesas,r8a774b1']
+
+  r8a774c0-ek874:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a774c0-ek874.dtb
+    compatible: ['si-linux,cat875', 'si-linux,cat874', 'renesas,r8a774c0']
+
+  r8a774e1-hihope-rzg2h-ex:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r8a774e1-hihope-rzg2h-ex.dtb
+    compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2h', 'renesas,r8a774e1']
+
   r8a779m1-ulcb:
     <<: *arm64-device
     mach: renesas
     dtb: dtbs/renesas/r8a779m1-ulcb.dtb
     compatible: ['renesas,h3ulcb', 'renesas,r8a779m1', 'renesas,r8a7795']
 
+  r9a07g043u11-smarc-rzg2ul:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a07g043u11-smarc.dtb
+    compatible: ['renesas,smarc-evk', 'renesas,r9a07g043u11', 'renesas,r9a07g043']
+
+  r9a07g044c2-smarc-rzg2lc:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a07g044c2-smarc.dtb
+    compatible: ['renesas,smarc-evk', 'renesas,r9a07g044c2', 'renesas,r9a07g044']
+
   r9a07g044l2-smarc-rzg2l:
     <<: *arm64-device
     mach: renesas
     dtb: dtbs/renesas/r9a07g044l2-smarc.dtb
     compatible: ['renesas,smarc-evk', 'renesas,r9a07g044l2', 'renesas,r9a07g044']
+
+  r9a07g054l2-smarc-rzv2l:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a07g054l2-smarc.dtb
+    compatible: ['renesas,smarc-evk', 'renesas,r9a07g054l2', 'renesas,r9a07g054']
+
+  r9a08g045s33-smarc-rzg3s:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a08g045s33-smarc.dtb
+    compatible: ['renesas,smarc2-evk', 'renesas,rzg3s-smarcm', 'renesas,r9a08g045s33', 'renesas,r9a08g045']
+
+  r9a09g047e57-smarc-rzg3e:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g047e57-smarc.dtb
+    compatible: ['renesas,smarc2-evk', 'renesas,rzg3e-smarcm', 'renesas,r9a09g047e57', 'renesas,r9a09g047']
+
+  r9a09g056n48-rzv2n-evk:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g056n48-rzv2n-evk.dtb
+    compatible: ['renesas,rzv2n-evk', 'renesas,r9a09g056n48', 'renesas,r9a09g056']
+
+  r9a09g057h44-rzv2h-evk:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g057h44-rzv2h-evk.dtb
+    compatible: ['renesas,rzv2h-evk', 'renesas,r9a09g057h44', 'renesas,r9a09g057']
+
+  r9a09g077m44-rzt2h-evk:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g077m44-rzt2h-evk.dtb
+    compatible: ['renesas,rzt2h-evk', 'renesas,r9a09g077m44', 'renesas,r9a09g077']
+
+  r9a09g087m44-rzn2h-evk:
+    <<: *arm64-device
+    mach: renesas
+    dtb: dtbs/renesas/r9a09g087m44-rzn2h-evk.dtb
+    compatible: ['renesas,rzn2h-evk', 'renesas,r9a09g087m44', 'renesas,r9a09g087']
 
   rk3399-khadas-edge-v:
     <<: *arm64-device
