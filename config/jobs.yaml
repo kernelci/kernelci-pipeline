@@ -969,7 +969,6 @@ jobs:
       fragments:
         - 'netdev'
         - 'nfs-root-boot'
-        - 'kselftest'
 
   kbuild-gcc-15-arm64-nfsboot-ltp:
     <<: *kbuild-gcc-15-arm64-nfsboot-job
