@@ -389,6 +389,28 @@ fragments:
     configs:
       - 'make:kselftest-merge'
 
+  kselftest-arm64:
+    path: "kernel/configs/kselftest-arm64.config"
+    configs:
+      - 'tree:tools/testing/selftests/arm64/config'
+      - 'CONFIG_ARM64_BTI=y'
+      - 'CONFIG_ARM64_GCS=y'
+      - 'CONFIG_ARM64_MTE=y'
+      - 'CONFIG_ARM64_POE=y'
+      - 'CONFIG_ARM64_PTR_AUTH=y'
+      - 'CONFIG_ARM64_SME=y'
+      - 'CONFIG_ARM64_SVE=y'
+      - 'CONFIG_ARM64_TAGGED_ADDR_ABI=y'
+      - 'CONFIG_HUGETLBFS=y'
+      - 'CONFIG_KSM=y'
+      - 'CONFIG_PROC_FS=y'
+      - 'CONFIG_SECCOMP=y'
+      - 'CONFIG_SECCOMP_FILTER=y'
+      - 'CONFIG_SHMEM=y'
+      - 'CONFIG_SYSCTL=y'
+      - 'CONFIG_SYSFS=y'
+      - 'CONFIG_TMPFS=y'
+
   lab-setup:
     path: "kernel/configs/lab-setup.config"
     configs:
