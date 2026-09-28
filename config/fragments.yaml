@@ -423,6 +423,8 @@ fragments:
       - 'CONFIG_SERIAL_TEGRA_UTC_CONSOLE=y'
       # Storage
       - 'CONFIG_USB_UAS=m'
+      # IOMMU
+      - 'CONFIG_TEGRA241_CMDQV=y'
 
   ltp:
     path: "kernel/configs/ltp.config"
