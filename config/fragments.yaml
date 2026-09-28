@@ -421,6 +421,8 @@ fragments:
       # Consoles
       - 'CONFIG_SERIAL_TEGRA_UTC=y'
       - 'CONFIG_SERIAL_TEGRA_UTC_CONSOLE=y'
+      # Storage
+      - 'CONFIG_USB_UAS=m'
 
   ltp:
     path: "kernel/configs/ltp.config"
