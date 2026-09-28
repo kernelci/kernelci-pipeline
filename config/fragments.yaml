@@ -415,6 +415,7 @@ fragments:
       - 'CONFIG_STMMAC_PLATFORM=y'
       - 'CONFIG_DWMAC_RENESAS_GBETH=y'
       - 'CONFIG_DWMAC_DWC_QOS_ETH=m'
+      - 'CONFIG_PCIE_TEGRA264=m'
 
   ltp:
     path: "kernel/configs/ltp.config"
