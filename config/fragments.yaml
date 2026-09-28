@@ -416,6 +416,9 @@ fragments:
       - 'CONFIG_DWMAC_RENESAS_GBETH=y'
       - 'CONFIG_DWMAC_DWC_QOS_ETH=m'
       - 'CONFIG_PCIE_TEGRA264=m'
+      # Consoles
+      - 'CONFIG_SERIAL_TEGRA_UTC=y'
+      - 'CONFIG_SERIAL_TEGRA_UTC_CONSOLE=y'
 
   ltp:
     path: "kernel/configs/ltp.config"
