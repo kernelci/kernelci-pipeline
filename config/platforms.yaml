@@ -886,6 +886,22 @@ platforms:
       - 'nvidia,p3737-0000+p3701-0000'
       - 'nvidia,tegra234'
 
+  jetson-nano-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra210-p3450-0000.dtb
+    compatible:
+      - 'nvidia,p3450-0000'
+      - 'nvidia,tegra210'
+
+  jetson-tx1-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra210-p2371-2180.dtb
+    compatible:
+      - 'nvidia,p2371-2180'
+      - 'nvidia,tegra210'
+
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
     <<: *arm64-device
