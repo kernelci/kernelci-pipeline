@@ -621,6 +621,36 @@ platforms:
     dtb: dtbs/renesas/r8a774e1-hihope-rzg2h-ex.dtb
     compatible: ['hoperun,hihope-rzg2-ex', 'hoperun,hihope-rzg2h', 'renesas,r8a774e1']
 
+  r8a7742-iwg21d-q7:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a7742-iwg21d-q7.dtb
+    compatible: ['iwave,g21d', 'iwave,g21m', 'renesas,r8a7742']
+
+  r8a7743-iwg20d-q7:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a7743-iwg20d-q7.dtb
+    compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
+
+  r8a7744-iwg20d-q7:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a7744-iwg20d-q7.dtb
+    compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7744']
+
+  r8a7745-iwg22d-sodimm:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a7745-iwg22d-sodimm.dtb
+    compatible: ['iwave,g22d', 'iwave,g22m', 'renesas,r8a7745']
+
+  r8a77470-iwg23s-sbc:
+    <<: *arm-device
+    mach: renesas
+    dtb: dtbs/r8a77470-iwg23s-sbc.dtb
+    compatible: ['iwave,g23s', 'renesas,r8a77470']
+
   r8a779m1-ulcb:
     <<: *arm64-device
     mach: renesas
