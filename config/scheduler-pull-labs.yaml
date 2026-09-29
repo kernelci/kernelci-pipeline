@@ -310,6 +310,7 @@ scheduler:
       - jetson-agx-xavier-devkit
       - jetson-xavier-nx-devkit
       - jetson-xavier-nx-devkit-emmc
+      - jetson-agx-thor-devkit
       - nvidia-p3809-gb300
 
   - job: baseline-x86-sasha-lab
