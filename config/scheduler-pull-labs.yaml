@@ -305,6 +305,11 @@ scheduler:
       - jetson-orin-nx-devkit
       - jetson-agx-orin-industrial-devkit
       - nvidia-igx-orin-devkit
+      - jetson-tx2-devkit
+      - jetson-tx2-nx-devkit
+      - jetson-agx-xavier-devkit
+      - jetson-xavier-nx-devkit
+      - jetson-xavier-nx-devkit-emmc
       - nvidia-p3809-gb300
 
   - job: baseline-x86-sasha-lab

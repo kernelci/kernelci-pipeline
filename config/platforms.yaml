@@ -926,6 +926,46 @@ platforms:
       - 'nvidia,p3740-0002+p3701-0008'
       - 'nvidia,tegra234'
 
+  jetson-tx2-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra186-p2771-0000.dtb
+    compatible:
+      - 'nvidia,p2771-0000'
+      - 'nvidia,tegra186'
+
+  jetson-tx2-nx-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra186-p3509-0000+p3636-0001.dtb
+    compatible:
+      - 'nvidia,p3509-0000+p3636-0001'
+      - 'nvidia,tegra186'
+
+  jetson-agx-xavier-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra194-p2972-0000.dtb
+    compatible:
+      - 'nvidia,p2972-0000'
+      - 'nvidia,tegra194'
+
+  jetson-xavier-nx-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra194-p3509-0000+p3668-0000.dtb
+    compatible:
+      - 'nvidia,p3509-0000+p3668-0000'
+      - 'nvidia,tegra194'
+
+  jetson-xavier-nx-devkit-emmc:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra194-p3509-0000+p3668-0001.dtb
+    compatible:
+      - 'nvidia,p3509-0000+p3668-0001'
+      - 'nvidia,tegra194'
+
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
     <<: *arm64-device
