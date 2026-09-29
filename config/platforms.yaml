@@ -980,6 +980,16 @@ platforms:
     mach: nvidia
     boot_method: grub
 
+  nvidia-e5020-vera:
+    <<: *arm64-device
+    mach: nvidia
+    boot_method: grub
+
+  nvidia-p5042-gh200:
+    <<: *arm64-device
+    mach: nvidia
+    boot_method: grub
+
   # HPE ProLiant DL345 Gen11, AMD EPYC 9655P.
   hpe-proliant-dl345-gen11:
     <<: *x86_64-device
