@@ -234,7 +234,9 @@ jobs:
   baseline-x86-mfd: *baseline-job
   baseline-x86-qualcomm: *baseline-job
 
+  baseline-nfs-arm: *baseline-nfs-job
   baseline-nfs-arm64: *baseline-nfs-job
+
   coverage-report-arm: &coverage-report-job
     template: coverage-report.jinja2
     kind: process

@@ -480,6 +480,108 @@ scheduler:
       min_version: *min-version-rzn2h
       tree: *lava-renesas-trees
 
+  - job: baseline-nfs-arm
+    event: &kbuild-gcc-15-arm-node-event
+      <<: *node-event-kbuild
+      name: kbuild-gcc-15-arm
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7742-iwg21d-q7
+    rules:
+      min_version: &min-version-rzg1h
+        version: 5
+        patchlevel: 9
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7743-iwg20d-q7
+    rules:
+      min_version: &min-version-rzg1m
+        version: 4
+        patchlevel: 14
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7744-iwg20d-q7
+    rules:
+      min_version: &min-version-rzg1n
+        version: 5
+        patchlevel: 0
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7745-iwg22d-sodimm
+    rules:
+      min_version: &min-version-rzg1e
+        version: 4
+        patchlevel: 15
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a77470-iwg23s-sbc
+    rules:
+      min_version: &min-version-rzg1c
+        version: 4
+        patchlevel: 18
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7742-iwg21d-q7
+    rules:
+      min_version: *min-version-rzg1h
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7743-iwg20d-q7
+    rules:
+      min_version: *min-version-rzg1m
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7744-iwg20d-q7
+    rules:
+      min_version: *min-version-rzg1n
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a7745-iwg22d-sodimm
+    rules:
+      min_version: *min-version-rzg1e
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm
+    event: *kbuild-gcc-15-arm-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r8a77470-iwg23s-sbc
+    rules:
+      min_version: *min-version-rzg1c
+      tree: *lava-renesas-trees
+
   - job: wifi-basic
     event:
       <<: *node-event-kbuild

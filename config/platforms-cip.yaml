@@ -59,7 +59,7 @@ platforms:
   r8a7743-iwg20d-q7:
     <<: *arm-device
     mach: renesas
-    dtb: dtbs/r8a7743-iwg20d-q7-dbcm-ca.dtb
+    dtb: dtbs/r8a7743-iwg20d-q7.dtb
     compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
 
 # riscv platforms
