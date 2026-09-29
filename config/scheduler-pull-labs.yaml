@@ -312,6 +312,8 @@ scheduler:
       - jetson-xavier-nx-devkit-emmc
       - jetson-agx-thor-devkit
       - nvidia-p3809-gb300
+      - nvidia-e5020-vera
+      - nvidia-p5042-gh200
 
   - job: baseline-x86-sasha-lab
     event: *kbuild-gcc-15-x86-node-event
