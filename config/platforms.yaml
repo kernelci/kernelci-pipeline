@@ -902,6 +902,30 @@ platforms:
       - 'nvidia,p2371-2180'
       - 'nvidia,tegra210'
 
+  jetson-orin-nx-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra234-p3768-0000+p3767-0000.dtb
+    compatible:
+      - 'nvidia,p3768-0000+p3767-0000'
+      - 'nvidia,tegra234'
+
+  jetson-agx-orin-industrial-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra234-p3737-0000+p3701-0008.dtb
+    compatible:
+      - 'nvidia,p3737-0000+p3701-0008'
+      - 'nvidia,tegra234'
+
+  nvidia-igx-orin-devkit:
+    <<: *arm64-device
+    mach: nvidia
+    dtb: dtbs/nvidia/tegra234-p3740-0002+p3701-0008.dtb
+    compatible:
+      - 'nvidia,p3740-0002+p3701-0008'
+      - 'nvidia,tegra234'
+
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
     <<: *arm64-device
