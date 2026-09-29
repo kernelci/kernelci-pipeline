@@ -302,6 +302,9 @@ scheduler:
       - jetson-agx-orin-devkit
       - jetson-nano-devkit
       - jetson-tx1-devkit
+      - jetson-orin-nx-devkit
+      - jetson-agx-orin-industrial-devkit
+      - nvidia-igx-orin-devkit
       - nvidia-p3809-gb300
 
   - job: baseline-x86-sasha-lab
@@ -318,6 +321,9 @@ scheduler:
     platforms: &sasha-lab-arm64-platforms
       - jetson-orin-nano-devkit
       - jetson-agx-orin-devkit
+      - jetson-orin-nx-devkit
+      - jetson-agx-orin-industrial-devkit
+      - nvidia-igx-orin-devkit
       - nvidia-p3809-gb300
 
   - job: ltp-smoke-pull-labs
@@ -364,6 +370,7 @@ scheduler:
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-arm64-servers
       - jetson-agx-orin-devkit
+      - jetson-agx-orin-industrial-devkit
       - nvidia-p3809-gb300
 
   - job: ltp-syscalls-pull-labs
