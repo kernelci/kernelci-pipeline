@@ -2316,6 +2316,18 @@ jobs:
       skipfile: https://storage.kernelci.org/skipfile-net.yaml
     kcidb_test_suite: kselftest.net
 
+  kselftest-net-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: net
+      job_timeout: 300
+      skipfile: https://storage.kernelci.org/skipfile-net.yaml
+    rules:
+      tree:
+        - netdev-testing
+    kcidb_test_suite: kselftest.net
+
   kselftest-perf-events:
     <<: *kselftest-job
     params:
