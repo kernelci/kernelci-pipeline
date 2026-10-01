@@ -333,6 +333,11 @@ scheduler:
       - jetson-agx-orin-industrial-devkit
       - nvidia-igx-orin-devkit
       - nvidia-p3809-gb300
+      - jetson-nano-devkit
+      - jetson-tx1-devkit
+      - jetson-tx2-devkit
+      - nvidia-e5020-vera
+      - nvidia-p5042-gh200
 
   - job: ltp-smoke-pull-labs
     event: *kbuild-gcc-15-x86-node-event
