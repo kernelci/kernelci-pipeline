@@ -1894,6 +1894,12 @@ scheduler:
 #      - acer-cb317-1h-c3z6-dedede
 #      - aaeon-UPN-EHLX4RE-A10-0864
 
+  - job: kselftest-net-ramdisk
+    event: *kbuild-gcc-14-x86-node-event
+    runtime: *lava-collabora-runtime
+    platforms:
+      - qemu-x86_64
+
 #  - job: kselftest-net
 #    event: *kbuild-gcc-14-arm64-node-event
 #    runtime: *lava-collabora-runtime

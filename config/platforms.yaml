@@ -561,6 +561,7 @@ platforms:
       arch: x86_64
       cpu: qemu64
       guestfs_interface: ide
+      memory: 4G
 
   qemu-arm:
     <<: *qemu-device
