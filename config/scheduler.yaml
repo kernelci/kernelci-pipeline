@@ -314,6 +314,17 @@ scheduler:
     event: *kbuild-gcc-15-arm64-node-event
     runtime: *lava-renesas-runtime
     platforms:
+      - r9a08g046l48-smarc-rzg3l
+    rules:
+      min_version: &min-version-rzg3l
+        version: 7
+        patchlevel: 2
+      tree: *lava-renesas-trees
+
+  - job: baseline-nfs-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
       - r9a09g056n48-rzv2n-evk
     rules:
       min_version: &min-version-rzv2n
@@ -442,6 +453,15 @@ scheduler:
       - r9a09g047e57-smarc-rzg3e
     rules:
       min_version: *min-version-rzg3e
+      tree: *lava-renesas-trees
+
+  - job: baseline-arm64
+    event: *kbuild-gcc-15-arm64-node-event
+    runtime: *lava-renesas-runtime
+    platforms:
+      - r9a08g046l48-smarc-rzg3l
+    rules:
+      min_version: *min-version-rzg3l
       tree: *lava-renesas-trees
 
   - job: baseline-arm64
