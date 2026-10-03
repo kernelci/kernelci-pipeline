@@ -908,6 +908,11 @@ platforms:
     compatible:
       - 'nvidia,p3768-0000+p3767-0005'
       - 'nvidia,tegra234'
+    # No device tree for this board before 6.6.
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
 
   jetson-agx-orin-devkit:
     <<: *arm64-device
@@ -916,6 +921,11 @@ platforms:
     compatible:
       - 'nvidia,p3737-0000+p3701-0000'
       - 'nvidia,tegra234'
+    # 6.1 cannot initialize the eMMC this devkit boots from.
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
 
   jetson-nano-devkit:
     <<: *arm64-device
@@ -940,6 +950,11 @@ platforms:
     compatible:
       - 'nvidia,p3768-0000+p3767-0000'
       - 'nvidia,tegra234'
+    # Before 6.18 the kernel cannot write the module's QSPI flash, which provisioning needs.
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 18
 
   jetson-agx-orin-industrial-devkit:
     <<: *arm64-device
@@ -948,6 +963,11 @@ platforms:
     compatible:
       - 'nvidia,p3737-0000+p3701-0008'
       - 'nvidia,tegra234'
+    # No device tree for this board before 6.18.
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 18
 
   nvidia-igx-orin-devkit:
     <<: *arm64-device
@@ -956,6 +976,11 @@ platforms:
     compatible:
       - 'nvidia,p3740-0002+p3701-0008'
       - 'nvidia,tegra234'
+    # No device tree for this board before 6.6.
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
 
   jetson-tx2-devkit:
     <<: *arm64-device
@@ -1004,6 +1029,11 @@ platforms:
     compatible:
       - 'nvidia,p4071-0000+p3834-0008'
       - 'nvidia,tegra264'
+    # No device tree for this board before 7.2.
+    rules:
+      min_version:
+        version: 7
+        patchlevel: 2
 
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
