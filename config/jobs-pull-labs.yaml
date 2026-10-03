@@ -202,6 +202,18 @@ jobs:
       tst_cmdfiles: "syscalls"
       job_timeout: 90
 
+  # The same job for sasha-lab on stable-rc, which the shared one's rules
+  # leave out; mainline and next keep using ltp-syscalls-pull-labs.
+  ltp-syscalls-sasha-lab:
+    <<: *ltp-job-pull-labs
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "syscalls"
+      job_timeout: 90
+    rules:
+      tree:
+        - stable-rc
+
   ltp-tracing-pull-labs:
     <<: *ltp-job-pull-labs
     params:
@@ -315,6 +327,7 @@ jobs:
       tree:
         - mainline
         - next
+        - stable-rc
 
   baseline-x86-sasha-lab:
     template: baseline.jinja2
@@ -325,3 +338,4 @@ jobs:
       tree:
         - mainline
         - next
+        - stable-rc

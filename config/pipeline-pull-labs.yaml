@@ -33,9 +33,13 @@ runtimes:
     poll_interval: 60
     timeout: 7200
     rules:
+      min_version:
+        version: 6
+        patchlevel: 1
       tree:
         - mainline
         - next
+        - stable-rc
 
   pull-labs-riscv:
     lab_type: pull_labs
