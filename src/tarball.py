@@ -55,11 +55,18 @@ git archive --format=tar --prefix={prefix}/ HEAD | gzip > {tarball_path}
         )
         self._filters = {
             "op": "created",
+            "name": "checkout",
             "kind": "checkout",
             "state": "running",
         }
 
     def _find_build_config(self, node):
+        # Patchsets also have kind=checkout, but their sources belong
+        # to the patchset service. Ignore events already queued by an
+        # older subscription as well as unexpected node names.
+        if node.get("name") != "checkout":
+            return None
+
         revision = node["data"]["kernel_revision"]
         tree = revision["tree"]
         branch = revision["branch"]
