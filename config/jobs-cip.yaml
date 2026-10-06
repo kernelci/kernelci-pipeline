@@ -94,8 +94,8 @@ jobs:
       fragments:
         - 'kselftest'
         - 'lab-setup'
-        - 'preempt_rt'
         - 'cip://6.12.y-cip/arm64/cip_merged_defconfig'
+        - 'preempt_rt'
 
   kbuild-gcc-14-arm64-61-cip: &kbuild-gcc-14-arm64-61-cip
     <<: *kbuild-gcc-14-arm64-job
@@ -446,8 +446,8 @@ jobs:
       fragments:
         - 'kselftest'
         - 'lab-setup'
-        - 'preempt_rt'
         - 'cip://6.12.y-cip/x86/cip_merged_defconfig'
+        - 'preempt_rt'
 
   kbuild-gcc-14-x86-61-cip: &kbuild-gcc-14-x86-61-cip
     <<: *kbuild-gcc-14-x86-job-cip
@@ -521,8 +521,8 @@ jobs:
       fragments:
         - 'kselftest'
         - 'lab-setup'
-        - 'preempt_rt'
         - 'cip://4.19.y-cip/x86/cip_merged_defconfig'
+        - 'preempt_rt'
     rules:
       branch:
         - 'cip:linux-4.19.y-cip-rt'
