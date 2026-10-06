@@ -332,7 +332,6 @@ jobs:
         - multi_v7_defconfig
       fragments:
         - 'CONFIG_ARCH_RENESAS=y'
-        - 'kselftest'
         - 'lab-setup'
         - 'cip://4.4.y-cip/arm/cip_merged_defconfig'
     rules:
@@ -346,7 +345,6 @@ jobs:
       <<: *kbuild-gcc-14-arm-44-cip-params
       fragments:
         - 'CONFIG_ARCH_RENESAS=y'
-        - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
         - 'cip://4.4.y-cip/arm/cip_merged_defconfig'
@@ -361,7 +359,6 @@ jobs:
       defconfig:
         - multi_v7_defconfig
       fragments:
-        - 'kselftest'
         - 'lab-setup'
     rules:
       branch:
@@ -544,7 +541,6 @@ jobs:
     params: &kbuild-gcc-14-x86-44-cip-params
       <<: *kbuild-gcc-14-x86-params
       fragments:
-        - 'kselftest'
         - 'lab-setup'
         - 'cip://4.4.y-cip/x86/cip_merged_defconfig'
     rules:
@@ -557,7 +553,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-x86-44-cip-params
       fragments:
-        - 'kselftest'
         - 'lab-setup'
         - 'preempt_rt'
         - 'cip://4.4.y-cip/x86/cip_merged_defconfig'
@@ -570,7 +565,6 @@ jobs:
     params:
       <<: *kbuild-gcc-14-x86-params
       fragments:
-        - 'kselftest'
         - 'lab-setup'
     rules:
       branch:
