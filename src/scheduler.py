@@ -1292,6 +1292,7 @@ class Scheduler(Service):
         self._watchdog_heartbeat(
             f"expanding channel={channel} event={event_id}", thread_name
         )
+        runtime_filter = event.get("runtime_filter")
         for job, runtime, platform, rules in self._sched.get_schedule(event):
             self._watchdog_heartbeat(
                 "processing "
@@ -1299,6 +1300,12 @@ class Scheduler(Service):
                 f"runtime={runtime.config.name} platform={platform.name}",
                 thread_name,
             )
+            if (
+                runtime_filter
+                and isinstance(runtime_filter, list)
+                and runtime.config.name not in runtime_filter
+            ):
+                continue
             if self._should_skip_unreachable_runtime(runtime, job, platform):
                 continue
             input_node = self._api.node.get(event["id"])

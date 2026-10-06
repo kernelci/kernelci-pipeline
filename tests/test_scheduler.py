@@ -492,6 +492,63 @@ class TestSchedulerRetryRequests(unittest.TestCase):
         scheduler._run_job.assert_called_once()
 
 
+class TestSchedulerRuntimeFilter(unittest.TestCase):
+    def _make_scheduler(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler.log = MagicMock()
+        scheduler._should_skip_unreachable_runtime.return_value = False
+        scheduler._verify_architecture_filter.return_value = True
+        scheduler._should_skip_due_to_queue_depth.return_value = False
+        scheduler._job_recently_scheduled.return_value = False
+        scheduler._api_helper_lock = threading.Lock()
+        scheduler._api_helper = MagicMock()
+        scheduler._api_helper.should_create_node.return_value = True
+        scheduler._api = MagicMock()
+        scheduler._api.node.get.side_effect = lambda node_id: {"id": node_id}
+        job = types.SimpleNamespace(name="baseline-arm", params={})
+        platform = types.SimpleNamespace(name="qemu-arm")
+        self.cip = types.SimpleNamespace(
+            config=types.SimpleNamespace(name="lava-cip")
+        )
+        self.collabora = types.SimpleNamespace(
+            config=types.SimpleNamespace(name="lava-collabora")
+        )
+        scheduler._sched = MagicMock()
+        scheduler._sched.get_schedule.return_value = [
+            (job, self.collabora, platform, []),
+            (job, self.cip, platform, []),
+        ]
+        return scheduler
+
+    def scheduled_runtimes(self, scheduler):
+        return [c.args[1] for c in scheduler._run_job.call_args_list]
+
+    def test_runtime_filter_limits_jobs_to_listed_runtimes(self):
+        scheduler = self._make_scheduler()
+        event = {"id": "kbuild-1", "runtime_filter": ["lava-cip"]}
+        Scheduler._process_event(scheduler, "retry", event, "processor")
+        self.assertEqual(self.scheduled_runtimes(scheduler), [self.cip])
+
+    def test_filtered_out_runtime_is_not_probed(self):
+        scheduler = self._make_scheduler()
+        event = {"id": "kbuild-1", "runtime_filter": ["lava-cip"]}
+        Scheduler._process_event(scheduler, "retry", event, "processor")
+        probed = [
+            c.args[0]
+            for c in scheduler._should_skip_unreachable_runtime.call_args_list
+        ]
+        self.assertEqual(probed, [self.cip])
+
+    def test_without_runtime_filter_all_runtimes_are_scheduled(self):
+        scheduler = self._make_scheduler()
+        Scheduler._process_event(
+            scheduler, "node", {"id": "kbuild-1"}, "processor"
+        )
+        self.assertEqual(
+            self.scheduled_runtimes(scheduler), [self.collabora, self.cip]
+        )
+
+
 class TestSchedulerEventDecoupling(unittest.TestCase):
     """Event reception must not be blocked by job submission.
 
