@@ -18,10 +18,16 @@ _anchors:
     template: kbuild.jinja2
     kind: kbuild
 
+  kbuild-params-cip: &kbuild-params-cip
+    backend: tuxmake
+    extra_targets:
+      - dtbs-legacy
+
   kbuild-gcc-14-arm: &kbuild-gcc-14-arm-job
     <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm-kselftest-kernelci
     params: &kbuild-gcc-14-arm-params
+      <<: *kbuild-params-cip
       arch: arm
       compiler: gcc-14
       cross_compile: 'arm-linux-gnueabihf-'
@@ -31,6 +37,7 @@ _anchors:
     <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-kselftest-kernelci
     params: &kbuild-gcc-14-arm64-params
+      <<: *kbuild-params-cip
       arch: arm64
       compiler: gcc-14
       cross_compile: 'aarch64-linux-gnu-'
@@ -43,6 +50,7 @@ _anchors:
     <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:riscv64-kselftest-kernelci
     params: &kbuild-gcc-14-riscv-params
+      <<: *kbuild-params-cip
       arch: riscv
       compiler: gcc-14
       cross_compile: 'riscv64-linux-gnu-'
@@ -55,6 +63,7 @@ _anchors:
     <<: *kbuild-job-cip
     image: ghcr.io/kernelci/{image_prefix}gcc-14:x86-kselftest-kernelci
     params: &kbuild-gcc-14-x86-params
+      <<: *kbuild-params-cip
       arch: x86_64
       compiler: gcc-14
       defconfig: x86_64_defconfig
