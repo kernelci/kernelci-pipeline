@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 import threading
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Optional
@@ -681,6 +682,7 @@ async def jobretry(
     if platform:
         knode["platform_filter"] = [platform]
     knode["debug"] = {"retry_by": node["id"]}
+    knode["retry_request_id"] = uuid.uuid4().hex
     knode["data"].pop("artifacts", None)
     # state - done, result - pass
     if knode.get("state") != "done":

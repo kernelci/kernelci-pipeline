@@ -413,6 +413,27 @@ class TestSchedulerDuplicateGuard(unittest.TestCase):
                 Scheduler._job_recently_scheduled(scheduler, *args, 0)
             )
 
+    def test_retry_requests_are_not_duplicates(self):
+        scheduler = self._make_scheduler()
+        args = self._job_args()
+        self.assertFalse(Scheduler._job_recently_scheduled(scheduler, *args, 0))
+        self.assertFalse(
+            Scheduler._job_recently_scheduled(scheduler, *args, 0, "request-a")
+        )
+        self.assertFalse(
+            Scheduler._job_recently_scheduled(scheduler, *args, 0, "request-b")
+        )
+
+    def test_redelivered_retry_request_is_duplicate(self):
+        scheduler = self._make_scheduler()
+        args = self._job_args()
+        self.assertFalse(
+            Scheduler._job_recently_scheduled(scheduler, *args, 0, "request-a")
+        )
+        self.assertTrue(
+            Scheduler._job_recently_scheduled(scheduler, *args, 0, "request-a")
+        )
+
     def test_cache_size_is_bounded(self):
         """The dedup cache never grows past DEDUP_CACHE_MAX entries."""
         scheduler = self._make_scheduler()
@@ -422,6 +443,53 @@ class TestSchedulerDuplicateGuard(unittest.TestCase):
                     scheduler, *self._job_args(parent=f"parent-{i}"), 0
                 )
         self.assertLessEqual(len(scheduler._recent_jobs), 5)
+
+
+class TestSchedulerRetryRequests(unittest.TestCase):
+    def _make_scheduler(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler.log = MagicMock()
+        scheduler._recent_jobs = collections.OrderedDict()
+        scheduler._dedup_lock = threading.Lock()
+        scheduler._job_recently_scheduled.side_effect = (
+            lambda *args: Scheduler._job_recently_scheduled(scheduler, *args)
+        )
+        scheduler._should_skip_unreachable_runtime.return_value = False
+        scheduler._verify_architecture_filter.return_value = True
+        scheduler._should_skip_due_to_queue_depth.return_value = False
+        scheduler._api_helper_lock = threading.Lock()
+        scheduler._api_helper = MagicMock()
+        scheduler._api_helper.should_create_node.return_value = True
+        scheduler._api = MagicMock()
+        scheduler._api.node.get.side_effect = lambda node_id: {"id": node_id}
+        job = types.SimpleNamespace(name="baseline-arm", params={})
+        runtime = types.SimpleNamespace(
+            config=types.SimpleNamespace(name="lava-cip")
+        )
+        platform = types.SimpleNamespace(name="qemu-arm")
+        scheduler._sched = MagicMock()
+        scheduler._sched.get_schedule.return_value = [
+            (job, runtime, platform, [])
+        ]
+        return scheduler
+
+    def test_each_retry_request_creates_a_job(self):
+        scheduler = self._make_scheduler()
+        events = [
+            {"id": "kbuild-1"},
+            {"id": "kbuild-1", "retry_request_id": "request-a"},
+            {"id": "kbuild-1", "retry_request_id": "request-b"},
+        ]
+        for event in events:
+            Scheduler._process_event(scheduler, "retry", event, "processor")
+        self.assertEqual(scheduler._run_job.call_count, 3)
+
+    def test_redelivered_retry_request_creates_one_job(self):
+        scheduler = self._make_scheduler()
+        event = {"id": "kbuild-1", "retry_request_id": "request-a"}
+        Scheduler._process_event(scheduler, "retry", event, "processor")
+        Scheduler._process_event(scheduler, "retry", event, "processor")
+        scheduler._run_job.assert_called_once()
 
 
 class TestSchedulerEventDecoupling(unittest.TestCase):
