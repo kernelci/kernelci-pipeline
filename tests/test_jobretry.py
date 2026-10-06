@@ -110,6 +110,14 @@ class TestJobRetry(unittest.TestCase):
         self.assertIn(JOB["name"], event["jobfilter"])
         self.assertIn("baseline-arm-child+", event["jobfilter"])
 
+    def test_each_request_gets_its_own_id(self):
+        _, first = self.retry()
+        _, second = self.retry()
+        self.assertTrue(first["retry_request_id"])
+        self.assertNotEqual(
+            first["retry_request_id"], second["retry_request_id"]
+        )
+
     def test_event_records_retried_job(self):
         _, event = self.retry()
         self.assertEqual(event["debug"]["retry_by"], JOB["id"])
