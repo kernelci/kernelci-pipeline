@@ -677,7 +677,10 @@ async def jobretry(
     knode["jobfilter"] = jobfilter
     if data.jobfilter:
         knode["jobfilter"].extend(data.jobfilter)
-    knode["op"] = "updated"
+    platform = node.get("data", {}).get("platform")
+    if platform:
+        knode["platform_filter"] = [platform]
+    knode["debug"] = {"retry_by": node["id"]}
     knode["data"].pop("artifacts", None)
     # state - done, result - pass
     if knode.get("state") != "done":
@@ -693,10 +696,11 @@ async def jobretry(
     knode.pop("owner", None)
     knode.pop("submitter", None)
     knode.pop("usergroups", None)
+    knode["state"] = "available"
 
     evnode = {"data": knode}
     # Now we can submit custom kbuild node to the API(pub/sub)
-    api_helper.api.send_event("node", evnode)
+    api_helper.api.send_event("retry", evnode)
     logger.info(f"Job retry for node {data.nodeid} submitted")
     item["message"] = "OK"
     return JSONResponse(content=item, status_code=200)
