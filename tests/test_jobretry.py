@@ -42,13 +42,13 @@ JOB = {
     "state": "done",
     "result": "incomplete",
     "retry_counter": 3,
-    "data": {"platform": "qemu-arm"},
+    "data": {"platform": "qemu-arm", "runtime": "lava-cip"},
 }
 
 
 class TestJobRetry(unittest.TestCase):
-    def retry(self, jobfilter=None):
-        nodes = {KBUILD["id"]: KBUILD, JOB["id"]: JOB}
+    def request(self, job=JOB, **fields):
+        nodes = {KBUILD["id"]: KBUILD, job["id"]: job}
         helper = mock.Mock()
         helper.api.node.get.side_effect = lambda node_id: copy.deepcopy(
             nodes.get(node_id)
@@ -74,13 +74,15 @@ class TestJobRetry(unittest.TestCase):
             )
             response = asyncio.run(
                 lava_callback.jobretry(
-                    lava_callback.JobRetry(
-                        nodeid=JOB["id"], jobfilter=jobfilter
-                    ),
+                    lava_callback.JobRetry(nodeid=job["id"], **fields),
                     mock.Mock(),
                     "token",
                 )
             )
+        return response, helper
+
+    def retry(self, job=JOB, **fields):
+        response, helper = self.request(job, **fields)
         self.assertEqual(response.status_code, 200)
         helper.api.send_event.assert_called_once()
         channel, event = helper.api.send_event.call_args.args
@@ -109,6 +111,35 @@ class TestJobRetry(unittest.TestCase):
         _, event = self.retry(jobfilter=["baseline-arm-child+"])
         self.assertIn(JOB["name"], event["jobfilter"])
         self.assertIn("baseline-arm-child+", event["jobfilter"])
+
+    def test_event_defaults_to_job_runtime(self):
+        _, event = self.retry()
+        self.assertEqual(event["runtime_filter"], ["lava-cip"])
+
+    def test_runtimefilter_overrides_job_runtime(self):
+        _, event = self.retry(runtimefilter=["lava-collabora"])
+        self.assertEqual(event["runtime_filter"], ["lava-collabora"])
+
+    def assert_rejected(self, status, job=JOB, **fields):
+        response, helper = self.request(job, **fields)
+        self.assertEqual(response.status_code, status)
+        helper.api.send_event.assert_not_called()
+
+    def test_unknown_runtime_is_rejected(self):
+        self.assert_rejected(404, runtimefilter=["no-such-lab"])
+
+    def test_empty_runtimefilter_is_rejected(self):
+        self.assert_rejected(400, runtimefilter=[])
+
+    def test_too_many_runtimes_are_rejected(self):
+        self.assert_rejected(400, runtimefilter=["lava-cip"] * 9)
+
+    def test_job_without_runtime_needs_runtimefilter(self):
+        job = copy.deepcopy(JOB)
+        del job["data"]["runtime"]
+        self.assert_rejected(400, job=job)
+        _, event = self.retry(job=job, runtimefilter=["lava-cip"])
+        self.assertEqual(event["runtime_filter"], ["lava-cip"])
 
     def test_each_request_gets_its_own_id(self):
         _, first = self.retry()
