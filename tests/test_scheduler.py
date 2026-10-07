@@ -129,6 +129,7 @@ class TestSchedulerQueueDepth(unittest.TestCase):
         runtime = MagicMock()
         runtime.config.lab_type = "lava"
         runtime.config.name = "lab-test"
+        runtime.config.url = "https://lava.example.org/"
         runtime.config.disable_queue_limit = False
         # Disable priority weighting by default so these tests exercise the
         # plain per-device ceiling; priority scaling is covered separately.
@@ -142,6 +143,50 @@ class TestSchedulerQueueDepth(unittest.TestCase):
         platform.name = "beaglebone-black"
 
         return scheduler, runtime, job_config, platform
+
+    def test_pull_runtime_skips_queue_checks_and_status_logging(self):
+        """Pull-mode LAVA jobs proceed without remote calls or warnings."""
+        for url in (None, ""):
+            with self.subTest(url=url):
+                scheduler, runtime, job_config, platform = (
+                    self._make_common_mocks()
+                )
+                runtime.config.url = url
+                runtime.get_device_names_by_type.side_effect = ValueError(
+                    "LAVA server URL is not configured"
+                )
+                self.assertFalse(
+                    Scheduler._should_skip_due_to_queue_depth(
+                        scheduler, runtime, job_config, platform
+                    )
+                )
+                Scheduler._log_lava_queue_status(
+                    scheduler, runtime, job_config.params, platform
+                )
+                runtime.get_device_names_by_type.assert_not_called()
+                runtime.get_devicetype_job_count.assert_not_called()
+                scheduler.log.warning.assert_not_called()
+                scheduler._telemetry.emit.assert_not_called()
+
+    def test_direct_lava_runtime_logs_queue_status(self):
+        """A configured LAVA server still receives queue-status queries."""
+        scheduler, runtime, job_config, platform = self._make_common_mocks()
+        runtime.get_device_names_by_type.return_value = ["bbb-1"]
+        runtime.get_devicetype_job_count.return_value = 5
+
+        Scheduler._log_lava_queue_status(
+            scheduler, runtime, job_config.params, platform
+        )
+
+        runtime.get_device_names_by_type.assert_called_once_with(
+            "beaglebone-black", online_only=True
+        )
+        runtime.get_devicetype_job_count.assert_called_once_with(
+            "beaglebone-black"
+        )
+        scheduler.log.info.assert_called_once_with(
+            "LAVA queue status: device_type=beaglebone-black queued=5"
+        )
 
     def test_queue_depth_uses_scaled_limit_per_device(self):
         """Scaled limit should be per-device depth * online device count."""
@@ -328,6 +373,7 @@ class TestSchedulerQueueDepth(unittest.TestCase):
             config=types.SimpleNamespace(
                 lab_type="lava",
                 name="lab-test",
+                url="https://lava.example.org/",
                 max_queue_depth=50,
             ),
             get_devicetype_job_count=lambda _device_type: 100,
