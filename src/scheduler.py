@@ -1109,7 +1109,13 @@ class Scheduler(Service):
         return True
 
     def _job_recently_scheduled(
-        self, input_node, job_config, runtime, platform, retry_counter
+        self,
+        input_node,
+        job_config,
+        runtime,
+        platform,
+        retry_counter,
+        retry_request_id=None,
     ):
         """Return True if an identical job was scheduled very recently.
 
@@ -1130,6 +1136,7 @@ class Scheduler(Service):
             runtime.config.name,
             platform.name,
             retry_counter,
+            retry_request_id,
         )
         now = time.time()
         with self._dedup_lock:
@@ -1285,6 +1292,7 @@ class Scheduler(Service):
         self._watchdog_heartbeat(
             f"expanding channel={channel} event={event_id}", thread_name
         )
+        runtime_filter = event.get("runtime_filter")
         for job, runtime, platform, rules in self._sched.get_schedule(event):
             self._watchdog_heartbeat(
                 "processing "
@@ -1292,6 +1300,12 @@ class Scheduler(Service):
                 f"runtime={runtime.config.name} platform={platform.name}",
                 thread_name,
             )
+            if (
+                runtime_filter
+                and isinstance(runtime_filter, list)
+                and runtime.config.name not in runtime_filter
+            ):
+                continue
             if self._should_skip_unreachable_runtime(runtime, job, platform):
                 continue
             input_node = self._api.node.get(event["id"])
@@ -1321,7 +1335,12 @@ class Scheduler(Service):
                 # twice in quick succession (kernelci-core#2912); the
                 # primary fix is edge-triggered scheduling in kernelci-core.
                 if self._job_recently_scheduled(
-                    input_node, job, runtime, platform, retry_counter
+                    input_node,
+                    job,
+                    runtime,
+                    platform,
+                    retry_counter,
+                    event.get("retry_request_id"),
                 ):
                     self.log.info(
                         "Skipping duplicate job creation: "

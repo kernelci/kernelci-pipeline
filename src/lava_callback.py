@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 import threading
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Optional
@@ -78,6 +79,7 @@ class PatchSet(BaseModel):
 class JobRetry(BaseModel):
     nodeid: str
     jobfilter: Optional[list] = None
+    runtimefilter: Optional[list] = None
 
 
 class Metrics:
@@ -677,7 +679,26 @@ async def jobretry(
     knode["jobfilter"] = jobfilter
     if data.jobfilter:
         knode["jobfilter"].extend(data.jobfilter)
-    knode["op"] = "updated"
+    platform = node.get("data", {}).get("platform")
+    if platform:
+        knode["platform_filter"] = [platform]
+    if data.runtimefilter is not None:
+        if not data.runtimefilter or len(data.runtimefilter) > 8:
+            item["message"] = "runtimefilter must list 1 to 8 runtimes"
+            return JSONResponse(content=item, status_code=400)
+        for runtime in data.runtimefilter:
+            if not is_runtime_exist(runtime):
+                item["message"] = f"Runtime {runtime} not found"
+                return JSONResponse(content=item, status_code=404)
+        knode["runtime_filter"] = data.runtimefilter
+    else:
+        runtime = node.get("data", {}).get("runtime")
+        if not runtime or not is_runtime_exist(runtime):
+            item["message"] = "Job runtime unknown, set runtimefilter"
+            return JSONResponse(content=item, status_code=400)
+        knode["runtime_filter"] = [runtime]
+    knode["debug"] = {"retry_by": node["id"]}
+    knode["retry_request_id"] = uuid.uuid4().hex
     knode["data"].pop("artifacts", None)
     # state - done, result - pass
     if knode.get("state") != "done":
@@ -693,10 +714,11 @@ async def jobretry(
     knode.pop("owner", None)
     knode.pop("submitter", None)
     knode.pop("usergroups", None)
+    knode["state"] = "available"
 
     evnode = {"data": knode}
     # Now we can submit custom kbuild node to the API(pub/sub)
-    api_helper.api.send_event("node", evnode)
+    api_helper.api.send_event("retry", evnode)
     logger.info(f"Job retry for node {data.nodeid} submitted")
     item["message"] = "OK"
     return JSONResponse(content=item, status_code=200)
@@ -742,6 +764,13 @@ def is_job_exist(jobname):
     """
     for job in YAMLCFG["jobs"]:
         if job == jobname:
+            return True
+    return False
+
+
+def is_runtime_exist(runtime):
+    for r in YAMLCFG["runtimes"]:
+        if r == runtime:
             return True
     return False
 
