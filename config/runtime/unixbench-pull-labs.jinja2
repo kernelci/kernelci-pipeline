@@ -1,0 +1,19 @@
+{# UnixBench benchmark template for pull-labs runtime #}
+{# This template builds test_definitions for the UnixBench kernel A/B benchmark #}
+{%- set base_template = 'base/pull_labs.jinja2' %}
+
+{#- Calculate timeout in seconds (default 90 minutes) #}
+{%- set test_timeout = (job_timeout | default(90)) * 60 %}
+
+{%- set test_definitions = [
+  {
+    'id': 'unixbench',
+    'type': 'unixbench',
+    'depends': [],
+    'timeout_s': test_timeout,
+    'pre_commands': [],
+    'post_commands': []
+  }
+] %}
+
+{%- extends base_template %}
