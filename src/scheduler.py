@@ -470,6 +470,10 @@ class Scheduler(Service):
     def _log_lava_queue_status(self, runtime, params, platform):
         if runtime.config.lab_type != "lava":
             return
+        # URL-less LAVA runtimes store jobs for lab-side pickup; there is
+        # no remote queue to query.
+        if not getattr(runtime.config, "url", None):
+            return
         if not hasattr(runtime, "get_devicetype_job_count"):
             self.log.warning("LAVA runtime missing get_devicetype_job_count()")
             return
@@ -604,6 +608,10 @@ class Scheduler(Service):
         Returns True if job should be skipped, False otherwise.
         """
         if runtime.config.lab_type != "lava":
+            return False
+
+        # Pull-mode LAVA runtimes have no server-side queue to inspect.
+        if not getattr(runtime.config, "url", None):
             return False
 
         if getattr(runtime.config, "disable_queue_limit", False):
