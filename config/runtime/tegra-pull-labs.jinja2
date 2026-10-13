@@ -1,0 +1,18 @@
+{# NVIDIA Tegra test suites for pull-labs runtime: 'uapi' (uapi-test, the #}
+{# host1x/TegraDRM userspace interface) or 'tests' (tegra-tests, board sanity) #}
+{%- set boot_commands = 'nfs' %}
+{%- set base_template = 'base/pull_labs.jinja2' %}
+{%- set test_timeout = (job_timeout | default(10)) * 60 %}
+
+{%- set test_definitions = [
+  {
+    'id': 'tegra-' ~ suite,
+    'type': 'tegra-' ~ suite,
+    'depends': [],
+    'timeout_s': test_timeout,
+    'pre_commands': [],
+    'post_commands': []
+  }
+] %}
+
+{%- extends base_template %}

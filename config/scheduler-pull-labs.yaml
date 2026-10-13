@@ -458,3 +458,28 @@ scheduler:
     event: *kbuild-gcc-15-x86-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-x86-platforms
+
+  # NVIDIA Tegra suites, on the baseline build: its kernel is small enough for
+  # the cboot boards (TX2 NX, Xavier), and it has what both suites need.
+  # tegra-uapi runs where TegraDRM registers with the upstream device tree.
+  - job: tegra-uapi-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms:
+      - jetson-tx2-devkit
+      - jetson-agx-xavier-devkit
+      - jetson-agx-orin-devkit
+      - jetson-agx-orin-industrial-devkit
+      - jetson-agx-thor-devkit
+
+  # tegra-tests only knows the boards it has a description for.
+  - job: tegra-tests-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms:
+      - jetson-nano-devkit
+      - jetson-tx1-devkit
+      - jetson-tx2-devkit
+      - jetson-agx-xavier-devkit
+      - jetson-orin-nano-devkit
+      - jetson-agx-thor-devkit

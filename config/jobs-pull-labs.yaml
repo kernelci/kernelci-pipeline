@@ -34,6 +34,10 @@ _anchors:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20261026.0/{debarch}'
     job_timeout: 30
 
+  tegra-params-pull-labs: &tegra-params-pull-labs
+    boot_commands: nfs
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-tegra/20261031.0/{debarch}'
+
 jobs:
   baseline-arm-pull-labs-demo: *baseline-job-pull-labs
   baseline-arm-pull-pengutronix: *baseline-job-pull-labs
@@ -293,6 +297,24 @@ jobs:
       <<: *kselftest-params-pull-labs
       collection: x86
     kcidb_test_suite: kselftest.x86
+
+  tegra-uapi-pull-labs:
+    template: tegra-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *tegra-params-pull-labs
+      suite: uapi
+      job_timeout: 10
+    kcidb_test_suite: tegra-uapi
+
+  tegra-tests-pull-labs:
+    template: tegra-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *tegra-params-pull-labs
+      suite: tests
+      job_timeout: 15
+    kcidb_test_suite: tegra-tests
 
   baseline-x86-aws-ec2:
     template: baseline.jinja2
