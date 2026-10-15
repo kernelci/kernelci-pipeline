@@ -88,6 +88,7 @@ class Metrics:
         self.metrics["lava_callback_requests_total"] = 0
         self.metrics["lava_callback_requests_authfail_total"] = 0
         self.metrics["lava_callback_late_fail_total"] = 0
+        self.metrics["lava_callback_telemetry_fail_total"] = 0
         self.metrics["pipeline_api_auth_fail_total"] = 0
         self.metrics["pipeline_api_requests_total"] = 0
         self.lock = threading.Lock()
@@ -398,8 +399,15 @@ def async_job_submit(api_helper, node_id, job_callback):
         hierarchy = job_callback.get_hierarchy(results, job_node)
         api_helper.submit_results(hierarchy, job_node)
 
-        # Emit telemetry events
-        _emit_callback_telemetry(job_node, job_callback, hierarchy)
+        # Results are already persisted. Telemetry must not turn a successful
+        # result submission into a callback-processing failure.
+        try:
+            _emit_callback_telemetry(job_node, hierarchy)
+        except Exception:
+            logger.exception(
+                f"Error emitting callback telemetry for node {node_id}"
+            )
+            metrics.add("lava_callback_telemetry_fail_total", 1)
 
         logger.info(f"Completed processing callback for node {node_id}")
     except Exception as e:
@@ -407,7 +415,7 @@ def async_job_submit(api_helper, node_id, job_callback):
         metrics.add("lava_callback_late_fail_total", 1)
 
 
-def _emit_callback_telemetry(job_node, job_callback, hierarchy):
+def _emit_callback_telemetry(job_node, hierarchy):
     """Emit telemetry for LAVA callback results."""
     emitter = _get_telemetry_emitter()
     if not emitter:
@@ -418,10 +426,11 @@ def _emit_callback_telemetry(job_node, job_callback, hierarchy):
     device_type = job_node.get("data", {}).get("platform", "")
     device_id = job_node.get("data", {}).get("device")
     job_id = job_node.get("data", {}).get("job_id")
-    is_infra = (
-        job_callback.is_infra_error()
-        if job_node.get("result") == "incomplete"
-        else False
+    # get_hierarchy() already classifies failures, including canceled jobs
+    # without results["lava"]. Reuse that classification rather than requiring
+    # LAVA metadata which need not exist for jobs that never ran.
+    is_infra = job_node.get("result") == "incomplete" and (
+        job_node.get("data", {}).get("error_code") == "Infrastructure"
     )
 
     common = {
