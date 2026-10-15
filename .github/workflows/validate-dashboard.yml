@@ -28,7 +28,7 @@ jobs:
           - name: builds
             args: builds --all-checkouts
           - name: boots
-            args: boots --all-checkouts
+            args: boots --all-checkouts --pipeline-config config
           - name: builds-history
             args: builds --history --all-checkouts
 
@@ -46,7 +46,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # TODO: switch to the released kci-dev package after kernelci/kci-dev#275 lands.
-          python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@wip-validation'
+          python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@fix-validate-boots-job-names'
           # Deps for the pipeline-side miss classifier (config merge + API fetch).
           python -m pip install pyyaml requests
 
