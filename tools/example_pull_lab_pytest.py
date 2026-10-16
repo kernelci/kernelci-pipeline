@@ -34,7 +34,7 @@ def pollevents(timestamp, kind):
     url = (
         BASE_URI
         + EVENTS_PATH
-        + f"?state=done&kind={kind}&limit=1000&recursive=true&from={timestamp}"
+        + f"?state=prepared&kind={kind}&limit=1000&recursive=true&from={timestamp}"
     )
     log.debug("Polling %s", url)
     response = requests.get(url, timeout=REQUEST_TIMEOUT)
