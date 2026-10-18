@@ -2439,7 +2439,7 @@ scheduler:
   - job: kunit-x86_64
     event: *checkout-event
     runtime:
-      name: k8s-gke-eu-west4
+      name: k8s-all
 
   - job: kvm-unit-tests
     event: *kbuild-gcc-14-arm64-node-event
