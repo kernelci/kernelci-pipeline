@@ -2527,11 +2527,59 @@ jobs:
     params:
       extra_kernel_args: "kvm-arm.mode=protected"
 
+  ltp-aio-stress:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ltp-aio-stress"
+
+  ltp-aiodio-part1:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ltp-aiodio.part1"
+
+  ltp-aiodio-part2:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ltp-aiodio.part2"
+
+  ltp-aiodio-part3:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ltp-aiodio.part3"
+
+  ltp-aiodio-part4:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ltp-aiodio.part4"
+
+  ltp-can:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "can"
+
   ltp-cap_bounds:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "cap_bounds"
+
+  ltp-capability:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "capability"
+
+  ltp-commands:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "commands"
 
   ltp-containers:
     <<: *ltp-job
@@ -2550,6 +2598,12 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "cpuhotplug"
+
+  ltp-crashme:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "crashme"
 
   ltp-crypto:
     <<: *ltp-job
@@ -2573,6 +2627,12 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "dio"
+
+  ltp-dma-thread-diotest:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "dma_thread_diotest"
 
   ltp-fcntl-locktests:
     <<: *ltp-job
@@ -2622,6 +2682,12 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "hugetlb"
 
+  ltp-hyperthreading:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "hyperthreading"
+
   ltp-ima:
     <<: *ltp-job
     params:
@@ -2650,12 +2716,162 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "ipc"
 
+  ltp-kernel-misc:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "kernel_misc"
+
+  ltp-kvm:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "kvm"
+
+  ltp-math:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "math"
+
   ltp-mm:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "mm"
       job_timeout: 30
+
+  ltp-net-features:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.features"
+
+  ltp-net-ipv6:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.ipv6"
+
+  ltp-net-ipv6-lib:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.ipv6_lib"
+
+  ltp-net-multicast:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.multicast"
+
+  ltp-net-nfs:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.nfs"
+
+  ltp-net-rpc-tests:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.rpc_tests"
+
+  ltp-net-sctp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.sctp"
+
+  ltp-net-stress-appl:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.appl"
+
+  ltp-net-stress-broken-ip:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.broken_ip"
+
+  ltp-net-stress-interface:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.interface"
+
+  ltp-net-stress-ipsec-dccp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_dccp"
+
+  ltp-net-stress-ipsec-icmp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_icmp"
+
+  ltp-net-stress-ipsec-sctp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_sctp"
+
+  ltp-net-stress-ipsec-tcp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_tcp"
+
+  ltp-net-stress-ipsec-udp:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_udp"
+
+  ltp-net-stress-multicast:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.multicast"
+
+  ltp-net-stress-route:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.route"
+
+  ltp-net-tcp-cmds:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.tcp_cmds"
+
+  ltp-net-tirpc-tests:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.tirpc_tests"
+
+  ltp-nptl:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "nptl"
+
+  ltp-numa:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "numa"
+
+  ltp-power-management-tests:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "power_management_tests"
 
   ltp-pty:
     <<: *ltp-job
@@ -2669,6 +2885,18 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "sched"
+
+  ltp-scsi-debug-part1:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "scsi_debug.part1"
+
+  ltp-smack:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "smack"
 
   ltp-smoke:
     <<: *ltp-job
@@ -2689,6 +2917,18 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "syscalls-ipc"
 
+  ltp-sysfs:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "sysfs"
+
+  ltp-thermal:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "thermal"
+
   ltp-timers:
     <<: *ltp-job
     params:
@@ -2708,6 +2948,24 @@ jobs:
         - 'defconfig'
       fragments:
         - '!kselftest'
+
+  ltp-tpm-tools:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "tpm_tools"
+
+  ltp-tracing:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "tracing"
+
+  ltp-uevent:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "uevent"
 
   ltp-watchqueue:
     <<: *ltp-job
