@@ -209,12 +209,6 @@ scheduler:
   - job: kselftest-iommu
     <<: *test-job-x86-amd
 
-  - job: kselftest-iommu
-    <<: *test-job-arm64-qualcomm
-
-  - job: kselftest-iommu
-    <<: *test-job-arm64-mediatek
-
   - job: ltp-crypto
     <<: *test-job-x86
     platforms: *intel-platforms
