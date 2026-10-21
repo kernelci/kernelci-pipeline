@@ -2136,14 +2136,14 @@ jobs:
     <<: *kselftest-job
     params:
       <<: *kselftest-params
-      collections: efivars
+      collections: efivarfs
     kcidb_test_suite: kselftest.efivars
 
   kselftest-efivars-ramdisk:
     <<: *kselftest-job-ramdisk
     params:
       <<: *kselftest-params-ramdisk
-      collections: efivars
+      collections: efivarfs
     kcidb_test_suite: kselftest.efivars
 
   kselftest-exec:
