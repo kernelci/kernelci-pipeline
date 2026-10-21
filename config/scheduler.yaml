@@ -30,6 +30,24 @@ _anchors:
     state: done
     kind: job
 
+  ltp-broonie-arm: &ltp-broonie-arm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-15-arm-nfsboot-ltp
+    runtime:
+      type: lava
+      name: lava-broonie
+    platforms:
+      - beaglebone-black
+
+  ltp-broonie-arm64: &ltp-broonie-arm64
+    <<: *ltp-broonie-arm
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-15-arm64-nfsboot-ltp
+    platforms:
+      - bcm2711-rpi-4-b
+
 
 scheduler:
 
@@ -985,6 +1003,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-15-arm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-15-arm-nfsboot-ltp
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-allnoconfig
@@ -2451,11 +2472,23 @@ scheduler:
     runtime: *lava-broonie-runtime
     platforms: *lava-broonie-pkvm
 
-  - job: ltp-cap_bounds
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+  - job: ltp-aio-combined
+    <<: *ltp-broonie-arm
+
+  - job: ltp-aio-combined
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-aiodio-part4
+    <<: *ltp-broonie-arm
+
+  - job: ltp-aiodio-part4
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-basic
+    <<: *ltp-broonie-arm
+
+  - job: ltp-basic
+    <<: *ltp-broonie-arm64
 
   - job: ltp-cap_bounds
     event: *kbuild-gcc-14-arm64-node-event
@@ -2463,23 +2496,23 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-process
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+  - job: ltp-cpu-management
+    <<: *ltp-broonie-arm
 
-  - job: ltp-process
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - bcm2837-rpi-3-b-plus
+  - job: ltp-cpu-management
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-crashme
+    <<: *ltp-broonie-arm
+
+  - job: ltp-crashme
+    <<: *ltp-broonie-arm64
 
   - job: ltp-crypto
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+    <<: *ltp-broonie-arm
+
+  - job: ltp-crypto
+    <<: *ltp-broonie-arm64
 
   - job: ltp-crypto
     event: *kbuild-gcc-14-arm-node-event
@@ -2494,16 +2527,22 @@ scheduler:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-cve
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+    <<: *ltp-broonie-arm
+
+  - job: ltp-cve
+    <<: *ltp-broonie-arm64
 
   - job: ltp-cve
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
+
+  - job: ltp-filesystems
+    <<: *ltp-broonie-arm
+
+  - job: ltp-filesystems
+    <<: *ltp-broonie-arm64
 
   - job: ltp-filesystems
     event: *kbuild-gcc-14-arm-node-event
@@ -2518,22 +2557,10 @@ scheduler:
       - bcm2837-rpi-3-b-plus
 
   - job: ltp-filesystems
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
-
-  - job: ltp-filesystems
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
-
-  - job: ltp-fsx
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
 
   - job: ltp-fsx
     event: *kbuild-gcc-14-arm64-node-event
@@ -2547,11 +2574,17 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
+  - job: ltp-ima
+    <<: *ltp-broonie-arm
+
+  - job: ltp-ima
+    <<: *ltp-broonie-arm64
+
   - job: ltp-kernel-events
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+    <<: *ltp-broonie-arm
+
+  - job: ltp-kernel-events
+    <<: *ltp-broonie-arm64
 
   - job: ltp-kernel-events
     event: *kbuild-gcc-14-arm64-node-event
@@ -2559,41 +2592,107 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-ipc
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
-
-  - job: ltp-ipc
+  - job: ltp-kernel-events
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
-      - bcm2711-rpi-4-b
+      - juno-uboot
 
-  - job: ltp-basic
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+  - job: ltp-kvm
+    <<: *ltp-broonie-arm
 
-  - job: ltp-basic
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - bcm2711-rpi-4-b
+  - job: ltp-kvm
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-memory
+    <<: *ltp-broonie-arm
+
+  - job: ltp-memory
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-nfs
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-nfs
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-stress-appl
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-stress-appl
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-stress-broken-ip
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-stress-broken-ip
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-stress-interface
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-stress-interface
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-stress-multicast
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-stress-multicast
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-net-stress-route
+    <<: *ltp-broonie-arm
+
+  - job: ltp-net-stress-route
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-network-functional
+    <<: *ltp-broonie-arm
+
+  - job: ltp-network-functional
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-network-ipsec
+    <<: *ltp-broonie-arm
+
+  - job: ltp-network-ipsec
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-network-rpc
+    <<: *ltp-broonie-arm
+
+  - job: ltp-network-rpc
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-process
+    <<: *ltp-broonie-arm
+
+  - job: ltp-process
+    <<: *ltp-broonie-arm64
 
   - job: ltp-process
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
-      - bcm2711-rpi-4-b
+      - bcm2837-rpi-3-b-plus
+
+  - job: ltp-scsi-debug-part1
+    <<: *ltp-broonie-arm
+
+  - job: ltp-scsi-debug-part1
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-smack
+    <<: *ltp-broonie-arm
+
+  - job: ltp-smack
+    <<: *ltp-broonie-arm64
 
   - job: ltp-smoke
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+    <<: *ltp-broonie-arm
+
+  - job: ltp-smoke
+    <<: *ltp-broonie-arm64
 
   - job: ltp-smoke
     event: *kbuild-gcc-14-armv5-node-event
@@ -2608,6 +2707,12 @@ scheduler:
       - bcm2711-rpi-4-b
 
   - job: ltp-syscalls
+    <<: *ltp-broonie-arm
+
+  - job: ltp-syscalls
+    <<: *ltp-broonie-arm64
+
+  - job: ltp-syscalls
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
@@ -2617,20 +2722,13 @@ scheduler:
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
-      - bcm2711-rpi-4-b
       - cd8180-orion-o6
 
   - job: ltp-syscalls-ipc
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+    <<: *ltp-broonie-arm
 
-  - job: ltp-timers
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
+  - job: ltp-syscalls-ipc
+    <<: *ltp-broonie-arm64
 
   - job: ltp-timers
     event: *kbuild-gcc-14-arm64-node-event
@@ -2648,11 +2746,11 @@ scheduler:
   # job boots over NFS, which boot/qemu.jinja2 cannot do.  The job definition is
   # kept in jobs.yaml so it can be scheduled again once qemu grows NFS support.
 
-  - job: ltp-kernel-events
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - juno-uboot
+  - job: ltp-tpm-tools
+    <<: *ltp-broonie-arm
+
+  - job: ltp-tpm-tools
+    <<: *ltp-broonie-arm64
 
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-arm64-preempt_rt-node-event
