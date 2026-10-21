@@ -697,6 +697,13 @@ jobs:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-gcc-15-arm-baseline:
+    <<: *kbuild-gcc-15-arm-job
+    params:
+      <<: *kbuild-gcc-15-arm-params
+      fragments:
+        - 'lab-setup'
+
   kbuild-gcc-14-arm-allnoconfig: &kbuild-gcc-14-arm-allnoconfig-job
     <<: *kbuild-gcc-14-arm-job
     params:
