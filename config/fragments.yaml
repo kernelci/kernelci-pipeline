@@ -624,9 +624,13 @@ fragments:
       - 'CONFIG_SCHED_DEBUG=y'
       - 'CONFIG_PREEMPT_RT=y'
       - 'CONFIG_PREEMPT_RT_FULL=y' # <= v4.19
+      - 'CONFIG_PREEMPT_LAZY=y'
       - 'CONFIG_FTRACE=y'
       - 'CONFIG_OSNOISE_TRACER=y'
       - 'CONFIG_TIMERLAT_TRACER=y'
+      - 'CONFIG_EFI_DISABLE_RUNTIME=y'
+      - 'CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y'
+      - '# CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL is not set'
 
   rust:
     path: "kernel/configs/rust.config"
