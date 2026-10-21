@@ -2057,7 +2057,7 @@ jobs:
     <<: *kselftest-job-ramdisk
     params:
       <<: *kselftest-params-ramdisk
-      collections: devices-exist
+      collections: devices/exist
     kcidb_test_suite: kselftest.devices-exist
 
   kselftest-device-error-logs-main:
@@ -2071,7 +2071,7 @@ jobs:
     <<: *kselftest-job-ramdisk
     params:
       <<: *kselftest-params-ramdisk
-      collections: device-error-logs
+      collections: devices/error_logs
     kcidb_test_suite: kselftest.device-error-logs
 
   kselftest-devices-probe:
@@ -2091,7 +2091,7 @@ jobs:
     <<: *kselftest-job-ramdisk
     params:
       <<: *kselftest-params-ramdisk
-      collections: devices-probe
+      collections: devices/probe
     kcidb_test_suite: kselftest.devices-probe
 
   kselftest-dmabuf-heaps:
