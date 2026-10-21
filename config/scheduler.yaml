@@ -2463,25 +2463,13 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-containers
+  - job: ltp-process
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
-  - job: ltp-containers
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - bcm2837-rpi-3-b-plus
-
-  - job: ltp-controllers
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
-
-  - job: ltp-controllers
+  - job: ltp-process
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
@@ -2517,31 +2505,25 @@ scheduler:
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-dio
+  - job: ltp-filesystems
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - imx6q-sabrelite
 
-  - job: ltp-dio
+  - job: ltp-filesystems
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-collabora-runtime
     platforms:
       - bcm2837-rpi-3-b-plus
 
-  - job: ltp-fcntl-locktests
-    event: *kbuild-gcc-14-arm64-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - bcm2837-rpi-3-b-plus
-
-  - job: ltp-fs_bind
+  - job: ltp-filesystems
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
-  - job: ltp-fs_bind
+  - job: ltp-filesystems
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
@@ -2565,13 +2547,13 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
-  - job: ltp-input
+  - job: ltp-kernel-events
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
-  - job: ltp-input
+  - job: ltp-kernel-events
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
@@ -2589,25 +2571,19 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
 
-  - job: ltp-pty
+  - job: ltp-basic
     event: *kbuild-gcc-14-arm-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - beaglebone-black
 
-  - job: ltp-pty
+  - job: ltp-basic
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
       - bcm2711-rpi-4-b
 
-  - job: ltp-sched
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
-
-  - job: ltp-sched
+  - job: ltp-process
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
@@ -2672,13 +2648,7 @@ scheduler:
   # job boots over NFS, which boot/qemu.jinja2 cannot do.  The job definition is
   # kept in jobs.yaml so it can be scheduled again once qemu grows NFS support.
 
-  - job: ltp-watchqueue
-    event: *kbuild-gcc-14-arm-node-event
-    runtime: *lava-broonie-runtime
-    platforms:
-      - beaglebone-black
-
-  - job: ltp-watchqueue
+  - job: ltp-kernel-events
     event: *kbuild-gcc-14-arm64-node-event
     runtime: *lava-broonie-runtime
     platforms:
