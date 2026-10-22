@@ -2867,6 +2867,15 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "numa"
 
+  ltp-open-posix:
+    <<: *ltp-job
+    template: generic.jinja2
+    params:
+      <<: *ltp-params
+      test_method: ltp-open-posix
+      grp_test: ""
+      job_timeout: 30
+
   ltp-power-management-tests:
     <<: *ltp-job
     params:
@@ -2931,16 +2940,20 @@ jobs:
 
   ltp-timers:
     <<: *ltp-job
+    template: generic.jinja2
     params:
       <<: *ltp-params
+      test_method: ltp-open-posix
       grp_test: "TMR"
       job_timeout: 30
 
   ltp-timers_qemu:
     <<: *ltp-job
     base_name: ltp-timers
+    template: generic.jinja2
     params:
       <<: *ltp-params
+      test_method: ltp-open-posix
       grp_test: "TMR"
       job_timeout: 30
     rules:
