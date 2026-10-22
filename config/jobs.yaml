@@ -697,6 +697,17 @@ jobs:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-gcc-15-arm-nfsboot-ltp:
+    <<: *kbuild-gcc-15-arm-job
+    params:
+      <<: *kbuild-gcc-15-arm-params
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+        - 'ltp'
+        - 'crypto'
+        - 'ima'
+
   kbuild-gcc-14-arm-allnoconfig: &kbuild-gcc-14-arm-allnoconfig-job
     <<: *kbuild-gcc-14-arm-job
     params:
@@ -983,6 +994,8 @@ jobs:
         - 'netdev'
         - 'nfs-root-boot'
         - 'ltp'
+        - 'crypto'
+        - 'ima'
 
   kbuild-gcc-14-arm64-nfsboot: *kbuild-gcc-14-arm64-nfsboot-job
 
@@ -2527,41 +2540,93 @@ jobs:
     params:
       extra_kernel_args: "kvm-arm.mode=protected"
 
-  ltp-aio-stress:
+  ltp-aio-combined:
     <<: *ltp-job
     params:
       <<: *ltp-params
-      tst_cmdfiles: "ltp-aio-stress"
+      tst_cmdfiles: "ltp-aio-stress,ltp-aiodio.part1,ltp-aiodio.part2,ltp-aiodio.part3"
+      extra_kirk_args: "--suite-timeout 60m"
+      job_timeout: 65
 
-  ltp-aiodio-part1:
+  ltp-basic:
     <<: *ltp-job
     params:
       <<: *ltp-params
-      tst_cmdfiles: "ltp-aiodio.part1"
+      tst_cmdfiles: "capability,commands,math,nptl,pty"
+      extra_kirk_args: "--suite-timeout 85m"
+      job_timeout: 90
 
-  ltp-aiodio-part2:
+  ltp-cpu-management:
     <<: *ltp-job
     params:
       <<: *ltp-params
-      tst_cmdfiles: "ltp-aiodio.part2"
+      tst_cmdfiles: "cpuhotplug,hyperthreading,power_management_tests,thermal"
+      extra_kirk_args: "--suite-timeout 60m"
+      job_timeout: 65
 
-  ltp-aiodio-part3:
+  ltp-filesystems:
     <<: *ltp-job
     params:
       <<: *ltp-params
-      tst_cmdfiles: "ltp-aiodio.part3"
+      tst_cmdfiles: "fs,fs_bind,fs_perms_simple,fs_readonly,dio,dma_thread_diotest"
+      extra_kirk_args: "--suite-timeout 90m"
+      job_timeout: 95
+
+  ltp-kernel-events:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "input,kernel_misc,sysfs,uevent,watchqueue,tracing"
+      extra_kirk_args: "--suite-timeout 90m"
+      job_timeout: 95
+
+  ltp-memory:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "mm,hugetlb,numa"
+      extra_kirk_args: "--suite-timeout 60m"
+      job_timeout: 65
+
+  ltp-network-functional:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.features,net.ipv6,net.ipv6_lib,net.multicast,net.sctp,net.tcp_cmds,can"
+      extra_kirk_args: "--suite-timeout 105m"
+      job_timeout: 110
+
+  ltp-network-ipsec:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net_stress.ipsec_dccp,net_stress.ipsec_icmp,net_stress.ipsec_sctp,net_stress.ipsec_tcp,net_stress.ipsec_udp"
+      extra_kirk_args: "--suite-timeout 75m"
+      job_timeout: 80
+
+  ltp-network-rpc:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "net.rpc_tests,net.tirpc_tests"
+      extra_kirk_args: "--suite-timeout 30m"
+      job_timeout: 35
+
+  ltp-process:
+    <<: *ltp-job
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "containers,controllers,sched,fcntl-locktests"
+      extra_kirk_args: "--suite-timeout 60m"
+      job_timeout: 65
 
   ltp-aiodio-part4:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "ltp-aiodio.part4"
-
-  ltp-can:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "can"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-cap_bounds:
     <<: *ltp-job
@@ -2569,47 +2634,21 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "cap_bounds"
 
-  ltp-capability:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "capability"
-
-  ltp-commands:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "commands"
-
-  ltp-containers:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "containers"
-
-  ltp-controllers:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "controllers"
-
-  ltp-cpuhotplug:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "cpuhotplug"
-
   ltp-crashme:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "crashme"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-crypto:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "crypto"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
     rules:
       fragments:
         - 'crypto'
@@ -2620,19 +2659,8 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "cve"
+      extra_kirk_args: "--suite-timeout 40m"
       job_timeout: 45
-
-  ltp-dio:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "dio"
-
-  ltp-dma-thread-diotest:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "dma_thread_diotest"
 
   ltp-fcntl-locktests:
     <<: *ltp-job
@@ -2646,63 +2674,23 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "filecaps"
 
-  ltp-fs:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "fs"
-
-  ltp-fs_bind:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "fs_bind"
-
-  ltp-fs_perms_simple:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "fs_perms_simple"
-
-  ltp-fs-readonly:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "fs_readonly"
-
   ltp-fsx:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "fsx"
 
-  ltp-hugetlb:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "hugetlb"
-
-  ltp-hyperthreading:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "hyperthreading"
-
   ltp-ima:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "ima"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
     rules:
       fragments:
         - 'ima'
         - '!kselftest'
-
-  ltp-input:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "input"
 
   ltp-io:
     <<: *ltp-job
@@ -2716,23 +2704,13 @@ jobs:
       <<: *ltp-params
       tst_cmdfiles: "ipc"
 
-  ltp-kernel-misc:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "kernel_misc"
-
   ltp-kvm:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "kvm"
-
-  ltp-math:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "math"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-mm:
     <<: *ltp-job
@@ -2741,137 +2719,53 @@ jobs:
       tst_cmdfiles: "mm"
       job_timeout: 30
 
-  ltp-net-features:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.features"
-
-  ltp-net-ipv6:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.ipv6"
-
-  ltp-net-ipv6-lib:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.ipv6_lib"
-
-  ltp-net-multicast:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.multicast"
-
   ltp-net-nfs:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net.nfs"
-
-  ltp-net-rpc-tests:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.rpc_tests"
-
-  ltp-net-sctp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.sctp"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-net-stress-appl:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net_stress.appl"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-net-stress-broken-ip:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net_stress.broken_ip"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-net-stress-interface:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net_stress.interface"
-
-  ltp-net-stress-ipsec-dccp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net_stress.ipsec_dccp"
-
-  ltp-net-stress-ipsec-icmp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net_stress.ipsec_icmp"
-
-  ltp-net-stress-ipsec-sctp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net_stress.ipsec_sctp"
-
-  ltp-net-stress-ipsec-tcp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net_stress.ipsec_tcp"
-
-  ltp-net-stress-ipsec-udp:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net_stress.ipsec_udp"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-net-stress-multicast:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net_stress.multicast"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-net-stress-route:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "net_stress.route"
-
-  ltp-net-tcp-cmds:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.tcp_cmds"
-
-  ltp-net-tirpc-tests:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "net.tirpc_tests"
-
-  ltp-nptl:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "nptl"
-
-  ltp-numa:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "numa"
-
-  ltp-power-management-tests:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "power_management_tests"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-pty:
     <<: *ltp-job
@@ -2880,35 +2774,36 @@ jobs:
       tst_cmdfiles: "pty"
       job_timeout: 25
 
-  ltp-sched:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "sched"
-
   ltp-scsi-debug-part1:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "scsi_debug.part1"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-smack:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "smack"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-smoke:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "smoketest"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-syscalls:
     <<: *ltp-job
     params:
       <<: *ltp-params
       tst_cmdfiles: "syscalls"
+      extra_kirk_args: "--suite-timeout 115m"
       job_timeout: 120
 
   ltp-syscalls-ipc:
@@ -2916,18 +2811,8 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "syscalls-ipc"
-
-  ltp-sysfs:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "sysfs"
-
-  ltp-thermal:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "thermal"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   ltp-timers:
     <<: *ltp-job
@@ -2954,24 +2839,8 @@ jobs:
     params:
       <<: *ltp-params
       tst_cmdfiles: "tpm_tools"
-
-  ltp-tracing:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "tracing"
-
-  ltp-uevent:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "uevent"
-
-  ltp-watchqueue:
-    <<: *ltp-job
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "watchqueue"
+      extra_kirk_args: "--suite-timeout 10m"
+      job_timeout: 15
 
   rt-tests: &rt-tests
     template: rt-tests.jinja2
