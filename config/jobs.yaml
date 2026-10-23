@@ -1805,6 +1805,7 @@ jobs:
       <<: *kbuild-gcc-14-x86-params
       fragments:
         - 'aws-ec2'
+        - 'aws-ec2-arch-x86_64'
       extra_targets:
         - 'binrpm-pkg'
     rules:
@@ -1823,6 +1824,7 @@ jobs:
       <<: *kbuild-gcc-14-arm64-params
       fragments:
         - 'aws-ec2'
+        - 'aws-ec2-arch-arm64'
       extra_targets:
         - 'binrpm-pkg'
     rules:
@@ -1842,6 +1844,7 @@ jobs:
       <<: *kbuild-gcc-15-x86-params
       fragments:
         - 'aws-ec2'
+        - 'aws-ec2-arch-x86_64'
       extra_targets:
         - 'binrpm-pkg'
     rules:
@@ -1860,6 +1863,7 @@ jobs:
       <<: *kbuild-gcc-15-arm64-params
       fragments:
         - 'aws-ec2'
+        - 'aws-ec2-arch-arm64'
       extra_targets:
         - 'binrpm-pkg'
     rules:
