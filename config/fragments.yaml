@@ -426,6 +426,9 @@ fragments:
       - 'CONFIG_USB_UAS=m'
       # IOMMU
       - 'CONFIG_TEGRA241_CMDQV=y'
+      # The host1x/TegraDRM userspace interface (tegra-uapi tests): every
+      # TegraDRM ioctl is behind it.
+      - 'CONFIG_DRM_TEGRA_STAGING=y'
 
   ltp:
     path: "kernel/configs/ltp.config"

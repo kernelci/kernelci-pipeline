@@ -1035,11 +1035,12 @@ platforms:
     compatible:
       - 'nvidia,p4071-0000+p3834-0008'
       - 'nvidia,tegra264'
-    # No device tree for this board before 7.2.
+    # Device tree from 7.2, but the Tegra264 PCIe driver that its network
+    # needs only from 7.3.
     rules:
       min_version:
         version: 7
-        patchlevel: 2
+        patchlevel: 3
 
   # NVIDIA GB300 workstation (Grace, Neoverse-V2), board P3809.
   nvidia-p3809-gb300:
