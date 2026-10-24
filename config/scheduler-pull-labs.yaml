@@ -375,6 +375,32 @@ scheduler:
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-x86-platforms
 
+  # The Xavier and TX2 NX bootloader loads a kernel of at most 80 MB, and the
+  # arm64 build's is larger: these boards run the light suites from the
+  # baseline build, which has a kselftest tarball too.
+  - job: ltp-smoke-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms: &sasha-lab-baseline-suite-platforms
+      - jetson-tx2-nx-devkit
+      - jetson-agx-xavier-devkit
+      - jetson-xavier-nx-devkit
+
+  - job: kselftest-cgroup-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-baseline-suite-platforms
+
+  - job: kselftest-cpu-hotplug-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-baseline-suite-platforms
+
+  - job: kselftest-futex-pull-labs
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime: *sasha-lab-runtime
+    platforms: *sasha-lab-baseline-suite-platforms
+
   # The Jetson Orin Nano has 8 GB, which is not enough for the mm selftests,
   # and every job on it costs a full reflash -- so the heavier suites run on
   # the servers only.
