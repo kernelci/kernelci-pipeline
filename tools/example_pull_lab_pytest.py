@@ -5,6 +5,14 @@ Poll KernelCI API for pull-lab jobs and execute them with pytest + QEMU.
 Two modes:
   poll (default) — polls KernelCI events API for new jobs
   direct         — runs pytest against a local job JSON file
+
+NOTE (prepared-state migration): the poll mode queries ``?state=prepared``,
+which only matches pull-lab runtimes whose ``pickup_state`` is ``prepared``
+(legacy workers still filter on ``available``).  It is a LOCAL-ONLY demo: it
+runs pytest and writes a JUnit XML, but it never reports pickup (prepared ->
+running) or completion (result + done) back to the API, so the job's node
+stays in ``prepared``.  Use it to exercise a worker locally, not as a
+production pull-lab worker.
 """
 
 import argparse

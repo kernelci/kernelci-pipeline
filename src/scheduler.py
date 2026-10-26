@@ -992,10 +992,10 @@ class Scheduler(Service):
                     node["artifacts"]["job_definition"] = artifact_url
                 else:
                     node["artifacts"] = {"job_definition": artifact_url}
-            # pull_labs workers poll for jobs in "prepared" state; the
-            # API model defaults new nodes to "running", so flip it here.
+            # pull_labs workers poll for jobs in the configured pickup_state;
+            # the API model defaults new nodes to "running", so flip it here.
             if runtime.config.lab_type == "pull_labs":
-                node["state"] = "prepared"
+                node["state"] = runtime.config.pickup_state
 
         if platform.name == "kubernetes":
             context = runtime.get_context()

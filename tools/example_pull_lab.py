@@ -4,6 +4,15 @@ Poll KernelCI API for pull-lab jobs and execute them with tuxrun.
 
 Filters for jobs with job_definition artifacts, auto-detects architecture,
 and passes kernel/module/rootfs URLs directly to tuxrun for execution.
+
+NOTE (prepared-state migration): this example polls ``?state=prepared``, which
+only matches pull-lab runtimes whose ``pickup_state`` is ``prepared`` (the
+default remains ``available`` for labs still on the legacy worker).  It is a
+LOCAL-ONLY demo: it runs tuxrun and prints the result, but it never reports
+pickup (prepared -> running) or completion (result + done) back to the API, so
+the job's node stays in ``prepared`` and this script never completes the API
+job lifecycle.  Use it to exercise a worker locally, not as a production
+pull-lab worker.
 """
 
 import argparse
