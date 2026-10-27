@@ -50,13 +50,13 @@ KBUILD_PARAMS = {
     'cross_compile': '{{ cross_compile }}',
 {%- endif %}
 {%- if cross_compile_compat %}
-    'cross_compile_compat': '{{ cross_compile_compat }}'
+    'cross_compile_compat': '{{ cross_compile_compat }}',
 {%- endif %}
 {%- if dtbs_check %}
-    'dtbs_check': '{{ dtbs_check }}'
+    'dtbs_check': '{{ dtbs_check }}',
 {%- endif %}
 {%- if kselftest %}
-    'kselftest': '{{ kselftest }}'
+    'kselftest': '{{ kselftest }}',
 {%- endif %}
 {%- if extra_targets %}
     'extra_targets': {{ extra_targets }},
