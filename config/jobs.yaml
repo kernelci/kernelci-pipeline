@@ -960,6 +960,24 @@ jobs:
 
   kbuild-gcc-15-arm64: *kbuild-gcc-15-arm64-job
 
+  kbuild-gcc-14-arm64-perf:
+    <<: *kbuild-gcc-14-arm64-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-perf-kernelci
+    params:
+      <<: *kbuild-gcc-14-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'perf'
+        - 'perf-arm64'
+      kselftest: disable
+      extra_targets:
+        - 'perf'
+        # TuxMake accepts make assignments alongside target names.
+        - 'CORESIGHT=1'
+    rules:
+      tree:
+        - 'mainline'
+
   kbuild-gcc-15-arm64-baseline:
     <<: *kbuild-gcc-15-arm64-job
     params:
