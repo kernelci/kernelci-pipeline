@@ -193,7 +193,7 @@ scheduler:
   - job: baseline-nfs-arm64
     event: &kbuild-gcc-15-arm64-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm64
+      name: kbuild-gcc-15-arm64-baseline
     runtime: &lava-renesas-runtime
       type: lava
       name: lava-renesas
@@ -503,7 +503,7 @@ scheduler:
   - job: baseline-nfs-arm
     event: &kbuild-gcc-15-arm-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm
+      name: kbuild-gcc-15-arm-baseline
     runtime: *lava-renesas-runtime
     platforms:
       - r8a7742-iwg21d-q7
@@ -985,6 +985,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-15-arm
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-15-arm-baseline
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-allnoconfig
