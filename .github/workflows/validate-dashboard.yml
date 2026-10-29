@@ -80,3 +80,78 @@ jobs:
             exit 0
           fi
           python tests/classify_missing_nodes.py "$report"
+
+      - name: Upload ${{ matrix.name }} report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-${{ matrix.name }}
+          path: ${{ runner.temp }}/${{ matrix.name }}.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  forecast:
+    # Cross-check recent checkouts against `kci config forecast`: every build
+    # the config forecasts for a tree/branch must exist and have completed.
+    runs-on: ubuntu-slim
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install kernelci-core
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'kernelci @ git+https://github.com/kernelci/kernelci-core.git@main'
+
+      - name: Check builds against forecast
+        env:
+          KCI_VALIDATE_DAYS: ${{ github.event.inputs.days || '1' }}
+        run: |
+          python tests/check_forecast_coverage.py \
+            --days "${KCI_VALIDATE_DAYS}" \
+            --json-out "${RUNNER_TEMP}/forecast.json"
+
+      - name: Upload forecast report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-forecast
+          path: ${{ runner.temp }}/forecast.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  notify:
+    needs: [validate, forecast]
+    if: always()
+    runs-on: ubuntu-slim
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Download reports
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: report-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/reports
+
+      - name: Post summary to Discord
+        # Without the secret the summary is only printed to the log.
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python -m pip install requests
+          python tests/notify_discord.py \
+            --reports-dir "${RUNNER_TEMP}/reports" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
