@@ -6,6 +6,7 @@ Reads the reports produced by the validate-dashboard workflow:
 
   * <name>.json   - `kci-dev maestro validate ... --json` (dashboard checks)
   * forecast.json - tests/check_forecast_coverage.py --json-out
+  * integrity.json - tests/check_node_integrity.py --json-out
 
 and posts one embed with a line per check. The webhook URL is taken from
 DISCORD_WEBHOOK_URL; without it the message is only printed.
@@ -100,6 +101,29 @@ def forecast_lines(report, top):
     return lines, summary["ok"]
 
 
+def integrity_lines(report, top):
+    if report is None:
+        return ["❌ **done nodes**: no report (integrity step crashed?)"], False
+    summary = report["summary"]
+    lines = [
+        f"{flag(summary['ok'])} **done nodes**: "
+        f"{summary['rejected']} rejected changes, "
+        f"{summary['forced']} forced by admin"
+    ]
+    # These are rare and each may hide a wrong result, so link every one.
+    for event in report["events"][:top]:
+        viewer = f"https://api.kernelci.org/viewer?node_id={event['id']}"
+        lines.append(
+            f"  • [{event['name']}]({viewer}) "
+            f"{event.get('platform') or ''} ({event.get('runtime')}): "
+            f"{event['result']} → {event['attempted_result']}"
+        )
+    more = len(report["events"]) - top
+    if more > 0:
+        lines.append(f"  • +{more} more")
+    return lines, summary["ok"]
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Post dashboard validation summary to Discord"
@@ -129,6 +153,10 @@ def main():
     report = load_report(os.path.join(args.reports_dir, "forecast.json"))
     flines, ok = forecast_lines(report, args.top)
     lines.extend(flines)
+    all_ok = all_ok and ok
+    report = load_report(os.path.join(args.reports_dir, "integrity.json"))
+    ilines, ok = integrity_lines(report, args.top)
+    lines.extend(ilines)
     all_ok = all_ok and ok
 
     description = "\n".join(lines)
