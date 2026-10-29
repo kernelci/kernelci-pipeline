@@ -117,12 +117,25 @@ jobs:
             --days "${KCI_VALIDATE_DAYS}" \
             --json-out "${RUNNER_TEMP}/forecast.json"
 
-      - name: Upload forecast report
+      - name: Check for changes to done nodes
+        # kernelci-api rejects state/result changes to done nodes and logs
+        # each attempt on the node-integrity channel.
+        if: always()
+        env:
+          KCI_VALIDATE_DAYS: ${{ github.event.inputs.days || '1' }}
+        run: |
+          python tests/check_node_integrity.py \
+            --days "${KCI_VALIDATE_DAYS}" \
+            --json-out "${RUNNER_TEMP}/integrity.json"
+
+      - name: Upload forecast and integrity reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: report-forecast
-          path: ${{ runner.temp }}/forecast.json
+          path: |
+            ${{ runner.temp }}/forecast.json
+            ${{ runner.temp }}/integrity.json
           if-no-files-found: ignore
           retention-days: 7
 
