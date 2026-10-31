@@ -55,5 +55,8 @@ rootfs:
   trixie-rt:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-rt/20261026.0/{debarch}'
 
+  trixie-tegra:
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-tegra/20261031.0/{debarch}'
+
   trixie-wifi:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-wifi/20261026.0/{debarch}/'
