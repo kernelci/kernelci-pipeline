@@ -981,3 +981,13 @@ fragments:
       - 'CONFIG_VIRTIO_BLK=y'
       - 'CONFIG_VIRTIO_NET=y'
       - 'CONFIG_DEBUG_INFO=n'
+
+  aws-ec2-arch-x86_64:
+    path: "kernel/configs/aws-ec2-arch-x86_64.config"
+    configs:
+      - 'CONFIG_X86_X2APIC=y'
+
+  aws-ec2-arch-arm64:
+    path: "kernel/configs/aws-ec2-arch-arm64.config"
+    configs:
+      - 'CONFIG_ARM64_64K_PAGES=y'
