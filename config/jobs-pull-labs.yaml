@@ -9,11 +9,11 @@ _anchors:
     priority: medium
     kcidb_test_suite: boot
     params:
-      ramdisk: 'https://storage.kernelci.org/images/rootfs/debian/buildroot-baseline/20261026.0/{brarch}/rootfs.cpio.gz'
+      rootfs_ref: buildroot-baseline
 
   ltp-params-pull-labs: &ltp-params-pull-labs
     boot_commands: nfs
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20261026.0/{debarch}'
+    rootfs_ref: trixie-ltp
     skip_install: "true"
     skipfile: skipfile-lkft.yaml
     workers: max
@@ -31,12 +31,12 @@ _anchors:
 
   kselftest-params-pull-labs: &kselftest-params-pull-labs
     boot_commands: nfs
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kselftest/20261026.0/{debarch}'
+    rootfs_ref: trixie-kselftest
     job_timeout: 30
 
   tegra-params-pull-labs: &tegra-params-pull-labs
     boot_commands: nfs
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-tegra/20261031.0/{debarch}'
+    rootfs_ref: trixie-tegra
 
 jobs:
   baseline-arm-pull-labs-demo: *baseline-job-pull-labs
