@@ -6,6 +6,32 @@ API](https://github.com/kernelci/kernelci-api).
 
 Please refer to the [API design documentation](https://docs.kernelci.org/maestro/api/design/) and [pipeline design documentation](https://docs.kernelci.org/maestro/pipeline/pipeline-details/) for more details.
 
+### Kubernetes job reconciliation
+
+The Kubernetes scheduler also checks its owner's running Kubernetes nodes every
+10 minutes, including jobs submitted before a scheduler restart. This runs in a
+background thread in the existing scheduler and uses the same cluster and
+artifact storage credentials. Cluster queries are grouped by context; event
+reception and job submission continue independently.
+
+After two successful checks confirm a failed or missing Job, a Job without pods,
+or a completed Job without a pipeline result, the scheduler uploads
+`kubernetes_log` and `kubernetes_status` artifacts and finishes the node as
+`done` / `incomplete`. These describe an execution or result delivery failure;
+the scheduler does not infer a kernel build failure or pass from a pod exit code.
+Diagnosis normally takes 10–20 minutes after failure, within the current
+30-minute retention of finished Jobs. The normal six-hour timeout remains a
+fallback for work that is still running or pending.
+
+Pending/running pods and Jobs still retrying a failed attempt are left alone.
+Cluster query errors reset confirmation instead of marking jobs missing. A
+fresh node read before and after uploading diagnostics preserves results that
+arrive during reconciliation. Storage failures are retried on the next poll
+without completing the node. Logs include the last 10,000 lines, capped at 4 MiB
+per container attempt, including init containers and previous container logs
+when available. Already deleted pods cannot supply logs; their diagnostic
+artifact records that absence. Only Job/Pod status is uploaded, not pod specs.
+
 ### Setting up LAVA lab
 
 For scheduling jobs, the pipeline needs to be able to submit jobs to a "LAVA lab" type of runtime and receive HTTP(S) callbacks with results over "lava-callback" service.
