@@ -30,6 +30,7 @@ import yaml
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
+from k8s_monitor import K8sMonitor
 from telemetry import TelemetryEmitter
 
 BACKUP_DIR = "/tmp/kci-backup"
@@ -47,6 +48,8 @@ EVENT_QUEUE_WARN_DEPTH = 100
 # makes every device and queue query block until it times out, once per job
 # and per platform; one cheap probe per interval replaces all of them.
 RUNTIME_LIVENESS_TTL = 60  # seconds
+# Check well within the 30-minute TTL of finished Kubernetes Jobs.
+K8S_MONITOR_POLL_PERIOD = 10 * 60
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -156,6 +159,7 @@ class Scheduler(Service):
         self._context_lock = threading.Lock()
         self._context = {}
         self._stop_thread = False
+        self._k8s_monitor_stop = threading.Event()
         self._watchdog_timestamps = {}  # Thread name -> last update timestamp
         self._watchdog_activities = {}  # Thread name -> current operation
         self._watchdog_lock = threading.Lock()
@@ -371,6 +375,7 @@ class Scheduler(Service):
 
     def _stop(self, context):
         self._stop_thread = True
+        self._k8s_monitor_stop.set()
         if hasattr(self, "_telemetry"):
             self._telemetry.close()
         for _, sub_id in self._context.items():
@@ -1149,6 +1154,7 @@ class Scheduler(Service):
         return False
 
     def _run(self, context):
+        self._start_k8s_monitor()
         for channel, sub_id in self._context.items():
             event_queue = queue.Queue()
             self._event_queues[channel] = event_queue
@@ -1175,6 +1181,65 @@ class Scheduler(Service):
 
         for thread in self._threads:
             thread.join()
+
+    def _start_k8s_monitor(self):
+        runtimes = {
+            name
+            for name, runtime in self._runtimes.items()
+            if runtime.config.lab_type == "kubernetes"
+        }
+        if not runtimes:
+            return
+        if self._storage is None:
+            self.log.warning("Kubernetes monitoring needs artifact storage")
+            return
+        worker = threading.Thread(
+            target=self._monitor_k8s,
+            args=(runtimes,),
+            name="k8s-monitor",
+            daemon=True,
+        )
+        self._threads.append(worker)
+        worker.start()
+
+    def _monitor_k8s(self, runtimes):
+        monitor = None
+        try:
+            while not self._k8s_monitor_stop.is_set():
+                deadline = time.monotonic() + K8S_MONITOR_POLL_PERIOD
+                try:
+                    if monitor is None:
+                        # Separate clients keep monitoring I/O independent of
+                        # the submission and event reception threads. Retry
+                        # initialization if the API is temporarily unavailable.
+                        self._watchdog_heartbeat(
+                            "initializing Kubernetes monitoring"
+                        )
+                        api = kernelci.api.get_api(
+                            self._api_config, os.getenv("KCI_API_TOKEN")
+                        )
+                        storage = kernelci.storage.get_storage(
+                            self._storage.config, self._storage.credentials
+                        )
+                        monitor = K8sMonitor(
+                            api,
+                            storage,
+                            self.log,
+                            runtimes,
+                            self._watchdog_heartbeat,
+                        )
+                    monitor.poll()
+                except Exception:
+                    self.log.traceback()
+                while not self._k8s_monitor_stop.is_set():
+                    self._watchdog_heartbeat("waiting for Kubernetes poll")
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        break
+                    self._k8s_monitor_stop.wait(min(remaining, 30))
+        finally:
+            if monitor is not None:
+                monitor.close()
 
     def _receive_events(self, channel, sub_id, event_queue):
         """Poll the API for events and hand them over for processing
