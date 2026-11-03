@@ -24,12 +24,20 @@ outcome is retained in its error message and Kubernetes diagnostic artifacts.
 Diagnosis normally takes 10–20 minutes after failure, within the current
 30-minute retention of finished Jobs. The normal six-hour timeout remains a
 fallback for work that is still running or pending.
+Kubernetes submission and context capture share a lock across runtimes, so
+concurrent scheduler threads record the cluster used by their own Job.
 
 Pending/running pods and Jobs still retrying a failed attempt are left alone.
 Cluster query errors reset confirmation instead of marking jobs missing. A
 fresh node read before and after uploading diagnostics preserves results that
 arrive during reconciliation. Storage failures are retried on the next poll
-without completing the node. Logs include the last 10,000 lines, capped at 4 MiB
+without completing the node. HTTP diagnostic uploads use a five-second connect
+timeout and a 30-second read timeout, with at most two attempts separated by two
+seconds. This retry budget is local to the monitor; normal artifact uploads keep
+their existing settings. The fatal ten-minute watchdog still covers the monitor
+as a backstop for operations that remain stuck despite network timeouts.
+Logs are decoded from UTF-8 bytes with replacement for invalid sequences,
+preserving line breaks. They include the last 10,000 lines, capped at 4 MiB
 per container attempt, including init containers and previous container logs
 when available. Already deleted pods cannot supply logs; their diagnostic
 artifact records that absence. Only Job/Pod status is uploaded, not pod specs.

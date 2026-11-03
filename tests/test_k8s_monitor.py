@@ -1,18 +1,28 @@
 """Kubernetes reconciliation must not turn healthy builds into failures."""
 
 import copy
+import io
 import json
 import threading
 from contextlib import ExitStack
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 from kernelci.api.models import KbuildData
 from kubernetes import client
 from kubernetes.client.exceptions import ApiException
-from src.k8s_monitor import K8sMonitor, job_outcome
+from src.k8s_monitor import (
+    UPLOAD_TIMEOUT,
+    K8sMonitor,
+    MonitorStorageBackend,
+    get_monitor_storage,
+    job_outcome,
+)
 from src.scheduler import K8S_MONITOR_POLL_PERIOD, Scheduler
+from urllib3.response import HTTPResponse
 
 
 def make_job(condition=None):
@@ -123,7 +133,11 @@ def monitor():
 
     storage.upload_single.side_effect = upload
     worker.core = MagicMock()
-    worker.core.read_namespaced_pod_log.return_value = "fatal worker error\n"
+    worker.core.read_namespaced_pod_log.side_effect = lambda *args, **kwargs: (
+        HTTPResponse(
+            body=io.BytesIO(b"fatal worker error\n"), preload_content=False
+        )
+    )
     return worker
 
 
@@ -132,6 +146,132 @@ def check(worker, job=None, pods=None, seconds=0):
     jobs = {"kci-build": job} if job is not None else {}
     with patch("src.k8s_monitor.time.monotonic", return_value=worker.clock):
         worker._check(worker.node, jobs, {"kci-build": pods or []}, worker.core)
+
+
+def monitor_storage():
+    storage_config = SimpleNamespace(
+        storage_type="backend",
+        api_url="https://storage.example/",
+        base_url="https://storage.example/",
+    )
+    return get_monitor_storage(storage_config, "test-credential")
+
+
+def upload_response(status=200):
+    response = requests.Response()
+    response.status_code = status
+    response.url = "https://storage.example/upload"
+    response._content = b""
+    response._content_consumed = True
+    return response
+
+
+@pytest.mark.parametrize("failure", ["timeout", "connection", "server"])
+def test_diagnostic_upload_retries_with_fresh_files_and_short_timeouts(
+    tmp_path, failure
+):
+    path = tmp_path / "kubernetes.log"
+    path.write_bytes(b"diagnostic log\n")
+    storage = monitor_storage()
+    assert isinstance(storage, MonitorStorageBackend)
+    failed = {
+        "timeout": requests.exceptions.Timeout("timed out"),
+        "connection": requests.exceptions.ConnectionError("disconnected"),
+        "server": upload_response(503),
+    }[failure]
+    outcomes = iter([failed, upload_response()])
+    handles = []
+
+    def post(url, **kwargs):
+        assert url == "https://storage.example/upload"
+        assert kwargs["timeout"] == UPLOAD_TIMEOUT == (5, 30)
+        assert kwargs["headers"] == {"Authorization": "test-credential"}
+        assert kwargs["data"] == {"path": "job/kubernetes"}
+        filename, stream = kwargs["files"]["file0"]
+        assert filename == "kubernetes.log"
+        assert stream.read() == b"diagnostic log\n"
+        handles.append(stream)
+        outcome = next(outcomes)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    with ExitStack() as stack:
+        request = stack.enter_context(
+            patch("src.k8s_monitor.requests.post", side_effect=post)
+        )
+        sleep = stack.enter_context(patch("src.k8s_monitor.time.sleep"))
+        url = storage.upload_single(
+            (str(path), "kubernetes.log"), "job/kubernetes"
+        )
+    assert url == "https://storage.example/job/kubernetes/kubernetes.log"
+    assert request.call_count == 2
+    sleep.assert_called_once_with(2)
+    assert len(handles) == 2 and handles[0] is not handles[1]
+    assert all(handle.closed for handle in handles)
+
+
+@pytest.mark.parametrize("status", [400, 401, 403, 404])
+def test_diagnostic_upload_does_not_retry_client_errors(tmp_path, status):
+    path = tmp_path / "kubernetes.log"
+    path.write_text("diagnostics")
+    with ExitStack() as stack:
+        request = stack.enter_context(
+            patch(
+                "src.k8s_monitor.requests.post",
+                return_value=upload_response(status),
+            )
+        )
+        sleep = stack.enter_context(patch("src.k8s_monitor.time.sleep"))
+        with pytest.raises(requests.exceptions.HTTPError):
+            monitor_storage().upload_single((str(path), "kubernetes.log"))
+    request.assert_called_once()
+    sleep.assert_not_called()
+    assert request.call_args.kwargs["files"]["file0"][1].closed
+
+
+def test_non_http_storage_keeps_its_own_backend():
+    storage_config = SimpleNamespace(storage_type="ssh")
+    with patch("src.k8s_monitor.kernelci.storage.get_storage") as factory:
+        storage = get_monitor_storage(storage_config, "test-key")
+    factory.assert_called_once_with(storage_config, "test-key")
+    assert storage is factory.return_value
+
+
+@pytest.mark.parametrize("failed_upload", [0, 1])
+def test_upload_timeout_leaves_node_running_then_recovers_on_next_poll(
+    monitor, failed_upload
+):
+    monitor._storage = monitor_storage()
+    responses = [upload_response() for _ in range(failed_upload)] + [
+        requests.exceptions.Timeout("storage stalled"),
+        requests.exceptions.Timeout("storage stalled"),
+        upload_response(),
+        upload_response(),
+    ]
+    with ExitStack() as stack:
+        request = stack.enter_context(
+            patch("src.k8s_monitor.requests.post", side_effect=responses)
+        )
+        sleep = stack.enter_context(patch("src.k8s_monitor.time.sleep"))
+        check(monitor)
+        with pytest.raises(
+            requests.exceptions.Timeout, match="storage stalled"
+        ):
+            check(monitor, seconds=600)
+        assert request.call_count == failed_upload + 2
+        sleep.assert_called_once_with(2)
+        monitor._api.node.update.assert_not_called()
+        assert monitor.node["state"] == "running"
+        assert monitor.node["result"] is None
+        check(monitor, seconds=600)
+    result = monitor._api.node.update.call_args.args[0]
+    assert result["state"] == "done"
+    assert result["result"] == "incomplete"
+    assert result["artifacts"]["kubernetes_log"].endswith("kubernetes.log")
+    assert result["artifacts"]["kubernetes_status"].endswith(
+        "kubernetes-status.json"
+    )
 
 
 @pytest.mark.parametrize("phase", ["Running", "Pending", "Unknown"])
@@ -280,6 +420,31 @@ def test_fetches_previous_container_logs_after_restart(monitor):
     check(monitor, job, pods, 600)
     calls = monitor.core.read_namespaced_pod_log.call_args_list
     assert [call.kwargs["previous"] for call in calls] == [False, True]
+    assert all(call.kwargs["_preload_content"] is False for call in calls)
+
+
+def test_pod_logs_preserve_lines_and_replace_invalid_utf8(monitor):
+    response = MagicMock(data=b"first line\nsecond line\ninvalid: \xff\n")
+    monitor.core.read_namespaced_pod_log.side_effect = None
+    monitor.core.read_namespaced_pod_log.return_value = response
+    check(monitor, make_job("Failed"), [make_pod("Failed")])
+    check(monitor, make_job("Failed"), [make_pod("Failed")], 600)
+    log = monitor.saved["kubernetes.log"]
+    assert "first line\nsecond line\ninvalid: \ufffd\n" in log
+    response.close.assert_called_once()
+    response.release_conn.assert_called_once()
+
+
+def test_pod_log_read_failure_releases_response(monitor):
+    response = MagicMock()
+    response.data.decode.side_effect = TimeoutError("read timed out")
+    monitor.core.read_namespaced_pod_log.side_effect = None
+    monitor.core.read_namespaced_pod_log.return_value = response
+    check(monitor, make_job("Failed"), [make_pod("Failed")])
+    check(monitor, make_job("Failed"), [make_pod("Failed")], 600)
+    assert "Logs unavailable: read timed out" in monitor.saved["kubernetes.log"]
+    response.close.assert_called_once()
+    response.release_conn.assert_called_once()
 
 
 def test_storage_failure_leaves_node_running_for_retry(monitor):
@@ -380,7 +545,7 @@ def test_scheduler_worker_retries_initialization_and_stops_promptly():
 
     with ExitStack() as stack:
         stack.enter_context(patch("src.scheduler.kernelci.api.get_api"))
-        stack.enter_context(patch("src.scheduler.kernelci.storage.get_storage"))
+        stack.enter_context(patch("src.scheduler.get_monitor_storage"))
         constructor = stack.enter_context(
             patch(
                 "src.scheduler.K8sMonitor",

@@ -6,13 +6,57 @@ import threading
 import time
 import types
 import unittest
+from contextlib import ExitStack
 from unittest.mock import MagicMock, patch
 
-from src.scheduler import RUNTIME_LIVENESS_TTL, Scheduler
+from src.scheduler import RUNTIME_LIVENESS_TTL, Scheduler, run_watchdog
 
 
 class TestSchedulerWatchdog(unittest.TestCase):
     """Test watchdog progress tracking."""
+
+    def _run_watchdog_once(self, timestamps):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler.log = MagicMock()
+        scheduler._stop_thread = False
+        scheduler._stop_thread_lock = threading.Lock()
+        scheduler._watchdog_lock = threading.Lock()
+        scheduler._watchdog_timestamps = timestamps
+        scheduler._watchdog_activities = {
+            "k8s-monitor": "uploading diagnostics"
+        }
+
+        def stop_after_iteration(_):
+            scheduler._stop_thread = True
+
+        with ExitStack() as stack:
+            stack.enter_context(
+                patch(
+                    "src.scheduler.time.sleep", side_effect=stop_after_iteration
+                )
+            )
+            stack.enter_context(
+                patch("src.scheduler.time.time", return_value=1200)
+            )
+            exit_process = stack.enter_context(patch("src.scheduler.os._exit"))
+            run_watchdog(scheduler, scheduler.log)
+        return scheduler, exit_process
+
+    def test_monitor_storage_stall_still_exits_scheduler(self):
+        scheduler, exit_process = self._run_watchdog_once(
+            {"k8s-monitor": 0, "scheduler-node": 1199}
+        )
+        exit_process.assert_called_once_with(1)
+        self.assertIn(
+            "uploading diagnostics",
+            scheduler.log.error.call_args_list[0].args[0],
+        )
+
+    def test_stalled_submission_still_exits_with_monitor_stalled(self):
+        _, exit_process = self._run_watchdog_once(
+            {"k8s-monitor": 1199, "scheduler-node": 0}
+        )
+        exit_process.assert_called_once_with(1)
 
     def test_heartbeat_records_progress_and_activity(self):
         scheduler = MagicMock(spec=Scheduler)
@@ -55,6 +99,129 @@ class TestSchedulerWatchdog(unittest.TestCase):
         self.assertEqual(
             scheduler._watchdog_activities["scheduler-node"], "second job"
         )
+
+
+class TestSchedulerSubmission(unittest.TestCase):
+    """A submission must retain its own Kubernetes cluster context."""
+
+    @staticmethod
+    def _make_runtime(first_read, second_attempt):
+        runtime = MagicMock()
+        runtime.config.lab_type = "kubernetes"
+
+        def submit(path):
+            runtime.context = path
+            return f"job-{path}"
+
+        def get_context():
+            if threading.current_thread().name == "first":
+                first_read.set()
+                if not second_attempt.wait(3):
+                    raise TimeoutError("second submission did not start")
+            return runtime.context
+
+        runtime.submit.side_effect = submit
+        runtime.get_context.side_effect = get_context
+        return runtime
+
+    def test_concurrent_submissions_capture_context_under_one_lock(self):
+        # Different Kubernetes runtimes also share client configuration.
+        for shared_runtime in (True, False):
+            with self.subTest(shared_runtime=shared_runtime):
+                scheduler = MagicMock(spec=Scheduler)
+                first_read = threading.Event()
+                second_attempt = threading.Event()
+                lock = threading.Lock()
+
+                class SubmissionLock:
+                    def acquire(self, timeout):
+                        if threading.current_thread().name == "second":
+                            second_attempt.set()
+                        return lock.acquire(timeout=timeout)
+
+                    def release(self):
+                        lock.release()
+
+                scheduler._k8s_submit_lock = SubmissionLock()
+
+                first_runtime = self._make_runtime(first_read, second_attempt)
+                second_runtime = (
+                    first_runtime
+                    if shared_runtime
+                    else self._make_runtime(first_read, second_attempt)
+                )
+                results, errors = {}, []
+
+                def submit(name, runtime):
+                    try:
+                        results[name] = Scheduler._submit_job(
+                            scheduler, runtime, name
+                        )
+                    except Exception as error:
+                        errors.append(error)
+
+                first = threading.Thread(
+                    target=submit, args=("first", first_runtime), name="first"
+                )
+                second = threading.Thread(
+                    target=submit,
+                    args=("second", second_runtime),
+                    name="second",
+                )
+                first.start()
+                try:
+                    self.assertTrue(first_read.wait(3))
+                    second.start()
+                    first.join(3)
+                    second.join(3)
+                    self.assertFalse(first.is_alive())
+                    self.assertFalse(second.is_alive())
+                    self.assertEqual(errors, [])
+                    self.assertEqual(
+                        results,
+                        {
+                            "first": ("job-first", "first"),
+                            "second": ("job-second", "second"),
+                        },
+                    )
+                finally:
+                    second_attempt.set()
+                    first.join(3)
+                    if second.ident is not None:
+                        second.join(3)
+
+    def test_submit_failure_releases_kubernetes_lock(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._k8s_submit_lock = threading.Lock()
+        runtime = MagicMock()
+        runtime.config.lab_type = "kubernetes"
+        runtime.submit.side_effect = RuntimeError("submission failed")
+        with self.assertRaisesRegex(RuntimeError, "submission failed"):
+            Scheduler._submit_job(scheduler, runtime, "job.yaml")
+        self.assertTrue(scheduler._k8s_submit_lock.acquire(blocking=False))
+        scheduler._k8s_submit_lock.release()
+
+    def test_waiting_for_kubernetes_lock_keeps_submission_heartbeat_alive(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._k8s_submit_lock = MagicMock()
+        scheduler._k8s_submit_lock.acquire.side_effect = [False, True]
+        runtime = MagicMock()
+        runtime.config.lab_type = "kubernetes"
+        Scheduler._submit_job(scheduler, runtime, "job.yaml")
+        scheduler._watchdog_heartbeat.assert_called_once_with(
+            "waiting for Kubernetes submission"
+        )
+        scheduler._k8s_submit_lock.release.assert_called_once()
+
+    def test_other_runtimes_do_not_take_kubernetes_lock(self):
+        scheduler = MagicMock(spec=Scheduler)
+        scheduler._k8s_submit_lock = MagicMock()
+        runtime = MagicMock()
+        runtime.config.lab_type = "lava"
+        result = Scheduler._submit_job(scheduler, runtime, "job.yaml")
+        self.assertEqual(result, (runtime.submit.return_value, None))
+        scheduler._k8s_submit_lock.acquire.assert_not_called()
+        runtime.get_context.assert_not_called()
 
 
 class TestSchedulerTreePriority(unittest.TestCase):
@@ -475,8 +642,8 @@ class TestSchedulerEventDecoupling(unittest.TestCase):
         """A processing thread stuck on one event must not stop polling."""
         scheduler = self._make_scheduler()
         released = threading.Event()
-        scheduler._process_event.side_effect = (
-            lambda *args, **kwargs: released.wait(10)
+        scheduler._process_event.side_effect = lambda *args, **kwargs: (
+            released.wait(10)
         )
 
         polls = []
@@ -551,8 +718,8 @@ class TestSchedulerRuntimeLiveness(unittest.TestCase):
         scheduler._liveness_lock = threading.Lock()
         scheduler._disable_device_health_check = False
         # Exercise the real probe through the skip helper.
-        scheduler._is_runtime_alive.side_effect = (
-            lambda runtime: Scheduler._is_runtime_alive(scheduler, runtime)
+        scheduler._is_runtime_alive.side_effect = lambda runtime: (
+            Scheduler._is_runtime_alive(scheduler, runtime)
         )
         return scheduler
 
@@ -622,10 +789,8 @@ class TestSchedulerRuntimeLiveness(unittest.TestCase):
         scheduler._sched = MagicMock()
         scheduler._api = MagicMock()
         scheduler._api_helper = MagicMock()
-        scheduler._should_skip_unreachable_runtime.side_effect = (
-            lambda *args: Scheduler._should_skip_unreachable_runtime(
-                scheduler, *args
-            )
+        scheduler._should_skip_unreachable_runtime.side_effect = lambda *args: (
+            Scheduler._should_skip_unreachable_runtime(scheduler, *args)
         )
         scheduler._api_helper_lock = threading.Lock()
         scheduler._should_skip_due_to_queue_depth.return_value = False
