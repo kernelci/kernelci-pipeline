@@ -2755,6 +2755,15 @@ scheduler:
   - job: ltp-tpm-tools
     <<: *ltp-broonie-arm64
 
+  - job: perf-arm64
+    event:
+      <<: *node-event-kbuild
+      name: kbuild-gcc-14-arm64-perf
+      result: pass
+    runtime: *lava-broonie-runtime
+    platforms:
+      - imx8mp-verdin-nonwifi-dahlia
+
   - job: rt-tests-cyclicdeadline
     event: &kbuild-gcc-14-arm64-preempt_rt-node-event
       <<: *node-event-kbuild
