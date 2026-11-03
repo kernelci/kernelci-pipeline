@@ -7,7 +7,9 @@ import argparse
 import glob
 import os
 import re
+import subprocess
 import sys
+import tempfile
 
 import yaml
 
@@ -158,6 +160,119 @@ def validate_unused_jobs(data):
     for job in jobs.keys():
         if job not in sch_jobs:
             print(f"Warning: Job {job} is not used in scheduler")
+
+
+def scheduled_targets(data):
+    """
+    Map each scheduled job to the set of (runtime, platform) pairs it
+    is scheduled on. Entries without platforms use None as platform.
+    """
+    targets = {}
+    for entry in data.get("scheduler") or []:
+        runtime = entry.get("runtime") or {}
+        runtime_name = runtime.get("name") or runtime.get("type")
+        for platform in entry.get("platforms") or [None]:
+            targets.setdefault(entry.get("job"), set()).add(
+                (runtime_name, platform)
+            )
+    return targets
+
+
+def _format_target(target):
+    runtime, platform = target
+    if platform is None:
+        return str(runtime)
+    return f"{platform} ({runtime})"
+
+
+def find_dropped_schedules(base_data, data):
+    """
+    Compare scheduler entries against a base config and return a
+    warning for every job that is still defined but has lost some or
+    all of the runtimes and platforms it was scheduled on in the base.
+    Jobs removed from jobs: altogether, and platforms removed from
+    platforms: altogether, are not reported.
+    """
+    base_targets = scheduled_targets(base_data)
+    targets = scheduled_targets(data)
+    jobs = data.get("jobs") or {}
+    platforms = data.get("platforms") or {}
+    warnings = []
+    for job in sorted(base_targets):
+        if job not in jobs:
+            continue
+        dropped = {
+            (runtime, platform)
+            for runtime, platform in base_targets[job] - targets.get(job, set())
+            if platform is None or platform in platforms
+        }
+        if not dropped:
+            continue
+        dropped = ", ".join(
+            _format_target(target)
+            for target in sorted(
+                dropped, key=lambda t: (str(t[0]), str(t[1] or ""))
+            )
+        )
+        if job in targets:
+            warnings.append(
+                f"Job {job} is still defined but no longer scheduled "
+                f"on: {dropped}"
+            )
+        else:
+            warnings.append(
+                f"Job {job} is still defined but no longer scheduled "
+                f"anywhere (was scheduled on: {dropped})"
+            )
+    return warnings
+
+
+def load_config_at_ref(ref, dir="config"):
+    """
+    Merge the yaml files of the config directory as they are at the
+    given git ref, without touching the working tree.
+    """
+    listing = subprocess.run(
+        [
+            "git",
+            "-C",
+            dir,
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            ref,
+            "--",
+            ".",
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+    ).stdout.decode()
+    paths = [path for path in listing.split("\0") if path.endswith(".yaml")]
+    if not paths:
+        raise ValueError(f"No yaml files found in {dir} at {ref}")
+    with tempfile.TemporaryDirectory() as tmp:
+        for path in paths:
+            content = subprocess.run(
+                ["git", "-C", dir, "show", f"{ref}:./{path}"],
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout
+            dest = os.path.join(tmp, path)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with open(dest, "wb") as f:
+                f.write(content)
+        return merge_files(tmp)
+
+
+def report_dropped_schedules(base_ref, merged_data, dir="config"):
+    print(f"Checking for jobs dropped from the scheduler since {base_ref}")
+    base_data = load_config_at_ref(base_ref, dir)
+    for message in find_dropped_schedules(base_data, merged_data):
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            print(f"::warning title=Job dropped from scheduler::{message}")
+        else:
+            print(f"Warning: {message}")
 
 
 def validate_build_configs(data):
@@ -377,6 +492,7 @@ def help():
     print(
         "-o, --output    Output file to dump merged yaml file without anchors"
     )
+    print("-b, --base-ref  Git ref to compare scheduler coverage against")
     print("-h, --help      Show this help message and exit")
     sys.exit(1)
 
@@ -393,6 +509,12 @@ def main():
     parser.add_argument(
         "-o", "--output", type=str, help="Output file to dump yaml files"
     )
+    parser.add_argument(
+        "-b",
+        "--base-ref",
+        type=str,
+        help="Git ref to compare scheduler coverage against",
+    )
     args = parser.parse_args()
     try:
         merged_data = merge_files(args.dir)
@@ -400,7 +522,14 @@ def main():
             dumper(args.output, merged_data)
 
         validate_yaml(merged_data)
-    except (yaml.YAMLError, ValueError, OSError) as exc:
+        if args.base_ref:
+            report_dropped_schedules(args.base_ref, merged_data, args.dir)
+    except (
+        yaml.YAMLError,
+        ValueError,
+        OSError,
+        subprocess.CalledProcessError,
+    ) as exc:
         print(f"Validation failed: {exc}")
         sys.exit(1)
 
