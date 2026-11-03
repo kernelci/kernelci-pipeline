@@ -30,7 +30,7 @@ import yaml
 from kernelci.legacy.cli import Args, Command, parse_opts
 
 from base import Service
-from k8s_monitor import K8sMonitor
+from k8s_monitor import K8sMonitor, get_monitor_storage
 from telemetry import TelemetryEmitter
 
 BACKUP_DIR = "/tmp/kci-backup"
@@ -155,6 +155,9 @@ class Scheduler(Service):
         self._threads = []
         self._event_queues = {}
         self._api_helper_lock = threading.Lock()
+        # Kubernetes runtimes share both mutable submission context and the
+        # client's default configuration, even across different runtime names.
+        self._k8s_submit_lock = threading.Lock()
         self._stop_thread_lock = threading.Lock()
         self._context_lock = threading.Lock()
         self._context = {}
@@ -758,6 +761,18 @@ class Scheduler(Service):
             "retry": retry_counter,
         }
 
+    def _submit_job(self, runtime, output_file):
+        """Submit and capture Kubernetes context as one operation."""
+        if runtime.config.lab_type != "kubernetes":
+            return runtime.submit(output_file), None
+        while not self._k8s_submit_lock.acquire(timeout=30):
+            self._watchdog_heartbeat("waiting for Kubernetes submission")
+        try:
+            running_job = runtime.submit(output_file)
+            return running_job, runtime.get_context()
+        finally:
+            self._k8s_submit_lock.release()
+
     def _run_job(
         self, job_config, runtime, platform, input_node, retry_counter
     ):
@@ -946,7 +961,7 @@ class Scheduler(Service):
         self.backup_job(output_file, node["id"])
         self._log_lava_queue_status(runtime, params, platform)
         try:
-            running_job = runtime.submit(output_file)
+            running_job, context = self._submit_job(runtime, output_file)
         except Exception as e:
             self.log.error(
                 " ".join(
@@ -1003,7 +1018,6 @@ class Scheduler(Service):
                 node["state"] = "available"
 
         if platform.name == "kubernetes":
-            context = runtime.get_context()
             node["data"]["job_context"] = context
 
         try:
@@ -1218,7 +1232,7 @@ class Scheduler(Service):
                         api = kernelci.api.get_api(
                             self._api_config, os.getenv("KCI_API_TOKEN")
                         )
-                        storage = kernelci.storage.get_storage(
+                        storage = get_monitor_storage(
                             self._storage.config, self._storage.credentials
                         )
                         monitor = K8sMonitor(

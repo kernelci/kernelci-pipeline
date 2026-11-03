@@ -8,11 +8,65 @@ import json
 import pathlib
 import tempfile
 import time
+from contextlib import ExitStack
+from urllib.parse import urljoin
 
+import kernelci.storage
+import requests
+from kernelci.storage.backend import StorageBackend
 from kubernetes import client, config
 
 API_TIMEOUT = (5, 20)
 LOG_LIMIT_BYTES = 4 * 1024 * 1024
+# Diagnostic uploads should fail and be retried by the next monitor poll,
+# rather than spend up to 26 minutes in the normal artifact upload retries.
+UPLOAD_TIMEOUT = (5, 30)
+UPLOAD_ATTEMPTS = 2
+UPLOAD_RETRY_DELAY = 2
+
+
+class MonitorStorageBackend(StorageBackend):
+    """HTTP diagnostic uploads with a short network timeout and retry budget."""
+
+    def _upload(self, file_paths, dest_path):
+        for attempt in range(UPLOAD_ATTEMPTS):
+            try:
+                with ExitStack() as stack:
+                    files = {
+                        f"file{i}": (dst, stack.enter_context(open(src, "rb")))
+                        for i, (src, dst) in enumerate(file_paths)
+                    }
+                    response = stack.enter_context(
+                        requests.post(
+                            urljoin(self.config.api_url, "upload"),
+                            headers={"Authorization": self.credentials},
+                            data={"path": dest_path},
+                            files=files,
+                            timeout=UPLOAD_TIMEOUT,
+                        )
+                    )
+                    response.raise_for_status()
+                return
+            except (
+                requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.HTTPError,
+            ) as error:
+                if isinstance(error, requests.exceptions.HTTPError):
+                    if error.response is None or not (
+                        500 <= error.response.status_code < 600
+                    ):
+                        raise
+                if attempt + 1 == UPLOAD_ATTEMPTS:
+                    raise
+                time.sleep(UPLOAD_RETRY_DELAY)
+
+
+def get_monitor_storage(storage_config, credentials):
+    """Give the monitor its own storage client and HTTP upload retry budget."""
+    if storage_config.storage_type == "backend":
+        return MonitorStorageBackend(storage_config, credentials)
+    return kernelci.storage.get_storage(storage_config, credentials)
 
 
 def job_outcome(job, pods):
@@ -294,18 +348,22 @@ class K8sMonitor:
                 f"previous={previous} (tail, up to {LOG_LIMIT_BYTES} bytes) ---"
             )
             try:
-                logs.append(
-                    core.read_namespaced_pod_log(
-                        pod.metadata.name,
-                        self._namespace,
-                        container=container.name,
-                        previous=previous,
-                        timestamps=True,
-                        tail_lines=10000,
-                        limit_bytes=LOG_LIMIT_BYTES,
-                        _request_timeout=API_TIMEOUT,
-                    )
+                response = core.read_namespaced_pod_log(
+                    pod.metadata.name,
+                    self._namespace,
+                    container=container.name,
+                    previous=previous,
+                    timestamps=True,
+                    tail_lines=10000,
+                    limit_bytes=LOG_LIMIT_BYTES,
+                    _request_timeout=API_TIMEOUT,
+                    _preload_content=False,
                 )
+                try:
+                    logs.append(response.data.decode("utf-8", "replace"))
+                finally:
+                    response.close()
+                    response.release_conn()
             except Exception as error:
                 # Evicted/deleted pods and containers that never started may
                 # have no logs. Keep the termination status and explain the gap.
