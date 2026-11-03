@@ -64,6 +64,8 @@ jobs:
     steps:
       - name: Check out source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -78,8 +80,11 @@ jobs:
           pip install pyyaml PyJWT toml jsonschema pytest
 
       - name: Run basic YAML validation
+        env:
+          BASE_REF_ARG: ${{ github.event_name == 'pull_request' && matrix.python-version == '3.13' && '--base-ref=HEAD^1' || '' }}
         run: |
-          python tests/validate_yaml.py
+          python tests/validate_yaml.py $BASE_REF_ARG
+          python -m pytest tests/test_validate_yaml.py -v
 
       - name: Validate hardware registry
         run: |
