@@ -3,10 +3,12 @@
 import copy
 import json
 import threading
+from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from kernelci.api.models import KbuildData
 from kubernetes import client
 from kubernetes.client.exceptions import ApiException
 from src.k8s_monitor import K8sMonitor, job_outcome
@@ -106,6 +108,10 @@ def monitor():
     }
     api.node.find.return_value = [node]
     api.node.get.side_effect = lambda _: copy.deepcopy(node)
+    # Exercise the API's data schema rather than accepting arbitrary error codes.
+    api.node.update.side_effect = lambda node: KbuildData.model_validate(
+        node["data"]
+    )
     worker.node = node
     worker.clock = 0
     worker.saved = {}
@@ -142,14 +148,18 @@ def test_failed_attempt_waits_for_kubernetes_retry(monitor):
 
 
 @pytest.mark.parametrize(
-    "condition,code",
+    "condition,code,message",
     [
-        ("Failed", "k8s_job_failed"),
-        ("Complete", "k8s_result_missing"),
+        ("Failed", "k8s_job_failed", "BackoffLimitExceeded"),
+        (
+            "Complete",
+            "k8s_result_missing",
+            "Job completed without a result",
+        ),
     ],
 )
 def test_terminal_job_uploads_logs_and_status_before_completing(
-    monitor, condition, code
+    monitor, condition, code, message
 ):
     job, pods = make_job(condition), [make_pod("Failed", "Evicted")]
     check(monitor, job, pods)
@@ -158,11 +168,13 @@ def test_terminal_job_uploads_logs_and_status_before_completing(
     result = monitor._api.node.update.call_args.args[0]
     assert result["state"] == "done"
     assert result["result"] == "incomplete"
-    assert result["data"]["error_code"] == code
+    assert result["data"]["error_code"] == "Infrastructure"
+    assert result["data"]["error_msg"] == f"{code}: {message}"
     assert result["artifacts"]["existing"] == "https://storage/existing"
     assert result["artifacts"]["kubernetes_log"].endswith("kubernetes.log")
     assert "fatal worker error" in monitor.saved["kubernetes.log"]
     status = json.loads(monitor.saved["kubernetes-status.json"])
+    assert status["error_code"] == code
     assert status["pods"][0]["reason"] == "Evicted"
     assert (
         status["pods"][0]["containers"][0]["state"]["terminated"]["exit_code"]
@@ -187,7 +199,10 @@ def test_missing_resources_require_repeated_confirmation(monitor, job, code):
     monitor._api.node.update.assert_not_called()
     check(monitor, job, seconds=481)
     result = monitor._api.node.update.call_args.args[0]
-    assert result["data"]["error_code"] == code
+    assert result["data"]["error_code"] == "Infrastructure"
+    assert result["data"]["error_msg"].startswith(f"{code}: ")
+    status = json.loads(monitor.saved["kubernetes-status.json"])
+    assert status["error_code"] == code
     assert "cannot be recovered" in monitor.saved["kubernetes.log"]
 
 
@@ -205,8 +220,8 @@ def test_pod_for_different_job_uid_is_not_accepted(monitor):
     check(monitor, make_job(), [pod])
     check(monitor, make_job(), [pod], seconds=600)
     assert (
-        monitor._api.node.update.call_args.args[0]["data"]["error_code"]
-        == "k8s_pod_missing"
+        monitor._api.node.update.call_args.args[0]["data"]["error_msg"]
+        == "k8s_pod_missing: Job has no pods"
     )
 
 
@@ -363,15 +378,23 @@ def test_scheduler_worker_retries_initialization_and_stops_promptly():
         assert seconds <= 30  # Idle heartbeats must stay within the watchdog.
         clock[0] += 600
 
-    with (
-        patch("src.scheduler.kernelci.api.get_api"),
-        patch("src.scheduler.kernelci.storage.get_storage"),
-        patch(
-            "src.scheduler.K8sMonitor", side_effect=[TimeoutError(), monitor]
-        ) as constructor,
-        patch("src.scheduler.time.monotonic", side_effect=lambda: clock[0]),
-        patch.object(scheduler._k8s_monitor_stop, "wait", side_effect=advance),
-    ):
+    with ExitStack() as stack:
+        stack.enter_context(patch("src.scheduler.kernelci.api.get_api"))
+        stack.enter_context(patch("src.scheduler.kernelci.storage.get_storage"))
+        constructor = stack.enter_context(
+            patch(
+                "src.scheduler.K8sMonitor",
+                side_effect=[TimeoutError(), monitor],
+            )
+        )
+        stack.enter_context(
+            patch("src.scheduler.time.monotonic", side_effect=lambda: clock[0])
+        )
+        stack.enter_context(
+            patch.object(
+                scheduler._k8s_monitor_stop, "wait", side_effect=advance
+            )
+        )
         Scheduler._monitor_k8s(scheduler, {"k8s-all"})
     assert constructor.call_count == 2
     monitor.poll.assert_called_once()

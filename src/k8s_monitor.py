@@ -215,7 +215,12 @@ class K8sMonitor:
             self._observations.pop(node["id"], None)
             return
         current.setdefault("artifacts", {}).update(artifacts)
-        current["data"].update(error_code=outcome[0], error_msg=outcome[1])
+        # The API accepts a fixed error-code enum. Keep the Kubernetes-specific
+        # outcome in the message and diagnostics, not in that enum field.
+        current["data"].update(
+            error_code="Infrastructure",
+            error_msg=f"{outcome[0]}: {outcome[1]}",
+        )
         current.update(state="done", result="incomplete")
         self._api.node.update(current)
         self._observations.pop(node["id"], None)

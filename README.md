@@ -19,6 +19,8 @@ or a completed Job without a pipeline result, the scheduler uploads
 `kubernetes_log` and `kubernetes_status` artifacts and finishes the node as
 `done` / `incomplete`. These describe an execution or result delivery failure;
 the scheduler does not infer a kernel build failure or pass from a pod exit code.
+The node uses the API's `Infrastructure` error code; the specific `k8s_*`
+outcome is retained in its error message and Kubernetes diagnostic artifacts.
 Diagnosis normally takes 10–20 minutes after failure, within the current
 30-minute retention of finished Jobs. The normal six-hour timeout remains a
 fallback for work that is still running or pending.
