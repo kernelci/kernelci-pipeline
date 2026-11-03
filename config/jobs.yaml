@@ -2877,6 +2877,24 @@ jobs:
       extra_kirk_args: "--suite-timeout 10m"
       job_timeout: 15
 
+  perf-arm64:
+    template: generic.jinja2
+    kind: job
+    priority: low
+    kcidb_test_suite: perf
+    params:
+      test_method: perf
+      boot_commands: nfs
+      rootfs_ref: trixie-perf
+      skip_install: true
+      job_timeout: 30
+      frequency: 1d
+    rules:
+      tree:
+        - mainline
+      arch:
+        - arm64
+
   rt-tests: &rt-tests
     template: rt-tests.jinja2
     kind: job
