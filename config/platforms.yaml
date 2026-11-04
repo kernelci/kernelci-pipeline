@@ -778,12 +778,26 @@ platforms:
       fastboot_mkbootimg_pagesize: 4096
       fastboot_mkbootimg_base: "0x80000000"
 
-  x1e80100:
+  hamoa-crd:
     <<: *arm64-device
     boot_method: fastboot
     mach: qcom
     dtb: dtbs/qcom/x1e80100-crd.dtb
     compatible: ['qcom,x1e80100-crd', 'qcom,x1e80100']
+
+  mahua-crd:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/mahua-crd.dtb
+    compatible: ['qcom,mahua-crd', 'qcom,mahua']
+
+  purwa-crd:
+    <<: *arm64-device
+    boot_method: fastboot
+    mach: qcom
+    dtb: dtbs/qcom/x1p42100-crd.dtb
+    compatible: ['qcom,x1p42100-crd', 'qcom,x1p42100']
 
   shell:
 

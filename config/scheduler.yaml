@@ -745,6 +745,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -752,7 +755,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: baseline-arm64-preempt_rt-qualcomm
     event:
@@ -763,6 +765,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-qrd
       - qcs615-ride
@@ -774,7 +779,6 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - purwa-evk
-      - x1e80100
 
   - job: baseline-riscv-broonie
     event: &kbuild-gcc-14-riscv-node-event
@@ -1414,6 +1418,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1421,7 +1428,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-breakpoints
     event: *kbuild-gcc-14-arm-node-event
@@ -1449,6 +1455,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1456,7 +1465,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-capabilities
     event: *kbuild-gcc-14-arm-node-event
@@ -1481,6 +1489,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1488,7 +1499,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-clone3
     event: *kbuild-gcc-14-arm-node-event
@@ -1513,6 +1523,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1520,7 +1533,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-coredump
     event: *kbuild-gcc-14-arm-node-event
@@ -1545,6 +1557,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1552,7 +1567,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-device-error-logs-main
     event: *kbuild-gcc-14-arm-node-event
@@ -1578,6 +1592,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-mtp
       - kaanapali-qrd
@@ -1589,7 +1606,6 @@ scheduler:
       - qcs8300-ride
       - qcs9100-ride
       - sm8750-mtp
-      - x1e80100
 
   - job: kselftest-dt
     event: *kbuild-gcc-14-arm-node-event
@@ -1615,7 +1631,7 @@ scheduler:
       - mt8395-genio-1200-evk
 
   - job: kselftest-dt-ramdisk
-    event: *kbuild-gcc-14-arm-node-event
+    event: *kbuild-gcc-14-arm64-node-event
     runtime:
       type: lava
       name: lava-kci-qualcomm
@@ -1625,6 +1641,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1632,7 +1651,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-efivars
     event:
@@ -1655,6 +1673,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1662,7 +1683,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-fchmodat2
     event:
@@ -1710,6 +1730,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1717,7 +1740,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-futex
     event: *kbuild-gcc-14-arm64-node-event
@@ -1743,6 +1765,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1750,7 +1775,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-gpio
     event:
@@ -1781,6 +1805,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - sm8750-mtp
       - qcs615-ride
       - qcs6490-rb3gen2
@@ -1788,7 +1815,6 @@ scheduler:
       - qcs9100-ride
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-ipc
     event:
@@ -2003,9 +2029,11 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-proc
     event:
@@ -2041,6 +2069,9 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
 
@@ -2078,9 +2109,11 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-rlimits
     event:
@@ -2192,9 +2225,11 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-tmpfs
     event: *kbuild-gcc-14-arm-node-event
@@ -2224,9 +2259,11 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-seccomp
     event:
@@ -2364,9 +2401,11 @@ scheduler:
       - lemans-evk
       - monaco-evk
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - purwa-evk
-      - x1e80100
 
   - job: kselftest-devices-exist-ramdisk
     event: *kbuild-gcc-14-arm64-node-event
@@ -2375,6 +2414,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-mtp
       - kaanapali-qrd
@@ -2386,7 +2428,6 @@ scheduler:
       - qcs8300-ride
       - qcs9100-ride
       - sm8750-mtp
-      - x1e80100
 
   - job: kselftest-devices-probe-ramdisk
     event: *kbuild-gcc-14-arm64-node-event
@@ -2395,6 +2436,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-mtp
       - kaanapali-qrd
@@ -2406,7 +2450,6 @@ scheduler:
       - qcs8300-ride
       - qcs9100-ride
       - sm8750-mtp
-      - x1e80100
 
   - job: kselftest-dmabuf-heaps-ramdisk
     event: *kbuild-gcc-14-arm64-node-event
@@ -2415,6 +2458,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-mtp
       - kaanapali-qrd
@@ -2426,7 +2472,6 @@ scheduler:
       - qcs8300-ride
       - qcs9100-ride
       - sm8750-mtp
-      - x1e80100
 
   - job: kselftest-exec-ramdisk
     event: *kbuild-gcc-14-arm64-node-event
@@ -2435,6 +2480,9 @@ scheduler:
       name: lava-kci-qualcomm
     platforms:
       - glymur-crd
+      - hamoa-crd
+      - mahua-crd
+      - purwa-crd
       - hamoa-evk
       - kaanapali-mtp
       - kaanapali-qrd
@@ -2446,7 +2494,6 @@ scheduler:
       - qcs8300-ride
       - qcs9100-ride
       - sm8750-mtp
-      - x1e80100
 
   - job: kselftest-cpufreq-suspend
     event: *kbuild-gcc-14-arm64-node-event
