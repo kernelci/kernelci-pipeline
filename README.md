@@ -16,9 +16,10 @@ reception and job submission continue independently.
 
 After two successful checks confirm a failed or missing Job, a Job without pods,
 or a completed Job without a pipeline result, the scheduler uploads
-`kubernetes_log` and `kubernetes_status` artifacts and finishes the node as
-`done` / `incomplete`. These describe an execution or result delivery failure;
-the scheduler does not infer a kernel build failure or pass from a pod exit code.
+`kubernetes_log`, `kubernetes_status`, and `kubernetes_events` artifacts and
+finishes the node as `done` / `incomplete`. These describe an execution or result
+delivery failure; the scheduler does not infer a kernel build failure or pass
+from a pod exit code.
 The node uses the API's `Infrastructure` error code; the specific `k8s_*`
 outcome is retained in its error message and Kubernetes diagnostic artifacts.
 Diagnosis normally takes 10–20 minutes after failure, within the current
@@ -40,7 +41,60 @@ Logs are decoded from UTF-8 bytes with replacement for invalid sequences,
 preserving line breaks. They include the last 10,000 lines, capped at 4 MiB
 per container attempt, including init containers and previous container logs
 when available. Already deleted pods cannot supply logs; their diagnostic
-artifact records that absence. Only Job/Pod status is uploaded, not pod specs.
+artifact records that absence. Only diagnostic status and event fields are
+uploaded, not pod specs.
+
+Each poll also collects core/v1 Events in the job namespace (requiring `list`
+permission on `events`) and checkpoints observed pod status before checking the
+Job outcome. This includes Pending containers with image-pull errors and failed
+attempts that Kubernetes may retry; these observations never finish a node on
+their own. Job and Pod events are matched by UID. A Job's `SuccessfulCreate`
+event can also identify a pod deleted between polls. Unrelated pods with similar
+names are not included. Events for an observed worker node within the build's
+time window are included as `node_context`, not as proof of the failure's cause.
+
+The readable log includes observed container states and an event timeline;
+`kubernetes-status.json` includes previously observed pod snapshots, and
+`kubernetes-events.json` contains event messages, reasons, timestamps, counts,
+and reporting components. Repeated events update their occurrence counts.
+An empty event response does not erase earlier evidence. Event-query failures
+are reported in diagnostics without blocking reconciliation.
+
+Event collection is shared and indexed once per cluster poll. It stops after
+10 pages of 200 events, 4 MiB of normalized event data, or a 30-second request
+start budget. Partial results are kept with an explicit truncation diagnostic;
+these limits never affect the Job/Pod queries used to decide reconciliation.
+The byte budget applies to retained diagnostic fields, not raw HTTP traffic;
+one response page is decoded before that check. Socket timeouts and the existing
+watchdog still cover requests that outlast the request start budget. A busy
+namespace can therefore lose event coverage, but cannot trigger an unlimited
+event-page scan. Matching uses object indexes instead of rescanning all events
+for every active build.
+
+History is checkpointed atomically under `logs/k8s-evidence`, covered by the
+Compose scheduler's existing logs mount. Other deployments must persist this
+directory to retain history across container replacement. Checkpoints contain
+only diagnostic fields and are removed after the pipeline node is no longer
+eligible for monitoring. History is bounded to 100 pod identities, 100 status
+snapshots, and 200 events per build; truncation is reported. Checkpoint I/O
+failures are logged and leave the in-memory history usable. On restart, saved
+evidence is restored but failure confirmation still starts from scratch.
+
+Checkpoints are further limited to 1 MiB each, with older observations discarded
+when necessary. The directory has a 64 MiB file-content budget (including the
+temporary replacement), at most 1,024 files, and a 16 MiB free-disk reserve.
+Writes that exceed those limits are skipped with a warning; reconciliation can
+still upload the in-memory evidence. Unchanged checkpoints are not rewritten.
+Temporary files left by a killed writer are removed after one hour; completed
+build checkpoints are removed on the next successful node inventory. The
+in-memory cache retains at most 128 builds and reloads evicted entries from
+disk when available. Each monitor must have its own checkpoint directory;
+the directory budgets assume one writer, as in the Compose deployment.
+
+Polling cannot guarantee capture before pod deletion or event expiry. Container
+logs are still fetched only during final reconciliation and require an available
+pod and kubelet; saved status/events do not recover lost compiler output. No
+preemption, OOM, or image-pull cause is inferred from `BackoffLimitExceeded` alone.
 
 ### Setting up LAVA lab
 
