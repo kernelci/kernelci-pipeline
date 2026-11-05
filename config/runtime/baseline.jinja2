@@ -4,4 +4,8 @@
 
 {% block commands %}
 echo 'Hello World!'
+{% if runtime == 'lava' and qemu_arm64_acpi and
+    platform_config.boot_method == 'qemu' and platform_config.arch == 'arm64' %}
+lava-test-case acpi --shell test -r /sys/firmware/acpi/tables/DSDT
+{% endif %}
 {%- endblock %}
