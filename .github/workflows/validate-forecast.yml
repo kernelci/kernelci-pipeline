@@ -1,0 +1,136 @@
+name: Validate Maestro against forecast
+
+on:
+  schedule:
+    # Run daily at 07:00 UTC, after the dashboard validation.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      age_hours:
+        description: Only validate checkouts at least this old
+        required: false
+        default: '24'
+      window_hours:
+        description: Length of the validated period before age_hours
+        required: false
+        default: '24'
+      tree:
+        description: Only validate this tree
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-forecast
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # Full history so the config can be rewound to the window start.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Rewind config to the start of the validated window
+        # Checkouts up to (age + window) hours old are validated; using
+        # today's config would flag jobs added since then as MISSING.
+        env:
+          KCI_AGE_HOURS: ${{ github.event.inputs.age_hours || '24' }}
+          KCI_WINDOW_HOURS: ${{ github.event.inputs.window_hours || '24' }}
+        run: |
+          hours=$(python3 -c "print(int(float('${KCI_AGE_HOURS}') + float('${KCI_WINDOW_HOURS}')))")
+          ref=$(git rev-list -1 --before="${hours} hours ago" HEAD)
+          if [ -n "$ref" ]; then
+            echo "Using config from $ref ($(git log -1 --format='%ci %s' "$ref"))"
+            rm -rf config
+            git checkout "$ref" -- config
+          else
+            echo "No commit older than ${hours}h; keeping HEAD config"
+          fi
+
+      - name: Check out kernelci-core (forecast tool)
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # Pinned until the forecast graph API is part of a tagged release.
+          repository: kernelci/kernelci-core
+          ref: d2efb339f31f684dfd144366ddafdab2f7dea6c4
+          path: kernelci-core
+
+      - name: Install dependencies
+        # Only what `import kernelci.cli.config` pulls in, plus the
+        # validator's own deps; the heavy kernelci-core extras (azure,
+        # kubernetes, docker) are not needed for the forecast code.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install click requests cloudevents toml pyyaml jinja2
+
+      - name: Validate scheduled jobs against forecast
+        env:
+          KCI_AGE_HOURS: ${{ github.event.inputs.age_hours || '24' }}
+          KCI_WINDOW_HOURS: ${{ github.event.inputs.window_hours || '24' }}
+          KCI_TREE: ${{ github.event.inputs.tree || '' }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.FORECAST_DISCORD_WEBHOOK_URL }}
+        run: |
+          set -o pipefail
+          fail_args=()
+          if [ -n "${DISCORD_WEBHOOK_URL}" ]; then
+            fail_args+=(--fail-on-missing-jobs)
+          else
+            echo "FORECAST_DISCORD_WEBHOOK_URL is not configured; running report-only"
+          fi
+          python tests/validate_forecast.py \
+            --core-dir kernelci-core \
+            --age-hours "${KCI_AGE_HOURS}" \
+            --window-hours "${KCI_WINDOW_HOURS}" \
+            ${KCI_TREE:+--tree "${KCI_TREE}"} \
+            --json "${RUNNER_TEMP}/forecast-report.json" \
+            "${fail_args[@]}" \
+            | tee "${RUNNER_TEMP}/forecast-report.txt"
+
+      - name: Notify forecast validation failure
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.FORECAST_DISCORD_WEBHOOK_URL }}
+          REPORT_PATH: ${{ runner.temp }}/forecast-report.txt
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "${DISCORD_WEBHOOK_URL}" ]; then
+            echo "FORECAST_DISCORD_WEBHOOK_URL is not configured; skipping notification"
+            exit 0
+          fi
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          report_path = os.environ["REPORT_PATH"]
+          run_url = os.environ["RUN_URL"]
+          body = "Validate Maestro against forecast failed."
+          if os.path.exists(report_path):
+              with open(report_path, encoding="utf-8") as report:
+                  tail = report.read()[-1500:]
+              body = f"{body}\n{run_url}\n```text\n{tail}\n```"
+          else:
+              body = f"{body}\n{run_url}"
+
+          request = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK_URL"],
+              data=json.dumps({"content": body}).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              print(f"Discord notification returned HTTP {response.status}")
+          PY
