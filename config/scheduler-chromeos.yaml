@@ -22,7 +22,6 @@ _anchors:
 
   qualcomm-platforms: &qualcomm-platforms
     - sc7180-trogdor-kingoftown
-    - sc7180-trogdor-lazor-limozeen
     - sc7180-trogdor-wormdingler-rev1-boe
 
   build-k8s-all: &build-k8s-all
@@ -119,7 +118,6 @@ scheduler:
       - mt8183-kukui-jacuzzi-juniper-sku16
       - mt8195-cherry-tomato-r2
       - sc7180-trogdor-kingoftown
-      - sc7180-trogdor-lazor-limozeen
 
   - job: kselftest-devices-exist
     <<: *lava-job-collabora

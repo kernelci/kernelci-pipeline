@@ -701,7 +701,6 @@ scheduler:
     runtime: *lava-collabora-runtime
     platforms:
       - sc7180-trogdor-kingoftown
-      - sc7180-trogdor-lazor-limozeen
 
   - job: baseline-arm64-mfd
     event:
@@ -2769,7 +2768,6 @@ scheduler:
       - mt8195-cherry-tomato-r2
       - mt8196-rauru-navi-sku0
       - sc7180-trogdor-kingoftown
-      - sc7180-trogdor-lazor-limozeen
       - sc7180-trogdor-wormdingler-rev1-boe
 
   - job: rt-tests-cyclicdeadline
