@@ -222,7 +222,11 @@ jobs:
   baseline-arm64-mfd: *baseline-job
   baseline-arm64-pengutronix: *baseline-job
   baseline-arm64-foundriesio: *baseline-job
-  baseline-arm64-qualcomm: *baseline-job
+  baseline-arm64-qualcomm:
+    <<: *baseline-job
+    params:
+      rootfs_ref: buildroot-baseline
+      qemu_arm64_acpi: true
   baseline-arm64-preempt_rt-qualcomm: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job

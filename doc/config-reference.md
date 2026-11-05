@@ -91,6 +91,32 @@ firmware files to the kernel build.
 
 `cross_compile_compat` can be set when a compatibility toolchain is needed (for example for `um` builds).
 
+### ARM64 QEMU ACPI baseline
+
+The `qemu_arm64_acpi` job parameter enables UEFI and ACPI boot for ARM64
+QEMU platforms. It is enabled only on the Qualcomm baseline job:
+
+```yaml
+baseline-arm64-qualcomm:
+  <<: *baseline-job
+  params:
+    rootfs_ref: buildroot-baseline
+    qemu_arm64_acpi: true
+```
+
+The scheduler uses the existing `qemu-arm64` platform. The flag takes effect
+only for `boot_method: qemu` and `arch: arm64`; physical Qualcomm boards and
+jobs without the flag retain their existing behavior. The generated LAVA
+context gets `extra_options: ['-bios', '/usr/share/qemu-efi-aarch64/QEMU_EFI.fd']`,
+and the kernel command line gets `acpi=force`. The baseline records an `acpi`
+test result by checking `/sys/firmware/acpi/tables/DSDT` in the guest.
+
+This requires the matching `kernelci-core` template changes and a QEMU
+container containing `qemu-efi-aarch64`. Rebuild the container using the
+updated core recipe or select a suitable image with `qemu_docker_image`.
+The kernel must have ACPI, EFI, and EFI stub support enabled.
+Merge the core support first: pipeline CI tests against core's `main` branch.
+
 ### Optional parameters
 
 - **rules**: dictionary

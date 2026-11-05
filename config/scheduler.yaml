@@ -740,6 +740,7 @@ scheduler:
       type: lava
       name: lava-kci-qualcomm
     platforms:
+      - qemu-arm64
       - kaanapali-mtp
       - kaanapali-qrd
       - lemans-evk
