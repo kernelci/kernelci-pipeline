@@ -185,6 +185,155 @@ def _format_target(target):
     return f"{platform} ({runtime})"
 
 
+def _literal_strings(value):
+    """Return fixed string values, or None for unknown/formatted values."""
+    values = value if isinstance(value, list) else [value]
+    if not all(
+        isinstance(item, str) and "{" not in item and "}" not in item
+        for item in values
+    ):
+        return None
+    return values
+
+
+def _build_rule_conflicts(build, rule_sources):
+    """Prove conflicts using fixed build parameters only.
+
+    These fields are copied from build parameters into node metadata. Rules
+    for live attributes (tree, branch, kernel version, etc.) are deliberately
+    not evaluated against an invented checkout. Unknown values cannot prove
+    that a build is rejected. List allow rules require ANY allowed value,
+    while a single denied value rejects the build, as in APIHelper._is_allowed.
+    """
+    params = build.get("params") or {}
+    conflicts = []
+    for source, rules in rule_sources:
+        for field in ("arch", "compiler", "defconfig", "fragments"):
+            rule = (rules or {}).get(field)
+            # Only fragments are a list-valued node attribute. Lists of
+            # defconfigs/compiler choices can describe several build variants.
+            if field != "fragments" and isinstance(params.get(field), list):
+                continue
+            values = _literal_strings(params.get(field))
+            if not isinstance(rule, list) or values is None:
+                continue
+            if _literal_strings(rule) is None:
+                continue
+            allow = [item for item in rule if not item.startswith("!")]
+            deny = [item.lstrip("!") for item in rule if item.startswith("!")]
+            rejected = sorted(set(values).intersection(deny))
+            prefix = f"{source} rules[{field}]"
+            if rejected:
+                conflicts.append(f"{prefix} rejects {rejected}")
+            elif allow and not set(values).intersection(allow):
+                conflicts.append(f"{prefix} requires one of {allow}")
+    return conflicts
+
+
+def _scheduler_runtimes(data, entry):
+    """Expand type selectors so alternative entries share named targets."""
+    runtime = entry.get("runtime") or {}
+    runtimes = data.get("runtimes") or {}
+    name = runtime.get("name")
+    if name:
+        return [(name, runtimes.get(name) or {})]
+    runtime_type = runtime.get("type")
+    matches = [
+        (name, config)
+        for name, config in runtimes.items()
+        if config.get("lab_type") == runtime_type
+    ]
+    return matches or [(runtime_type, {})]
+
+
+def _input_builds(data, entry):
+    """Resolve direct kbuild events; other/unknown inputs stay unknown."""
+    event = entry.get("event") or {}
+    if event.get("channel") != "node" or event.get("kind") != "kbuild":
+        return {}
+    builds = {
+        name: job
+        for name, job in (data.get("jobs") or {}).items()
+        if job.get("kind") == "kbuild"
+    }
+    name = event.get("name")
+    if name is not None:
+        return (
+            {name: builds[name]}
+            if isinstance(name, str) and name in builds
+            else {}
+        )
+    return builds
+
+
+def find_blocked_schedules(data):
+    """Warn only when every input build for a target is provably rejected.
+
+    Combine alternative scheduler entries for each (job, runtime, platform).
+    A compatible or unknown input prevents a zero-match warning. This is a
+    conservative static check, not a forecast of successful builds or live
+    scheduling, and does not follow indirect job-to-job dependencies.
+    """
+    targets = {}
+    jobs = data.get("jobs") or {}
+    platforms = data.get("platforms") or {}
+    for index, entry in enumerate(data.get("scheduler") or [], 1):
+        job_name = entry.get("job")
+        job = jobs.get(job_name) or {}
+        builds = _input_builds(data, entry)
+        for runtime_name, runtime in _scheduler_runtimes(data, entry):
+            for platform_name in entry.get("platforms") or [
+                runtime.get("lab_type")
+            ]:
+                target = (job_name, runtime_name, platform_name)
+                outcomes = targets.setdefault(target, [])
+                if not builds:
+                    outcomes.append([])
+                    continue
+                platform = platforms.get(platform_name) or {}
+                sources = [
+                    (f"scheduler entry {index}", entry.get("rules")),
+                    (f"job {job_name}", job.get("rules")),
+                    (f"runtime {runtime_name}", runtime.get("rules")),
+                    (f"platform {platform_name}", platform.get("rules")),
+                ]
+                for build_name, build in builds.items():
+                    reasons = _build_rule_conflicts(build, sources)
+                    outcomes.append(
+                        [f"{build_name}: " + "; ".join(reasons)]
+                        if reasons
+                        else []
+                    )
+    warnings = []
+    for (job, runtime, platform), outcomes in sorted(
+        targets.items(), key=lambda item: tuple(str(part) for part in item[0])
+    ):
+        if not all(outcomes):
+            continue
+        rejected = sorted(
+            {reason for outcome in outcomes for reason in outcome}
+        )
+        warnings.append(
+            f"Job {job} has no compatible input builds on "
+            f"{_format_target((runtime, platform))}. Rejected builds: "
+            + " | ".join(rejected)
+        )
+    return warnings
+
+
+def report_blocked_schedules(data):
+    for message in find_blocked_schedules(data):
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            message = (
+                message.replace("%", "%25")
+                .replace("\r", "%0D")
+                .replace("\n", "%0A")
+            )
+            print(f"::warning title=No compatible input builds::{message}")
+        else:
+            print(f"Warning: {message}")
+
+
 def find_dropped_schedules(base_data, data):
     """
     Compare scheduler entries against a base config and return a
@@ -467,6 +616,8 @@ def validate_yaml(merged_data):
     validate_jobs(merged_data.get("jobs", {}))
     print("Validating scheduler entries to jobs")
     validate_scheduler_jobs(merged_data)
+    print("Checking scheduler targets for incompatible input builds")
+    report_blocked_schedules(merged_data)
     validate_unused_jobs(merged_data)
     validate_build_configs(merged_data)
     validate_unused_trees(merged_data)
