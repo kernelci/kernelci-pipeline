@@ -960,6 +960,24 @@ jobs:
 
   kbuild-gcc-15-arm64: *kbuild-gcc-15-arm64-job
 
+  kbuild-gcc-14-arm64-perf:
+    <<: *kbuild-gcc-14-arm64-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-perf-kernelci
+    params:
+      <<: *kbuild-gcc-14-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'perf'
+        - 'perf-arm64'
+      kselftest: disable
+      extra_targets:
+        - 'perf'
+        # TuxMake accepts make assignments alongside target names.
+        - 'CORESIGHT=1'
+    rules:
+      tree:
+        - 'mainline'
+
   kbuild-gcc-15-arm64-baseline:
     <<: *kbuild-gcc-15-arm64-job
     params:
@@ -2858,6 +2876,24 @@ jobs:
       tst_cmdfiles: "tpm_tools"
       extra_kirk_args: "--suite-timeout 10m"
       job_timeout: 15
+
+  perf-arm64:
+    template: generic.jinja2
+    kind: job
+    priority: low
+    kcidb_test_suite: perf
+    params:
+      test_method: perf
+      boot_commands: nfs
+      rootfs_ref: trixie-perf
+      skip_install: true
+      job_timeout: 30
+      frequency: 1d
+    rules:
+      tree:
+        - mainline
+      arch:
+        - arm64
 
   rt-tests: &rt-tests
     template: rt-tests.jinja2
