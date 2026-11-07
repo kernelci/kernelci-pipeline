@@ -16,6 +16,8 @@ import requests
 from kernelci.storage.backend import StorageBackend
 from kubernetes import client, config
 
+from k8s_evidence import EventIndex, Evidence, EvidenceStore, event_details
+
 API_TIMEOUT = (5, 20)
 LOG_LIMIT_BYTES = 4 * 1024 * 1024
 # Diagnostic uploads should fail and be retried by the next monitor poll,
@@ -23,6 +25,10 @@ LOG_LIMIT_BYTES = 4 * 1024 * 1024
 UPLOAD_TIMEOUT = (5, 30)
 UPLOAD_ATTEMPTS = 2
 UPLOAD_RETRY_DELAY = 2
+EVENT_PAGE_SIZE = 200
+MAX_EVENT_PAGES = 10
+MAX_EVENT_BYTES = 4 * 1024 * 1024
+EVENT_QUERY_SECONDS = 30
 
 
 class MonitorStorageBackend(StorageBackend):
@@ -127,7 +133,15 @@ def pod_details(pod):
 class K8sMonitor:
     """Polling worker owned by the Kubernetes scheduler, not a service."""
 
-    def __init__(self, api, storage, log, runtime_names, heartbeat):
+    def __init__(
+        self,
+        api,
+        storage,
+        log,
+        runtime_names,
+        heartbeat,
+        evidence_dir="logs/k8s-evidence",
+    ):
         self._api = api
         self._storage = storage
         self.log = log
@@ -136,6 +150,7 @@ class K8sMonitor:
         self._heartbeat = heartbeat
         self._clients = {}
         self._observations = {}
+        self._evidence = EvidenceStore(evidence_dir)
         self._namespace = "default"
         self._grace_seconds = 120
 
@@ -180,6 +195,10 @@ class K8sMonitor:
                 live_ids.add(node["id"])
         for node_id in set(self._observations) - live_ids:
             self._observations.pop(node_id)
+        try:
+            self._evidence.prune(live_ids)
+        except OSError as error:
+            self.log.warning(f"Cannot prune Kubernetes evidence: {error}")
         for context, nodes in groups.items():
             self._poll_cluster(context, nodes)
 
@@ -203,13 +222,60 @@ class K8sMonitor:
             name = (pod.metadata.labels or {}).get("job-name")
             if name:
                 by_pod[name].append(pod)
+        events, event_error = self._events(core)
         for node in nodes:
             self._heartbeat(f"checking Kubernetes node {node['id']}")
             try:
-                self._check(node, by_job, by_pod, core)
+                self._check(node, by_job, by_pod, core, events, event_error)
             except Exception:
                 # One upload or node update must not prevent other reconciliation.
                 self.log.traceback()
+
+    def _events(self, core):
+        events = []
+        continuation = None
+        size = 0
+        deadline = time.monotonic() + EVENT_QUERY_SECONDS
+        try:
+            for _ in range(MAX_EVENT_PAGES):
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return self._limited_events(events, "time budget")
+                self._heartbeat("listing Kubernetes events")
+                page = core.list_namespaced_event(
+                    self._namespace,
+                    limit=EVENT_PAGE_SIZE,
+                    _continue=continuation,
+                    _request_timeout=(min(5, remaining), min(20, remaining)),
+                )
+                for raw in page.items[:EVENT_PAGE_SIZE]:
+                    event = event_details(raw)
+                    size += len(
+                        json.dumps(event, ensure_ascii=False).encode("utf-8")
+                    )
+                    if size > MAX_EVENT_BYTES:
+                        return self._limited_events(events, "byte budget")
+                    events.append(event)
+                token = page.metadata._continue if page.metadata else None
+                if not token:
+                    return EventIndex(events), None
+                if token == continuation:
+                    raise RuntimeError(
+                        "Kubernetes event pagination did not advance"
+                    )
+                continuation = token
+            return self._limited_events(events, "page budget")
+        except Exception as error:
+            # Events are best effort; missing RBAC or expired events must not
+            # prevent job reconciliation or discard previously saved evidence.
+            message = f"{type(error).__name__}: {error}"[:2000]
+            self.log.warning(f"Cannot inspect Kubernetes events: {message}")
+            return [], message
+
+    def _limited_events(self, events, budget):
+        message = f"Event collection truncated: {budget} exhausted"
+        self.log.warning(message)
+        return EventIndex(events), message
 
     def _list_items(self, method):
         items = []
@@ -230,7 +296,7 @@ class K8sMonitor:
                 raise RuntimeError("Kubernetes pagination did not advance")
             continuation = token
 
-    def _check(self, node, jobs, pods, core):
+    def _check(self, node, jobs, pods, core, events=(), event_error=None):
         job_name = node["data"]["job_id"]
         job = jobs.get(job_name)
         attempts = pods.get(job_name, [])
@@ -243,6 +309,7 @@ class K8sMonitor:
                     for ref in pod.metadata.owner_references or []
                 )
             ]
+        evidence = self._capture(node, job, attempts, events, event_error)
         outcome = job_outcome(job, attempts)
         if outcome is None:
             self._observations.pop(node["id"], None)
@@ -250,7 +317,12 @@ class K8sMonitor:
         # Require at least two successful observations separated by a grace
         # period, also after restart. This covers submission/controller delay
         # and gives in-flight result publication time to complete.
-        signature = (node["data"]["job_context"], job_name, outcome[0])
+        signature = (
+            node["data"]["job_context"],
+            job_name,
+            evidence.data["job_uid"],
+            outcome[0],
+        )
         previous = self._observations.get(node["id"])
         now = time.monotonic()
         if previous is None or previous[0] != signature:
@@ -262,7 +334,9 @@ class K8sMonitor:
         if current is None:
             self._observations.pop(node["id"], None)
             return
-        artifacts = self._diagnostics(current, job, attempts, core, outcome)
+        artifacts = self._diagnostics(
+            current, job, attempts, core, outcome, evidence
+        )
         # Uploads may take time. Preserve a build result that arrived meanwhile.
         current = self._current(node)
         if current is None:
@@ -282,6 +356,23 @@ class K8sMonitor:
             f"{node['id']} {job_name}: {outcome[0]} ({outcome[1]})"
         )
 
+    def _capture(self, node, job, pods, events, event_error):
+        uid = job.metadata.uid if job else None
+        try:
+            evidence = self._evidence.get(node, self._namespace, uid)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            self.log.warning(f"Cannot load Kubernetes evidence: {error}")
+            evidence = Evidence(node, self._namespace, uid)
+            self._evidence.remember(node["id"], evidence)
+        for pod in pods:
+            evidence.observe_pod(pod_details(pod))
+        evidence.observe_events(events, event_error)
+        try:
+            self._evidence.save(evidence)
+        except OSError as error:
+            self.log.warning(f"Cannot checkpoint Kubernetes evidence: {error}")
+        return evidence
+
     def _current(self, original):
         node = self._api.node.get(original["id"])
         if not node or not self._eligible(node):
@@ -291,7 +382,7 @@ class K8sMonitor:
                 return None
         return node
 
-    def _diagnostics(self, node, job, pods, core, outcome):
+    def _diagnostics(self, node, job, pods, core, outcome, evidence):
         status = {
             "observed": datetime.datetime.now(
                 datetime.timezone.utc
@@ -304,8 +395,12 @@ class K8sMonitor:
             "error_msg": outcome[1],
             "job_status": job.status.to_dict() if job is not None else None,
             "pods": [pod_details(pod) for pod in pods],
+            "previously_observed_pods": evidence.data["snapshots"],
+            "event_query_error": evidence.data["event_query_error"],
+            "history_truncated": evidence.data["truncated"],
         }
         logs = [f"{outcome[0]}: {outcome[1]}\n"]
+        logs.extend(evidence.summary())
         for pod in pods:
             statuses = (pod.status.init_container_statuses or []) + (
                 pod.status.container_statuses or []
@@ -313,7 +408,10 @@ class K8sMonitor:
             for container in statuses:
                 self._pod_logs(core, pod, container, logs)
         if not pods:
-            logs.append("No pods remain; their logs cannot be recovered.\n")
+            logs.append(
+                "No pods remain; container logs are unavailable through "
+                "the Kubernetes API.\n"
+            )
         # Upload diagnostics before finishing the node. On storage failure the
         # next poll retries while Kubernetes still retains its Job and pods.
         with tempfile.TemporaryDirectory() as directory:
@@ -322,6 +420,10 @@ class K8sMonitor:
                 "kubernetes_status": (
                     "kubernetes-status.json",
                     json.dumps(status, indent=2, default=str),
+                ),
+                "kubernetes_events": (
+                    "kubernetes-events.json",
+                    json.dumps(evidence.events(), indent=2, default=str),
                 ),
             }
             artifacts = {}
