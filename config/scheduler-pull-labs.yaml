@@ -49,6 +49,14 @@ scheduler:
     platforms:
       - imx6dl-riotboard
 
+  - job: baseline-arm64-pull-labs-ti
+    event: *kbuild-gcc-15-arm64-baseline-node-event
+    runtime:
+      type: pull_labs
+      name: ti-lab
+    platforms:
+      - k3-am62p5-sk
+
   - job: ltp-smoke-pull-labs
     event: *kbuild-gcc-15-arm64-node-event
     runtime:
