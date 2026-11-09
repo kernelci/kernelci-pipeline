@@ -58,6 +58,28 @@ def dashboard_line(name, report):
     return line, summary["ok"]
 
 
+def is_lab_test(item):
+    return item.get("kind") in ("job", "test") and (
+        item.get("runtime") or ""
+    ).startswith("lava-")
+
+
+def forecast_node_label(tree_branch, item):
+    """Include lab/device or runtime/cluster when the report provides them."""
+    details = []
+    if item.get("reason"):
+        details.append(item["reason"])
+    runtime = item.get("runtime")
+    if runtime:
+        label = "lab" if is_lab_test(item) else "runtime"
+        details.append(f"{label}={runtime}")
+    if is_lab_test(item) and item.get("platform"):
+        details.append(f"device={item['platform']}")
+    if item.get("job_context"):
+        details.append(f"cluster={item['job_context']}")
+    return f"{tree_branch} ({'; '.join(details)})" if details else tree_branch
+
+
 def forecast_lines(report, top):
     if report is None:
         return ["❌ **forecast**: no report (forecast step crashed?)"], False
@@ -75,11 +97,17 @@ def forecast_lines(report, top):
     # Name the worst offenders so the message is actionable on its own.
     missing = collections.Counter()
     incomplete = collections.Counter()
+    failed_tests = collections.Counter()
     for entry in report["checkouts"]:
         missing.update(entry["missing"])
         incomplete.update(
-            f"{entry['tree_branch']} ({item['reason']})"
+            forecast_node_label(entry["tree_branch"], item)
             for item in entry["incomplete"]
+        )
+        failed_tests.update(
+            forecast_node_label(entry["tree_branch"], item)
+            for item in entry["failed"]
+            if is_lab_test(item)
         )
     checkout_failures = collections.Counter(
         f"{item['tree_branch']} ({item['reason']})"
@@ -88,6 +116,7 @@ def forecast_lines(report, top):
     for title, counter in (
         ("missing", missing),
         ("incomplete", incomplete),
+        ("failed tests", failed_tests),
         ("checkout failures", checkout_failures),
     ):
         if counter:

@@ -86,6 +86,18 @@ class Forecast:
         return None
 
 
+def node_details(node):
+    """Keep execution location with reported failures for lab triage."""
+    data = node.get("data") or {}
+    details = {"name": node["name"], "id": node["id"]}
+    if node.get("kind"):
+        details["kind"] = node["kind"]
+    for key in ("runtime", "platform", "job_context"):
+        if data.get(key):
+            details[key] = data[key]
+    return details
+
+
 def check_checkout(api_url, checkout, expected):
     """Return a dict describing coverage of one checkout."""
     children = fetch_nodes(api_url, {"parent": checkout["id"]})
@@ -101,19 +113,13 @@ def check_checkout(api_url, checkout, expected):
         node = max(by_name[name], key=lambda n: n.get("created", ""))
         if node["state"] != "done":
             incomplete.append(
-                {
-                    "name": name,
-                    "id": node["id"],
-                    "reason": f"state={node['state']}",
-                }
+                dict(node_details(node), reason=f"state={node['state']}")
             )
         elif node.get("result") == "incomplete":
             reason = node.get("data", {}).get("error_code") or "incomplete"
-            incomplete.append(
-                {"name": name, "id": node["id"], "reason": reason}
-            )
+            incomplete.append(dict(node_details(node), reason=reason))
         elif node.get("result") == "fail":
-            failed.append({"name": name, "id": node["id"]})
+            failed.append(node_details(node))
 
     return {
         "expected": len(expected),
