@@ -42,6 +42,7 @@ jobs:
   baseline-arm-pull-labs-demo: *baseline-job-pull-labs
   baseline-arm-pull-pengutronix: *baseline-job-pull-labs
   baseline-arm64-pull-labs-demo: *baseline-job-pull-labs
+  baseline-arm64-pull-labs-ti: *baseline-job-pull-labs
   baseline-x86-pull-labs-demo: *baseline-job-pull-labs
 
   ltp-smoke-pull-labs:
