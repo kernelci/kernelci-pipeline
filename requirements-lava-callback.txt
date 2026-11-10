@@ -1,4 +1,4 @@
 uwsgi==2.0.31
 uvicorn==0.54.0
-fastapi==0.162.0
+fastapi==0.162.1
 pyjwt==2.15.1
