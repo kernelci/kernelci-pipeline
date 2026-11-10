@@ -1,8 +1,10 @@
 """Kubernetes reconciliation must not turn healthy builds into failures."""
 
 import copy
+import datetime
 import io
 import json
+import os
 import threading
 from contextlib import ExitStack
 from pathlib import Path
@@ -15,6 +17,8 @@ from kernelci.api.models import KbuildData
 from kubernetes import client
 from kubernetes.client.exceptions import ApiException
 from src.k8s_monitor import (
+    EVENT_PAGE_SIZE,
+    MAX_EVENT_PAGES,
     UPLOAD_TIMEOUT,
     K8sMonitor,
     MonitorStorageBackend,
@@ -23,6 +27,15 @@ from src.k8s_monitor import (
 )
 from src.scheduler import K8S_MONITOR_POLL_PERIOD, Scheduler
 from urllib3.response import HTTPResponse
+
+from k8s_evidence import (
+    MAX_CHECKPOINT_BYTES,
+    MAX_EVENTS,
+    MAX_SNAPSHOTS,
+    EventIndex,
+    EvidenceStore,
+    event_details,
+)
 
 
 def make_job(condition=None):
@@ -98,16 +111,24 @@ def node_page(items, token=None):
 
 
 @pytest.fixture
-def monitor():
+def monitor(tmp_path):
     api, storage, log = MagicMock(), MagicMock(), MagicMock()
     api.user.whoami.return_value = {"username": "production"}
-    worker = K8sMonitor(api, storage, log, {"k8s-all"}, MagicMock())
+    worker = K8sMonitor(
+        api,
+        storage,
+        log,
+        {"k8s-all"},
+        MagicMock(),
+        evidence_dir=tmp_path / "evidence",
+    )
     node = {
         "id": "node-1",
         "name": "kbuild-test",
         "state": "running",
         "result": None,
         "owner": "production",
+        "created": "2026-11-03T17:00:00Z",
         "data": {
             "platform": "kubernetes",
             "runtime": "k8s-all",
@@ -141,11 +162,18 @@ def monitor():
     return worker
 
 
-def check(worker, job=None, pods=None, seconds=0):
+def check(worker, job=None, pods=None, seconds=0, events=(), event_error=None):
     worker.clock += seconds
     jobs = {"kci-build": job} if job is not None else {}
     with patch("src.k8s_monitor.time.monotonic", return_value=worker.clock):
-        worker._check(worker.node, jobs, {"kci-build": pods or []}, worker.core)
+        worker._check(
+            worker.node,
+            jobs,
+            {"kci-build": pods or []},
+            worker.core,
+            events,
+            event_error,
+        )
 
 
 def monitor_storage():
@@ -238,7 +266,7 @@ def test_non_http_storage_keeps_its_own_backend():
     assert storage is factory.return_value
 
 
-@pytest.mark.parametrize("failed_upload", [0, 1])
+@pytest.mark.parametrize("failed_upload", [0, 1, 2])
 def test_upload_timeout_leaves_node_running_then_recovers_on_next_poll(
     monitor, failed_upload
 ):
@@ -246,6 +274,7 @@ def test_upload_timeout_leaves_node_running_then_recovers_on_next_poll(
     responses = [upload_response() for _ in range(failed_upload)] + [
         requests.exceptions.Timeout("storage stalled"),
         requests.exceptions.Timeout("storage stalled"),
+        upload_response(),
         upload_response(),
         upload_response(),
     ]
@@ -343,7 +372,7 @@ def test_missing_resources_require_repeated_confirmation(monitor, job, code):
     assert result["data"]["error_msg"].startswith(f"{code}: ")
     status = json.loads(monitor.saved["kubernetes-status.json"])
     assert status["error_code"] == code
-    assert "cannot be recovered" in monitor.saved["kubernetes.log"]
+    assert "logs are unavailable" in monitor.saved["kubernetes.log"]
 
 
 def test_pod_reappearing_resets_missing_grace(monitor):
@@ -510,6 +539,446 @@ def test_restart_requires_fresh_confirmation(monitor):
     monitor._observations.clear()
     check(monitor, seconds=600)
     monitor._api.node.update.assert_not_called()
+
+
+def make_event(
+    kind="Pod",
+    uid="pod-uid",
+    name="kci-build-pod",
+    reason="Killing",
+    message="Stopping container kernelci",
+    event_uid="event-uid",
+    count=1,
+):
+    return client.CoreV1Event(
+        metadata=client.V1ObjectMeta(uid=event_uid),
+        involved_object=client.V1ObjectReference(
+            kind=kind,
+            uid=uid,
+            name=name,
+            namespace="default",
+        ),
+        type="Normal",
+        reason=reason,
+        message=message,
+        count=count,
+        last_timestamp=datetime.datetime(
+            2026, 11, 3, 17, 54, tzinfo=datetime.timezone.utc
+        ),
+        source=client.V1EventSource(component="kubelet"),
+    )
+
+
+def test_deleted_pod_evidence_survives_restart_and_confirmation(monitor):
+    pod = make_pod("Failed", "Terminated")
+    pod.status.message = "Pod terminated in response to imminent node shutdown."
+    event = event_details(make_event())
+    # Preserve a failed attempt even though the controller is still retrying.
+    check(monitor, make_job(), [pod], events=[event])
+    monitor._api.node.update.assert_not_called()
+    checkpoint = next(monitor._evidence.directory.glob("*.json"))
+    assert "must-not-upload-pod-spec" not in checkpoint.read_text()
+    # Simulate a restart with neither pod nor events remaining in Kubernetes.
+    monitor._evidence = EvidenceStore(monitor._evidence.directory)
+    check(monitor, make_job("Failed"), seconds=600)
+    monitor._api.node.update.assert_not_called()
+    check(monitor, make_job("Failed"), seconds=600)
+    status = json.loads(monitor.saved["kubernetes-status.json"])
+    assert status["pods"] == []
+    assert status["previously_observed_pods"][0]["reason"] == "Terminated"
+    events = json.loads(monitor.saved["kubernetes-events.json"])
+    assert events[0]["reason"] == "Killing"
+    assert "imminent node shutdown" in monitor.saved["kubernetes.log"]
+    assert '"exit_code": 137' in monitor.saved["kubernetes.log"]
+    assert "Event " in monitor.saved["kubernetes.log"]
+    monitor.core.read_namespaced_pod_log.assert_not_called()
+
+
+def test_image_pull_wait_is_captured_without_finishing_job(monitor):
+    pod = make_pod("Pending")
+    pod.status.container_statuses[
+        0
+    ].state.waiting = client.V1ContainerStateWaiting(
+        reason="ImagePullBackOff", message="manifest unknown"
+    )
+    event = event_details(make_event(reason="Failed", message="pull denied"))
+    check(monitor, make_job(), [pod], events=[event])
+    check(monitor, make_job(), [pod], seconds=600, events=[event])
+    monitor._api.node.update.assert_not_called()
+    monitor._storage.upload_single.assert_not_called()
+    saved = json.loads(
+        next(monitor._evidence.directory.glob("*.json")).read_text()
+    )
+    assert len(saved["snapshots"]) == 1
+    assert (
+        saved["snapshots"][0]["containers"][0]["state"]["waiting"]["reason"]
+        == "ImagePullBackOff"
+    )
+
+
+def test_events_are_correlated_by_uid_and_keep_updated_counts(monitor):
+    matching = make_event(count=3)
+    unrelated = make_event(uid="another-pod", event_uid="unrelated")
+    node_event = make_event(
+        kind="Node",
+        uid="node-uid",
+        name="worker",
+        event_uid="node-event",
+        reason="NodeNotReady",
+    )
+    stale = make_event(event_uid="stale")
+    stale.last_timestamp = datetime.datetime(
+        2026, 1, 1, tzinfo=datetime.timezone.utc
+    )
+    events = [
+        event_details(e) for e in [matching, unrelated, node_event, stale]
+    ]
+    check(monitor, make_job(), [make_pod()], events=events)
+    matching.count = 5
+    check(monitor, make_job(), events=[event_details(matching)])
+    check(monitor, make_job(), seconds=600)
+    saved = json.loads(monitor.saved["kubernetes-events.json"])
+    assert {event["uid"] for event in saved} == {"event-uid", "node-event"}
+    assert next(e for e in saved if e["uid"] == "event-uid")["count"] == 5
+    assert (
+        next(e for e in saved if e["uid"] == "node-event")["scope"]
+        == "node_context"
+    )
+
+
+def test_job_creation_event_links_pod_deleted_between_polls(monitor):
+    created = make_event(
+        kind="Job",
+        uid="job-uid",
+        name="kci-build",
+        reason="SuccessfulCreate",
+        message="Created pod: gone",
+        event_uid="created",
+    )
+    deleted = make_event(uid="gone-uid", name="gone", event_uid="deleted")
+    wrong_job = make_event(
+        kind="Job",
+        uid="other-job",
+        name="kci-build",
+        reason="SuccessfulCreate",
+        message="Created pod: other",
+        event_uid="wrong-job",
+    )
+    unrelated = make_event(uid="other-pod", name="other", event_uid="unrelated")
+    check(
+        monitor,
+        make_job("Failed"),
+        events=[
+            event_details(e) for e in [deleted, unrelated, wrong_job, created]
+        ],
+    )
+    check(monitor, make_job("Failed"), seconds=600)
+    saved = json.loads(monitor.saved["kubernetes-events.json"])
+    assert {e["uid"] for e in saved} == {"created", "deleted"}
+
+
+def test_event_permission_failure_does_not_block_reconciliation(monitor):
+    batch, core = MagicMock(), monitor.core
+    batch.list_namespaced_job.return_value = node_page([make_job("Failed")])
+    core.list_namespaced_pod.return_value = node_page([])
+    core.list_namespaced_event.side_effect = ApiException(status=403)
+    with patch.object(monitor, "_cluster", return_value=(batch, core)):
+        with patch("src.k8s_monitor.time.monotonic", return_value=0):
+            monitor.poll()
+        with patch("src.k8s_monitor.time.monotonic", return_value=600):
+            monitor.poll()
+    monitor._api.node.update.assert_called_once()
+    assert "Events unavailable" in monitor.saved["kubernetes.log"]
+    assert "Underlying cause unknown" in monitor.saved["kubernetes.log"]
+
+
+def test_event_pagination_is_shared_between_builds(monitor):
+    batch, core = MagicMock(), monitor.core
+    batch.list_namespaced_job.return_value = node_page([make_job()])
+    core.list_namespaced_pod.return_value = node_page([make_pod()])
+    core.list_namespaced_event.side_effect = [
+        node_page([make_event()], "page2"),
+        node_page([]),
+    ]
+    second = copy.deepcopy(monitor.node)
+    second["id"] = "node-2"
+    with patch.object(monitor, "_cluster", return_value=(batch, core)):
+        monitor._poll_cluster("cluster-a", [monitor.node, second])
+    assert core.list_namespaced_event.call_count == 2
+    assert core.list_namespaced_event.call_args.kwargs["_continue"] == "page2"
+    assert monitor._evidence.cache["node-1"].events()
+    assert monitor._evidence.cache["node-2"].events()
+
+
+def test_reused_job_name_does_not_inherit_evidence(monitor):
+    check(
+        monitor,
+        make_job(),
+        [make_pod("Failed")],
+        events=[event_details(make_event())],
+    )
+    replacement = make_job("Failed")
+    replacement.metadata.uid = "replacement-uid"
+    check(monitor, replacement)
+    check(monitor, replacement, seconds=600)
+    status = json.loads(monitor.saved["kubernetes-status.json"])
+    assert status["previously_observed_pods"] == []
+    assert json.loads(monitor.saved["kubernetes-events.json"]) == []
+
+
+def test_reused_job_uid_requires_new_failure_confirmation(monitor):
+    check(monitor, make_job("Failed"))
+    replacement = make_job("Failed")
+    replacement.metadata.uid = "replacement-uid"
+    check(monitor, replacement, seconds=600)
+    monitor._api.node.update.assert_not_called()
+    check(monitor, replacement, seconds=600)
+    monitor._api.node.update.assert_called_once()
+
+
+def test_checkpoint_from_another_context_is_not_loaded(monitor):
+    check(monitor, make_job(), [make_pod("Failed")])
+    monitor.node["data"]["job_context"] = "other-cluster"
+    monitor._evidence = EvidenceStore(monitor._evidence.directory)
+    check(monitor, make_job("Failed"))
+    check(monitor, make_job("Failed"), seconds=600)
+    status = json.loads(monitor.saved["kubernetes-status.json"])
+    assert status["previously_observed_pods"] == []
+
+
+def test_event_query_failure_preserves_retained_evidence(monitor):
+    check(
+        monitor,
+        make_job(),
+        [make_pod("Failed")],
+        events=[event_details(make_event())],
+    )
+    monitor.core.list_namespaced_event.side_effect = [
+        node_page([make_event(event_uid="partial")], "next"),
+        TimeoutError("event page unavailable"),
+    ]
+    events, error = monitor._events(monitor.core)
+    assert events == []
+    check(monitor, make_job("Failed"), events=events, event_error=error)
+    check(monitor, make_job("Failed"), seconds=600, event_error=error)
+    saved = json.loads(monitor.saved["kubernetes-events.json"])
+    assert [e["uid"] for e in saved] == ["event-uid"]
+    assert "Events unavailable" in monitor.saved["kubernetes.log"]
+
+
+def test_event_series_and_namespace_filter(monitor):
+    event = make_event(count=1)
+    event.series = client.CoreV1EventSeries(
+        count=8, last_observed_time=event.last_timestamp
+    )
+    unrelated = make_event(event_uid="other-namespace")
+    unrelated.involved_object.namespace = "another-namespace"
+    check(
+        monitor,
+        make_job("Failed"),
+        [make_pod("Failed")],
+        events=[event_details(e) for e in [event, unrelated]],
+    )
+    check(monitor, make_job("Failed"), seconds=600)
+    saved = json.loads(monitor.saved["kubernetes-events.json"])
+    assert len(saved) == 1
+    assert saved[0]["count"] == 8
+
+
+def test_corrupt_checkpoint_is_ignored_and_replaced(monitor):
+    check(monitor, make_job(), [make_pod()])
+    path = next(monitor._evidence.directory.glob("*.json"))
+    path.write_text("broken json")
+    monitor._evidence = EvidenceStore(monitor._evidence.directory)
+    check(monitor, make_job("Failed"))
+    check(monitor, make_job("Failed"), seconds=600)
+    monitor._api.node.update.assert_called_once()
+    assert json.loads(path.read_text())["identity"][0] == "node-1"
+
+
+def test_checkpoint_write_failure_preserves_in_memory_evidence(monitor):
+    with patch.object(
+        monitor._evidence, "save", side_effect=OSError("disk full")
+    ):
+        check(monitor, make_job(), [make_pod("Failed")])
+        check(monitor, make_job("Failed"))
+        check(monitor, make_job("Failed"), seconds=600)
+    assert "OOMKilled" in monitor.saved["kubernetes.log"]
+    monitor._api.node.update.assert_called_once()
+
+
+def test_history_limits_and_completed_build_cleanup(monitor):
+    check(monitor, make_job(), [make_pod()])
+    evidence = monitor._evidence.cache["node-1"]
+    for i in range(MAX_SNAPSHOTS + 2):
+        details = copy.deepcopy(evidence.data["pods"]["pod-uid"])
+        details["message"] = str(i)
+        evidence.observe_pod(details)
+    evidence.observe_events(
+        [
+            event_details(make_event(event_uid=str(i)))
+            for i in range(MAX_EVENTS + 2)
+        ]
+    )
+    assert len(evidence.data["snapshots"]) == MAX_SNAPSHOTS
+    assert len(evidence.events()) == MAX_EVENTS
+    assert evidence.data["truncated"]
+    monitor._api.node.find.return_value = []
+    monitor.poll()
+    assert monitor._evidence.cache == {}
+    assert list(monitor._evidence.directory.glob("*.json")) == []
+
+
+def test_event_storm_stops_at_page_budget_and_keeps_partial_evidence(monitor):
+    monitor.core.list_namespaced_event.side_effect = [
+        node_page([make_event(event_uid=str(i))], str(i))
+        for i in range(MAX_EVENT_PAGES + 1)
+    ]
+    index, error = monitor._events(monitor.core)
+    assert monitor.core.list_namespaced_event.call_count == MAX_EVENT_PAGES
+    assert (
+        monitor.core.list_namespaced_event.call_args.kwargs["limit"]
+        == EVENT_PAGE_SIZE
+    )
+    assert "page budget" in error
+    check(
+        monitor,
+        make_job("Failed"),
+        [make_pod("Failed")],
+        events=index,
+        event_error=error,
+    )
+    check(monitor, make_job("Failed"), seconds=600, event_error=error)
+    assert (
+        len(json.loads(monitor.saved["kubernetes-events.json"]))
+        == MAX_EVENT_PAGES
+    )
+    assert "collection truncated" in monitor.saved["kubernetes.log"]
+    monitor._api.node.update.assert_called_once()
+
+
+def test_event_byte_budget_counts_utf8_bytes(monitor):
+    event = make_event(message="\U0001f600" * 200)
+    size = len(
+        json.dumps(event_details(event), ensure_ascii=False).encode("utf-8")
+    )
+    monitor.core.list_namespaced_event.return_value = node_page(
+        [event, event], "next"
+    )
+    with patch("src.k8s_monitor.MAX_EVENT_BYTES", size):
+        index, error = monitor._events(monitor.core)
+    assert len(index.uid("Pod", "default", "pod-uid")) == 1
+    assert "byte budget" in error
+    monitor.core.list_namespaced_event.assert_called_once()
+
+
+def test_event_deadline_stops_starting_requests(monitor):
+    monitor.core.list_namespaced_event.return_value = node_page(
+        [make_event()], "next"
+    )
+    with patch("src.k8s_monitor.time.monotonic", side_effect=[0, 1, 31]):
+        index, error = monitor._events(monitor.core)
+    assert index.uid("Pod", "default", "pod-uid")
+    assert "time budget" in error
+    monitor.core.list_namespaced_event.assert_called_once()
+
+
+def test_unchanged_checkpoint_not_rewritten_even_after_restart(monitor):
+    check(monitor, make_job(), [make_pod()])
+    path = next(monitor._evidence.directory.glob("*.json"))
+    before = path.stat()
+    monitor._evidence = EvidenceStore(monitor._evidence.directory)
+    with patch("k8s_evidence.tempfile.NamedTemporaryFile") as temporary:
+        check(monitor, make_job(), [make_pod()], seconds=600)
+    temporary.assert_not_called()
+    assert path.stat().st_mtime_ns == before.st_mtime_ns
+    assert path.stat().st_ino == before.st_ino
+
+
+def test_checkpoint_byte_limit_applies_to_large_pod_messages(monitor):
+    pod = make_pod("Failed")
+    pod.status.message = "\U0001f600" * MAX_CHECKPOINT_BYTES
+    check(monitor, make_job(), [pod])
+    path = next(monitor._evidence.directory.glob("*.json"))
+    assert path.stat().st_size <= MAX_CHECKPOINT_BYTES
+    assert json.loads(path.read_text())["truncated"]
+    assert (
+        len(monitor._evidence.cache["node-1"].encode()) <= MAX_CHECKPOINT_BYTES
+    )
+
+
+def test_directory_quota_includes_atomic_replacement_and_failed_writes(monitor):
+    check(monitor, make_job(), [make_pod()])
+    path = next(monitor._evidence.directory.glob("*.json"))
+    original = path.read_bytes()
+    with patch("k8s_evidence.MAX_DIRECTORY_BYTES", len(original) + 1):
+        check(monitor, make_job(), [make_pod("Failed")])
+    assert path.read_bytes() == original
+    assert len(list(path.parent.iterdir())) == 1
+    # Exhausting the checkpoint budget must not prevent final reconciliation.
+    with patch("k8s_evidence.MAX_DIRECTORY_BYTES", 1):
+        check(monitor, make_job("Failed"))
+        check(monitor, make_job("Failed"), seconds=600)
+    monitor._api.node.update.assert_called_once()
+    assert "OOMKilled" in monitor.saved["kubernetes.log"]
+
+
+def test_file_count_and_low_free_space_prevent_temporary_file_creation(monitor):
+    check(monitor, make_job(), [make_pod()])
+    with patch("k8s_evidence.MAX_CHECKPOINT_FILES", 1):
+        with patch("k8s_evidence.tempfile.NamedTemporaryFile") as temporary:
+            check(monitor, make_job(), [make_pod("Failed")])
+        temporary.assert_not_called()
+    with patch(
+        "k8s_evidence.shutil.disk_usage", return_value=SimpleNamespace(free=0)
+    ):
+        with patch("k8s_evidence.tempfile.NamedTemporaryFile") as temporary:
+            check(monitor, make_job(), [make_pod("Failed")])
+        temporary.assert_not_called()
+
+
+def test_prune_removes_old_crash_temps_but_keeps_recent_writer(monitor):
+    check(monitor, make_job(), [make_pod()])
+    directory = monitor._evidence.directory
+    for name in ("evidence-old.tmp", "tmp-legacy"):
+        path = directory / name
+        path.write_text("incomplete checkpoint")
+        os.utime(path, (0, 0))
+    recent = directory / "evidence-recent.tmp"
+    recent.write_text("in progress")
+    monitor._evidence.prune({monitor.node["id"]})
+    assert not (directory / "evidence-old.tmp").exists()
+    assert not (directory / "tmp-legacy").exists()
+    assert recent.exists()
+    assert next(directory.glob("*.json")).exists()
+
+
+def test_cache_eviction_restores_checkpoint_from_disk(monitor):
+    check(monitor, make_job(), [make_pod("Failed")])
+    with patch("k8s_evidence.MAX_CACHED_BUILDS", 1):
+        second = copy.deepcopy(monitor.node)
+        second["id"] = "node-2"
+        monitor._evidence.get(second, "default", "job-uid")
+        assert set(monitor._evidence.cache) == {"node-2"}
+        evidence = monitor._evidence.get(monitor.node, "default", "job-uid")
+    assert evidence.data["snapshots"][0]["phase"] == "Failed"
+
+
+def test_event_index_avoids_scanning_unrelated_cluster_events(monitor):
+    events = [
+        event_details(make_event(uid=str(i), event_uid=str(i)))
+        for i in range(2000)
+    ]
+    events.append(event_details(make_event()))
+    index = EventIndex(events)
+    evidence = monitor._evidence.get(monitor.node, "default", "job-uid")
+    check(monitor, make_job(), [make_pod()])
+    with patch.object(
+        evidence, "_event_scope", wraps=evidence._event_scope
+    ) as match:
+        evidence.observe_events(index)
+    assert match.call_count == 1
+    assert [event["uid"] for event in evidence.events()] == ["event-uid"]
 
 
 def test_scheduler_starts_worker_only_for_kubernetes():
