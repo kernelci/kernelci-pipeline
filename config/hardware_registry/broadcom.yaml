@@ -1,0 +1,43 @@
+hardware_registry:
+  schema_info:
+    version: "1.1.0"
+    revision_date: "2026-11-11"
+    compatible_versions: ["1.0.0", "1.1.0"]
+
+  silicon_vendors:
+    broadcom:
+      id: "broadcom"
+      type: "silicon_vendor"
+      url: "https://www.broadcom.com"
+      details: "Broadcom semiconductors, including the SoCs used on Raspberry Pi boards"
+
+  platform_vendors:
+    raspberrypi:
+      id: "raspberrypi"
+      type: "platform_vendor"
+      url: "https://www.raspberrypi.com"
+      details: "Raspberry Pi single-board computers"
+
+  processors:
+    bcm2711:
+      id: "bcm2711"
+      type: "soc"
+      vendor_id: "broadcom"
+      url: "https://www.raspberrypi.com/documentation/computers/processors.html#bcm2711"
+      details: "Quad-core Arm Cortex-A72 SoC with VideoCore VI graphics and PCIe"
+      architecture: "arm64"
+      cores: 4
+      max_clock_speed_mhz: 1800
+
+  platforms:
+    bcm2711-rpi-4-b:
+      id: "bcm2711-rpi-4-b"
+      type: "single_board_computer"
+      vendor_id: "raspberrypi"
+      processor_id: "bcm2711"
+      url: "https://www.raspberrypi.com/products/raspberry-pi-4-model-b/"
+      details: "Raspberry Pi 4 Model B"
+      compatible:
+        - "raspberrypi,4-model-b"
+        - "brcm,bcm2711"
+      form_factor: "credit_card"

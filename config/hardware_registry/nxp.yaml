@@ -1,0 +1,43 @@
+hardware_registry:
+  schema_info:
+    version: "1.1.0"
+    revision_date: "2026-11-11"
+    compatible_versions: ["1.0.0", "1.1.0"]
+
+  silicon_vendors:
+    nxp:
+      id: "nxp"
+      type: "silicon_vendor"
+      url: "https://www.nxp.com"
+      details: "NXP Semiconductors i.MX application processors"
+
+  platform_vendors:
+    udoo:
+      id: "udoo"
+      type: "platform_vendor"
+      url: "https://www.udoo.org"
+      details: "UDOO single-board computers"
+
+  processors:
+    imx6dl:
+      id: "imx6dl"
+      type: "soc"
+      vendor_id: "nxp"
+      url: "https://www.nxp.com/products/i.MX6DL"
+      details: "i.MX 6DualLite, dual Arm Cortex-A9 applications processor"
+      architecture: "arm"
+      cores: 2
+      max_clock_speed_mhz: 1000
+
+  platforms:
+    imx6dl-udoo:
+      id: "imx6dl-udoo"
+      type: "single_board_computer"
+      vendor_id: "udoo"
+      processor_id: "imx6dl"
+      url: "https://www.udoo.org/udoo-quad-dual/"
+      details: "UDOO Dual single-board computer with i.MX 6DualLite"
+      compatible:
+        - "udoo,imx6dl-udoo"
+        - "fsl,imx6dl"
+      form_factor: "board"

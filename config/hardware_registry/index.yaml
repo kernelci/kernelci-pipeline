@@ -18,3 +18,8 @@ hardware_registry:
 
   registries:
     - ti.yaml
+    - broadcom.yaml
+    - cix.yaml
+    - google.yaml
+    - nxp.yaml
+    - samsung.yaml

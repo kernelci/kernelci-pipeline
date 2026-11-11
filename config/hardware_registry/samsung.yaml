@@ -1,0 +1,44 @@
+hardware_registry:
+  schema_info:
+    version: "1.1.0"
+    revision_date: "2026-11-11"
+    compatible_versions: ["1.0.0", "1.1.0"]
+
+  silicon_vendors:
+    samsung:
+      id: "samsung"
+      type: "silicon_vendor"
+      url: "https://semiconductor.samsung.com"
+      details: "Samsung Exynos application processors"
+
+  platform_vendors:
+    winlink:
+      id: "winlink"
+      type: "platform_vendor"
+      url: "https://www.96boards.org/product/e850-96b/"
+      details: "WinLink, maker of the E850-96 96Boards development board"
+
+  processors:
+    exynos850:
+      id: "exynos850"
+      type: "soc"
+      vendor_id: "samsung"
+      url: "https://semiconductor.samsung.com/processor/mobile-processor/exynos-850/"
+      details: "Octa-core Arm Cortex-A55 mobile SoC on 8nm FinFET"
+      architecture: "arm64"
+      cores: 8
+      max_clock_speed_mhz: 2000
+      process_node_nm: 8
+
+  platforms:
+    exynos850-e850-96:
+      id: "exynos850-e850-96"
+      type: "development_board"
+      vendor_id: "winlink"
+      processor_id: "exynos850"
+      url: "https://www.96boards.org/product/e850-96b/"
+      details: "WinLink E850-96 96Boards CE Extended development board"
+      compatible:
+        - "winlink,e850-96"
+        - "samsung,exynos850"
+      form_factor: "board"

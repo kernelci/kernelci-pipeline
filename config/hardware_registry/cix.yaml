@@ -1,0 +1,42 @@
+hardware_registry:
+  schema_info:
+    version: "1.1.0"
+    revision_date: "2026-11-11"
+    compatible_versions: ["1.0.0", "1.1.0"]
+
+  silicon_vendors:
+    cix:
+      id: "cix"
+      type: "silicon_vendor"
+      url: "https://www.cixtech.com"
+      details: "CIX Technology Armv9 SoCs"
+
+  platform_vendors:
+    radxa:
+      id: "radxa"
+      type: "platform_vendor"
+      url: "https://radxa.com"
+      details: "Radxa single-board computers and motherboards"
+
+  processors:
+    cd8180:
+      id: "cd8180"
+      type: "soc"
+      vendor_id: "cix"
+      url: "https://www.cixtech.com"
+      details: "CIX P1 (Sky1), 12-core Armv9 SoC"
+      architecture: "arm64"
+      cores: 12
+
+  platforms:
+    cd8180-orion-o6:
+      id: "cd8180-orion-o6"
+      type: "development_board"
+      vendor_id: "radxa"
+      processor_id: "cd8180"
+      url: "https://radxa.com/products/orion/o6/"
+      details: "Radxa Orion O6 Mini-ITX motherboard with CIX P1"
+      compatible:
+        - "radxa,orion-o6"
+        - "cix,sky1"
+      form_factor: "mini_itx"
