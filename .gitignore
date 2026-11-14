@@ -6,3 +6,4 @@ data
 *.log
 test_output/
 output.txt
+/logs/k8s-evidence/
