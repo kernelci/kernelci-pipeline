@@ -1,0 +1,44 @@
+hardware_registry:
+  schema_info:
+    version: "1.1.0"
+    revision_date: "2026-11-11"
+    compatible_versions: ["1.0.0", "1.1.0"]
+
+  silicon_vendors:
+    google:
+      id: "google"
+      type: "silicon_vendor"
+      url: "https://www.google.com"
+      details: "Google Tensor SoCs"
+
+  platform_vendors:
+    google:
+      id: "google"
+      type: "platform_vendor"
+      url: "https://store.google.com"
+      details: "Google Pixel phones"
+
+  processors:
+    gs101:
+      id: "gs101"
+      type: "soc"
+      vendor_id: "google"
+      url: "https://blog.google/products/pixel/introducing-google-tensor/"
+      details: "Google Tensor, octa-core mobile SoC (2x Cortex-X1, 2x Cortex-A76, 4x Cortex-A55)"
+      architecture: "arm64"
+      cores: 8
+      max_clock_speed_mhz: 2800
+      process_node_nm: 5
+
+  platforms:
+    gs101-oriole:
+      id: "gs101-oriole"
+      type: "product_board"
+      vendor_id: "google"
+      processor_id: "gs101"
+      url: "https://support.google.com/pixelphone/answer/7158570"
+      details: "Google Pixel 6 (oriole) phone"
+      compatible:
+        - "google,gs101-oriole"
+        - "google,gs101"
+      form_factor: "phone"
