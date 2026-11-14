@@ -620,6 +620,16 @@ fragments:
       - 'CONFIG_IP_PNP_BOOTP=y'
       - 'CONFIG_EFI_GENERIC_STUB_INITRD_CMDLINE_LOADER=y'
 
+  perf:
+    path: "kernel/configs/perf.config"
+    configs:
+      - 'tree:tools/perf/tests/config-fragments/config'
+
+  perf-arm64:
+    path: "kernel/configs/perf-arm64.config"
+    configs:
+      - 'tree:tools/perf/tests/config-fragments/arm64'
+
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
     configs:
