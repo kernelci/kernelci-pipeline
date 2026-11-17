@@ -776,6 +776,14 @@ scheduler:
       - purwa-evk
       - x1e80100
 
+  - job: baseline-arm64-nxp
+    event: *kbuild-gcc-14-arm64-node-event
+    runtime:
+      type: lava
+      name: lava-nxp
+    platforms:
+      - imx93-11x11-frdm
+
   - job: baseline-riscv-broonie
     event: &kbuild-gcc-14-riscv-node-event
       <<: *node-event-kbuild

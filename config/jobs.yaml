@@ -224,6 +224,7 @@ jobs:
   baseline-arm64-foundriesio: *baseline-job
   baseline-arm64-qualcomm: *baseline-job
   baseline-arm64-preempt_rt-qualcomm: *baseline-job
+  baseline-arm64-nxp: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job
