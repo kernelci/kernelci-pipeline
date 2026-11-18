@@ -2119,6 +2119,14 @@ scheduler:
       - hamoa-evk
       - purwa-evk
 
+  - job: kselftest-riscv-ramdisk
+    event: *kbuild-gcc-14-riscv-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - k3-pico-itx
+
   - job: kselftest-rlimits
     event:
       <<: *node-event-kbuild
