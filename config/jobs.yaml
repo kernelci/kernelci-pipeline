@@ -2399,6 +2399,20 @@ jobs:
       collections: ring-buffer
     kcidb_test_suite: kselftest.ring-buffer
 
+  kselftest-riscv-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: riscv
+    rules:
+      tree:
+        - mainline
+        - next
+        - stable-rc
+        - stable
+        - qcom-next
+    kcidb_test_suite: kselftest.riscv
+
   kselftest-rlimits:
     <<: *kselftest-job
     params:
