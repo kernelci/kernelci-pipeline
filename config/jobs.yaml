@@ -65,7 +65,6 @@ _anchors:
       defconfig: defconfig
       fragments:
         - 'lab-setup'
-        - 'kselftest'
 
   kbuild-gcc-14-arm64-nfsboot-job: &kbuild-gcc-14-arm64-nfsboot-job
     <<: *kbuild-job
@@ -78,7 +77,6 @@ _anchors:
       fragments:
         - 'netdev'
         - 'nfs-root-boot'
-        - 'kselftest'
 
   kbuild-gcc-14-x86-job: &kbuild-gcc-14-x86-job
     <<: *kbuild-job
@@ -88,8 +86,6 @@ _anchors:
       arch: x86_64
       compiler: gcc-14
       defconfig: x86_64_defconfig
-      fragments:
-        - 'kselftest'
 
   # gcc-15 (forky-based images), not available for arc, armv5 and mips
   kbuild-gcc-15-arm64-job: &kbuild-gcc-15-arm64-job
@@ -103,7 +99,6 @@ _anchors:
       defconfig: defconfig
       fragments:
         - 'lab-setup'
-        - 'kselftest'
 
   kbuild-gcc-15-x86-job: &kbuild-gcc-15-x86-job
     <<: *kbuild-job
@@ -113,8 +108,6 @@ _anchors:
       arch: x86_64
       compiler: gcc-15
       defconfig: x86_64_defconfig
-      fragments:
-        - 'kselftest'
 
   kvm-unit-tests-job: &kvm-unit-tests-job
     template: kvm-unit-tests.jinja2
@@ -957,9 +950,21 @@ jobs:
       - 'stable'
       - 'sashal-next'
 
-  kbuild-gcc-14-arm64: *kbuild-gcc-14-arm64-job
+  kbuild-gcc-14-arm64:
+    <<: *kbuild-gcc-14-arm64-job
+    params:
+      <<: *kbuild-gcc-14-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
 
-  kbuild-gcc-15-arm64: *kbuild-gcc-15-arm64-job
+  kbuild-gcc-15-arm64:
+    <<: *kbuild-gcc-15-arm64-job
+    params:
+      <<: *kbuild-gcc-15-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
 
   kbuild-gcc-14-arm64-perf:
     <<: *kbuild-gcc-14-arm64-job
@@ -1001,6 +1006,7 @@ jobs:
       fragments:
         - 'netdev'
         - 'nfs-root-boot'
+        - 'kselftest'
 
   kbuild-gcc-15-arm64-nfsboot-ltp:
     <<: *kbuild-gcc-15-arm64-nfsboot-job
@@ -1037,6 +1043,7 @@ jobs:
       defconfig:
         - defconfig
         - allnoconfig
+      kselftest: disable
     rules:
       tree:
       - 'arm64'
@@ -1223,6 +1230,9 @@ jobs:
 
   kbuild-gcc-14-arm64-mfd:
     <<: *kbuild-gcc-14-arm64-job
+    params:
+      <<: *kbuild-gcc-14-arm64-params
+      kselftest: disable
     rules:
       tree:
       - 'lee-mfd'
@@ -1674,6 +1684,7 @@ jobs:
     params:
       <<: *kbuild-gcc-14-x86-params
       defconfig: allnoconfig
+      kselftest: disable
     rules:
       tree:
       - 'kernelci'
@@ -1705,6 +1716,9 @@ jobs:
   # Default config and build only job
   kbuild-gcc-14-x86-build-only:
     <<: *kbuild-gcc-14-x86-job
+    params:
+      <<: *kbuild-gcc-14-x86-params
+      kselftest: disable
     rules: *build-only-trees-rules
 
   kbuild-gcc-14-x86-kcidebug:
@@ -1787,6 +1801,9 @@ jobs:
 
   kbuild-gcc-14-x86-mfd:
     <<: *kbuild-gcc-14-x86-job
+    params:
+      <<: *kbuild-gcc-14-x86-params
+      kselftest: disable
     rules:
       tree:
       - 'lee-mfd'
@@ -1824,6 +1841,7 @@ jobs:
     params:
       <<: *kbuild-gcc-14-x86-params
       defconfig: tinyconfig
+      kselftest: disable
     rules:
       tree:
       - 'kernelci'
