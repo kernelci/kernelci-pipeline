@@ -4,7 +4,7 @@ Post a brief dashboard-validation summary to a Discord webhook.
 
 Reads the reports produced by the validate-dashboard workflow:
 
-  * <name>.json   - `kci-dev maestro validate ... --json` (dashboard checks)
+  * <name>.json   - tests/validate_dashboard_window.py (dashboard checks)
   * forecast.json - tests/check_forecast_coverage.py --json-out
   * integrity.json - tests/check_node_integrity.py --json-out
 
@@ -17,6 +17,7 @@ import collections
 import json
 import os
 import sys
+from datetime import datetime
 
 import requests
 
@@ -174,11 +175,21 @@ def main():
 
     lines = []
     all_ok = True
+    window = None
     for name in args.checks:
         report = load_report(os.path.join(args.reports_dir, f"{name}.json"))
+        if report and not window:
+            window = report.get("window")
         line, ok = dashboard_line(name, report)
         lines.append(line)
         all_ok = all_ok and ok
+    if window:
+        since = datetime.fromisoformat(window["since"])
+        until = datetime.fromisoformat(window["until"])
+        lines.insert(
+            0,
+            f"Dashboard window {since:%Y-%m-%d %H:%M} – {until:%Y-%m-%d %H:%M} UTC",
+        )
     report = load_report(os.path.join(args.reports_dir, "forecast.json"))
     flines, ok = forecast_lines(report, args.top)
     lines.extend(flines)
