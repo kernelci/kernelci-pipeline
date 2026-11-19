@@ -21,16 +21,13 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: builds
-            args: builds --all-checkouts
-          - name: boots
-            args: boots --all-checkouts --pipeline-config config
-          - name: builds-history
-            args: builds --history --all-checkouts
+        check: [builds, boots, builds-history]
 
     steps:
       - name: Check out source code
@@ -46,47 +43,45 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # TODO: switch to the released kci-dev package after kernelci/kci-dev#275 lands.
-          python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@fix-validate-boots-job-names'
+          python -m pip install 'kci-dev @ git+https://github.com/nuclearcat/kci-dev.git@57b836fbd31964cc8ec874a131775cd653ec8e5c'
           # Deps for the pipeline-side miss classifier (config merge + API fetch).
           python -m pip install pyyaml requests
 
       - name: Show kci-dev version
         run: kci-dev --version
 
-      - name: Validate ${{ matrix.name }}
+      - name: Validate ${{ matrix.check }}
         env:
+          GH_TOKEN: ${{ github.token }}
           KCI_VALIDATE_DAYS: ${{ github.event.inputs.days || '1' }}
+          CHECK: ${{ matrix.check }}
         run: |
-          set -o pipefail
-          kci-dev \
-            --settings tools/cron/kci-dev.toml \
-            maestro validate ${{ matrix.args }} \
-            --days "${KCI_VALIDATE_DAYS}" \
-            --json \
-            --human-readable \
-            --fail-on-mismatch \
-            | tee "${RUNNER_TEMP}/${{ matrix.name }}.json"
+          # All three checks and reruns use the same UTC cutoff.
+          as_of=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .created_at)
+          python tests/validate_dashboard_window.py "$CHECK" \
+            --summary-file "$GITHUB_STEP_SUMMARY" --as-of "$as_of" --days "$KCI_VALIDATE_DAYS" \
+            > "${RUNNER_TEMP}/${CHECK}.json"
 
       - name: Explain misses against pipeline config
-        # Runs even when validation failed (--fail-on-mismatch exits 1), so the
+        # Runs even when validation found mismatches, so the
         # misses kci-dev found get cross-referenced with our job config:
         # distinguishes externally-owned jobs (e.g. owner=qualcomm) from a real
         # missing kcidb_test_suite mapping we own.
         if: always()
         run: |
-          report="${RUNNER_TEMP}/${{ matrix.name }}.json"
+          report="${RUNNER_TEMP}/${{ matrix.check }}.json"
           if [ ! -s "$report" ]; then
             echo "No report at $report; skipping classification."
             exit 0
           fi
           python tests/classify_missing_nodes.py "$report"
 
-      - name: Upload ${{ matrix.name }} report
+      - name: Upload ${{ matrix.check }} report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: report-${{ matrix.name }}
-          path: ${{ runner.temp }}/${{ matrix.name }}.json
+          name: report-${{ matrix.check }}
+          path: ${{ runner.temp }}/${{ matrix.check }}.json
           if-no-files-found: ignore
           retention-days: 7
 
