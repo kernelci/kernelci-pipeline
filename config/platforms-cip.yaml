@@ -61,6 +61,8 @@ platforms:
     mach: renesas
     dtb: dtbs/r8a7743-iwg20d-q7.dtb
     compatible: ['iwave,g20d', 'iwave,g20m', 'renesas,r8a7743']
+    params:
+      extra_kernel_args: earlycon ignore_loglevel
 
 # riscv platforms
   beaglev-fire:
