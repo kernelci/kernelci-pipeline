@@ -1639,6 +1639,7 @@ jobs:
         - 'lab-setup'
         - 'x86-board'
         - 'kselftest'
+        - 'kselftest-net'
     rules:
       tree:
       - '!chromiumos'
