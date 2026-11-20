@@ -321,17 +321,21 @@ def find_blocked_schedules(data):
     return warnings
 
 
+def _print_warning(title, message):
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        message = (
+            message.replace("%", "%25")
+            .replace("\r", "%0D")
+            .replace("\n", "%0A")
+        )
+        print(f"::warning title={title}::{message}")
+    else:
+        print(f"Warning: {message}")
+
+
 def report_blocked_schedules(data):
     for message in find_blocked_schedules(data):
-        if os.environ.get("GITHUB_ACTIONS") == "true":
-            message = (
-                message.replace("%", "%25")
-                .replace("\r", "%0D")
-                .replace("\n", "%0A")
-            )
-            print(f"::warning title=No compatible input builds::{message}")
-        else:
-            print(f"Warning: {message}")
+        _print_warning("No compatible input builds", message)
 
 
 def find_dropped_schedules(base_data, data):
