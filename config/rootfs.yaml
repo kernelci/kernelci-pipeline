@@ -50,7 +50,7 @@ rootfs:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-kvm-unit-tests/20261026.0/{debarch}'
 
   trixie-ltp:
-    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20261026.0/{debarch}'
+    nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-ltp/20261119.0/{debarch}'
 
   trixie-perf:
     nfsroot: 'https://storage.kernelci.org/images/rootfs/debian/trixie-perf/20261117.0/{debarch}'
