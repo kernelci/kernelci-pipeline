@@ -1233,6 +1233,9 @@ scheduler:
   - job: kbuild-gcc-14-loongarch
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-loongarch
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-loongarch-allnoconfig
     <<: *build-k8s-all
 
@@ -1259,6 +1262,9 @@ scheduler:
   - job: kbuild-gcc-14-powerpc
     <<: *build-k8s-all
 
+  - job: kbuild-gcc-15-powerpc
+    <<: *build-k8s-all
+
   - job: kbuild-gcc-14-powerpc-allnoconfig
     <<: *build-k8s-all
 
@@ -1267,6 +1273,12 @@ scheduler:
     rules: *build-only-fallback-no-efi-rules
 
   - job: kbuild-gcc-14-riscv
+    <<: *build-k8s-all
+    rules:
+      tree:
+        - '!efi'
+
+  - job: kbuild-gcc-15-riscv
     <<: *build-k8s-all
     rules:
       tree:
@@ -1291,6 +1303,9 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-s390
+    <<: *build-k8s-all
+
+  - job: kbuild-gcc-15-s390
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-s390-allnoconfig
