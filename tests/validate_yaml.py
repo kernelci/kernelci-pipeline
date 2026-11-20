@@ -338,6 +338,60 @@ def report_blocked_schedules(data):
         _print_warning("No compatible input builds", message)
 
 
+def is_kselftest_job(job):
+    if not isinstance(job, dict):
+        return False
+    params = job.get("params")
+    if isinstance(params, dict) and str(
+        params.get("test_method", "")
+    ).startswith("kselftest"):
+        return True
+    return str(job.get("template", "")).startswith("kselftest")
+
+
+def find_kselftest_input_problems(data):
+    """
+    Check each kselftest scheduler entry against the kbuild named in its
+    event. Entries without a named kbuild event are skipped.
+
+    Returns (errors, warnings). A build with kselftest disabled produces
+    no kselftest tarball, so the job cannot run at all. A build without
+    the kselftest fragment still produces a tarball, but the kernel lacks
+    the config the tests expect.
+    """
+    jobs = data.get("jobs") or {}
+    errors, warnings = set(), set()
+    for entry in data.get("scheduler") or []:
+        job_name = entry.get("job")
+        if not is_kselftest_job(jobs.get(job_name)):
+            continue
+        if (entry.get("event") or {}).get("name") is None:
+            continue
+        for build_name, build in _input_builds(data, entry).items():
+            params = build.get("params") or {}
+            if params.get("kselftest") == "disable":
+                errors.add(
+                    f"Job {job_name} runs kselftest on {build_name}, which "
+                    f"does not build kselftest"
+                )
+            elif "kselftest" not in (params.get("fragments") or []):
+                warnings.add(
+                    f"Job {job_name} runs kselftest on {build_name}, which "
+                    f"is built without the kselftest fragment"
+                )
+    return sorted(errors), sorted(warnings)
+
+
+def validate_kselftest_input_builds(data):
+    errors, warnings = find_kselftest_input_problems(data)
+    for message in warnings:
+        _print_warning(
+            "kselftest job on build without kselftest fragment", message
+        )
+    if errors:
+        raise yaml.YAMLError("; ".join(errors))
+
+
 def find_dropped_schedules(base_data, data):
     """
     Compare scheduler entries against a base config and return a
@@ -622,6 +676,8 @@ def validate_yaml(merged_data):
     validate_scheduler_jobs(merged_data)
     print("Checking scheduler targets for incompatible input builds")
     report_blocked_schedules(merged_data)
+    print("Checking kselftest jobs have builds with kselftest")
+    validate_kselftest_input_builds(merged_data)
     validate_unused_jobs(merged_data)
     validate_build_configs(merged_data)
     validate_unused_trees(merged_data)
