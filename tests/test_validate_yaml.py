@@ -475,7 +475,115 @@ def test_zero_match_warning_is_part_of_normal_validation(monkeypatch, capsys):
         "validate_platforms",
         "validate_fragments",
         "validate_rootfs_refs",
+        "validate_kselftest_input_builds",
     ):
         monkeypatch.setattr(validate_yaml, name, lambda data: None)
     validate_yaml.validate_yaml(fragment_config(["kselftest"]))
     assert "has no compatible input builds" in capsys.readouterr().out
+
+
+def kselftest_input_config(build_params, job=None, event_name="kbuild-arm64"):
+    entry = lava_entry("kselftest-timers", ["bcm2711-rpi-4-b"])
+    if event_name is not None:
+        entry["event"]["name"] = event_name
+    data = config(["kselftest-timers"], [entry])
+    data["jobs"]["kselftest-timers"] = job or {
+        "kind": "job",
+        "template": "generic.jinja2",
+        "params": {"test_method": "kselftest", "collections": "timers"},
+    }
+    data["jobs"]["kbuild-arm64"] = {"kind": "kbuild", "params": build_params}
+    return data
+
+
+def test_kselftest_job_on_kselftest_build_is_clean():
+    data = kselftest_input_config({"fragments": ["lab-setup", "kselftest"]})
+    assert validate_yaml.find_kselftest_input_problems(data) == ([], [])
+
+
+@pytest.mark.parametrize(
+    "build_params",
+    [{"fragments": ["lab-setup"]}, {"fragments": None}, {}],
+)
+def test_kselftest_job_on_build_without_fragment_warns(build_params):
+    data = kselftest_input_config(build_params)
+    assert validate_yaml.find_kselftest_input_problems(data) == (
+        [],
+        [
+            "Job kselftest-timers runs kselftest on kbuild-arm64, which "
+            "is built without the kselftest fragment"
+        ],
+    )
+
+
+def test_kselftest_job_on_build_without_tarball_errors():
+    data = kselftest_input_config(
+        {"fragments": ["kselftest"], "kselftest": "disable"}
+    )
+    errors, warnings = validate_yaml.find_kselftest_input_problems(data)
+    assert errors == [
+        "Job kselftest-timers runs kselftest on kbuild-arm64, which "
+        "does not build kselftest"
+    ]
+    assert warnings == []
+    with pytest.raises(yaml.YAMLError, match="does not build kselftest"):
+        validate_yaml.validate_kselftest_input_builds(data)
+
+
+@pytest.mark.parametrize(
+    "job",
+    [
+        {
+            "kind": "job",
+            "template": "generic.jinja2",
+            "params": {"test_method": "kselftest-platform-parameters"},
+        },
+        {"kind": "job", "template": "kselftest-pull-labs.jinja2"},
+    ],
+)
+def test_kselftest_job_detected_without_collections(job):
+    data = kselftest_input_config({"fragments": []}, job=job)
+    _, warnings = validate_yaml.find_kselftest_input_problems(data)
+    assert len(warnings) == 1
+
+
+def test_non_kselftest_job_is_not_checked():
+    job = {"kind": "job", "template": "ltp.jinja2", "params": {}}
+    data = kselftest_input_config({"fragments": []}, job=job)
+    assert validate_yaml.find_kselftest_input_problems(data) == ([], [])
+
+
+def test_unnamed_kbuild_event_is_not_checked():
+    data = kselftest_input_config({"fragments": []}, event_name=None)
+    assert validate_yaml.find_kselftest_input_problems(data) == ([], [])
+
+
+def test_kselftest_input_warning_is_annotated_on_github(monkeypatch, capsys):
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    validate_yaml.validate_kselftest_input_builds(
+        kselftest_input_config({"fragments": []})
+    )
+    out = capsys.readouterr().out
+    assert out.startswith(
+        "::warning title=kselftest job on build without kselftest fragment::"
+    )
+
+
+def test_validate_yaml_runs_kselftest_input_check(monkeypatch):
+    for name in (
+        "validate_jobs",
+        "validate_scheduler_jobs",
+        "report_blocked_schedules",
+        "validate_unused_jobs",
+        "validate_build_configs",
+        "validate_unused_trees",
+        "validate_platforms",
+        "validate_fragments",
+        "validate_rootfs_refs",
+    ):
+        monkeypatch.setattr(validate_yaml, name, lambda data: None)
+    data = kselftest_input_config(
+        {"fragments": ["kselftest"], "kselftest": "disable"}
+    )
+    with pytest.raises(yaml.YAMLError, match="does not build kselftest"):
+        validate_yaml.validate_yaml(data)
