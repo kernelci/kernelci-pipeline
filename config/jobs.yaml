@@ -91,7 +91,7 @@ _anchors:
       fragments:
         - 'kselftest'
 
-  # gcc-15 (forky-based image) rollout, limited to x86 and arm64 for now
+  # gcc-15 (forky-based images), not available for arc, armv5 and mips
   kbuild-gcc-15-arm64-job: &kbuild-gcc-15-arm64-job
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-15:arm64-kselftest-kernelci
@@ -1390,6 +1390,13 @@ jobs:
       - 'next'
       - 'sashal-next'
 
+  kbuild-gcc-15-loongarch:
+    <<: *kbuild-gcc-14-loongarch-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:loongarch-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-14-loongarch-params
+      compiler: gcc-15
+
   kbuild-gcc-14-loongarch-allnoconfig:
     <<: *kbuild-gcc-14-loongarch-job
     params:
@@ -1486,6 +1493,13 @@ jobs:
       - 'next'
       - 'sashal-next'
 
+  kbuild-gcc-15-powerpc:
+    <<: *kbuild-gcc-14-powerpc-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:powerpc-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-14-powerpc-params
+      compiler: gcc-15
+
   kbuild-gcc-14-powerpc-allnoconfig:
     <<: *kbuild-gcc-14-powerpc-job
     params:
@@ -1512,6 +1526,13 @@ jobs:
       compiler: gcc-14
       cross_compile: 'riscv64-linux-gnu-'
       defconfig: defconfig
+
+  kbuild-gcc-15-riscv:
+    <<: *kbuild-gcc-14-riscv-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:riscv64-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-14-riscv-params
+      compiler: gcc-15
 
   kbuild-gcc-14-riscv-android-defconfig:
     <<: *kbuild-gcc-14-riscv-job
@@ -1600,6 +1621,13 @@ jobs:
       - 'stable'
       - 'next'
       - 'sashal-next'
+
+  kbuild-gcc-15-s390:
+    <<: *kbuild-gcc-14-s390-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-15:s390-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-14-s390-params
+      compiler: gcc-15
 
   kbuild-gcc-14-s390-allnoconfig:
     <<: *kbuild-gcc-14-s390-job
