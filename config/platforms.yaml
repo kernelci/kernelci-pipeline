@@ -791,6 +791,10 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/mahua-crd.dtb
     compatible: ['qcom,mahua-crd', 'qcom,mahua']
+    rules:
+      min_version:
+        version: 7
+        patchlevel: 1
 
   purwa-crd:
     <<: *arm64-device
@@ -798,6 +802,10 @@ platforms:
     mach: qcom
     dtb: dtbs/qcom/x1p42100-crd.dtb
     compatible: ['qcom,x1p42100-crd', 'qcom,x1p42100']
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 16
 
   shell:
 
