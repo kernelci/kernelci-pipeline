@@ -295,6 +295,7 @@ jobs:
         - 'mainline'
         - 'stable-rc'
         - 'stable'
+        - 'next:master'
         - 'sashal-next'
 
   kbuild-clang-21-arm-android: &kbuild-clang-21-arm-android-job
@@ -355,6 +356,7 @@ jobs:
         - 'mainline'
         - 'stable-rc'
         - 'stable'
+        - 'next:master'
         - 'sashal-next'
 
   kbuild-clang-21-arm64-allnoconfig:
