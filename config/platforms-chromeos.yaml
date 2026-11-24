@@ -3,10 +3,6 @@ _anchors:
   arm64-chromebook-device: &arm64-chromebook-device
     arch: arm64
     boot_method: depthcharge
-    params: &arm64-chromebook-device-params
-      flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-{mach}
-        image: 'kernel/Image'
     rules: &arm64-chromebook-device-rules
       defconfig:
         - '!allnoconfig'
@@ -18,11 +14,6 @@ _anchors:
     arch: x86_64
     boot_method: depthcharge
     mach: x86
-    params: &x86-chromebook-device-params
-      <<: *arm64-chromebook-device-params
-      flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/kernel/cros-20230815-amd64/clang-14
-        image: 'kernel/bzImage'
     rules: &x86-chromebook-device-rules
       <<: *arm64-chromebook-device-rules
       fragments:
@@ -32,7 +23,6 @@ platforms:
   acer-R721T-grunt:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: grunt
     rules:
       <<: *x86-chromebook-device-rules
@@ -47,7 +37,6 @@ platforms:
   acer-cbv514-1h-34uz-brya:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: brya
     rules:
       <<: *x86-chromebook-device-rules
@@ -62,7 +51,6 @@ platforms:
   acer-chromebox-cxi5-brask:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: brask
     rules:
       <<: *x86-chromebook-device-rules
@@ -77,7 +65,6 @@ platforms:
   acer-cp514-2h-1130g7-volteer: &chromebook-volteer-device
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: volteer
     rules:
       <<: *x86-chromebook-device-rules
@@ -94,7 +81,6 @@ platforms:
   acer-cp514-3wh-r0qs-guybrush:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: guybrush
     rules:
       <<: *x86-chromebook-device-rules
@@ -109,7 +95,6 @@ platforms:
   asus-CX3402CVA-brya:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: brya
     rules:
       <<: *x86-chromebook-device-rules
@@ -124,7 +109,6 @@ platforms:
   asus-CM1400CXA-dalboz: &chromebook-zork-device
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: zork
     rules:
       <<: *x86-chromebook-device-rules
@@ -139,7 +123,6 @@ platforms:
   dell-latitude-3445-7520c-skyrim:
     <<: *x86-chromebook-device
     params:
-      <<: *x86-chromebook-device-params
       short_name: skyrim
     rules:
       <<: *x86-chromebook-device-rules
@@ -160,7 +143,6 @@ platforms:
     dtb: dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb
     compatible: ['google,juniper-sku16', 'google,juniper', 'mediatek,mt8183']
     params:
-      <<: *arm64-chromebook-device-params
       short_name: jacuzzi
     rules:
       <<: *arm64-chromebook-device-rules
@@ -179,7 +161,6 @@ platforms:
     dtb: dtbs/mediatek/mt8196-rauru-navi-sku0.dtb
     compatible: ['google,rauru-navi-sku0', 'mediatek,mt8196']
     params:
-      <<: *arm64-chromebook-device-params
       short_name: rauru
     rules:
       <<: *arm64-chromebook-device-rules
@@ -194,7 +175,6 @@ platforms:
       - 'dtbs/mediatek/mt8195-tomato-rev2.dtb'
     compatible: ['google,tomato-rev2', 'google,tomato', 'mediatek,mt8195']
     params:
-      <<: *arm64-chromebook-device-params
       short_name: cherry-r2
     rules:
       <<: *arm64-chromebook-device-rules
@@ -214,11 +194,6 @@ platforms:
       - dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb
     compatible: ['google,kingoftown', 'qcom,sc7180']
     params:
-      <<: *arm64-chromebook-device-params
-      flash_kernel:
-        url: https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm
-        image: 'kernel/Image'
-        dtb: 'dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
       short_name: trogdor
     rules:
       branch:
