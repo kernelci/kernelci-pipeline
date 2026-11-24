@@ -801,11 +801,6 @@ jobs:
       <<: *kbuild-gcc-14-arm-android-params
       defconfig: vexpress_defconfig
 
-  # Default config and build only job
-  kbuild-gcc-14-arm-build-only:
-    <<: *kbuild-gcc-14-arm-job
-    rules: *build-only-trees-rules
-
   kbuild-gcc-14-arm-imx_v6_v7_defconfig:
     <<: *kbuild-gcc-14-arm-job
     params:
@@ -1138,11 +1133,6 @@ jobs:
       - 'next'
       - 'stable'
 
-  # Default config and build only job
-  kbuild-gcc-14-arm64-build-only:
-    <<: *kbuild-gcc-14-arm64-job
-    rules: *build-only-trees-rules
-
   kbuild-gcc-14-arm64-chrome-platform:
     <<: *kbuild-gcc-14-arm64-job
     params:
@@ -1318,11 +1308,6 @@ jobs:
       tree:
       - 'android'
       - 'sashal-next'
-
-  # Default config and build only job
-  kbuild-gcc-14-i386-build-only:
-    <<: *kbuild-gcc-14-i386-job
-    rules: *build-only-trees-rules
 
   kbuild-gcc-14-i386-kselftest:
     <<: *kbuild-gcc-14-i386-job
@@ -1524,11 +1509,6 @@ jobs:
         - allnoconfig
     rules:
       <<: *kbuild-riscv-android-rules
-
-  # Default config and build only job
-  kbuild-gcc-14-riscv-build-only:
-    <<: *kbuild-gcc-14-riscv-job
-    rules: *build-only-trees-rules
 
   kbuild-gcc-14-riscv-mainline: &kbuild-gcc-14-riscv-mainline-job
     <<: *kbuild-gcc-14-riscv-job

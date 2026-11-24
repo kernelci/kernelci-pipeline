@@ -15,6 +15,20 @@ _anchors:
     runtime:
       name: k8s-all
 
+  # The regular default-config jobs already cover these build-only trees.
+  build-only-fallback-rules: &build-only-fallback-rules
+    tree:
+      - '!next'
+      - '!sashal-next'
+      - '!stable'
+
+  build-only-fallback-no-efi-rules: &build-only-fallback-no-efi-rules
+    tree:
+      - '!efi'
+      - '!next'
+      - '!sashal-next'
+      - '!stable'
+
   node-event: &node-event-kbuild
     channel: node
     kind: kbuild
@@ -990,6 +1004,7 @@ scheduler:
 
   - job: kbuild-gcc-14-arc-build-only
     <<: *build-k8s-all
+    rules: *build-only-fallback-rules
 
   - job: kbuild-gcc-14-arc-hs_smp_defconfig-allnoconfig
     <<: *build-k8s-all
@@ -1043,9 +1058,6 @@ scheduler:
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-android-vexpress_defconfig
-    <<: *build-k8s-all
-
-  - job: kbuild-gcc-14-arm-build-only
     <<: *build-k8s-all
 
   - job: kbuild-gcc-14-arm-imx_v6_v7_defconfig
@@ -1150,9 +1162,6 @@ scheduler:
   - job: kbuild-gcc-14-arm64-kselftest-16k_pages
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-14-arm64-build-only
-    <<: *build-k8s-all
-
   - job: kbuild-gcc-14-arm64-chrome-platform
     <<: *build-k8s-all
 
@@ -1206,9 +1215,6 @@ scheduler:
   - job: kbuild-gcc-14-i386-android-allnoconfig
     <<: *build-k8s-all
 
-  - job: kbuild-gcc-14-i386-build-only
-    <<: *build-k8s-all
-
   - job: kbuild-gcc-14-i386-tinyconfig
     <<: *build-k8s-all
 
@@ -1232,6 +1238,7 @@ scheduler:
 
   - job: kbuild-gcc-14-loongarch-build-only
     <<: *build-k8s-all
+    rules: *build-only-fallback-rules
 
   - job: kbuild-gcc-14-mips-32r2el_defconfig
     <<: *build-k8s-all
@@ -1241,9 +1248,7 @@ scheduler:
 
   - job: kbuild-gcc-14-mips-build-only
     <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
+    rules: *build-only-fallback-no-efi-rules
 
   - job: kbuild-gcc-14-mips-mainline
     <<: *build-k8s-all
@@ -1259,9 +1264,7 @@ scheduler:
 
   - job: kbuild-gcc-14-powerpc-build-only
     <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
+    rules: *build-only-fallback-no-efi-rules
 
   - job: kbuild-gcc-14-riscv
     <<: *build-k8s-all
@@ -1271,12 +1274,6 @@ scheduler:
 
   - job: kbuild-gcc-14-riscv-android-defconfig
     <<: *build-k8s-all
-
-  - job: kbuild-gcc-14-riscv-build-only
-    <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
 
   - job: kbuild-gcc-14-riscv-mainline
     <<: *build-k8s-all
@@ -1301,9 +1298,7 @@ scheduler:
 
   - job: kbuild-gcc-14-s390-build-only
     <<: *build-k8s-all
-    rules:
-      tree:
-        - '!efi'
+    rules: *build-only-fallback-no-efi-rules
 
   - job: kbuild-gcc-14-um
     <<: *build-k8s-all
