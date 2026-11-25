@@ -38,8 +38,34 @@ spec:
             - --settings=/secrets/kernelci.toml
             - --yaml-config=/config
             - run
-            - --trees=!kernelci
+            - --trees=!kernelci,chromiumos
             - --name=trigger
+          env:
+            - name: KCI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kernelci-api-token
+                  key: token
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+            - name: config-volume
+              mountPath: /config
+        - name: trigger_daily
+          image: kernelci/kernelci:pipeline@sha256:bb01424c4dedcd2ffa87cef225b09116cf874bc2b91fc63ed6d993d6fc5c43cb
+          imagePullPolicy: Always
+          command:
+            - ./src/trigger.py
+            - --settings=/secrets/kernelci.toml
+            - --yaml-config=/config
+            - run
+            - --poll-period=86400
+            - --trees=chromiumos
+            - --name=trigger_daily
           env:
             - name: KCI_API_TOKEN
               valueFrom:
