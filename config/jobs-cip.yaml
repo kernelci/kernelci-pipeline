@@ -95,6 +95,7 @@ jobs:
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
+        - 'stable-rc:linux-6.12.y'
 
   kbuild-gcc-14-arm64-612-cip-rt:
     <<: *kbuild-gcc-14-arm64-612-cip
@@ -120,6 +121,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
         - 'cip:linux-6.1.y-cip-rt'
+        - 'stable-rc:linux-6.1.y'
 
   kbuild-gcc-14-arm64-61-cip-rt:
     <<: *kbuild-gcc-14-arm64-61-cip
@@ -148,6 +150,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
         - 'cip:linux-5.10.y-cip-rt'
+        - 'stable-rc:linux-5.10.y'
 
   kbuild-gcc-14-arm64-510-cip-rt:
     <<: *kbuild-gcc-14-arm64-510-cip
@@ -232,6 +235,7 @@ jobs:
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
+        - 'stable-rc:linux-6.12.y'
 
   kbuild-gcc-14-arm-61-cip: &kbuild-gcc-14-arm-61-cip
     <<: *kbuild-gcc-14-arm-job
@@ -248,6 +252,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
         - 'cip:linux-6.1.y-cip-rt'
+        - 'stable-rc:linux-6.1.y'
 
   kbuild-gcc-14-arm-61-cip-rt:
     <<: *kbuild-gcc-14-arm-61-cip
@@ -277,6 +282,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
         - 'cip:linux-5.10.y-cip-rt'
+        - 'stable-rc:linux-5.10.y'
 
   kbuild-gcc-14-arm-510-cip-rt:
     <<: *kbuild-gcc-14-arm-510-cip
@@ -444,6 +450,7 @@ jobs:
     rules:
       branch:
         - 'cip:linux-6.12.y-cip'
+        - 'stable-rc:linux-6.12.y'
 
   kbuild-gcc-14-x86-612-cip-rt:
     <<: *kbuild-gcc-14-x86-612-cip
@@ -467,6 +474,7 @@ jobs:
       branch:
         - 'cip:linux-6.1.y-cip'
         - 'cip:linux-6.1.y-cip-rt'
+        - 'stable-rc:linux-6.1.y'
 
   kbuild-gcc-14-x86-61-cip-rt:
     <<: *kbuild-gcc-14-x86-61-cip
@@ -493,6 +501,7 @@ jobs:
       branch:
         - 'cip:linux-5.10.y-cip'
         - 'cip:linux-5.10.y-cip-rt'
+        - 'stable-rc:linux-5.10.y'
 
   kbuild-gcc-14-x86-510-cip-rt:
     <<: *kbuild-gcc-14-x86-510-cip
