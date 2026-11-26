@@ -295,6 +295,18 @@ platforms:
     dtb: dtbs/ti/k3-j721e-beagleboneai64.dtb
     compatible: ['beagle,j721e-beagleboneai64', 'ti,j721e']
 
+  k3-pico-itx:
+    <<: *riscv-device
+    boot_method: fastboot
+    mach: spacemit
+    dtb: dtbs/spacemit/k3-pico-itx.dtb
+    compatible: ['spacemit,k3-pico-itx', 'spacemit,k3']
+    params:
+      fastboot_image_profile: spacemit-k3
+      fastboot_bootfs_size_mb: 256
+      boot_deploy_timeout: 50
+      kselftest_shallow_clone: true
+
   kontron-bl-imx8mm:
     <<: *arm64-device
     mach: imx

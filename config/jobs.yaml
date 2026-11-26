@@ -231,6 +231,7 @@ jobs:
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job
+  baseline-riscv-qualcomm: *baseline-job
   baseline-x86: *baseline-job
   baseline-x86-baylibre: *baseline-job
   baseline-x86-kcidebug-amd: *baseline-job
@@ -2425,6 +2426,20 @@ jobs:
       <<: *kselftest-params-ramdisk
       collections: ring-buffer
     kcidb_test_suite: kselftest.ring-buffer
+
+  kselftest-riscv-ramdisk:
+    <<: *kselftest-job-ramdisk
+    params:
+      <<: *kselftest-params-ramdisk
+      collections: riscv
+    rules:
+      tree:
+        - mainline
+        - next
+        - stable-rc
+        - stable
+        - qcom-next
+    kcidb_test_suite: kselftest.riscv
 
   kselftest-rlimits:
     <<: *kselftest-job

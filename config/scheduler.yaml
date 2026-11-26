@@ -817,6 +817,14 @@ scheduler:
       - spacemit-k1-bananapi-f3
       - eic7700-hifive-premier-p550
 
+  - job: baseline-riscv-qualcomm
+    event: *kbuild-gcc-14-riscv-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - k3-pico-itx
+
   - job: baseline-x86
     event: &kbuild-gcc-14-x86-node-event
       <<: *node-event-kbuild
@@ -2125,6 +2133,14 @@ scheduler:
       - purwa-crd
       - hamoa-evk
       - purwa-evk
+
+  - job: kselftest-riscv-ramdisk
+    event: *kbuild-gcc-14-riscv-node-event
+    runtime:
+      type: lava
+      name: lava-kci-qualcomm
+    platforms:
+      - k3-pico-itx
 
   - job: kselftest-rlimits
     event:
