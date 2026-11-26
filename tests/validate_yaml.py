@@ -545,6 +545,47 @@ def validate_fragments(data):
             )
 
 
+KSELFTEST_FRAGMENT = "kselftest"
+KSELFTEST_TREE_CONFIG = "tree:tools/testing/selftests/{}/config"
+
+
+def kselftest_collections(data):
+    collections = set()
+    for job in (data.get("jobs") or {}).values():
+        if not isinstance(job, dict):
+            continue
+        params = job.get("params")
+        if isinstance(params, dict) and params.get("collections"):
+            collections.update(str(params["collections"]).split())
+    return collections
+
+
+def validate_kselftest_fragment(data):
+    """
+    When the kselftest fragment lists per-collection config files rather
+    than running kselftest-merge, every collection a job runs must have
+    its config listed, otherwise those tests run on a kernel built
+    without the options they need.
+    """
+    fragment = (data.get("fragments") or {}).get(KSELFTEST_FRAGMENT)
+    if not isinstance(fragment, dict):
+        return
+    configs = fragment.get("configs") or []
+    if not any(str(c).startswith("tree:") for c in configs):
+        return
+    missing = sorted(
+        c
+        for c in kselftest_collections(data)
+        if KSELFTEST_TREE_CONFIG.format(c) not in configs
+    )
+    if missing:
+        raise yaml.YAMLError(
+            f"Fragment '{KSELFTEST_FRAGMENT}' is missing the config for "
+            f"kselftest collections run by jobs: {missing}. Add "
+            f"'{KSELFTEST_TREE_CONFIG.format('<collection>')}' for each."
+        )
+
+
 def validate_rootfs_refs(data):
     """
     Validate rootfs references:
@@ -684,6 +725,8 @@ def validate_yaml(merged_data):
     validate_platforms(merged_data)
     print("Validating fragments")
     validate_fragments(merged_data)
+    print("Validating kselftest fragment covers every collection")
+    validate_kselftest_fragment(merged_data)
     print("Validating rootfs references")
     validate_rootfs_refs(merged_data)
     print("All yaml files are valid")

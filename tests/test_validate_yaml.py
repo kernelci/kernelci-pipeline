@@ -474,6 +474,7 @@ def test_zero_match_warning_is_part_of_normal_validation(monkeypatch, capsys):
         "validate_unused_trees",
         "validate_platforms",
         "validate_fragments",
+        "validate_kselftest_fragment",
         "validate_rootfs_refs",
         "validate_kselftest_input_builds",
     ):
@@ -587,3 +588,56 @@ def test_validate_yaml_runs_kselftest_input_check(monkeypatch):
     )
     with pytest.raises(yaml.YAMLError, match="does not build kselftest"):
         validate_yaml.validate_yaml(data)
+
+
+def kselftest_config(fragment_configs, collections):
+    return {
+        "fragments": {
+            "kselftest": {
+                "path": "kernel/configs/kselftest.config",
+                "configs": fragment_configs,
+            }
+        },
+        "jobs": {
+            f"kselftest-{i}": {"kind": "job", "params": {"collections": c}}
+            for i, c in enumerate(collections)
+        },
+    }
+
+
+def tree_config(collection):
+    return f"tree:tools/testing/selftests/{collection}/config"
+
+
+def test_kselftest_merge_fragment_is_not_checked():
+    data = kselftest_config(["make:kselftest-merge"], ["net", "mm"])
+    validate_yaml.validate_kselftest_fragment(data)
+
+
+def test_kselftest_fragment_covering_every_collection_passes():
+    data = kselftest_config(
+        [tree_config("net"), tree_config("devices/probe")],
+        ["net", "devices/probe", "net"],
+    )
+    validate_yaml.validate_kselftest_fragment(data)
+
+
+def test_kselftest_fragment_missing_a_collection_fails():
+    data = kselftest_config([tree_config("net")], ["net", "mm", "timers"])
+    with pytest.raises(yaml.YAMLError, match=r"\['mm', 'timers'\]"):
+        validate_yaml.validate_kselftest_fragment(data)
+
+
+def test_kselftest_collections_ignores_jobs_without_collections():
+    data = {
+        "jobs": {
+            "kselftest-net": {"params": {"collections": "net"}},
+            "baseline": {"params": {}},
+            "anchor": None,
+        }
+    }
+    assert validate_yaml.kselftest_collections(data) == {"net"}
+
+
+def test_config_without_kselftest_fragment_is_not_checked():
+    validate_yaml.validate_kselftest_fragment({"jobs": {}})
