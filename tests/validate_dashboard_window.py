@@ -4,6 +4,7 @@
 import argparse
 import json
 import sys
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 import click
@@ -91,7 +92,47 @@ def revisions(api, filters, since, until, check):
     return sorted(selected)
 
 
-def compare(api, rev, filters, kind, since, until):
+def boot_results(source, boot_jobs):
+    """The KCIDB bridge publishes each eligible root and its result leaves."""
+    children = defaultdict(list)
+    for node in source:
+        children[node["parent"]].append(node)
+
+    node_ids = {node["id"] for node in source}
+    roots = [
+        node
+        for node in source
+        if node["parent"] not in node_ids and node["name"] in boot_jobs
+    ]
+    for root in helper.filter_maestro_items_for_validation(roots, "boot"):
+        yield root
+        pending = list(children.get(root["id"], ()))
+        while pending:
+            node = pending.pop()
+            if node["id"] in children:
+                pending.extend(children[node["id"]])
+                continue
+            # send_kcidb omits setup results except for os-release.
+            path = ".".join(node["path"][len(root["path"]) :])
+            if "setup" not in path or "os-release" in path:
+                yield node
+
+
+def boot_status_mismatches(boots, dashboard):
+    # kci-dev handles incomplete boot error codes, but its completed-result
+    # map only covers PASS and FAIL. Individual tests can also report SKIP.
+    incomplete = [node for node in boots if node["result"] == "incomplete"]
+    mismatches = helper.validate_boot_status(incomplete, dashboard)
+    statuses = {row["id"].split(":", 1)[1]: row["status"] for row in dashboard}
+    for node in boots:
+        if node["id"] in statuses and node["result"] != "incomplete":
+            expected = node["result"] and node["result"].upper()
+            if statuses[node["id"]] != expected:
+                mismatches.append(node["id"])
+    return mismatches
+
+
+def compare(api, rev, filters, kind, since, until, boot_jobs=()):
     tree, url, branch, commit = rev
     source = list(
         nodes(
@@ -105,8 +146,11 @@ def compare(api, rev, filters, kind, since, until):
         )
     )
     timestamps = {n["id"]: utc(n["updated"]) for n in source}
+    if kind == "boot":
+        source = boot_results(source, boot_jobs)
+    else:
+        source = helper.filter_maestro_items_for_validation(source, kind)
     eligible = [n for n in source if since <= timestamps[n["id"]] < until]
-    eligible = helper.filter_maestro_items_for_validation(eligible, kind)
 
     params = {"origin": "maestro", "git_url": url, "git_branch": branch}
     if kind == "boot":
@@ -138,10 +182,14 @@ def compare(api, rev, filters, kind, since, until):
         if stamp is None or since <= stamp < until:
             dashboard.append(row)
 
-    missing = helper.find_missing_items(eligible, dashboard, kind, False)
-    extra = helper.find_extra_dashboard_items(eligible, dashboard, kind, False)
+    # Eligibility has already been applied to the roots. A result leaf
+    # belongs to its boot attempt and has no independent retry policy.
+    maestro_ids = {node["id"] for node in eligible}
+    dashboard_ids = {row["id"].split(":", 1)[1] for row in dashboard}
+    missing = sorted(maestro_ids - dashboard_ids)
+    extra = sorted(dashboard_ids - maestro_ids)
     check_status = (
-        helper.validate_boot_status
+        boot_status_mismatches
         if kind == "boot"
         else helper.validate_build_status
     )
@@ -188,15 +236,16 @@ def main():
     configure_dashboard_api(settings, instance)
     history = args.check == "builds-history"
     kind = "boot" if args.check == "boots" else "build"
+    boot_jobs = ()
     if kind == "boot":
-        names = helper.load_boot_job_names(args.pipeline_config)
-        filters = ["state=done", helper.boot_name_filter(names)]
+        boot_jobs = helper.load_boot_job_names(args.pipeline_config)
+        filters = ["state=done", f"path__in={','.join(boot_jobs)}"]
     else:
         filters = ["kind=kbuild", "state__ne=running"]
         if history:
             filters.append("data.error_code__ne=node_timeout")
     rows = [
-        compare(api, rev, filters, kind, since, until)
+        compare(api, rev, filters, kind, since, until, boot_jobs)
         for rev in revisions(api, filters, since, until, args.check)
     ]
     report = helper.validation_rows_to_json(
