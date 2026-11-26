@@ -114,3 +114,81 @@ def test_workflow_window_and_summary(tmp_path, monkeypatch, capsys):
         "until": END.isoformat(),
     }
     assert END.isoformat() in summary.read_text()
+
+
+def test_boot_hierarchy_compares_roots_and_published_leaves(
+    monkeypatch, capsys
+):
+    job = "baseline-arm64-qualcomm"
+    revision = dict(zip(("tree", "url", "branch", "commit"), REV))
+
+    def node(node_id, parent, *path, result="pass", updated=START):
+        return {
+            "id": node_id,
+            "parent": parent,
+            "path": ["checkout", "kbuild", job, *path],
+            "name": path[-1] if path else job,
+            "result": result,
+            "data": {"error_code": "Test", "kernel_revision": revision},
+            "updated": updated.isoformat(),
+            "retry_counter": 0,
+        }
+
+    source = [
+        node("root", "build"),
+        node("suite", "root", "dmesg"),
+        node("acpi", "suite", "dmesg", "acpi"),
+        node("late", "suite", "dmesg", "late", updated=END),
+        node("setup", "root", "setup"),
+        node("login", "setup", "setup", "login"),
+        node("os", "setup", "setup", "os-release", result="skip"),
+        node("wrong", "suite", "dmesg", "wrong", result="fail"),
+        node("missing", "suite", "dmesg", "missing", result="incomplete"),
+        node("retry", "build", result="fail"),
+        node("retry-leaf", "retry", "retry-leaf"),
+    ]
+    rows = [
+        {
+            "id": f"maestro:{node_id}",
+            "status": status,
+            "start_time": START.isoformat(),
+        }
+        for node_id, status in (
+            ("root", "PASS"),
+            ("acpi", "PASS"),
+            ("late", "PASS"),
+            ("os", "SKIP"),
+            ("wrong", "PASS"),
+            ("extra", "PASS"),
+        )
+    ]
+
+    def fetch(api, filters):
+        if "kind=checkout" in filters:
+            return []
+        # Both discovery and the per-revision comparison must fetch descendants.
+        assert f"path__in={job}" in filters
+        if any(f.startswith("updated__gte=") for f in filters):
+            return [source[2]]  # Only the ACPI leaf had recent activity.
+        return source
+
+    monkeypatch.setattr(
+        sys, "argv", ["validate", "boots", "--as-of", "2026-11-18T14:57:03Z"]
+    )
+    monkeypatch.setattr(
+        validation.helper, "load_boot_job_names", lambda _: [job]
+    )
+    monkeypatch.setattr(validation, "nodes", fetch)
+    monkeypatch.setattr(validation, "dashboard_heads", lambda *args: set())
+    monkeypatch.setattr(
+        validation,
+        "dashboard_api_fetch",
+        lambda *args, **kwargs: {"boots": rows},
+    )
+
+    assert validation.main() == 1
+    (result,) = json.loads(capsys.readouterr().out)["results"]
+    assert result["maestro_count"] == result["dashboard_count"] == 5
+    assert result["missing_ids"] == ["missing"]
+    assert result["status_mismatch_ids"] == ["wrong"]
+    assert result["extra_in_dashboard_ids"] == ["extra"]
