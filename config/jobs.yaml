@@ -221,6 +221,7 @@ jobs:
       rootfs_ref: buildroot-baseline
       qemu_arm64_acpi: true
   baseline-arm64-preempt_rt-qualcomm: *baseline-job
+  baseline-arm64-nxp: *baseline-job
   baseline-riscv-broonie: *baseline-job
   baseline-riscv-clabbe: *baseline-job
   baseline-riscv-collabora: *baseline-job

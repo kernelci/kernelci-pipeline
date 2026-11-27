@@ -248,6 +248,12 @@ platforms:
                  'toradex,verdin-imx8mp',
                  'fsl,imx8mp']
 
+  imx93-11x11-frdm:
+    <<: *arm64-device
+    mach: imx
+    dtb: dtbs/freescale/imx93-11x11-frdm.dtb
+    compatible: [ "fsl,imx93-11x11-frdm", "fsl,imx93" ]
+
   jetson-tk1: &jetson-tk1
     <<: *arm-device
     mach: nvidia

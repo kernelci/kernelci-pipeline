@@ -173,5 +173,14 @@ runtimes:
       callback:
         token: kernelci-lab-renesas
 
+  lava-nxp:
+    lab_type: lava
+    url: 'https://lava.nxp.com'
+    priority_min: 30
+    priority_max: 70
+    notify:
+      callback:
+        token: kernelci-lava-xmlrpc-token
+
   shell:
     lab_type: shell
