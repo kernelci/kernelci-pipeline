@@ -17,6 +17,15 @@ from kernelci.legacy.cli import Args, Command, parse_opts
 from base import Service
 from telemetry import TelemetryEmitter
 
+# Display name for each node state; _run raises KeyError on an unmapped state.
+STATE_MAP = {
+    "running": "Running",
+    "prepared": "Prepared",
+    "available": "Available",
+    "closing": "Closing",
+    "done": "Done",
+}
+
 
 class Monitor(Service):
     LOG_FMT = (
@@ -47,13 +56,6 @@ class Monitor(Service):
         sys.stdout.flush()
 
     def _run(self, sub_id):
-        state_map = {
-            "running": "Running",
-            "available": "Available",
-            "closing": "Closing",
-            "done": "Done",
-        }
-
         result_map = {
             "pass": "Pass",
             "fail": "Fail",
@@ -95,7 +97,7 @@ class Monitor(Service):
                     kind=obj["kind"],
                     commit=commit,
                     id=obj["id"],
-                    state=state_map[obj["state"]],
+                    state=STATE_MAP[obj["state"]],
                     result=result,
                     name=obj["name"],
                 ),
