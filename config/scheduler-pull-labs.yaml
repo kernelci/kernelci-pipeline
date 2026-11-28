@@ -8,20 +8,20 @@ _anchors:
     kind: kbuild
     state: available
 
-  kbuild-gcc-15-arm64-event: &kbuild-gcc-15-arm64-node-event
+  kbuild-gcc-16-arm64-event: &kbuild-gcc-16-arm64-node-event
     <<: *node-event-kbuild
-    name: kbuild-gcc-15-arm64
+    name: kbuild-gcc-16-arm64
 
-  kbuild-gcc-15-arm64-baseline-event: &kbuild-gcc-15-arm64-baseline-node-event
+  kbuild-gcc-16-arm64-baseline-event: &kbuild-gcc-16-arm64-baseline-node-event
     <<: *node-event-kbuild
-    name: kbuild-gcc-15-arm64-baseline
+    name: kbuild-gcc-16-arm64-baseline
 
 scheduler:
 
   - job: baseline-arm-pull-labs-demo
-    event: &kbuild-gcc-15-arm-node-event
+    event: &kbuild-gcc-16-arm-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm
+      name: kbuild-gcc-16-arm
     runtime: &pull-labs-demo-runtime
       type: pull_labs
       name: pull-labs-demo
@@ -30,7 +30,7 @@ scheduler:
       - imx6dl-udoo
 
   - job: baseline-arm64-pull-labs-demo
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -42,7 +42,7 @@ scheduler:
       - qemu-arm64
 
   - job: baseline-arm-pull-pengutronix
-    event: *kbuild-gcc-15-arm-node-event
+    event: *kbuild-gcc-16-arm-node-event
     runtime: &pull-pengutronix-runtime
       type: pull_labs
       name: pull-pengutronix
@@ -50,7 +50,7 @@ scheduler:
       - imx6dl-riotboard
 
   - job: baseline-arm64-pull-labs-ti
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime:
       type: pull_labs
       name: ti-lab
@@ -58,7 +58,7 @@ scheduler:
       - k3-am62p5-sk
 
   - job: ltp-smoke-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -68,9 +68,9 @@ scheduler:
       - gs101-oriole
 
   - job: ltp-smoke-pull-labs
-    event: &kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: &kbuild-gcc-16-arm64-nfsboot-ltp-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm64-nfsboot-ltp
+      name: kbuild-gcc-16-arm64-nfsboot-ltp
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -79,7 +79,7 @@ scheduler:
       - qemu-arm64
 
   - job: ltp-cap_bounds-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: &ltp-full-qemu-runtime
       type: pull_labs
       name: pull-labs-demo
@@ -87,132 +87,132 @@ scheduler:
       - qemu-arm64
 
   - job: ltp-capability-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-commands-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-containers-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-controllers-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-cpuhotplug-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-crypto-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-cve-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-dio-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-fcntl-locktests-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-filecaps-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-fs-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-fs_bind-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-fs_perms_simple-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-fsx-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-hugetlb-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-io-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-ipc-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-math-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-mm-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-nptl-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-pty-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-sched-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-securebits-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-syscalls-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: ltp-tracing-pull-labs
-    event: *kbuild-gcc-15-arm64-nfsboot-ltp-node-event
+    event: *kbuild-gcc-16-arm64-nfsboot-ltp-node-event
     runtime: *ltp-full-qemu-runtime
     platforms: *ltp-full-qemu-platforms
 
   - job: kselftest-arm64-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -222,7 +222,7 @@ scheduler:
   - job: kselftest-arm64-pull-labs
     event:
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm64-nfsboot
+      name: kbuild-gcc-16-arm64-nfsboot
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -231,7 +231,7 @@ scheduler:
       - cd8180-orion-o6
 
   - job: kselftest-breakpoints-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime:
       type: pull_labs
       name: pull-labs-demo
@@ -239,9 +239,9 @@ scheduler:
       - exynos850-e850-96
 
   - job: baseline-riscv-pull-labs
-    event: &kbuild-gcc-14-riscv-node-event
+    event: &kbuild-gcc-16-riscv-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-14-riscv
+      name: kbuild-gcc-16-riscv
     runtime: &pull-labs-riscv-runtime
       type: pull_labs
       name: pull-labs-riscv
@@ -249,13 +249,13 @@ scheduler:
       - qemu-riscv64
 
   - job: kselftest-riscv-pull-labs
-    event: *kbuild-gcc-14-riscv-node-event
+    event: *kbuild-gcc-16-riscv-node-event
     runtime: *pull-labs-riscv-runtime
     platforms:
       - qemu-riscv64
 
   - job: kselftest-kvm-pull-labs
-    event: *kbuild-gcc-14-riscv-node-event
+    event: *kbuild-gcc-16-riscv-node-event
     runtime: *pull-labs-riscv-runtime
     platforms:
       - qemu-riscv64
@@ -281,9 +281,9 @@ scheduler:
       - aws-ec2-x86_64
 
   - job: baseline-arm64-aws-ec2
-    event: &kbuild-gcc-14-arm64-aws-ec2-node-event
+    event: &kbuild-gcc-16-arm64-aws-ec2-node-event
       <<: *node-event-kbuild
-      name: kbuild-gcc-15-arm64-aws-ec2
+      name: kbuild-gcc-16-arm64-aws-ec2
     runtime: *pull-labs-aws-ec2-runtime
     platforms:
       - aws-ec2-arm64
@@ -295,13 +295,13 @@ scheduler:
       - aws-ec2-x86_64
 
   - job: ltp-smoke-aws-ec2
-    event: *kbuild-gcc-14-arm64-aws-ec2-node-event
+    event: *kbuild-gcc-16-arm64-aws-ec2-node-event
     runtime: *pull-labs-aws-ec2-runtime
     platforms:
       - aws-ec2-arm64
 
   - job: baseline-arm64-sasha-lab
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: &sasha-lab-runtime
       type: pull_labs
       name: sasha-lab
@@ -332,7 +332,7 @@ scheduler:
   # sasha-lab test suites. The tree restriction lives on the runtime, so these
   # reuse the shared job definitions and only select platforms here.
   - job: ltp-smoke-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-arm64-platforms
       - jetson-orin-nano-devkit
@@ -354,7 +354,7 @@ scheduler:
       - hpe-proliant-dl345-gen11
 
   - job: kselftest-cgroup-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-platforms
 
@@ -364,7 +364,7 @@ scheduler:
     platforms: *sasha-lab-x86-platforms
 
   - job: kselftest-cpu-hotplug-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-platforms
 
@@ -374,7 +374,7 @@ scheduler:
     platforms: *sasha-lab-x86-platforms
 
   - job: kselftest-futex-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-platforms
 
@@ -387,7 +387,7 @@ scheduler:
   # arm64 build's is larger: these boards run the light suites from the
   # baseline build, which has a kselftest tarball too.
   - job: ltp-smoke-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-baseline-suite-platforms
       - jetson-tx2-nx-devkit
@@ -395,17 +395,17 @@ scheduler:
       - jetson-xavier-nx-devkit
 
   - job: kselftest-cgroup-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-baseline-suite-platforms
 
   - job: kselftest-cpu-hotplug-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-baseline-suite-platforms
 
   - job: kselftest-futex-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-baseline-suite-platforms
 
@@ -413,7 +413,7 @@ scheduler:
   # and every job on it costs a full reflash -- so the heavier suites run on
   # the servers only.
   - job: ltp-syscalls-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: &sasha-lab-arm64-servers
       - jetson-agx-orin-devkit
@@ -426,7 +426,7 @@ scheduler:
     platforms: *sasha-lab-x86-platforms
 
   - job: ltp-syscalls-sasha-lab
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-servers
 
@@ -436,7 +436,7 @@ scheduler:
     platforms: *sasha-lab-x86-platforms
 
   - job: kselftest-mm-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-servers
 
@@ -446,7 +446,7 @@ scheduler:
     platforms: *sasha-lab-x86-platforms
 
   - job: kselftest-kvm-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-servers
 
@@ -458,7 +458,7 @@ scheduler:
   # Architecture-specific collections go only to the matching architecture:
   # the arm64 kselftest tarball contains no x86 tests and vice versa.
   - job: kselftest-arm64-pull-labs
-    event: *kbuild-gcc-15-arm64-node-event
+    event: *kbuild-gcc-16-arm64-node-event
     runtime: *sasha-lab-runtime
     platforms: *sasha-lab-arm64-servers
 
@@ -471,7 +471,7 @@ scheduler:
   # the cboot boards (TX2 NX, Xavier), and it has what both suites need.
   # tegra-uapi runs where TegraDRM registers with the upstream device tree.
   - job: tegra-uapi-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms:
       - jetson-tx2-devkit
@@ -482,7 +482,7 @@ scheduler:
 
   # tegra-tests only knows the boards it has a description for.
   - job: tegra-tests-pull-labs
-    event: *kbuild-gcc-15-arm64-baseline-node-event
+    event: *kbuild-gcc-16-arm64-baseline-node-event
     runtime: *sasha-lab-runtime
     platforms:
       - jetson-nano-devkit

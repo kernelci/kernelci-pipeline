@@ -100,6 +100,13 @@ _anchors:
       fragments:
         - 'lab-setup'
 
+  kbuild-gcc-16-arm64-job: &kbuild-gcc-16-arm64-job
+    <<: *kbuild-gcc-15-arm64-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-16:arm64-kselftest-kernelci
+    params: &kbuild-gcc-16-arm64-params
+      <<: *kbuild-gcc-15-arm64-params
+      compiler: gcc-16
+
   kbuild-gcc-15-x86-job: &kbuild-gcc-15-x86-job
     <<: *kbuild-job
     image: ghcr.io/kernelci/{image_prefix}gcc-15:x86-kselftest-kernelci
@@ -696,6 +703,13 @@ jobs:
       cross_compile: 'arm-linux-gnueabihf-'
       defconfig: multi_v7_defconfig
 
+  kbuild-gcc-16-arm:
+    <<: *kbuild-gcc-15-arm-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-16:arm-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-15-arm-params
+      compiler: gcc-16
+
   kbuild-gcc-15-arm-nfsboot-ltp:
     <<: *kbuild-gcc-15-arm-job
     params:
@@ -966,6 +980,14 @@ jobs:
         - 'lab-setup'
         - 'kselftest'
 
+  kbuild-gcc-16-arm64:
+    <<: *kbuild-gcc-16-arm64-job
+    params:
+      <<: *kbuild-gcc-16-arm64-params
+      fragments:
+        - 'lab-setup'
+        - 'kselftest'
+
   kbuild-gcc-14-arm64-perf:
     <<: *kbuild-gcc-14-arm64-job
     image: ghcr.io/kernelci/{image_prefix}gcc-14:arm64-perf-kernelci
@@ -983,17 +1005,6 @@ jobs:
     rules:
       tree:
         - 'mainline'
-
-  kbuild-gcc-15-arm64-baseline:
-    <<: *kbuild-gcc-15-arm64-job
-    params:
-      backend: tuxmake
-      arch: arm64
-      compiler: gcc-15
-      cross_compile: 'aarch64-linux-gnu-'
-      defconfig: defconfig
-      fragments:
-        - 'lab-setup'
 
   kbuild-gcc-15-arm64-nfsboot: &kbuild-gcc-15-arm64-nfsboot-job
     <<: *kbuild-job
@@ -1013,6 +1024,35 @@ jobs:
     params:
       arch: arm64
       compiler: gcc-15
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+        - 'ltp'
+        - 'crypto'
+        - 'ima'
+
+  kbuild-gcc-16-arm64-baseline: *kbuild-gcc-16-arm64-job
+
+  kbuild-gcc-16-arm64-nfsboot: &kbuild-gcc-16-arm64-nfsboot-job
+    <<: *kbuild-gcc-15-arm64-nfsboot-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-16:arm64-kselftest-kernelci
+    params:
+      arch: arm64
+      compiler: gcc-16
+      cross_compile: 'aarch64-linux-gnu-'
+      defconfig: defconfig
+      fragments:
+        - 'netdev'
+        - 'nfs-root-boot'
+        - 'kselftest'
+
+  kbuild-gcc-16-arm64-nfsboot-ltp:
+    <<: *kbuild-gcc-16-arm64-nfsboot-job
+    params:
+      arch: arm64
+      compiler: gcc-16
       cross_compile: 'aarch64-linux-gnu-'
       defconfig: defconfig
       fragments:
@@ -1531,6 +1571,13 @@ jobs:
       <<: *kbuild-gcc-14-riscv-params
       compiler: gcc-15
 
+  kbuild-gcc-16-riscv:
+    <<: *kbuild-gcc-14-riscv-job
+    image: ghcr.io/kernelci/{image_prefix}gcc-16:riscv64-kselftest-kernelci
+    params:
+      <<: *kbuild-gcc-14-riscv-params
+      compiler: gcc-16
+
   kbuild-gcc-14-riscv-android-defconfig:
     <<: *kbuild-gcc-14-riscv-job
     params:
@@ -1907,10 +1954,10 @@ jobs:
       - 'stable-rc'
       - 'next'
 
-  kbuild-gcc-15-arm64-aws-ec2:
-    <<: *kbuild-gcc-15-arm64-job
+  kbuild-gcc-16-arm64-aws-ec2:
+    <<: *kbuild-gcc-16-arm64-job
     params:
-      <<: *kbuild-gcc-15-arm64-params
+      <<: *kbuild-gcc-16-arm64-params
       fragments:
         - 'aws-ec2'
         - 'aws-ec2-arch-arm64'
