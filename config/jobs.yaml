@@ -419,6 +419,7 @@ jobs:
         - 'stable'
         - 'stable-rc'
         - 'sashal-next'
+        - 'kernelci'
 
   kbuild-clang-21-arm64-mainline: &kbuild-clang-21-arm64-mainline-job
     <<: *kbuild-clang-21-arm64-job
@@ -1659,6 +1660,7 @@ jobs:
         - 'lab-setup'
         - 'x86-board'
         - 'kselftest'
+        - 'kselftest-net'
     rules:
       tree:
       - '!chromiumos'
@@ -1957,6 +1959,7 @@ jobs:
         - next
         - stable-rc
         - stable
+        - kernelci
     kcidb_test_suite: kselftest.aaa
 
   kselftest-aaa-ramdisk: &kselftest-job-ramdisk
@@ -1974,6 +1977,7 @@ jobs:
         - next
         - stable-rc
         - stable
+        - kernelci
     kcidb_test_suite: kselftest.aaa
 
   kselftest-acct:
